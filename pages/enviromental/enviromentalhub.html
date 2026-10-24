@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enviromental Hub — Quarto Valico dei Giovi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f17;
+      color: #f8fafc;
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Tasto Miniatura Home */
+    .qhse-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px 4px 5px;
+      background-color: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 800;
+      transition: all 0.2s ease;
+    }
+    .qhse-nav-btn:hover {
+      background-color: #1e293b;
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+    .qhse-mini-svg {
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+  <!-- TOP BAR & HEADER SETTORE AMBIENTE -->
+  <header class="w-full bg-slate-900/90 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- SINISTRA: Evidenza Spicchio E + Titolo -->
+      <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center gap-3">
+          <!-- SPICCHIO E IN EVIDENZA -->
+          <div class="relative w-12 h-12 rounded-2xl bg-sky-500/10 border-2 border-sky-400 flex items-center justify-center text-sky-400 shadow-lg shadow-sky-500/20">
+            <i class="fa-solid fa-leaf text-2xl animate-pulse"></i>
+            <span class="absolute -bottom-1 -right-1 bg-sky-500 text-slate-950 font-black text-[9px] px-1.5 py-0.2 rounded-full">E</span>
+          </div>
+          <div>
+            <h1 class="font-black text-lg text-white tracking-wide uppercase leading-none">Enviromental Office</h1>
+            <p class="text-xs text-sky-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
+          </div>
+        </div>
+
+        <!-- Tasto Ritorno Home QHSE -->
+        <a href="index.html" class="qhse-nav-btn md:hidden" title="Torna alla Home QHSE">
+          <svg viewBox="0 0 400 400" class="qhse-mini-svg">
+            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+          </svg>
+        </a>
+      </div>
+
+      <!-- CENTRO: MINIATURA CALENDARIO DINAMICO -->
+      <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-2 flex items-center gap-3 shadow-inner">
+        <div class="bg-sky-600 text-white rounded-lg p-2 text-center min-w-[42px]">
+          <div class="text-[9px] uppercase font-extrabold tracking-wider" id="calMonth">OTT</div>
+          <div class="text-base font-black leading-none" id="calDay">24</div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-slate-200" id="calFullDate">Venerdì, 24 Ottobre</div>
+          <div class="text-[10px] text-slate-400 flex items-center gap-1">
+            <i class="fa-regular fa-clock text-sky-400"></i> <span id="calYear">2026</span> — Operatività Cantiere
+          </div>
+        </div>
+      </div>
+
+      <!-- DESTRA: BOX AVVISI & SCADENZE + HOME BUTTON -->
+      <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+        
+        <div class="bg-amber-950/40 border border-amber-500/30 rounded-xl px-3.5 py-2 flex items-center gap-3 max-w-[280px]">
+          <div class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping flex-shrink-0"></div>
+          <div class="text-[11px] leading-tight">
+            <span class="font-bold text-amber-300 block">AVVISI & SCADENZE</span>
+            <span class="text-slate-300 truncate block">Verifica vasche ITA Cravasco in corso</span>
+          </div>
+        </div>
+
+        <a href="../index.html" class="qhse-nav-btn hidden md:inline-flex" title="Torna alla Home QHSE">
+          <svg viewBox="0 0 400 400" class="qhse-mini-svg">
+            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+          </svg>
+          <span>Home</span>
+        </a>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT: GRIGLIA DEGLI ASFETTI AMBIENTALI -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col justify-center">
+    
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase mb-2">
+        Aree Operative Ambientali
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-400">
+        Seleziona la matrice di riferimento per accedere alla documentazione, alla registrazione dati e alla cartellonistica di cantiere.
+      </p>
+    </div>
+
+    <!-- GRIGLIA A 6 BOX CON ARMOCROMIA DEDICATA -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- 1. DOCUMENTI DI CANTIERE / SGA (BLU SLATE) -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-400 flex flex-col justify-between group cursor-pointer"
+           onclick="alert('Sezione Documenti SGA in preparazione')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 uppercase tracking-wider">
+              ISO 14001
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-slate-300 transition mb-2">
+            DOCUMENTI DI CANTIERE / SGA
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Piani di Gestione Ambientale (PGA), autorizzazioni uniche, registro prescrizioni e monitoraggio normativo.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-300 group-hover:translate-x-1 transition">
+          <span>Consulta Documenti</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 2. IMPIANTO TRATTAMENTO ACQUE - ITA (AZZURRO CYAN) -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group cursor-pointer"
+           onclick="alert('Sezione Impianto Trattamento Acque in preparazione')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-water-ladders"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-cyan-950 text-cyan-300 uppercase tracking-wider">
+              Scarichi & pH
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-cyan-400 transition mb-2">
+            IMPIANTO TRATTAMENTO ACQUE (ITA)
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Monitoraggio vasche di sedimentazione, controlli chimico-fisici delle acque di cantiere, pH, torbidità e portate.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition">
+          <span>Gestione Impianti ITA</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 3. RIFIUTI (GIALLO SENAPE / AMBER - COLLEGATO ALLA CARTELLONISTICA) -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-amber-500 flex flex-col justify-between group cursor-pointer bg-amber-950/10"
+           onclick="location.href='cartellonistica/cartellonisticaform.html'">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-recycle"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-amber-950 text-amber-300 uppercase tracking-wider">
+              DTR & Codici EER
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-amber-400 transition mb-2">
+            RIFIUTI
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Gestione Depositi Temporanei Rifiuti (DTR), stampa cartellonistica A4/A3, registro di carico/scarico e codici EER.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-amber-400 group-hover:translate-x-1 transition">
+          <span>Apri Modulo Rifiuti & Cartelli</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 4. MATERIALE DA SCAVO - MdS (VERDE SMERALDO) -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-emerald-500 flex flex-col justify-between group cursor-pointer"
+           onclick="alert('Sezione Materiale da Scavo in preparazione')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-mountain font-bold"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 uppercase tracking-wider">
+              D.P.R. 120/2017
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-emerald-400 transition mb-2">
+            MATERIALE DA SCAVO (MdS)
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Gestione Terre e Rocce da Scavo gestite come Sottoprodotto, tracciabilità cumuli, siti di deposito e cartelli identificativi.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition">
+          <span>Gestione Sottoprodotto & MdS</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 5. SOSTANZE PERICOLOSE (ROSSO ROSE) -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-rose-500 flex flex-col justify-between group cursor-pointer"
+           onclick="alert('Sezione Sostanze Pericolose in preparazione')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-rose-950/60 border border-rose-500/40 flex items-center justify-center text-rose-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-rose-950 text-rose-300 uppercase tracking-wider">
+              CLP & SDS
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-rose-400 transition mb-2">
+            SOSTANZE PERICOLOSE
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Registro prodotti chimici, Schede di Sicurezza (SDS), bacini di contenimento oli/carburanti e kit anti-spandimento.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-rose-400 group-hover:translate-x-1 transition">
+          <span>Registro Prodotto & SDS</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 6. VERBALI & CAMPIONAMENTI (VIOLA INDIGO) -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-indigo-500 flex flex-col justify-between group cursor-pointer"
+           onclick="location.href='campionamentoform.html'">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-950/60 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 uppercase tracking-wider">
+              Field Reports
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-indigo-400 transition mb-2">
+            VERBALI & CAMPIONAMENTI
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Verbali di sopralluogo ambientale da iPad/Mobile con foto, Catena di Custodia e registrazione campioni di cantiere.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:translate-x-1 transition">
+          <span>Compila Verbali & Campioni</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
+      <p class="flex items-center gap-2">
+        <i class="fa-solid fa-leaf text-sky-400"></i> Modulo Gestione Ambientale di Cantiere
+      </p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT PER CALENDARIO DINAMICO -->
+  <script>
+    const oggi = new Date();
+    const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
+    const giorni = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+
+    document.getElementById('calMonth').innerText = mesi[oggi.getMonth()];
+    document.getElementById('calDay').innerText = oggi.getDate();
+    document.getElementById('calFullDate').innerText = `${giorni[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
+    document.getElementById('calYear').innerText = oggi.getFullYear();
+  </script>
+
+</body>
+</html>
