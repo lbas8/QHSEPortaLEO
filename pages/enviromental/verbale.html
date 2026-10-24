@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verbale di Sopralluogo Ambientale - Terzo Valico AV/AC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Firebase SDK per il salvataggio Cloud -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background-color: #fff !important; color: #000 !important; font-size: 10pt; }
+      .print-container { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
+      textarea, input { border: none !important; background: transparent !important; resize: none !important; }
+      .aspect-inactive-print { display: none !important; }
+      .header-table { border: 1px solid #000 !important; width: 100% !important; border-collapse: collapse !important; }
+      .header-table td { border: 1px solid #000 !important; padding: 6px !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+
+  <!-- Top Bar Comandi (No Print) -->
+  <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md no-print">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+    <div class="flex items-center space-x-3">
+      <i class="fa-solid fa-leaf text-emerald-400 text-2xl"></i>
+      <div>
+        <h1 class="font-bold text-lg leading-tight">Verbale di Sopralluogo Ambientale</h1>
+        <p class="text-xs text-slate-400">Procedura IG51-0-0-E-CV-PS-IM-00-0-0-006</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <a href="enviromentalhub.html" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded text-sm flex items-center gap-2 transition">
+        <i class="fa-solid fa-house"></i> <span class="hidden sm:inline">Home</span>
+      </a>
+      <a href="verbalicampionamento.html" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1 transition">
+          <i class="fa-solid fa-arrow-left"><span> Indietro</span></i>
+        </a>
+      <button onclick="saveToCloud()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded text-sm flex items-center gap-2 transition">
+        <i class="fa-solid fa-cloud-arrow-up"></i> <span class="hidden sm:inline">Salva in Cloud</span>
+      </button>
+      <button onclick="loadFromCloud()" class="bg-teal-700 hover:bg-teal-600 text-white px-3 py-1.5 rounded text-sm flex items-center gap-2 transition">
+        <i class="fa-solid fa-cloud-arrow-down"></i> <span class="hidden sm:inline">Apri da Cloud</span>
+      </button>
+      <button onclick="resetForm()" class="bg-red-900/40 hover:bg-red-800/60 text-red-200 border border-red-700 px-3 py-1.5 rounded text-sm flex items-center gap-2 transition">
+        <i class="fa-solid fa-rotate-right"></i> <span class="hidden sm:inline">Reset</span>
+      </button>
+      <button onclick="exportAndGoHome()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-1.5 rounded text-sm flex items-center gap-2 shadow transition">
+        <i class="fa-solid fa-file-pdf"></i> Esporta PDF / Stampa
+      </button>
+    </div>
+  </div>
+</header>
+
+  <main class="max-w-5xl mx-auto my-6 px-4 print-container">
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-6 md:p-8">
+
+      <!-- FRONTALINO UFFICIALE DI INTESTAZIONE -->
+      <table class="w-full border-collapse border border-slate-900 mb-6 header-table text-slate-900">
+        <tr>
+          <td class="w-1/2 border border-slate-900 p-3 align-top bg-white">
+            <div class="text-[10px] uppercase tracking-wider font-semibold text-slate-600 mb-1">GENERAL CONTRACTOR</div>
+            <div class="flex items-center gap-2 my-2">
+              <span class="text-2xl font-black tracking-tighter text-red-600">webuild</span>
+              <div class="border-l border-slate-400 pl-2">
+                <div class="text-[11px] font-bold text-slate-700 leading-none">Terzo Valico</div>
+                <div class="text-[10px] font-semibold text-slate-500 leading-none">AV/AC</div>
+              </div>
+            </div>
+          </td>
+          <td class="w-1/2 border border-slate-900 p-3 align-top bg-white">
+            <div class="text-[10px] uppercase tracking-wider font-semibold text-slate-600 mb-1">ALTA SORVEGLIANZA</div>
+            <div class="flex items-center gap-2 my-2">
+              <span class="text-2xl font-black italic text-emerald-800 tracking-wider">ITALFERR</span>
+            </div>
+            <div class="text-[9px] font-bold text-slate-600 uppercase tracking-tight">GRUPPO FERROVIE DELLO STATO ITALIANE</div>
+          </td>
+        </tr>
+        <tr>
+          <td class="w-1/2 border border-slate-900 p-3 align-middle bg-slate-50">
+            <h2 class="text-lg md:text-xl font-black text-slate-900 uppercase tracking-tight">Verbale di sopralluogo</h2>
+          </td>
+          <td class="w-1/2 border border-slate-900 p-3 align-middle bg-slate-50">
+            <p class="text-xs font-semibold text-slate-800 leading-snug">
+              Allegato 5 Procedura: Sorveglianza ambientale dei lavori - IG51-0-0-E-CV-PS-IM-00-0-0-006
+            </p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- SEZIONE 1: Dati Generali e Partecipanti -->
+      <section class="mb-8">
+        <h3 class="text-md font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2 border-b pb-1">
+          <i class="fa-solid fa-circle-info text-emerald-600"></i> 1. Dati Generali del Sopralluogo
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Cantiere</label>
+            <input type="text" id="cantiere" placeholder="Es. Terzo Valico - Lotto..." class="w-full border border-slate-300 rounded p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Area / WBS</label>
+            <input type="text" id="area" placeholder="Es. Area San Bovo (LP03) / COP1" class="w-full border border-slate-300 rounded p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Data e Ora Sopralluogo</label>
+            <input type="datetime-local" id="datetime" class="w-full border border-slate-300 rounded p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Oggetto dei Lavori / Scopo</label>
+            <input type="text" id="oggetto" placeholder="Es. Verifiche ambientali e gestione acque/scavi" class="w-full border border-slate-300 rounded p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+          </div>
+        </div>
+
+        <!-- Partecipanti -->
+        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+          <label class="block text-xs font-bold text-slate-700 mb-2">Partecipanti al Sopralluogo / Presenti</label>
+          <div class="flex gap-2 mb-3 no-print">
+            <input type="text" id="input-partecipante-nome" placeholder="Nome e Cognome" class="w-1/2 border border-slate-300 rounded p-2 text-xs outline-none">
+            <input type="text" id="input-partecipante-ruolo" placeholder="Ruolo / Società (es. Referente HSE)" class="w-1/2 border border-slate-300 rounded p-2 text-xs outline-none" onkeypress="if(event.key === 'Enter') addParticipant()">
+            <button onclick="addParticipant()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-2 rounded text-xs flex items-center gap-1 font-medium">
+              <i class="fa-solid fa-user-plus"></i> Aggiungi
+            </button>
+          </div>
+          <div id="participants-list" class="flex flex-wrap gap-2 mb-2"></div>
+        </div>
+      </section>
+
+      <!-- SEZIONE 2: Le 9 Componenti Ambientali -->
+      <section class="mb-8">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+          <h3 class="text-md font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-emerald-600"></i> 2. Valutazione Aspetti Ambientali (IG51)
+          </h3>
+          <span class="text-xs text-slate-500 italic">Attiva gli aspetti rilevanti per mostrare i controlli di dettaglio</span>
+        </div>
+        <div id="aspects-container" class="space-y-4"></div>
+      </section>
+
+      <!-- SEZIONE 3: Rilievi e Note di Cantiere -->
+      <section class="mb-8">
+        <div class="flex justify-between items-center mb-3 border-b pb-1">
+          <h3 class="text-md font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> 3. Rilievi, Anomalie e Note di Cantiere
+          </h3>
+          <button onclick="addObservation()" class="no-print bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-1.5 rounded flex items-center gap-1 transition">
+            <i class="fa-solid fa-plus"></i> Aggiungi Rilievo
+          </button>
+        </div>
+        <div id="observations-list" class="space-y-3"></div>
+      </section>
+
+      <!-- SEZIONE 4: Conclusioni -->
+      <section class="mb-8">
+        <h3 class="text-md font-bold text-slate-800 uppercase tracking-wider mb-2 border-b pb-1 flex items-center gap-2">
+          <i class="fa-solid fa-comment-dots text-emerald-600"></i> 4. Conclusioni e Prescrizioni Finali
+        </h3>
+        <textarea id="conclusioni" rows="3" placeholder="Inserire raccomandazioni o prescrizioni per la Direzione di Cantiere..." class="w-full border border-slate-300 rounded p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+      </section>
+
+      <!-- SEZIONE 5: Firme Canvas -->
+      <section class="mt-8 border-t pt-6">
+        <h3 class="text-md font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-signature text-emerald-600"></i> 5. Firme di Convalida
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="border rounded-lg p-3 bg-slate-50 flex flex-col justify-between">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Il Redattore / Referente Ambientale</label>
+              <input type="text" id="nome-redattore" placeholder="Nome e Cognome" class="w-full border border-slate-300 rounded p-1.5 text-xs mb-2">
+              <div class="border border-slate-300 rounded bg-white relative">
+                <canvas id="canvas-redattore" class="w-full h-28 touch-none cursor-crosshair"></canvas>
+                <button onclick="clearCanvas('canvas-redattore')" class="no-print absolute top-1 right-1 text-slate-400 hover:text-red-500 text-xs px-1.5 py-0.5 rounded bg-slate-100">Pulisci</button>
+              </div>
+            </div>
+          </div>
+          <div class="border rounded-lg p-3 bg-slate-50 flex flex-col justify-between">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">La Direzione di Cantiere / Rappresentante</label>
+              <input type="text" id="nome-direzione" placeholder="Nome e Cognome" class="w-full border border-slate-300 rounded p-1.5 text-xs mb-2">
+              <div class="border border-slate-300 rounded bg-white relative">
+                <canvas id="canvas-direzione" class="w-full h-28 touch-none cursor-crosshair"></canvas>
+                <button onclick="clearCanvas('canvas-direzione')" class="no-print absolute top-1 right-1 text-slate-400 hover:text-red-500 text-xs px-1.5 py-0.5 rounded bg-slate-100">Pulisci</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    const environmentalAspects = [
+      {
+        id: "comp1",
+        title: "1. APPROVVIGIONAMENTO IDRICO E GESTIONE ACQUE REFLUE",
+        subsections: [
+          { subtitle: "PRELIEVI", items: ["Presenti approvvigionamenti idrici in cantiere", "Misurazione e registrazione dei prelievi idrici", "Effettuazione analisi delle acque", "Presenza della programmazione annuale delle attività di controllo dei prelievi"] },
+          { subtitle: "SCARICHI", items: ["Presenti scarichi idrici in cantiere", "Controllo dei parametri prima dell'immissione nel reticolo idrico superficiale", "Controllo mensile dei parametri (pH, solidi sospesi totali, COD, idrocarburi, ecc.)", "Campionamento scarico ed analisi da personale qualificato (ACCREDIA)", "Presenza di un impianto di trattamento acque", "Funzionamento dei sistemi di rilevamento in continuo dei parametri (pH, solidi, idrocarburi)", "Pianificazione della manutenzione ordinaria e straordinaria delle apparecchiature", "Pianificazione della gestione di eventuali emergenze", "Autorizzazioni / licenze / nulla osta vigenti", "Compilazione dei registri previsti dalle procedure SGA"] }
+        ]
+      },
+      { id: "comp2", title: "2. EMISSIONI IN ATMOSFERA", subsections: [{ items: ["Presenza punti di emissione in atmosfera", "Presenza di sistemi di abbattimento polveri", "Presenza di potenziale polverosità/fangosità delle piste", "Presenza di vasche di lavaggio ruote ed effettivo utilizzo", "Compilazione dei registri previsti dalle procedure SGA"] }] },
+      { id: "comp3", title: "3. RIFIUTI", subsections: [{ items: ["Presenza depositi temporanei di rifiuti regolarmente allestiti e identificati", "Presenza nella planimetria di cantiere delle aree di deposito temporaneo", "Presenza caratterizzazioni e classificazione dei rifiuti prodotti", "Controllo della polverosità e patti di gestione cumuli", "Apertura e tenuta corretta del registro di carico/scarico", "Verifica autorizzazioni dei soggetti individuati per la gestione"] }] },
+      { id: "comp4", title: "4. GESTIONE DELLE TERRE E ROCCE DA SCAVO", subsections: [{ items: ["Presenti cumuli di materiale da scavo da gestire come sottoprodotto", "Presenti cumuli di materiale da scavo da gestire ai sensi del D.Lgs. 152/06", "I cumuli presenti sono stati oggetto di caratterizzazione ambientale", "Previsti trasporti in regime di sottoprodotto", "Trasporti riportati nella comunicazione preventiva o piano di utilizzo", "Rispetto delle prescrizioni del Piano Cave o Autorizzazioni pertinenti", "Il deposito è effettuato presso il sito di produzione o deposito intermedio autorizzato", "Compilazione dei registri previsti dalle procedure SGA"] }] },
+      { id: "comp5", title: "5. RUMORE E VIBRAZIONI", subsections: [{ items: ["Effettuazione di una Valutazione Previsionale di Impatto Acustico (VPIA)", "Presenza di deroga acustica in corso di validità per attività rumorose", "Presenza e corretto posizionamento di sistemi di mitigazione"] }] },
+      { id: "comp6", title: "6. SUOLO E SOTTOSUOLO", subsections: [{ items: ["Presenza di potenziali contaminazioni del suolo/sottosuolo", "Compilazione dei registri previsti dalle procedure SGA"] }] },
+      { id: "comp7", title: "7. SOSTANZE PERICOLOSE", subsections: [{ items: ["Previsto stoccaggio idoneo delle sostanze pericolose", "Presenza di attività soggette a SCIA antincendio", "Nomina consulente ADR laddove previsto", "Presenza in cantiere delle schede tecniche e di sicurezza (SDS) aggiornate", "Indicazione nella planimetria di cantiere dell'area di stoccaggio prodotti chimici/carburanti", "Compilazione dei registri previsti dalle procedure SGA", "Presenza e accessibilità kit anti-sversamento nelle aree a rischio"] }] },
+      { id: "comp8", title: "8. INTERFERENZA CON VIABILITÀ INTERESSATA DAI CANTIERI", subsections: [{ items: ["Presenti strade pubbliche limitrofe o interferenti con il cantiere", "Prevista ottemperanza al Piano del Traffico in caso di trasporti pesanti", "Presenti altre limitazioni ai trasporti", "Presenti ed idonee aree di attesa dei mezzi"] }] },
+      { id: "comp9", title: "9. CONFORMITÀ LEGISLATIVA", subsections: [{ items: ["Aggiornamento Quadro degli Adempimenti Ambientali", "Presenza e aggiornamento del registro delle autorizzazioni", "Aggiornamento semestrale della verifica di conformità legislativa"] }] }
+    ];
+
+    const fileStore = {};
+    const participantsList = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('datetime').value = now.toISOString().slice(0,16);
+
+      renderAspects();
+      initCanvases();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const loadKey = urlParams.get('load');
+      if (loadKey) {
+        setTimeout(() => {
+          db.ref('verbali/' + loadKey).once('value', (snapshot) => {
+            const record = snapshot.val();
+            if (record) {
+              if (record.cantiere) document.getElementById('cantiere').value = record.cantiere;
+              if (record.area) document.getElementById('area').value = record.area;
+              if (record.datetime) document.getElementById('datetime').value = record.datetime;
+              if (record.oggetto) document.getElementById('oggetto').value = record.oggetto;
+              if (record.conclusioni) document.getElementById('conclusioni').value = record.conclusioni;
+              if (record.nomeRedattore) document.getElementById('nome-redattore').value = record.nomeRedattore;
+              if (record.nomeDirezione) document.getElementById('nome-direzione').value = record.nomeDirezione;
+
+              if (record.participantsList) {
+                participantsList.length = 0;
+                participantsList.push(...record.participantsList);
+                renderParticipants();
+              }
+
+              if (record.aspectsState) {
+                environmentalAspects.forEach((aspect, aIdx) => {
+                  const isChecked = record.aspectsState[aIdx] || false;
+                  const chk = document.getElementById(`aspect_toggle_${aIdx}`);
+                  if (chk) {
+                    chk.checked = isChecked;
+                    toggleAspect(aIdx);
+                  }
+
+                  aspect.subsections.forEach((sub, sIdx) => {
+                    sub.items.forEach((itemText, iIdx) => {
+                      const key = `item_${aIdx}_${sIdx}_${iIdx}`;
+                      const itemData = record.aspectsState[key];
+                      if (itemData) {
+                        const radios = document.querySelectorAll(`input[name="${key}_val"]`);
+                        radios.forEach(r => { if (r.value === itemData.val) r.checked = true; });
+                        const noteEl = document.getElementById(`${key}_note`);
+                        if (noteEl) noteEl.value = itemData.note || '';
+                      }
+                    });
+                  });
+                });
+              }
+
+              if (record.observations && record.observations.length > 0) {
+                document.getElementById('observations-list').innerHTML = '';
+                record.observations.forEach(obs => addObservation(obs));
+              }
+            } else {
+              alert("Impossibile trovare i dati per questa chiave nel Cloud.");
+            }
+          });
+        }, 400);
+      }
+    });
+
+    function addParticipant() {
+      const nomeInput = document.getElementById('input-partecipante-nome');
+      const ruoloInput = document.getElementById('input-partecipante-ruolo');
+      const nome = nomeInput.value.trim();
+      const ruolo = ruoloInput.value.trim();
+      if (!nome) return;
+      participantsList.push({ nome, ruolo });
+      nomeInput.value = '';
+      ruoloInput.value = '';
+      renderParticipants();
+    }
+
+    function removeParticipant(index) {
+      participantsList.splice(index, 1);
+      renderParticipants();
+    }
+
+    function renderParticipants() {
+      const container = document.getElementById('participants-list');
+      container.innerHTML = '';
+      participantsList.forEach((p, idx) => {
+        const badge = document.createElement('span');
+        badge.className = "inline-flex items-center gap-1.5 bg-slate-200 text-slate-800 text-xs px-2.5 py-1 rounded-full border border-slate-300";
+        badge.innerHTML = `
+          <strong>${p.nome}</strong> ${p.ruolo ? `<span class="text-slate-500">(${p.ruolo})</span>` : ''}
+          <button onclick="removeParticipant(${idx})" class="no-print text-slate-400 hover:text-red-600 ml-1 font-bold">&times;</button>
+        `;
+        container.appendChild(badge);
+      });
+    }
+
+    function toggleAspect(aIdx) {
+      const checkbox = document.getElementById(`aspect_toggle_${aIdx}`);
+      const body = document.getElementById(`aspect_body_${aIdx}`);
+      const card = document.getElementById(`aspect_card_${aIdx}`);
+
+      if (checkbox.checked) {
+        body.classList.remove('hidden');
+        card.classList.remove('aspect-inactive-print');
+        card.classList.add('border-emerald-300', 'bg-white');
+        card.classList.remove('bg-slate-50/50', 'border-slate-200');
+      } else {
+        body.classList.add('hidden');
+        card.classList.add('aspect-inactive-print');
+        card.classList.remove('border-emerald-300', 'bg-white');
+        card.classList.add('bg-slate-50/50', 'border-slate-200');
+      }
+    }
+
+    function renderAspects() {
+      const container = document.getElementById('aspects-container');
+      container.innerHTML = '';
+
+      environmentalAspects.forEach((aspect, aIdx) => {
+        const card = document.createElement('div');
+        card.id = `aspect_card_${aIdx}`;
+        card.className = "border border-slate-200 rounded-lg overflow-hidden bg-slate-50/50 shadow-sm aspect-inactive-print transition-all";
+
+        let subHTML = '';
+        aspect.subsections.forEach((sub, sIdx) => {
+          let itemsHTML = '';
+          sub.items.forEach((itemText, iIdx) => {
+            const key = `item_${aIdx}_${sIdx}_${iIdx}`;
+            if (!fileStore[key]) fileStore[key] = [];
+
+            itemsHTML += `
+              <div class="p-3 bg-slate-50/70 border border-slate-200 rounded mb-2">
+                <div class="flex flex-col md:flex-row justify-between gap-2">
+                  <div class="text-xs font-medium text-slate-800 md:w-1/2">${itemText}</div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center space-x-1 text-xs">
+                      <label class="bg-emerald-50 text-emerald-800 px-2 py-1 rounded cursor-pointer border"><input type="radio" name="${key}_val" value="SI"> SÌ</label>
+                      <label class="bg-red-50 text-red-800 px-2 py-1 rounded cursor-pointer border"><input type="radio" name="${key}_val" value="NO"> NO</label>
+                      <label class="bg-slate-100 text-slate-600 px-2 py-1 rounded cursor-pointer border"><input type="radio" name="${key}_val" value="NA" checked> N.A.</label>
+                    </div>
+                    <label class="no-print bg-white hover:bg-slate-100 border text-slate-700 text-xs px-2 py-1 rounded cursor-pointer flex items-center gap-1 shadow-sm">
+                      <i class="fa-solid fa-paperclip text-slate-500"></i> Allega (Foto/PDF)
+                      <input type="file" accept="image/*,.pdf" multiple class="hidden" onchange="handleFileUpload(event, '${key}')">
+                    </label>
+                  </div>
+                </div>
+                <input type="text" id="${key}_note" placeholder="Note specifiche..." class="w-full border border-slate-300 rounded px-2 py-1 text-xs mt-2 bg-white">
+                <div id="${key}_files" class="flex flex-wrap gap-2 mt-2"></div>
+              </div>
+            `;
+          });
+          subHTML += `<div class="mb-2">${sub.subtitle ? `<h5 class="text-xs font-bold text-slate-500 uppercase mb-1">${sub.subtitle}</h5>` : ''}${itemsHTML}</div>`;
+        });
+
+        card.innerHTML = `
+          <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
+            <span class="font-bold text-xs md:text-sm text-slate-800">${aspect.title}</span>
+            <label class="inline-flex items-center cursor-pointer gap-2 bg-white px-3 py-1 rounded-full border border-slate-300 shadow-sm no-print">
+              <span class="text-xs font-bold text-slate-600">Presente / Rilevante?</span>
+              <input type="checkbox" id="aspect_toggle_${aIdx}" onchange="toggleAspect(${aIdx})" class="w-4 h-4 accent-emerald-600 cursor-pointer">
+            </label>
+          </div>
+          <div id="aspect_body_${aIdx}" class="p-3 hidden">
+            ${subHTML}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function handleFileUpload(event, key) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      if (!fileStore[key]) fileStore[key] = [];
+
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          fileStore[key].push({
+            name: file.name,
+            type: file.type,
+            data: e.target.result
+          });
+          renderFiles(key);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderFiles(key) {
+      const container = document.getElementById(`${key}_files`);
+      if (!container) return;
+      container.innerHTML = '';
+      
+      (fileStore[key] || []).forEach((fileObj, idx) => {
+        const isPdf = fileObj.type === 'application/pdf' || (fileObj.name && fileObj.name.toLowerCase().endsWith('.pdf'));
+        
+        if (isPdf) {
+          container.innerHTML += `
+            <div class="relative inline-flex items-center gap-2 bg-slate-100 border px-3 py-2 rounded-lg shadow-sm mr-2 mb-2">
+              <i class="fa-solid fa-file-pdf text-red-600 text-xl"></i>
+              <div class="text-xs max-w-[120px] truncate font-medium text-slate-700">${fileObj.name || 'Documento.pdf'}</div>
+              <button onclick="fileStore['${key}'].splice(${idx},1); renderFiles('${key}')" class="no-print bg-red-600 text-white rounded-full w-5 h-5 text-[10px] flex items-center justify-center font-bold shadow ml-1">&times;</button>
+            </div>
+          `;
+        } else {
+          container.innerHTML += `
+            <div class="relative inline-block mr-2 mb-2">
+              <img src="${fileObj.data}" class="w-20 h-20 object-cover rounded-lg border shadow-sm">
+              <button onclick="fileStore['${key}'].splice(${idx},1); renderFiles('${key}')" class="no-print absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold shadow">&times;</button>
+            </div>
+          `;
+        }
+      });
+    }
+
+    let obsCount = 0;
+    function addObservation(data = null) {
+      obsCount++;
+      const id = `obs_${obsCount}`;
+      const list = document.getElementById('observations-list');
+      const card = document.createElement('div');
+      card.id = id;
+      card.className = "border border-amber-200 bg-amber-50/40 rounded-lg p-3 relative";
+      card.innerHTML = `
+        <button onclick="document.getElementById('${id}').remove()" class="no-print absolute top-2 right-2 text-slate-400 hover:text-red-600 text-xs"><i class="fa-solid fa-trash"></i></button>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+          <input type="text" id="${id}_zona" value="${data ? data.zona : ''}" placeholder="Zona / Categoria" class="border rounded p-1 text-xs">
+          <select id="${id}_tipo" class="border rounded p-1 text-xs bg-white">
+            <option value="Osservazione" ${data && data.tipo==='Osservazione'?'selected':''}>Osservazione</option>
+            <option value="Non Conformità Minore" ${data && data.tipo==='Non Conformità Minore'?'selected':''}>Non Conformità Minore</option>
+            <option value="Non Conformità Maggiore" ${data && data.tipo==='Non Conformità Maggiore'?'selected':''}>Non Conformità Maggiore</option>
+          </select>
+          <input type="text" id="${id}_resp" value="${data ? data.resp : ''}" placeholder="Responsabile / Scadenza" class="border rounded p-1 text-xs">
+        </div>
+        <textarea id="${id}_desc" rows="2" placeholder="Descrizione rilievo..." class="w-full border rounded p-1 text-xs">${data ? data.desc : ''}</textarea>
+      `;
+      list.appendChild(card);
+    }
+
+    function initCanvases() {
+      ['canvas-redattore', 'canvas-direzione'].forEach(id => {
+        const canvas = document.getElementById(id);
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        function resize() {
+          canvas.width = canvas.parentElement.getBoundingClientRect().width;
+          canvas.height = 112;
+        }
+        resize();
+
+        function getPos(e) {
+          const rect = canvas.getBoundingClientRect();
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        canvas.addEventListener('mousedown', e => { drawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
+        canvas.addEventListener('mousemove', e => { if(drawing){ ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); } });
+        canvas.addEventListener('mouseup', () => drawing = false);
+
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
+        canvas.addEventListener('touchmove', e => { e.preventDefault(); if(drawing){ ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); } });
+        canvas.addEventListener('touchend', () => drawing = false);
+      });
+    }
+
+    function clearCanvas(id) {
+      const canvas = document.getElementById(id);
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveToCloud() {
+      const cantiere = document.getElementById('cantiere').value.trim() || "Cantiere";
+      const area = document.getElementById('area').value.trim() || "Area";
+      const docId = prompt("Inserisci un nome/codice identificativo per questa bozza Cloud:", `${cantiere}_${area}`.replace(/\s+/g, '_'));
+      if (!docId) return;
+
+      const aspectsState = {};
+      environmentalAspects.forEach((aspect, aIdx) => {
+        const chk = document.getElementById(`aspect_toggle_${aIdx}`);
+        aspectsState[aIdx] = chk ? chk.checked : false;
+
+        aspect.subsections.forEach((sub, sIdx) => {
+          sub.items.forEach((itemText, iIdx) => {
+            const key = `item_${aIdx}_${sIdx}_${iIdx}`;
+            const radios = document.querySelectorAll(`input[name="${key}_val"]`);
+            let val = 'NA';
+            radios.forEach(r => { if (r.checked) val = r.value; });
+            const noteEl = document.getElementById(`${key}_note`);
+            aspectsState[key] = {
+              val: val,
+              note: noteEl ? noteEl.value : '',
+              files: fileStore[key] || []
+            };
+          });
+        });
+      });
+
+      const observations = [];
+      document.querySelectorAll('#observations-list > div').forEach(card => {
+        const id = card.id;
+        const zonaEl = document.getElementById(`${id}_zona`);
+        const tipoEl = document.getElementById(`${id}_tipo`);
+        const respEl = document.getElementById(`${id}_resp`);
+        const descEl = document.getElementById(`${id}_desc`);
+        if (zonaEl) {
+          observations.push({
+            zona: zonaEl.value,
+            tipo: tipoEl ? tipoEl.value : '',
+            resp: respEl ? respEl.value : '',
+            desc: descEl ? descEl.value : ''
+          });
+        }
+      });
+
+      const formData = {
+        cantiere: document.getElementById('cantiere').value,
+        area: document.getElementById('area').value,
+        datetime: document.getElementById('datetime').value,
+        oggetto: document.getElementById('oggetto').value,
+        participantsList: participantsList,
+        aspectsState: aspectsState,
+        observations: observations,
+        conclusioni: document.getElementById('conclusioni').value,
+        nomeRedattore: document.getElementById('nome-redattore').value,
+        nomeDirezione: document.getElementById('nome-direzione').value,
+        timestamp: Date.now()
+      };
+
+      db.ref('verbali/' + docId.replace(/[.#$/[\]]/g, "_")).set(formData, (error) => {
+        if (error) {
+          alert("Errore durante il salvataggio: " + error.message);
+        } else {
+          alert("☁️ Verbale salvato con successo nel Cloud!");
+          window.location.href = "verbali-archivio.html";
+        }
+      });
+    }
+
+    function loadFromCloud() {
+      const docId = prompt("Inserisci l'ID del verbale salvato da caricare:");
+      if (!docId) return;
+      window.location.href = `verbale.html?load=${encodeURIComponent(docId.trim())}`;
+    }
+
+    function resetForm() {
+      if (confirm("Vuoi ripulire tutti i campi del modulo?")) {
+        window.location.href = "verbale.html";
+      }
+    }
+
+    function exportAndGoHome() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
