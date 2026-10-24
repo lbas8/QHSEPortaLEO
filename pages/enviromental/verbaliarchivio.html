@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archivio Verbali di Sopralluogo - Quarto Valico AV/AC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen p-4 md:p-6">
+  <div class="max-w-5xl mx-auto">
+    
+    <!-- HEADER PRINCIPALE -->
+    <header class="bg-slate-900 text-white p-5 rounded-xl shadow-md mb-6 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h1 class="text-xl font-bold">Archivio Verbali di Sopralluogo</h1>
+        <p class="text-xs text-slate-400">quarti Valico dei Giovi — Gestione Cartelle e Cloud</p>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <a href="enviromentalhub.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition border border-slate-700">
+          <i class="fa-solid fa-house"></i> Home
+        </a>
+        <button onclick="createNewFolder()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-folder-plus text-amber-400"></i> Nuova Cartella
+        </button>
+        <a href="verbale.html" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow transition">
+          <i class="fa-solid fa-plus"></i> Nuovo Verbale
+        </a>
+      </div>
+    </header>
+
+    <div class="bg-white rounded-xl shadow-md p-5 border border-slate-200">
+      <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-200">
+        <h2 class="text-md font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-folder-tree text-sky-600"></i> Gestione Cartelle e Verbali
+        </h2>
+        <span class="text-xs text-slate-500">Organizza e sposta i verbali salvati</span>
+      </div>
+
+      <!-- SEZIONE 1: VERBALI NON CLASSIFICATI -->
+      <div class="mb-8 bg-amber-50/50 border border-amber-200 rounded-xl p-4">
+        <h3 class="text-sm font-bold text-amber-900 mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-mobile-screen-button text-amber-600"></i> Da Classificare (Salvati da Cantiere)
+        </h3>
+        <div id="unclassified-list" class="space-y-2">
+          <p class="text-xs text-slate-400 italic">Connessione al Cloud in corso...</p>
+        </div>
+      </div>
+
+      <!-- SEZIONE 2: CARTELLE PERSONALIZZATE -->
+      <div>
+        <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-boxes-stacked text-sky-600"></i> Cartelle Personalizzate
+        </h3>
+        <div id="folders-container" class="space-y-4">
+          <p class="text-xs text-slate-400 italic">Connessione al Cloud in corso...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    let allFolders = {};
+    let allVerbali = {};
+    let dataLoaded = false;
+
+    setTimeout(() => {
+      if (!dataLoaded) {
+        console.warn("Timeout connessione Firebase. Forzatura sblocco interfaccia.");
+        renderPortal();
+      }
+    }, 2500);
+
+    db.ref('verbali').on('value', (snapshot) => {
+      allVerbali = snapshot.val() || {};
+      dataLoaded = true;
+      renderPortal();
+    }, (error) => {
+      console.error("Errore lettura verbali:", error);
+      dataLoaded = true;
+      renderPortal();
+    });
+
+    db.ref('cartelle').on('value', (snapshot) => {
+      allFolders = snapshot.val() || {};
+      dataLoaded = true;
+      renderPortal();
+    }, (error) => {
+      console.error("Errore lettura cartelle:", error);
+      dataLoaded = true;
+      renderPortal();
+    });
+
+    function createNewFolder() {
+      const folderName = prompt("Inserisci il nome della nuova cartella (es. Cantiere Cravasco, Controlli Luglio, ecc.):");
+      if (!folderName) return;
+      const folderId = folderName.trim().replace(/[.#$/[\]]/g, "_");
+      
+      db.ref('cartelle/' + folderId).set({
+        nome: folderName.trim(),
+        createdAt: Date.now()
+      }, (err) => {
+        if (err) {
+          alert("Errore creazione cartella: " + err.message);
+        } else {
+          alert("📁 Cartella creata con successo!");
+        }
+      });
+    }
+
+    function moveVerbale(verbaleKey, targetFolderId) {
+      if (targetFolderId === "ROOT") {
+        db.ref('verbali/' + verbaleKey + '/folderId').remove();
+      } else {
+        db.ref('verbali/' + verbaleKey + '/folderId').set(targetFolderId);
+      }
+    }
+
+    function deleteFolder(folderId, folderName) {
+      if (confirm(`Sei sicuro di voler eliminare la cartella "${folderName}"?\nI verbali contenuti torneranno nella sezione "Da Classificare".`)) {
+        Object.keys(allVerbali).forEach(vKey => {
+          if (allVerbali[vKey].folderId === folderId) {
+            db.ref('verbali/' + vKey + '/folderId').remove();
+          }
+        });
+        db.ref('cartelle/' + folderId).remove();
+      }
+    }
+
+    function deleteVerbale(vKey) {
+      if (confirm(`Vuoi davvero eliminare il verbale "${vKey}"?`)) {
+        db.ref('verbali/' + vKey).remove();
+      }
+    }
+
+    function renderPortal() {
+      const unclassifiedContainer = document.getElementById('unclassified-list');
+      const foldersContainer = document.getElementById('folders-container');
+      
+      unclassifiedContainer.innerHTML = '';
+      foldersContainer.innerHTML = '';
+
+      const folderKeys = Object.keys(allFolders);
+      const verbaleKeys = Object.keys(allVerbali);
+
+      const unclassified = verbaleKeys.filter(k => !allVerbali[k].folderId);
+
+      if (unclassified.length === 0) {
+        unclassifiedContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Nessun verbale in attesa di classificazione.</p>';
+      } else {
+        unclassified.forEach(vKey => {
+          unclassifiedContainer.appendChild(createVerbaleCard(vKey, allVerbali[vKey], folderKeys));
+        });
+      }
+
+      if (folderKeys.length === 0) {
+        foldersContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Nessuna cartella creata. Clicca su "+ Nuova Cartella" in alto per iniziare.</p>';
+      } else {
+        folderKeys.forEach(fKey => {
+          const folder = allFolders[fKey];
+          const folderVerbali = verbaleKeys.filter(vKey => allVerbali[vKey].folderId === fKey);
+
+          const folderEl = document.createElement('div');
+          folderEl.className = "border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50 shadow-sm";
+
+          let verbaliListHTML = '<p class="text-xs text-slate-400 italic p-3">Cartella vuota. Sposta qui i verbali utilizzando il selettore.</p>';
+
+          folderEl.innerHTML = `
+            <div class="bg-slate-200/70 px-4 py-3 flex justify-between items-center cursor-pointer border-b border-slate-200" onclick="toggleFolderContent('${fKey}')">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-folder text-amber-500 text-lg"></i>
+                <span class="font-bold text-sm text-slate-800">${folder.nome || 'Cartella'}</span>
+                <span class="text-xs bg-slate-300 text-slate-700 px-2 py-0.5 rounded-full font-semibold">${folderVerbali.length} verbali</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="event.stopPropagation(); deleteFolder('${fKey}', '${folder.nome}')" class="text-slate-400 hover:text-red-600 text-xs px-2 py-1" title="Elimina Cartella">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                <i id="icon_folder_${fKey}" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform"></i>
+              </div>
+            </div>
+            <div id="content_folder_${fKey}" class="p-3 space-y-2 bg-white hidden">
+            </div>
+          `;
+
+          foldersContainer.appendChild(folderEl);
+
+          const contentBox = folderEl.querySelector(`#content_folder_${fKey}`);
+          if (folderVerbali.length === 0) {
+            contentBox.innerHTML = verbaliListHTML;
+          } else {
+            folderVerbali.forEach(vKey => {
+              contentBox.appendChild(createVerbaleCard(vKey, allVerbali[vKey], folderKeys));
+            });
+          }
+        });
+      }
+    }
+
+    function createVerbaleCard(vKey, verbale, folderKeys) {
+      const dateStr = verbale.datetime ? new Date(verbale.datetime).toLocaleString() : 'Data N.D.';
+      
+      let folderOptions = `<option value="">-- Sposta in cartella --</option>`;
+      if (verbale.folderId) {
+        folderOptions += `<option value="ROOT">📂 Riporta a "Da Classificare"</option>`;
+      }
+      folderKeys.forEach(fKey => {
+        if (fKey !== verbale.folderId) {
+          folderOptions += `<option value="${fKey}">📁 ${allFolders[fKey].nome}</option>`;
+        }
+      });
+
+      const div = document.createElement('div');
+      div.className = "flex flex-wrap md:flex-nowrap justify-between items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-slate-300 shadow-sm gap-3 transition";
+      div.innerHTML = `
+        <div class="flex-1 min-w-[200px]">
+          <div class="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+            <i class="fa-regular fa-file-lines text-sky-600"></i> ${vKey}
+          </div>
+          <div class="text-xs text-slate-500 mt-0.5">
+            Cantiere: <strong class="text-slate-700">${verbale.cantiere || 'N.D.'}</strong> | Area: <strong class="text-slate-700">${verbale.area || 'N.D.'}</strong> | <i class="fa-regular fa-clock"></i> ${dateStr}
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+          <select onchange="if(this.value) moveVerbale('${vKey}', this.value)" class="text-xs bg-slate-50 border border-slate-300 rounded p-1.5 outline-none focus:ring-1 focus:ring-sky-500">
+            ${folderOptions}
+          </select>
+          
+          <a href="verbale.html?load=${encodeURIComponent(vKey)}" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition whitespace-nowrap">
+            <i class="fa-solid fa-eye"></i> Apri
+          </a>
+
+          <button onclick="deleteVerbale('${vKey}')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-2.5 py-1.5 rounded text-xs font-medium flex items-center gap-1 transition" title="Elimina Verbale">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      `;
+      return div;
+    }
+
+    function toggleFolderContent(fKey) {
+      const box = document.getElementById(`content_folder_${fKey}`);
+      const icon = document.getElementById(`icon_folder_${fKey}`);
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        box.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+  </script>
+</body>
+</html>
