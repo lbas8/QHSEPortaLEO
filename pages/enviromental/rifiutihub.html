@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settore Rifiuti — Terzo Valico dei Giovi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f17;
+      color: #f8fafc;
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    /* Tasto Miniatura Home */
+    .qhse-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px 4px 5px;
+      background-color: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 800;
+      transition: all 0.2s ease;
+    }
+    .qhse-nav-btn:hover {
+      background-color: #1e293b;
+      border-color: #f59e0b;
+      color: #f59e0b;
+    }
+    .qhse-mini-svg {
+      width: 28px !important;
+      height: 28px !important;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  </style>
+  <script>
+    // Controllo Protezione Sessione Gate
+    if (sessionStorage.getItem('QHSE_authenticated') !== 'true') {
+      window.location.href = '../../index.html';
+    }
+  </script>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-white">
+
+  <!-- TOP BAR & HEADER SEZIONE RIFIUTI -->
+  <header class="w-full bg-slate-900/90 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- SINISTRA: Titolo & Icona -->
+      <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center gap-3">
+          <div class="relative w-12 h-12 rounded-2xl bg-amber-500/10 border-2 border-amber-400 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/20">
+            <i class="fa-solid fa-recycle text-2xl"></i>
+            <span class="absolute -bottom-1 -right-1 bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.2 rounded-full">DTR</span>
+          </div>
+          <div>
+            <h1 class="font-black text-lg text-white tracking-wide uppercase leading-none">Gestione Rifiuti & DTR</h1>
+            <p class="text-xs text-amber-400 font-semibold mt-1">Terzo Valico dei Giovi — COCIV</p>
+          </div>
+        </div>
+
+        <!-- Tasto Ritorno Home QHSE (Mobile) -->
+        <a href="../../HomeQHSE.html" class="qhse-nav-btn md:hidden" title="Torna alla Home QHSE">
+          <svg viewBox="0 0 400 400" class="qhse-mini-svg">
+            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+          </svg>
+        </a>
+      </div>
+
+      <!-- DESTRA: Tasto Home Desktop -->
+      <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+        <a href="../../HomeQHSE.html" class="qhse-nav-btn hidden md:inline-flex" title="Torna alla Home QHSE">
+          <svg viewBox="0 0 400 400" class="qhse-mini-svg">
+            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+          </svg>
+          <span>Home</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT: 4 RIQUADRI / TASTI -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-12 flex flex-col justify-center">
+    
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase mb-2">
+        Moduli & Portali Rifiuti
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-400">
+        Seleziona il servizio operativo per la tracciabilità, la gestione dei depositi temporanei e la modulistica di cantiere.
+      </p>
+    </div>
+
+    <!-- GRIGLIA A 4 BOX -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto w-full">
+      
+      <!-- 1. ReNTRi -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-sky-400 flex flex-col justify-between group cursor-pointer"
+           onclick="window.open('https://identity.ecocerved.it/Account/Login?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback%3Fclient_id%3Drentrigov.operatori%26redirect_uri%3Dhttps%253A%252F%252Foperatori.rentri.gov.it%26response_type%3Dcode%26scope%3Dopenid%2520amr%2520profile%2520roles%2520rentrigov.app%2520offline_access%26nonce%3D20660a0f7c7b3eda5b861cb3ee09585f48L9zam1O%26state%3De00e4f04dd4491c8150518c716af42c82187rMuhM%26code_challenge%3D3mAjwG7M3g4AEyxZKAnsyf7fLn5SJdIpVJFmofOm8kw%26code_challenge_method%3DS256%26ui-culture%3Dit', '_blank')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-14 h-14 rounded-xl bg-sky-950/60 border border-sky-500/40 flex items-center justify-center p-2 group-hover:scale-105 transition">
+              <i class="fa-solid fa-id-card text-sky-400 text-2xl"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-sky-950 text-sky-300 uppercase tracking-wider">
+              Tracciabilità Ufficiale
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-sky-400 transition mb-2">
+            ReNTRi
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Accesso al Registro Elettronico Nazionale per la Tracciabilità dei Rifiuti per operatori e gestori di cantiere.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-sky-400 group-hover:translate-x-1 transition">
+          <span>Accedi al portale ReNTRi</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 2. Prometeo Rifiuti -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-emerald-500 flex flex-col justify-between group cursor-pointer"
+           onclick="window.open('https://www.prometeorifiuti.com/', '_blank')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-14 h-14 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-center p-2 group-hover:scale-105 transition">
+              <i class="fa-solid fa-desktop text-emerald-400 text-2xl"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 uppercase tracking-wider">
+              Software Gestione
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-emerald-400 transition mb-2">
+            Prometeo Rifiuti
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Piattaforma software per la gestione semplificata dei registri di carico e scarico e formulari.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition">
+          <span>Apri Prometeo Rifiuti</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 3. Campionamento Rifiuti -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-amber-500 flex flex-col justify-between group cursor-pointer"
+           onclick="location.href='campionamentoform.html'">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-14 h-14 rounded-xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-105 transition">
+              <i class="fa-solid fa-vials"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-amber-950 text-amber-300 uppercase tracking-wider">
+              Analisi & Test
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-amber-400 transition mb-2">
+            Campionamento Rifiuti
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Modulistica e procedure operative per l'esecuzione dei campionamenti e caratterizzazione dei rifiuti di cantiere.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-amber-400 group-hover:translate-x-1 transition">
+          <span>Apri Modulo Campionamento</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 4. Registro dei Campionamenti / RdP -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-indigo-500 flex flex-col justify-between group cursor-pointer"
+           onclick="alert('Sezione Registro dei Campionamenti / RdP in attivazione')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-14 h-14 rounded-xl bg-indigo-950/60 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-book-medical"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 uppercase tracking-wider">
+              Archivio RdP
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-indigo-400 transition mb-2">
+            REGISTRO DEI CAMPIONAMENTI / RdP
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Consultazione dello storico dei Rapporti di Prova (RdP), catene di custodia e tracciabilità analitica dei lotti.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:translate-x-1 transition">
+          <span>Consulta Registro RdP</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
+      <p class="flex items-center gap-2">
+        <i class="fa-solid fa-recycle text-amber-400"></i> Sezione Gestione Rifiuti & DTR
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
