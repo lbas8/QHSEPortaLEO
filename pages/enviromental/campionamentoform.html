@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catena di Custodia e Verbale di Campionamento - Terzo Valico dei Giovi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <style>
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 5mm 5mm 5mm 5mm;
+      }
+
+      .no-print { display: none !important; }
+      body { background-color: #fff !important; font-size: 7.5pt; color: #000 !important; }
+      
+      main { margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+      .bg-white { border: none !important; box-shadow: none !important; padding: 0 !important; }
+      
+      .print-flex-row {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: stretch !important;
+      }
+
+      .print-w-left { width: 58% !important; }
+      .print-w-right { width: 40% !important; }
+
+      input, select, textarea { 
+        border: none !important; 
+        background: transparent !important; 
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        padding: 0px !important;
+        margin: 0 !important;
+        color: #000 !important;
+        font-size: 7.5pt !important;
+        box-shadow: none !important;
+      }
+
+      select::-ms-expand { display: none; }
+      select { background-image: none !important; }
+
+      select option[value=""] { display: none !important; }
+      select:invalid, select option:checked[value=""] { color: transparent !important; }
+
+      tr.row-campione-vuota, tr.row-analisi-vuota, div.row-presente-vuota { display: none !important; }
+
+      input[type="checkbox"] {
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        border: 1px solid #333 !important;
+        width: 9px !important;
+        height: 9px !important;
+        display: inline-block !important;
+        position: relative !important;
+      }
+      input[type="checkbox"]:checked::after {
+        content: "X" !important;
+        font-weight: bold !important;
+        font-size: 7.5pt !important;
+        color: #000 !important;
+        position: absolute !important;
+        top: -4px !important;
+        left: 0.5px !important;
+      }
+
+      canvas { 
+        border: 1px solid #64748b !important; 
+        max-height: 40px !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+
+  <!-- TOP BAR COMANDI -->
+  <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md no-print">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center space-x-3">
+        <i class="fa-solid fa-vial-circle-check text-emerald-400 text-xl"></i>
+        <div>
+          <h1 class="font-bold text-sm leading-tight">Catena di Custodia - Campionamento</h1>
+          <p class="text-[10px] text-slate-400">Quarto Valico dei Giovi | Gestione Matricistica Dinamica</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <a href="enviromentalhub.html" class="bg-slate-800 hover:bg-slate-700 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1 transition border border-slate-700">
+          <i class="fa-solid fa-house"><span> Home Enviromental</span></i>
+        </a>
+        <a href="campionamenti.html" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1 transition">
+          <i class="fa-solid fa-arrow-left"><span> Indietro</span></i>
+        </a>
+        <button onclick="saveCampionamentoToCloud()" class="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1.5 transition font-medium">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Salva Cloud
+        </button>
+        <button onclick="downloadPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-xs flex items-center gap-1.5 transition font-medium">
+          <i class="fa-solid fa-file-pdf"></i> Scarica PDF / Stampa
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="form-container" class="max-w-5xl mx-auto my-2 px-2">
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-2.5 space-y-2">
+
+      <!-- INTESTAZIONE UFFICIALE AFFIANCATA -->
+      <div class="border-2 border-slate-900 p-2 bg-slate-50 text-xs">
+        
+        <div class="flex justify-between items-center border-b border-slate-300 pb-1.5">
+          <div class="flex items-center gap-2">
+            <div class="bg-white p-0.5 border border-slate-300 rounded flex items-center justify-center">
+              <img src="logo.png" alt="Logo" class="h-6 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+              <span class="text-[9px] font-black tracking-widest text-red-600 uppercase hidden">LOGO</span>
+            </div>
+            <div>
+              <h2 class="text-xs font-black text-slate-900 uppercase leading-none">Verbale di Campionamento e Catena di Custodia</h2>
+              <p class="text-[9px] font-semibold text-slate-600 mt-0.5">Lavori del Terzo Valico dei Giovi — Gestione Matricistica</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-2 justify-end">
+            <div class="flex items-center gap-1">
+              <label class="font-bold text-[10px] text-slate-800 uppercase whitespace-nowrap">Matrice:</label>
+              <select id="matrice_selezionata" onchange="onMatriceChange()" class="border border-slate-400 rounded px-1.5 py-0.5 text-xs font-bold bg-white text-slate-900">
+                <option value="Sottoprodotto">Sottoprodotto</option>
+                <option value="Rifiuto">Rifiuto</option>
+                <option value="Acque">Acque</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-1">
+              <label class="font-bold text-[10px] text-slate-800 uppercase whitespace-nowrap">N. ID:</label>
+              <input type="text" id="identificativo" readonly class="border border-slate-400 rounded px-1.5 py-0.5 text-xs font-bold bg-slate-100 text-slate-900 w-36 text-center cursor-not-allowed">
+              
+              <div class="no-print flex items-center gap-0.5 bg-amber-50 px-1 py-0.5 rounded border border-amber-300">
+                <span class="text-[8.5px] font-bold text-amber-800">Prog:</span>
+                <input type="text" id="prog_custom" placeholder="001" oninput="updateIdentificativo()" class="border border-amber-400 rounded px-1 py-0.5 text-xs font-bold text-center bg-amber-100 focus:bg-white w-10">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="print-flex-row flex flex-col md:flex-row justify-between gap-2 mt-1.5 text-[9.5px]">
+          <div class="print-w-left md:w-[58%] space-y-0.5">
+            <div class="flex items-center gap-1.5">
+              <label class="font-bold text-slate-700 w-32 shrink-0">Ubicazione / Località:</label>
+              <input type="text" id="localita" placeholder="Es. CSL2 - Cravasco" class="w-full border rounded px-1 py-0.5 bg-white">
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label class="font-bold text-slate-700 w-32 shrink-0">Esecutore Campionamento:</label>
+              <input type="text" id="esecutore" placeholder="Nome / Società" class="w-full border rounded px-1 py-0.5 bg-white">
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label class="font-bold text-slate-700 w-32 shrink-0">Laboratorio Incaricato:</label>
+              <input type="text" id="laboratorio" placeholder="Nome Laboratorio" class="w-full border rounded px-1 py-0.5 bg-white">
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label class="font-bold text-slate-700 w-32 shrink-0">Data e Ora Prelievo:</label>
+              <input type="datetime-local" id="datetime" oninput="updateIdentificativo()" class="w-full border rounded px-1 py-0.5 bg-white">
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label class="font-bold text-slate-700 w-32 shrink-0">Per conto di:</label>
+              <input type="text" id="per_conto" placeholder="Es. COCIV" class="w-full border rounded px-1 py-0.5 bg-white">
+            </div>
+          </div>
+
+          <!-- FIRMA CAMPIONATORE -->
+          <div class="print-w-right md:w-[40%] border border-slate-300 rounded bg-white p-1 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-0.5">
+              <label class="font-bold text-slate-800 text-[9px] uppercase">Firma Campionatore:</label>
+              <button type="button" onclick="clearSignature('signature-pad')" class="text-[8px] text-red-600 hover:text-red-800 font-medium px-1 bg-red-50 border border-red-200 rounded no-print">
+                <i class="fa-solid fa-eraser"></i> Cancella
+              </button>
+            </div>
+            <div onclick="openSignModal('signature-pad', 'Firma del Campionatore')" class="w-full h-12 border border-dashed border-slate-300 rounded cursor-pointer bg-slate-50 flex items-center justify-center relative overflow-hidden group">
+              <canvas id="signature-pad" class="w-full h-full pointer-events-none"></canvas>
+              <div class="no-print absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-[9px] font-bold text-slate-700 gap-1">
+                <i class="fa-solid fa-pen-nib"></i> Tocca per firmare
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEZIONE PRESENTI AL CAMPIONAMENTO DINAMICA CON TASTO + VERDE -->
+      <section class="border border-slate-300 rounded p-1.5 bg-slate-50 space-y-1">
+        <div class="flex justify-between items-center mb-0.5">
+          <h4 class="text-[9.5px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+            <i class="fa-solid fa-users text-slate-600"></i> Presenti al Campionamento (Controparti / Direzione Lavori / Enti)
+          </h4>
+          <button type="button" onclick="addPresenteRow()" class="no-print bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded flex items-center gap-1 shadow-sm transition">
+            <i class="fa-solid fa-plus text-[10px]"></i> Aggiungi Presente
+          </button>
+        </div>
+
+        <div id="container_presenti" class="space-y-1">
+          <!-- Presente 1 -->
+          <div id="row_presente_1" class="flex items-center gap-1.5 text-[8.5px]">
+            <input type="text" id="pres_1_nome" oninput="checkPresenteCompilato(1)" placeholder="Nome e Cognome 1" class="w-1/3 border rounded p-0.5 bg-white">
+            <input type="text" id="pres_1_ente" oninput="checkPresenteCompilato(1)" placeholder="Società / Ente (es. ARPAL, D.L.)" class="w-1/3 border rounded p-0.5 bg-white">
+            <div class="w-1/3 flex items-center gap-1 border border-slate-200 rounded bg-white p-0.5 cursor-pointer relative group" onclick="openSignModal('canvas_pres_1', 'Sigla Presente: 1')">
+              <span class="text-[7.5px] font-bold text-slate-400 shrink-0">Sigla:</span>
+              <div class="w-full h-6 relative overflow-hidden flex items-center justify-center">
+                <canvas id="canvas_pres_1" class="w-full h-full pointer-events-none"></canvas>
+              </div>
+              <button type="button" onclick="event.stopPropagation(); clearSignature('canvas_pres_1')" class="text-[7px] text-red-500 no-print px-0.5">✕</button>
+            </div>
+          </div>
+
+          <!-- Presente 2 -->
+          <div id="row_presente_2" class="row-presente-vuota flex items-center gap-1.5 text-[8.5px]">
+            <input type="text" id="pres_2_nome" oninput="checkPresenteCompilato(2)" placeholder="Nome e Cognome 2" class="w-1/3 border rounded p-0.5 bg-white">
+            <input type="text" id="pres_2_ente" oninput="checkPresenteCompilato(2)" placeholder="Società / Ente" class="w-1/3 border rounded p-0.5 bg-white">
+            <div class="w-1/3 flex items-center gap-1 border border-slate-200 rounded bg-white p-0.5 cursor-pointer relative group" onclick="openSignModal('canvas_pres_2', 'Sigla Presente: 2')">
+              <span class="text-[7.5px] font-bold text-slate-400 shrink-0">Sigla:</span>
+              <div class="w-full h-6 relative overflow-hidden flex items-center justify-center">
+                <canvas id="canvas_pres_2" class="w-full h-full pointer-events-none"></canvas>
+              </div>
+              <button type="button" onclick="event.stopPropagation(); clearSignature('canvas_pres_2')" class="text-[7px] text-red-500 no-print px-0.5">✕</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEZIONE A: TABELLA CAMPIONI (01 - 10) -->
+      <section>
+        <div class="flex justify-between items-center mb-0.5">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="bg-emerald-700 text-white w-4 h-4 rounded-full flex items-center justify-center text-[9px]">A</span> 
+            Tabella dei Campioni Prelievi (01 - 10)
+          </h3>
+        </div>
+
+        <div class="overflow-x-auto border border-slate-300 rounded-lg">
+          <table class="w-full text-left border-collapse text-[9px]">
+            <thead>
+              <tr class="bg-slate-200 text-slate-700 border-b border-slate-300">
+                <th class="p-0.5 border-r text-center w-6">Rif.</th>
+                <th id="header_tipologia_eer" class="p-0.5 border-r w-32 font-bold">Tipologia (*)</th>
+                <th class="p-0.5 border-r w-16">WBS / Pk</th>
+                <th class="p-0.5 border-r w-20">Codice [Etichetta]</th>
+                <th class="p-0.5 border-r w-16">Profondità</th>
+                <th class="p-0.5 border-r w-20">Natura / Stato (**)</th>
+                <th class="p-0.5 border-r w-24">Metodo (***)</th>
+                <th class="p-0.5 border-r text-center w-7">Incr.</th>
+                <th class="p-0.5 border-r w-20">Contenitore (****)</th>
+                <th class="p-0.5 text-center w-7">Repl.</th>
+              </tr>
+            </thead>
+            <tbody id="rows-campionamento" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+
+        <div class="mt-1 grid grid-cols-1 md:grid-cols-2 gap-2 text-[8.5px] bg-slate-50 p-1 rounded border">
+          <div>
+            <label class="block font-bold text-slate-700 mb-0.5">Note di Campo (*****):</label>
+            <textarea id="note_campo" rows="1" placeholder="Tal quale, scarto >20mm..." class="w-full border rounded p-1 bg-white text-[8.5px] h-7"></textarea>
+          </div>
+          <div class="text-slate-600 text-[8px] leading-tight space-y-0.2">
+            <p><strong>(*) Tipologia / Potenziale EER:</strong> Origine del prelievo o Codice EER presunto con descrizione.</p>
+            <p><strong>(**) Natura/Stato:</strong> TER (Terra), RIP (Riporto), RIF (Rifiuto) / Solido, Fangoso, Liquido.</p>
+            <p><strong>(***) Metodo:</strong> Grezzo, Composito, Puntuale / Casuale, Stratificata, Sistematica, Selettiva.</p>
+            <p><strong>(****) Contenitore:</strong> (1) Busta PE, (2) Barattolo PE, (3) Bottiglia vetro, (4) Vials, (5) Bottiglia PE.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEZIONE B: ANALISI DA ESEGUIRE -->
+      <section>
+        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
+          <span class="bg-emerald-700 text-white w-4 h-4 rounded-full flex items-center justify-center text-[9px]">B</span> 
+          Analisi da Eseguire presso il Laboratorio Incaricato (<span id="label_matrice_corrente" class="text-emerald-700 font-bold">Sottoprodotto</span>)
+        </h3>
+
+        <div class="overflow-x-auto border border-slate-300 rounded-lg">
+          <table class="w-full text-left border-collapse text-[9px]">
+            <thead id="analisi_thead"></thead>
+            <tbody id="rows-analisi" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+
+        <div id="note_normative_rifiuti" class="mt-1 text-[8px] text-slate-600 leading-tight space-y-0.5 bg-slate-50 p-1 rounded border hidden">
+          <p><strong>*</strong> D.lgs. n. 36 del 13/01/2003 All. 4 Tab. 3/4/5bis (come modificato dal D.lgs. 03/09/2020 n. 121)</p>
+          <p><strong>**</strong> D.M. 05/02/1998 (D.M. 186/2006)</p>
+          <p><strong>***</strong> D.lgs. n. 36 del 13/01/2003 All. 4 Tab. 5 (come modificato dal D.lgs. 03/09/2020 n. 121)</p>
+          <p><strong>****</strong> D.lgs. n. 36 del 13/01/2003 All. 4 Tab. 2 (come modificato dal D.lgs. 03/09/2020 n. 121)</p>
+        </div>
+
+        <div class="mt-1">
+          <label class="block text-[9px] font-bold text-slate-700 mb-0.5">Altre analisi da eseguire:</label>
+          <input type="text" id="altre_analisi" placeholder="Eventuali parametri specifici..." class="w-full border rounded p-0.5 text-[9px] bg-white">
+        </div>
+      </section>
+
+      <!-- SEZIONE C, D: DELEGA E TRASPORTO -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[9px]">
+        <div class="border rounded p-1 bg-slate-50 space-y-0.5">
+          <h4 class="font-bold text-slate-800 uppercase text-[9px]">C) Eventuale Delega Consegna Aliquota</h4>
+          <input type="text" id="delega_info" placeholder="Dati delegato / motivazione" class="w-full border rounded p-0.5 bg-white">
+          <div class="grid grid-cols-2 gap-1">
+            <input type="text" id="delega_consegnato" placeholder="Consegnato da (Firma)" class="border rounded p-0.5 bg-white">
+            <input type="text" id="delega_ricevuto" placeholder="Ricevuto da (Firma)" class="border rounded p-0.5 bg-white">
+          </div>
+        </div>
+
+        <div class="border rounded p-1 bg-slate-50 space-y-0.5">
+          <h4 class="font-bold text-slate-800 uppercase text-[9px]">D) Trasporto e Consegna al Laboratorio</h4>
+          <input type="text" id="trasporto_societa" placeholder="Società trasportatrice / incaricato" class="w-full border rounded p-0.5 bg-white">
+          <div class="grid grid-cols-2 gap-1">
+            <input type="text" id="trasporto_data" placeholder="Data e Ora consegna" class="border rounded p-0.5 bg-white">
+            <input type="text" id="trasporto_ricevuto" placeholder="Ricevuto c/o Laboratorio (Firma)" class="border rounded p-0.5 bg-white">
+          </div>
+        </div>
+      </section>
+
+      <!-- SEZIONE INVIO EMAIL (NO PRINT) -->
+      <section class="border-t border-emerald-600 pt-2 bg-emerald-50/50 p-2.5 rounded-lg no-print space-y-2">
+        <h3 class="text-xs font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-paper-plane text-emerald-700"></i> Esporta PDF e Precompila E-mail
+        </h3>
+        
+        <div class="text-[10.5px] text-slate-600 bg-white p-2 rounded border border-emerald-200">
+          <i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i>
+          Cliccando su <strong>"Genera PDF & Apri Mail"</strong>, il sistema scaricherà automaticamente il PDF del verbale e aprirà l'e-mail precompilata: dovrai solamente <u>trascinare o allegare il PDF appena scaricato</u> ed inviare.
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">Destinatari Principali:</label>
+            <input type="text" id="email_destinatari" value="ambiente@cociv.it" class="w-full border rounded p-1 bg-white text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">Copia Conoscenza (Cc):</label>
+            <input type="text" id="email_cc" placeholder="Eventuali altre mail..." class="w-full border rounded p-1 bg-white text-xs">
+          </div>
+        </div>
+        
+        <div class="flex justify-end pt-1">
+          <button onclick="generatePDFAndSendEmail()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5 rounded text-xs font-bold flex items-center gap-2 shadow transition">
+            <i class="fa-solid fa-file-arrow-down"></i> Genera PDF & Apri Mail
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MODALE FIRMA ZOOMATA A SCHERMO INTERO -->
+  <div id="signModal" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-4 space-y-3 border border-slate-700">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h3 id="modalSignTitle" class="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-signature text-emerald-600"></i> Firma Digitale
+        </h3>
+        <button type="button" onclick="closeSignModal(false)" class="text-slate-400 hover:text-slate-700 text-lg font-bold px-2">✕</button>
+      </div>
+      
+      <div class="text-[11px] text-slate-500">
+        Traccia la firma nel riquadro sottostante utilizzando il dito o il pennino:
+      </div>
+
+      <div class="border-2 border-dashed border-slate-400 rounded-xl bg-slate-50 h-56 relative overflow-hidden touch-none">
+        <canvas id="modal-canvas" class="w-full h-full cursor-crosshair"></canvas>
+      </div>
+
+      <div class="flex justify-between items-center pt-2">
+        <button type="button" onclick="clearModalCanvas()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-300 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1">
+          <i class="fa-solid fa-eraser"></i> Pulisci Riquadro
+        </button>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeSignModal(false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold">
+            Annulla
+          </button>
+          <button type="button" onclick="closeSignModal(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-check"></i> Conferma Firma
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATALIST CODICI EER COMPLETO -->
+  <datalist id="cer_suggestions">
+    <option value="01 00 00 - Rifiuti derivanti da prospezione, estrazione da miniera o cava">
+    <option value="17 01 01 - Cemento">
+    <option value="17 01 07 - Miscele di cemento, mattoni, mattonelle">
+    <option value="17 05 03* - Terra e rocce, contenenti sostanze pericolose">
+    <option value="17 05 04 - Terra e rocce, diverse da quelle di cui alla voce 17 05 03">
+    <option value="17 05 05* - Fanghi di drenaggio contenenti sostanze pericolose">
+    <option value="17 05 06 - Fanghi di drenaggio diversi da quelli di cui alla voce 17 05 05">
+    <option value="17 09 04 - Rifiuti misti dell'attività di costruzione e demolizione">
+    <option value="19 13 02 - Fanghi da bonifica di siti contenenti sostanze pericolose">
+    <option value="20 02 01 - Rifiuti biodegradabili">
+  </datalist>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const matrixAnalysesConfig = {
+      "Sottoprodotto": [
+        { key: "amianto", label: "Amianto" },
+        { key: "dm161_rid", label: "D.M. 161/2012 Tab. 4.1 [Ridotta No Amianto, BTEX e IPA]" },
+        { key: "dm161_com", label: "D.M. 161/2012 Tab. 4.1 [Completa No Amianto con BTEX e IPA]" }
+      ],
+      "Rifiuto": [
+        { key: "tal_quale", label: "Tal quale *" },
+        { key: "cess_rec", label: "Test di Cessione a Recupero**" },
+        { key: "cess_disc", label: "Test di Cessione a Non Pericolosità [Discarica]***" },
+        { key: "cess_inerti", label: "Test di Cessione per Inerti****" }
+      ],
+      "Acque": [
+        { key: "aua_liguria", label: "A.U.A. Liguria" },
+        { key: "scarico_superf", label: "D.lgs. 152/2006 Parte III All. 5 Tab. 3 [Scarico Acque Superficiali]" },
+        { key: "scarico_fogn", label: "D.lgs. 152/2006 Parte III All. 5 Tab. 3 [Scarico Rete Fognaria]" },
+        { key: "scarico_suolo", label: "D.lgs. 152/2006 Parte III All. 5 Tab. 4 [Scarico su Suolo]" }
+      ]
+    };
+
+    const matrixTipologieConfig = {
+      "Sottoprodotto": [
+        "TBM nastro", "Fronte di scavo", "Cumulo di stoccaggio", "Vasca di stoccaggio",
+        "Trincea o scavo", "Sondaggio a carotaggio", "Perforazione a distruzione", "Topsoil", "Affioramento superficiale"
+      ],
+      "Acque": ["Acque"]
+    };
+
+    // GESTIONE FIRME E MODALE ZOOM
+    let currentActiveCanvasId = null;
+    const modalCanvas = document.getElementById('modal-canvas');
+    const modalCtx = modalCanvas.getContext('2d');
+    let isModalDrawing = false;
+
+    function initModalCanvas() {
+      const rect = modalCanvas.getBoundingClientRect();
+      modalCanvas.width = rect.width * window.devicePixelRatio;
+      modalCanvas.height = rect.height * window.devicePixelRatio;
+      modalCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+
+    function startModalDraw(e) { isModalDrawing = true; drawModal(e); }
+    function endModalDraw() { isModalDrawing = false; modalCtx.beginPath(); }
+    function drawModal(e) {
+      if (!isModalDrawing) return;
+      modalCtx.lineWidth = 3;
+      modalCtx.lineCap = 'round';
+      modalCtx.strokeStyle = '#0f172a';
+      const rect = modalCanvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      if (clientX && clientY) {
+        modalCtx.lineTo(clientX - rect.left, clientY - rect.top);
+        modalCtx.stroke();
+        modalCtx.beginPath();
+        modalCtx.moveTo(clientX - rect.left, clientY - rect.top);
+      }
+    }
+
+    modalCanvas.addEventListener('mousedown', startModalDraw);
+    modalCanvas.addEventListener('mouseup', endModalDraw);
+    modalCanvas.addEventListener('mousemove', drawModal);
+    modalCanvas.addEventListener('touchstart', startModalDraw);
+    modalCanvas.addEventListener('touchend', endModalDraw);
+    modalCanvas.addEventListener('touchmove', drawModal);
+
+    function openSignModal(canvasId, titleText) {
+      currentActiveCanvasId = canvasId;
+      document.getElementById('modalSignTitle').innerHTML = `<i class="fa-solid fa-signature text-emerald-600"></i> ${titleText}`;
+      document.getElementById('signModal').classList.remove('hidden');
+      setTimeout(initModalCanvas, 100);
+
+      const sourceCanvas = document.getElementById(canvasId);
+      if (sourceCanvas) {
+        modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+        const img = new Image();
+        img.onload = () => {
+          modalCtx.drawImage(img, 0, 0, modalCanvas.width / window.devicePixelRatio, modalCanvas.height / window.devicePixelRatio);
+        };
+        img.src = sourceCanvas.toDataURL();
+      }
+    }
+
+    function closeSignModal(save) {
+      if (save && currentActiveCanvasId) {
+        const targetCanvas = document.getElementById(currentActiveCanvasId);
+        if (targetCanvas) {
+          const tCtx = targetCanvas.getContext('2d');
+          targetCanvas.width = targetCanvas.offsetWidth * window.devicePixelRatio;
+          targetCanvas.height = targetCanvas.offsetHeight * window.devicePixelRatio;
+          tCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+          tCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+          
+          const img = new Image();
+          img.onload = () => {
+            tCtx.drawImage(img, 0, 0, targetCanvas.width / window.devicePixelRatio, targetCanvas.height / window.devicePixelRatio);
+          };
+          img.src = modalCanvas.toDataURL();
+        }
+      }
+      document.getElementById('signModal').classList.add('hidden');
+      currentActiveCanvasId = null;
+    }
+
+    function clearModalCanvas() {
+      modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+    }
+
+    function clearSignature(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // GESTIONE DINAMICA RIGHE PRESENTI AL CAMPIONAMENTO
+    let presentiCount = 2;
+
+    function addPresenteRow() {
+      presentiCount++;
+      const index = presentiCount;
+      const container = document.getElementById('container_presenti');
+      
+      const newRow = document.createElement('div');
+      newRow.id = `row_presente_${index}`;
+      newRow.className = 'flex items-center gap-1.5 text-[8.5px]';
+      newRow.innerHTML = `
+        <input type="text" id="pres_${index}_nome" oninput="checkPresenteCompilato(${index})" placeholder="Nome e Cognome ${index}" class="w-1/3 border rounded p-0.5 bg-white">
+        <input type="text" id="pres_${index}_ente" oninput="checkPresenteCompilato(${index})" placeholder="Società / Ente" class="w-1/3 border rounded p-0.5 bg-white">
+        <div class="w-1/3 flex items-center gap-1 border border-slate-200 rounded bg-white p-0.5 cursor-pointer relative group" onclick="openSignModal('canvas_pres_${index}', 'Sigla Presente: ${index}')">
+          <span class="text-[7.5px] font-bold text-slate-400 shrink-0">Sigla:</span>
+          <div class="w-full h-6 relative overflow-hidden flex items-center justify-center">
+            <canvas id="canvas_pres_${index}" class="w-full h-full pointer-events-none"></canvas>
+          </div>
+          <button type="button" onclick="event.stopPropagation(); removePresenteRow(${index})" class="text-[8px] text-red-600 hover:text-red-800 font-bold no-print px-1 border border-red-200 bg-red-50 rounded">✕</button>
+        </div>
+      `;
+      container.appendChild(newRow);
+    }
+
+    function removePresenteRow(index) {
+      const row = document.getElementById(`row_presente_${index}`);
+      if (row) row.remove();
+    }
+
+    function checkPresenteCompilato(index) {
+      const row = document.getElementById(`row_presente_${index}`);
+      if (!row) return;
+      const nome = document.getElementById(`pres_${index}_nome`).value.trim();
+      const ente = document.getElementById(`pres_${index}_ente`).value.trim();
+      if (nome !== "" || ente !== "") {
+        row.classList.remove('row-presente-vuota');
+      } else if (index > 1) {
+        row.classList.add('row-presente-vuota');
+      }
+    }
+
+    function updateIdentificativo() {
+      const prefisso = "CDC";
+      const datetimeVal = document.getElementById('datetime').value;
+      let dataStr = "AAAAMMGG";
+      if (datetimeVal) {
+        const d = new Date(datetimeVal);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        dataStr = `${yyyy}${mm}${dd}`;
+      }
+
+      const progInput = document.getElementById('prog_custom');
+      const progVal = progInput.value.trim() || "XXX";
+      let wbsVal = "WBS";
+      const wbsFirstRow = document.getElementById('c_1_wbs');
+      if (wbsFirstRow && wbsFirstRow.value.trim() !== "") {
+        wbsVal = wbsFirstRow.value.trim().replace(/[\/\\#$[[\]]/g, "_");
+      }
+
+      const idFinale = `${prefisso}/${dataStr}/${progVal}/${wbsVal}`;
+      document.getElementById('identificativo').value = idFinale;
+    }
+
+    function checkCampioneCompilato(i) {
+      const row = document.getElementById(`tr_campione_${i}`);
+      const tipolEl = document.getElementById(`c_${i}_tipologia`);
+      const tipologia = tipolEl ? tipolEl.value.trim() : "";
+      const wbs = document.getElementById(`c_${i}_wbs`).value.trim();
+      const codice = document.getElementById(`c_${i}_codice`).value.trim();
+      const prof = document.getElementById(`c_${i}_prof`).value.trim();
+
+      if (tipologia !== "" || wbs !== "" || codice !== "" || prof !== "") {
+        row.classList.remove('row-campione-vuota');
+      } else {
+        row.classList.add('row-campione-vuota');
+      }
+      updateIdentificativo();
+    }
+
+    function checkAnalisiVuota(i) {
+      const row = document.getElementById(`tr_analisi_${i}`);
+      if (!row) return;
+      const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+      const hasChecked = Array.from(checkboxes).some(cb => cb.checked);
+      if (hasChecked) {
+        row.classList.remove('row-analisi-vuota');
+      } else {
+        row.classList.add('row-analisi-vuota');
+      }
+    }
+
+    function renderAnalisiTable() {
+      const matrice = document.getElementById('matrice_selezionata').value;
+      document.getElementById('label_matrice_corrente').innerText = matrice.toUpperCase();
+      
+      const noteNormative = document.getElementById('note_normative_rifiuti');
+      if (matrice.toLowerCase() === "rifiuto") {
+        if (noteNormative) noteNormative.classList.remove('hidden');
+      } else {
+        if (noteNormative) noteNormative.classList.add('hidden');
+      }
+
+      const cols = matrixAnalysesConfig[matrice] || matrixAnalysesConfig["Sottoprodotto"];
+      const thead = document.getElementById('analisi_thead');
+      const tbody = document.getElementById('rows-analisi');
+
+      let headerHTML = `<tr class="bg-slate-200 text-slate-700 border-b border-slate-300"><th class="p-0.5 border-r text-center w-6">Rif.</th>`;
+      cols.forEach(col => {
+        headerHTML += `<th class="p-0.5 border-r text-center">${col.label}</th>`;
+      });
+      headerHTML += `</tr>`;
+      thead.innerHTML = headerHTML;
+
+      tbody.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        const idStr = i < 10 ? `0${i}` : `${i}`;
+        const isFirst = (i === 1);
+        const analClass = isFirst ? "" : "row-analisi-vuota";
+
+        let trHTML = `<tr id="tr_analisi_${i}" class="${analClass}">
+          <td class="p-1 border-r text-center font-bold bg-slate-50">${idStr}</td>`;
+        
+        cols.forEach(col => {
+          trHTML += `<td class="p-1 border-r text-center"><input type="checkbox" data-key="${col.key}" onchange="checkAnalisiVuota(${i})"></td>`;
+        });
+        trHTML += `</tr>`;
+        tbody.innerHTML += trHTML;
+      }
+    }
+
+    function updateTipologieColumn() {
+      const matrice = document.getElementById('matrice_selezionata').value;
+      const headerCell = document.getElementById('header_tipologia_eer');
+
+      if (matrice.toLowerCase() === "rifiuto") {
+        if (headerCell) headerCell.innerText = "Potenziale EER (*)";
+
+        for (let i = 1; i <= 10; i++) {
+          const cell = document.getElementById(`cell_tipologia_${i}`);
+          if (!cell) continue;
+
+          cell.innerHTML = `
+            <input type="text" id="c_${i}_tipologia" list="cer_suggestions" 
+                   oninput="checkCampioneCompilato(${i})" 
+                   class="w-full border rounded p-0.5 bg-white text-[8.5px]" 
+                   placeholder="EER o descrizione...">
+          `;
+        }
+      } else {
+        if (headerCell) headerCell.innerText = "Tipologia (*)";
+
+        const opzioni = matrixTipologieConfig[matrice] || matrixTipologieConfig["Sottoprodotto"];
+        for (let i = 1; i <= 10; i++) {
+          const cell = document.getElementById(`cell_tipologia_${i}`);
+          if (!cell) continue;
+
+          let optionsHTML = `<select id="c_${i}_tipologia" onchange="checkCampioneCompilato(${i})" class="w-full border rounded p-0.5 bg-white text-[8.5px]">`;
+          if (opzioni.length > 1) {
+            optionsHTML += `<option value="">-- Seleziona --</option>`;
+          }
+          opzioni.forEach(opt => {
+            optionsHTML += `<option value="${opt}">${opt}</option>`;
+          });
+          optionsHTML += `</select>`;
+          cell.innerHTML = optionsHTML;
+        }
+      }
+    }
+
+    function onMatriceChange() {
+      renderAnalisiTable();
+      updateTipologieColumn();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('datetime').value = now.toISOString().slice(0,16);
+
+      const rowsCamps = document.getElementById('rows-campionamento');
+
+      for (let i = 1; i <= 10; i++) {
+        const idStr = i < 10 ? `0${i}` : `${i}`;
+        const isFirst = (i === 1);
+        const campClass = isFirst ? "" : "row-campione-vuota";
+
+        rowsCamps.innerHTML += `
+          <tr id="tr_campione_${i}" class="${campClass}">
+            <td class="p-0.5 border-r text-center font-bold bg-slate-50">${idStr}</td>
+            <td id="cell_tipologia_${i}" class="p-0.5 border-r"></td>
+            <td class="p-0.5 border-r"><input type="text" id="c_${i}_wbs" oninput="checkCampioneCompilato(${i})" class="w-full border rounded p-0.5 bg-white text-[8.5px]" placeholder="WBS / Pk"></td>
+            <td class="p-0.5 border-r"><input type="text" id="c_${i}_codice" oninput="checkCampioneCompilato(${i})" class="w-full border rounded p-0.5 bg-white font-bold text-[8.5px]" placeholder="Etichetta"></td>
+            <td class="p-0.5 border-r"><input type="text" id="c_${i}_prof" oninput="checkCampioneCompilato(${i})" class="w-full border rounded p-0.5 bg-white text-[8.5px]" placeholder="Profondità"></td>
+            <td class="p-0.5 border-r">
+              <div class="flex gap-0.5">
+                <select id="c_${i}_natura" class="w-1/2 border rounded p-0.5 bg-white text-[8px]">
+                  <option value="">Nat.</option>
+                  <option value="TER">TER</option>
+                  <option value="RIP">RIP</option>
+                  <option value="RIF">RIF</option>
+                </select>
+                <select id="c_${i}_stato" class="w-1/2 border rounded p-0.5 bg-white text-[8px]">
+                  <option value="">Stato</option>
+                  <option value="Solido">Solido</option>
+                  <option value="Polverulento">Polv.</option>
+                  <option value="Fangoso">Fang.</option>
+                  <option value="Liquido">Liq.</option>
+                </select>
+              </div>
+            </td>
+            <td class="p-0.5 border-r">
+              <div class="flex gap-0.5">
+                <select id="c_${i}_metodo_tipo" class="w-1/2 border rounded p-0.5 bg-white text-[8px]">
+                  <option value="">Tipo</option>
+                  <option value="Grezzo">Grezzo</option>
+                  <option value="Composito">Composito</option>
+                  <option value="Puntuale">Puntuale</option>
+                  <option value="Talquale">Talquale</option>
+                </select>
+                <select id="c_${i}_metodo_norma" class="w-1/2 border rounded p-0.5 bg-white text-[8px]">
+                  <option value="">Norma</option>
+                  <option value="Casuale">Casuale</option>
+                  <option value="Stratificata">Strat.</option>
+                  <option value="Sistematica">Sistem.</option>
+                  <option value="Dinamica">Dinam.</option>
+                  <option value="Selettiva">Selett.</option>
+                </select>
+              </div>
+            </td>
+            <td class="p-0.5 border-r text-center"><input type="text" id="c_${i}_incr" class="w-full border rounded p-0.5 text-center bg-white text-[8.5px]" value="1"></td>
+            <td class="p-0.5 border-r">
+              <select id="c_${i}_contenitore" class="w-full border rounded p-0.5 bg-white text-[8px]">
+                <option value="">-- Cont. --</option>
+                <option value="(1) Busta in plastica">(1) Busta PE</option>
+                <option value="(2) Barattolo in PE">(2) Barattolo PE</option>
+                <option value="(3) Bottiglia in vetro">(3) Bottiglia vetro</option>
+                <option value="(4) Vials">(4) Vials</option>
+                <option value="(5) Bottiglia in PE">(5) Bottiglia PE</option>
+              </select>
+            </td>
+            <td class="p-0.5 text-center"><input type="text" id="c_${i}_repl" class="w-full border rounded p-0.5 text-center bg-white text-[8.5px]" value="1"></td>
+          </tr>
+        `;
+      }
+
+      onMatriceChange();
+      updateIdentificativo();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const loadKey = urlParams.get('load');
+      if (loadKey) {
+        setTimeout(() => loadFromCloud(loadKey), 400);
+      }
+    });
+
+    function downloadPDF() {
+      window.print();
+    }
+
+    function generatePDFAndSendEmail() {
+      const id = document.getElementById('identificativo').value.trim() || "CDC_N.D.";
+      const localita = document.getElementById('localita').value.trim() || "Cantiere";
+      const matrice = document.getElementById('matrice_selezionata').value;
+      const fileName = `${id.replace(/[\/\\#$[[\]]/g, "_")}.pdf`;
+
+      window.print();
+
+      const dest = document.getElementById('email_destinatari').value;
+      const cc = document.getElementById('email_cc').value;
+
+      const subject = encodeURIComponent(`Catena di Custodia - ${id} - ${localita} [${matrice}]`);
+      const body = encodeURIComponent(
+        `Buongiorno,\n\n` +
+        `Si trasmette in allegato il verbale di Catena di Custodia n. ${id}\n` +
+        `Matrice: ${matrice}\n` +
+        `Località / Cantiere: ${localita}\n\n` +
+        `* NOTA OPERATIVO: Ricordarsi di allegare il file PDF "${fileName}" scaricato.* \n\n` +
+        `Cordiali saluti,\n` +
+        `Consorzio COCIV — Terzo Valico dei Giovi`
+      );
+
+      let mailtoLink = `mailto:${dest}?subject=${subject}&body=${body}`;
+      if (cc.trim() !== "") {
+        mailtoLink += `&cc=${encodeURIComponent(cc)}`;
+      }
+
+      setTimeout(() => {
+        window.location.href = mailtoLink;
+      }, 1000);
+    }
+
+    function saveCampionamentoToCloud() {
+      const identificativo = document.getElementById('identificativo').value.trim() || "Campionamento_" + Date.now();
+      const cantiere = document.getElementById('localita').value.trim() || "Localita_N.D.";
+      const matrice = document.getElementById('matrice_selezionata').value;
+
+      const campioniData = {};
+      const analisiData = {};
+
+      for (let i = 1; i <= 10; i++) {
+        const tipolEl = document.getElementById(`c_${i}_tipologia`);
+        campioniData[i] = {
+          tipologia: tipolEl ? tipolEl.value : '',
+          wbs: document.getElementById(`c_${i}_wbs`).value,
+          codice: document.getElementById(`c_${i}_codice`).value,
+          prof: document.getElementById(`c_${i}_prof`).value,
+          natura: document.getElementById(`c_${i}_natura`).value,
+          stato: document.getElementById(`c_${i}_stato`).value,
+          metodo_tipo: document.getElementById(`c_${i}_metodo_tipo`).value,
+          metodo_norma: document.getElementById(`c_${i}_metodo_norma`).value,
+          incr: document.getElementById(`c_${i}_incr`).value,
+          contenitore: document.getElementById(`c_${i}_contenitore`).value,
+          repl: document.getElementById(`c_${i}_repl`).value
+        };
+
+        const row = document.getElementById(`tr_analisi_${i}`);
+        if (row) {
+          const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+          const analsObj = {};
+          checkboxes.forEach(cb => {
+            analsObj[cb.getAttribute('data-key')] = cb.checked;
+          });
+          analisiData[i] = analsObj;
+        }
+      }
+
+      const presentiData = {};
+      for (let pIdx = 1; pIdx <= presentiCount; pIdx++) {
+        const nomeEl = document.getElementById(`pres_${pIdx}_nome`);
+        const enteEl = document.getElementById(`pres_${pIdx}_ente`);
+        const canvasEl = document.getElementById(`canvas_pres_${pIdx}`);
+
+        if (nomeEl || enteEl) {
+          presentiData[pIdx] = {
+            nome: nomeEl ? nomeEl.value : '',
+            ente: enteEl ? enteEl.value : '',
+            sigla: canvasEl ? canvasEl.toDataURL() : ''
+          };
+        }
+      }
+
+      const formData = {
+        identificativo: identificativo,
+        matrice: matrice,
+        cantiere: cantiere,
+        laboratorio: document.getElementById('laboratorio').value,
+        esecutore: document.getElementById('esecutore').value,
+        datetime: document.getElementById('datetime').value,
+        per_conto: document.getElementById('per_conto').value,
+        presenti: presentiData,
+        note_campo: document.getElementById('note_campo').value,
+        altre_analisi: document.getElementById('altre_analisi').value,
+        campioni: campioniData,
+        analisi: analisiData,
+        firma_campionatore: document.getElementById('signature-pad').toDataURL(),
+        timestamp: Date.now()
+      };
+
+      db.ref('campionamenti/' + identificativo.replace(/[.#$/[\]]/g, "_")).set(formData, (error) => {
+        if (error) {
+          alert("Errore salvataggio: " + error.message);
+        } else {
+          alert("☁️ Campionamento salvato con successo nel Cloud!");
+          window.location.href = "campionamenti.html";
+        }
+      });
+    }
+
+    function loadFromCloud(key) {
+      db.ref('campionamenti/' + key).once('value', (snapshot) => {
+        const record = snapshot.val();
+        if (record) {
+          if (record.matrice) {
+            document.getElementById('matrice_selezionata').value = record.matrice;
+            onMatriceChange();
+          }
+          if (record.identificativo) {
+            document.getElementById('identificativo').value = record.identificativo;
+            const parti = record.identificativo.split('/');
+            if (parti.length >= 3) {
+              document.getElementById('prog_custom').value = parti[2];
+              updateIdentificativo();
+            }
+          }
+          if (record.cantiere) document.getElementById('localita').value = record.cantiere;
+          if (record.laboratorio) document.getElementById('laboratorio').value = record.laboratorio;
+          if (record.esecutore) document.getElementById('esecutore').value = record.esecutore;
+          if (record.datetime) {
+            document.getElementById('datetime').value = record.datetime;
+            updateIdentificativo();
+          }
+          if (record.per_conto) document.getElementById('per_conto').value = record.per_conto;
+          if (record.note_campo) document.getElementById('note_campo').value = record.note_campo;
+          if (record.altre_analisi) document.getElementById('altre_analisi').value = record.altre_analisi;
+
+          if (record.firma_campionatore) {
+            const canvas = document.getElementById('signature-pad');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = () => ctx.drawImage(img, 0, 0, canvas.width / window.devicePixelRatio, canvas.height / window.devicePixelRatio);
+            img.src = record.firma_campionatore;
+          }
+
+          if (record.presenti) {
+            const keys = Object.keys(record.presenti);
+            keys.forEach(pIdx => {
+              if (pIdx > 2 && !document.getElementById(`row_presente_${pIdx}`)) {
+                addPresenteRow();
+              }
+              const p = record.presenti[pIdx];
+              if (p) {
+                if (p.nome) document.getElementById(`pres_${pIdx}_nome`).value = p.nome;
+                if (p.ente) document.getElementById(`pres_${pIdx}_ente`).value = p.ente;
+                checkPresenteCompilato(pIdx);
+                if (p.sigla) {
+                  const canvas = document.getElementById(`canvas_pres_${pIdx}`);
+                  if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    img.onload = () => ctx.drawImage(img, 0, 0, canvas.width / window.devicePixelRatio, canvas.height / window.devicePixelRatio);
+                    img.src = p.sigla;
+                  }
+                }
+              }
+            });
+          }
+
+          if (record.campioni) {
+            for (let i = 1; i <= 10; i++) {
+              const c = record.campioni[i];
+              if (c) {
+                const tipolEl = document.getElementById(`c_${i}_tipologia`);
+                if (tipolEl && c.tipologia) tipolEl.value = c.tipologia;
+                if (c.wbs) document.getElementById(`c_${i}_wbs`).value = c.wbs;
+                if (c.codice) document.getElementById(`c_${i}_codice`).value = c.codice;
+                if (c.prof) document.getElementById(`c_${i}_prof`).value = c.prof;
+                if (c.natura) document.getElementById(`c_${i}_natura`).value = c.natura;
+                if (c.stato) document.getElementById(`c_${i}_stato`).value = c.stato;
+                if (c.metodo_tipo) document.getElementById(`c_${i}_metodo_tipo`).value = c.metodo_tipo;
+                if (c.metodo_norma) document.getElementById(`c_${i}_metodo_norma`).value = c.metodo_norma;
+                if (c.incr) document.getElementById(`c_${i}_incr`).value = c.incr;
+                if (c.contenitore) document.getElementById(`c_${i}_contenitore`).value = c.contenitore;
+                if (c.repl) document.getElementById(`c_${i}_repl`).value = c.repl;
+                checkCampioneCompilato(i);
+              }
+            }
+            updateIdentificativo();
+          }
+
+          if (record.analisi) {
+            for (let i = 1; i <= 10; i++) {
+              const savedRowAnalisi = record.analisi[i];
+              const row = document.getElementById(`tr_analisi_${i}`);
+              if (savedRowAnalisi && row) {
+                const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                  const k = cb.getAttribute('data-key');
+                  if (savedRowAnalisi[k] !== undefined) {
+                    cb.checked = savedRowAnalisi[k];
+                  }
+                });
+                checkAnalisiVuota(i);
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
