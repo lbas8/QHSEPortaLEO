@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portale QHSE — Terzo Valico dei Giovi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f17;
+      color: #f8fafc;
+    }
+
+    /* SVG Interactive Wheel */
+    .slice-path {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .slice-path:hover, .slice-path.active {
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
+      transform: scale(1.03);
+      transform-origin: 200px 200px;
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-4px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+  <!-- Header Top Portale -->
+  <header class="w-full bg-slate-900/80 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <img src="logo_webuild.jpg" alt="Webuild" class="h-10 object-contain rounded bg-white p-1" onerror="this.src='https://via.placeholder.com/120x40?text=WEBUILD'">
+        <div class="h-8 w-[1px] bg-slate-700 hidden sm:block"></div>
+        <div>
+          <h1 class="font-black text-lg tracking-wide uppercase text-slate-100">Portale QHSE Cantiere</h1>
+          <p class="text-xs text-sky-400 font-semibold">Terzo Valico dei Giovi — COCIV</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistema Attivo
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center justify-center">
+    
+    <!-- Title Section -->
+    <div class="text-center max-w-3xl mb-8">
+      <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-white mb-3">
+        SISTEMA DI GESTIONE INTEGRATO <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-amber-400 to-sky-400">QHSE</span>
+      </h2>
+      <p class="text-sm sm:text-base text-slate-400">
+        Seleziona il settore operativo per accedere ai verbali di sopralluogo, catene di custodia, campionamenti e cartellonistica ambientale di cantiere.
+      </p>
+    </div>
+
+    <!-- Interactive Wheel & Interactive Hub Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full my-4">
+      
+      <!-- Interactive SVG Wheel (5 Cols) -->
+      <div class="lg:col-span-5 flex justify-center items-center relative">
+        <div class="relative w-[320px] h-[320px] sm:w-[380px] sm:h-[380px]">
+          
+          <svg viewBox="0 0 400 400" class="w-full h-full drop-shadow-2xl">
+            <!-- Center Hub Circle -->
+            <circle cx="200" cy="200" r="190" fill="#0f172a" stroke="#1e293b" stroke-width="4"/>
+
+            <!-- SPICCHIO E (Environment) -> RICONNESSO AL PORTALE AMBIENTALE COMPLETO -->
+            <g class="slice-group cursor-pointer" onclick="location.href='enviromental.html'">
+              <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" 
+                    fill="#0284c7" class="slice-path opacity-85 hover:opacity-100 transition" />
+              <!-- Icona & Testo E -->
+              <g transform="translate(250, 110)" class="pointer-events-none text-white">
+                <circle cx="20" cy="20" r="28" fill="#0369a1" />
+                <path d="M20 8 C12 8 8 16 8 26 C16 26 24 22 28 14 C22 22 14 24 8 24 C10 16 16 10 20 8 Z" fill="#38bdf8"/>
+                <text x="20" y="62" font-size="22" font-weight="900" fill="#ffffff" text-anchor="middle">E</text>
+              </g>
+            </g>
+
+            <!-- SPICCHIO HS (Health & Safety) -->
+            <g class="slice-group cursor-pointer" onclick="alert('Modulo Health & Safety in attivazione')">
+              <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" 
+                    fill="#d97706" class="slice-path opacity-85 hover:opacity-100 transition" />
+              <!-- Icona & Testo HS -->
+              <g transform="translate(170, 260)" class="pointer-events-none text-white">
+                <circle cx="30" cy="20" r="28" fill="#b45309" />
+                <text x="30" y="27" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle">HS</text>
+                <text x="30" y="60" font-size="14" font-weight="800" fill="#fef3c7" text-anchor="middle">SAFETY</text>
+              </g>
+            </g>
+
+            <!-- SPICCHIO Q (Quality) -->
+            <g class="slice-group cursor-pointer" onclick="alert('Modulo Qualità in attivazione')">
+              <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" 
+                    fill="#059669" class="slice-path opacity-85 hover:opacity-100 transition" />
+              <!-- Icona & Testo Q -->
+              <g transform="translate(100, 110)" class="pointer-events-none text-white">
+                <circle cx="20" cy="20" r="28" fill="#047857" />
+                <text x="20" y="28" font-size="24" font-weight="900" fill="#ffffff" text-anchor="middle">Q</text>
+                <text x="20" y="62" font-size="14" font-weight="800" fill="#a7f3d0" text-anchor="middle">QUALITY</text>
+              </g>
+            </g>
+
+            <!-- Central Core Button -->
+            <circle cx="200" cy="200" r="55" fill="#0b0f17" stroke="#334155" stroke-width="4"/>
+            <text x="200" y="196" font-size="16" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+            <text x="200" y="214" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle">HUB CANTIERE</text>
+          </svg>
+
+        </div>
+      </div>
+
+      <!-- Sector Cards List (7 Cols) -->
+      <div class="lg:col-span-7 flex flex-col gap-4 w-full">
+        
+        <!-- CARD Q - QUALITY -->
+        <div class="glass-card rounded-2xl p-5 flex items-start gap-4 border-l-4 border-l-emerald-500 cursor-pointer group"
+             onclick="alert('Modulo Qualità di Cantiere')">
+          <div class="w-14 h-14 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition flex-shrink-0">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="flex-grow">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-lg font-black text-white group-hover:text-emerald-400 transition">Q — QUALITY (Qualità)</h3>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 uppercase">ISO 9001</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-2">
+              Controllo conformità materiali, Piani di Controllo Qualità (PCQ), collaudi di cantiere e non conformità operative.
+            </p>
+            <div class="flex items-center gap-2 text-xs text-emerald-400 font-bold">
+              <span>Accedi ai moduli Qualità</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD HS - HEALTH & SAFETY -->
+        <div class="glass-card rounded-2xl p-5 flex items-start gap-4 border-l-4 border-l-amber-500 cursor-pointer group"
+             onclick="alert('Modulo Sicurezza di Cantiere')">
+          <div class="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-110 transition flex-shrink-0">
+            <div class="relative flex items-center justify-center">
+              <i class="fa-solid fa-hard-hat"></i>
+              <i class="fa-solid fa-kit-medical text-xs absolute -bottom-1 -right-2 text-amber-300"></i>
+            </div>
+          </div>
+          <div class="flex-grow">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-lg font-black text-white group-hover:text-amber-400 transition">HS — HEALTH & SAFETY (Sicurezza & Salute)</h3>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 uppercase">ISO 45001</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-2">
+              Gestione DPI, idoneità tessere cantiere, verifiche attrezzature, gestione emergenze e cassette primo soccorso.
+            </p>
+            <div class="flex items-center gap-2 text-xs text-amber-400 font-bold">
+              <span>Accedi ai moduli Sicurezza</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD E - ENVIRONMENT (COLLEGAMENTO AL PORTALE COMPLETO CON VERBALI E CATENA DI CUSTODIA) -->
+        <div class="glass-card rounded-2xl p-5 flex items-start gap-4 border-l-4 border-l-sky-500 cursor-pointer group bg-sky-950/20 shadow-lg shadow-sky-950/20"
+             onclick="location.href='enviromental.html'">
+          <div class="w-14 h-14 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-2xl group-hover:scale-110 transition flex-shrink-0">
+            <i class="fa-solid fa-leaf"></i>
+          </div>
+          <div class="flex-grow">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-lg font-black text-white group-hover:text-sky-400 transition">E — ENVIRONMENT (Ambiente & Cantiere)</h3>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 uppercase">D.Lgs. 152/06</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-2">
+              Verbali di Sopralluogo sul campo, Catena di Custodia campionamenti, Cartellonistica DTR e gestione Terre e Rocce da Scavo.
+            </p>
+            <div class="flex items-center gap-2 text-xs text-sky-400 font-bold">
+              <span>Apri Portale Ambientale Completo</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
+      <p class="flex items-center gap-2">
+        <i class="fa-solid fa-mobile-screen"></i> Ottimizzato per Tablet e Smartphone di Cantiere
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
