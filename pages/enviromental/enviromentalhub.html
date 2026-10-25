@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -100,19 +101,19 @@
 
   <!-- MODALE UNICO: WIDGET CALENDARIO MENSILE CON FRECCE CAMBIO MESE E NUMERO SETTIMANE -->
   <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
       <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer">
         <i class="fa-solid fa-xmark"></i>
       </button>
       
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-4 flex-shrink-0">
         <h3 class="text-lg font-black text-white flex items-center gap-2">
           <i class="fa-solid fa-calendar-days text-amber-400"></i> Calendario Mensile & Scadenze di Cantiere
         </h3>
       </div>
 
       <!-- WIDGET GRIGLIA CALENDARIO CON FRECCE CAMBIO MESE E COLONNA SETTIMANE (W) -->
-      <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4">
+      <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4 flex-shrink-0">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-3">
             <button onclick="cambiaMese(-1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese precedente">
@@ -138,7 +139,7 @@
       </div>
 
       <!-- FORM INSERIMENTO ATTIVITA -->
-      <div id="form-nuova-attivita-container" class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl space-y-3 mb-4">
+      <div id="form-nuova-attivita-container" class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl space-y-3 mb-4 flex-shrink-0">
         <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">Aggiungi Promemoria / Attività</h4>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="sm:col-span-2">
@@ -167,16 +168,16 @@
         </div>
       </div>
 
-      <!-- LISTA SCADENZE MEMORIZZATE -->
-      <div class="flex flex-col">
-        <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Scadenze in Archivio</h4>
-        <div id="lista-scadenze-container" class="space-y-2 min-h-[60px] max-h-48 overflow-y-auto pr-1">
+      <!-- LISTA SCADENZE MEMORIZZATE (CORRETTA CON SCROLL DEDICATO) -->
+      <div class="flex flex-col flex-grow min-h-[140px] overflow-hidden">
+        <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2 flex-shrink-0">Scadenze in Archivio</h4>
+        <div id="lista-scadenze-container" class="space-y-2 overflow-y-auto pr-1 flex-grow">
           <!-- Popolato da JS -->
         </div>
       </div>
     </div>
   </div>
-
+  
   <!-- MAIN CONTENT: GRIGLIA DEGLI ASPETTI AMBIENTALI -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col justify-center">
     
