@@ -57,20 +57,18 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
-<!-- HEADER STANDARD UNIFICATA CON WIDGET CALENDARIO INTERATTIVO -->
+<!-- HEADER STANDARD UNIFICATA CON WIDGET CALENDARIO MENSILE E NUMERO SETTIMANE -->
   <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       
-      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro Dinamico -->
+      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro -->
       <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
         <div class="flex items-center gap-3">
-          <!-- Tasto Indietro Dinamico -->
           <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
             <i class="fa-solid fa-arrow-left text-amber-400"></i>
             <span class="hidden sm:inline">Indietro</span>
           </button>
 
-          <!-- Icona Sezione -->
           <div class="relative w-11 h-11 rounded-xl bg-amber-500/10 border-2 border-amber-400/80 flex items-center justify-center text-amber-400 shadow-md">
             <i class="fa-solid fa-leaf text-xl"></i>
           </div>
@@ -81,30 +79,27 @@
         </div>
       </div>
 
-      <!-- LATO DESTRA: Widget Calendario Cliccabile con Tasto +, Avvisi & Home -->
+      <!-- LATO DESTRA: Widget Calendario Cliccabile, Avvisi & Home -->
       <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
         
-        <!-- 1. WIDGET CALENDARIO INTERATTIVO (CELLA DATA CLICCABILE) -->
-        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-amber-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario e aggiungere scadenze">
-          <!-- Blocco Calendario -->
+        <!-- WIDGET CALENDARIO INTERATTIVO (APRE IL MODALE MENSILE CON SETTIMANE) -->
+        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-amber-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile e le settimane">
           <div class="bg-amber-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
             <span id="calMonth">OTT</span> <span id="calDay">25</span>
           </div>
-          <!-- Info Data & Tasto Più -->
           <div class="text-left text-xs leading-tight">
             <div class="font-bold text-white flex items-center gap-1.5">
               <span id="calFullDate">Domenica, 25 OTT</span>
-              <!-- Tasto "+" evidenziato -->
               <span class="w-4 h-4 rounded-full bg-amber-500/20 border border-amber-400 text-amber-400 flex items-center justify-center text-[10px] font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition">
                 <i class="fa-solid fa-plus"></i>
               </span>
             </div>
-            <div class="text-[10px] text-slate-400 font-medium">Gestione Scadenze Cantiere</div>
+            <div class="text-[10px] text-slate-400 font-medium">Calendario & Settimane</div>
           </div>
         </div>
 
-        <!-- 2. PORTALE DEGLI AVVISI & SCADENZE DINAMICO -->
-        <div id="widget-avvisi" onclick="mostraListaScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-amber-500/40 hover:border-amber-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Clicca per visualizzare tutte le scadenze attive">
+        <!-- PORTALE AVVISI -->
+        <div id="widget-avvisi" onclick="mostraListaScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-amber-500/40 hover:border-amber-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
           <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
           <div class="text-left text-xs leading-tight">
             <div class="font-extrabold text-amber-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
@@ -114,8 +109,8 @@
           </div>
         </div>
 
-        <!-- 3. HOME QHSE -->
-        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-amber-400/60 rounded-full text-xs font-bold text-white hover:text-amber-400 transition shadow-sm" title="Torna alla Home Principale QHSE">
+        <!-- HOME QHSE -->
+        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-amber-400/60 rounded-full text-xs font-bold text-white hover:text-amber-400 transition shadow-sm" title="Home Principale QHSE">
           <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
             <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
             <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
@@ -130,6 +125,77 @@
 
     </div>
   </header>
+
+  <!-- MODALE WIDGET CALENDARIO MENSILE CON NUMERO SETTIMANE E TASTO "+" -->
+  <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+      <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
+          <i class="fa-solid fa-calendar-days text-amber-400"></i> Calendario Mensile & Scadenze di Cantiere
+        </h3>
+        <!-- Tasto rapido "+" per aggiungere attività -->
+        <button onclick="attivaModalitaNuovaAttivita()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl transition flex items-center gap-1.5 shadow-md">
+          <i class="fa-solid fa-plus text-xs"><span>Nuova Attività</span></i>
+        </button>
+      </div>
+
+      <!-- WIDGET GRIGLIA CALENDARIO CON COLONNA SETTIMANE (W) -->
+      <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4">
+        <div class="flex items-center justify-between mb-3">
+          <span id="label-mese-corrente" class="text-xs font-black text-amber-400 uppercase tracking-widest">OTTOBRE 2026</span>
+          <div class="text-[10px] text-slate-400">Clicca su un giorno per inserire o visualizzare impegni</div>
+        </div>
+        
+        <!-- Intestazione giorni e colonna W -->
+        <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1 border-b border-slate-700 pb-1">
+          <div class="text-amber-500">W</div>
+          <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
+        </div>
+        <!-- Griglia generata dinamicamente con le settimane -->
+        <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs">
+          <!-- Inserito da JS -->
+        </div>
+      </div>
+
+      <!-- FORM INSERIMENTO ATTIVITA (INIZIALMENTE COMPATTO O TOGGLE) -->
+      <div id="form-nuova-attivita-container" class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl space-y-3 mb-4">
+        <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">Aggiungi Promemoria / Attività</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-[10px] font-bold text-slate-300 mb-1">Titolo Attività</label>
+            <input type="text" id="input-titolo" placeholder="Es. Verifica vasche ITA" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-300 mb-1">Data</label>
+            <input type="date" id="input-data" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
+          </div>
+        </div>
+        <div class="flex items-center justify-between gap-3">
+          <div class="w-1/2">
+            <label class="block text-[10px] font-bold text-slate-300 mb-1">Priorità</label>
+            <select id="input-priorita" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
+              <option value="Alta">Alta (Urgente)</option>
+              <option value="Media">Media</option>
+              <option value="Bassa">Bassa</option>
+            </select>
+          </div>
+          <button onclick="aggiungiScadenza()" class="w-1/2 mt-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg transition shadow-md">
+            Salva in Calendario
+          </button>
+        </div>
+      </div>
+
+      <!-- LISTA SCADENZE MEMORIZZATE -->
+      <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Scadenze in Archivio</h4>
+      <div id="lista-scadenze-container" class="space-y-2 overflow-y-auto pr-1 max-h-32">
+        <!-- Popolato da JS -->
+      </div>
+    </div>
+  </div>
   <!-- MODALE / GESTORE SCADENZE E WHATSAPP -->
   <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
