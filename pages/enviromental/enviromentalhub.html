@@ -26,38 +26,11 @@
       transform: translateY(-5px);
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
     }
-
-    /* Tasto Miniatura Home */
-    .qhse-nav-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 10px 4px 5px;
-      background-color: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 9999px;
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.75rem;
-      font-weight: 800;
-      transition: all 0.2s ease;
-    }
-    .qhse-nav-btn:hover {
-      background-color: #1e293b;
-      border-color: #38bdf8;
-      color: #38bdf8;
-    }
-    .qhse-mini-svg {
-      width: 28px !important;
-      height: 28px !important;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
-<!-- HEADER STANDARD UNIFICATA CON WIDGET CALENDARIO MENSILE E NUMERO SETTIMANE -->
+  <!-- HEADER STANDARD UNIFICATA CON WIDGET CALENDARIO MENSILE E NUMERO SETTIMANE -->
   <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       
@@ -82,7 +55,7 @@
       <!-- LATO DESTRA: Widget Calendario Cliccabile, Avvisi & Home -->
       <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
         
-        <!-- WIDGET CALENDARIO INTERATTIVO (CELLA DATA CLICCABILE) -->
+        <!-- WIDGET CALENDARIO INTERATTIVO -->
         <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-amber-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile e le settimane">
           <div class="bg-amber-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
             <span id="calMonth">OTT</span> <span id="calDay">25</span>
@@ -99,7 +72,7 @@
         </div>
 
         <!-- PORTALE AVVISI -->
-        <div id="widget-avvisi" onclick="mostraListaScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-amber-500/40 hover:border-amber-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
+        <div id="widget-avvisi" onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-amber-500/40 hover:border-amber-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
           <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
           <div class="text-left text-xs leading-tight">
             <div class="font-extrabold text-amber-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
@@ -126,7 +99,7 @@
     </div>
   </header>
 
-  <!-- MODALE WIDGET CALENDARIO MENSILE CON NUMERO SETTIMANE E TASTO "+" -->
+  <!-- MODALE UNICO: WIDGET CALENDARIO MENSILE CON NUMERO SETTIMANE E TASTO "+" -->
   <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
       <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">
@@ -198,8 +171,193 @@
     </div>
   </div>
 
-  <!-- SCRIPT LOGICA CALENDARIO E GESTIONE SCADENZE -->
+  <!-- MAIN CONTENT: GRIGLIA DEGLI ASPETTI AMBIENTALI -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col justify-center">
+    
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase mb-2">
+        Aree Operative Ambientali
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-400">
+        Seleziona la matrice di riferimento per accedere alla documentazione, alla registrazione dati e alla cartellonistica di cantiere.
+      </p>
+    </div>
+
+    <!-- GRIGLIA A 6 BOX CON ARMOCROMIA DEDICATA -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- 1. DOCUMENTI DI CANTIERE / SGA -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-400 flex flex-col justify-between group cursor-pointer"
+           onclick="alert('Sezione Documenti SGA in preparazione')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 uppercase tracking-wider">
+              ISO 14001
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-slate-300 transition mb-2">
+            DOCUMENTI DI CANTIERE / SGA
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Piani di Gestione Ambientale (PGA), autorizzazioni uniche, registro prescrizioni e monitoraggio normativo.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-300 group-hover:translate-x-1 transition">
+          <span>Consulta Documenti</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 2. IMPIANTO TRATTAMENTO ACQUE - ITA -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group cursor-pointer"
+           onclick="alert('Sezione Impianto Trattamento Acque in preparazione')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-droplet"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-cyan-950 text-cyan-300 uppercase tracking-wider">
+              Scarichi & pH
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-cyan-400 transition mb-2">
+            IMPIANTO TRATTAMENTO ACQUE (ITA)
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Monitoraggio vasche di sedimentazione, controlli chimico-fisici delle acque di cantiere, pH, torbidità e portate.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition">
+          <span>Gestione Impianti ITA</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 3. RIFIUTI -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-amber-500 flex flex-col justify-between group cursor-pointer bg-amber-950/10"
+           onclick="location.href='rifiutihub.html'">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-recycle"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-amber-950 text-amber-300 uppercase tracking-wider">
+              DTR & Codici EER
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-amber-400 transition mb-2">
+            RIFIUTI
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Gestione Depositi Temporanei Rifiuti (DTR), stampa cartellonistica A4/A3, registro di carico/scarico e codici EER.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-amber-400 group-hover:translate-x-1 transition">
+          <span>Apri Modulo Rifiuti & Cartelli</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 4. MATERIALE DA SCAVO - MdS -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-emerald-500 flex flex-col justify-between group cursor-pointer"
+           onclick="window.open('https://cociv.ate.cloud/Account/Login?ReturnUrl=%2Fglot%2Ftrasporti-consuntivo', '_blank')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-mountain font-bold"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 uppercase tracking-wider">
+              D.P.R. 120/2017
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-emerald-400 transition mb-2">
+            MATERIALE DA SCAVO (MdS)
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Gestione Terre e Rocce da Scavo gestite come Sottoprodotto, tracciabilità cumuli, siti di deposito e cartelli identificativi.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition">
+          <span>Gestione Sottoprodotto & MdS</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 5. SOSTANZE PERICOLOSE -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-rose-500 flex flex-col justify-between group cursor-pointer"
+           onclick="alert('Sezione Sostanze Pericolose in preparazione')">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-rose-950/60 border border-rose-500/40 flex items-center justify-center text-rose-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-rose-950 text-rose-300 uppercase tracking-wider">
+              CLP & SDS
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-rose-400 transition mb-2">
+            SOSTANZE PERICOLOSE
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Registro prodotti chimici, Schede di Sicurezza (SDS), bacini di contenimento oli/carburanti e kit anti-spandimento.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-rose-400 group-hover:translate-x-1 transition">
+          <span>Registro Prodotto & SDS</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- 6. VERBALI & CAMPIONAMENTI -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-indigo-500 flex flex-col justify-between group cursor-pointer"
+           onclick="location.href='verbalicampionamento.html'">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-950/60 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 uppercase tracking-wider">
+              Field Reports
+            </span>
+          </div>
+          <h3 class="text-lg font-black text-white group-hover:text-indigo-400 transition mb-2">
+            VERBALI & CAMPIONAMENTI
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Verbali di sopralluogo ambientale da iPad/Mobile con foto, Catena di Custodia e registrazione campioni di cantiere.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:translate-x-1 transition">
+          <span>Compila Verbali & Campioni</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
+      <p class="flex items-center gap-2">
+        <i class="fa-solid fa-leaf text-sky-400"></i> Modulo Gestione Ambientale di Cantiere
+      </p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT UNICO PER GESTIONE CALENDARIO E SCADENZE -->
   <script>
+    const oggi = new Date();
+    const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
+    const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+
+    // Inizializzazione header data
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('calMonth').innerText = mesi[oggi.getMonth()];
+      document.getElementById('calDay').innerText = oggi.getDate();
+      document.getElementById('calFullDate').innerText = `${giorniSettimana[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
+      aggiornaWidgetAvvisi();
+    });
+
     function getWeekNumber(d) {
       d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
       d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
@@ -213,9 +371,8 @@
       if (!container) return;
       container.innerHTML = '';
 
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
+      const year = oggi.getFullYear();
+      const month = oggi.getMonth();
 
       const primoGiornoMese = new Date(year, month, 1);
       const ultimoGiornoMese = new Date(year, month + 1, 0);
@@ -236,7 +393,7 @@
             htmlRighe += `<div class="p-1"></div>`;
           } else {
             let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(giornoCorrente).padStart(2, '0')}`;
-            let isOggi = giornoCorrente === now.getDate() ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-900/80 text-slate-200 hover:bg-slate-700';
+            let isOggi = giornoCorrente === oggi.getDate() ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-900/80 text-slate-200 hover:bg-slate-700';
             
             htmlRighe += `<div onclick="selezionaDataCalendario('${dStr}')" class="p-1.5 rounded cursor-pointer transition text-xs font-semibold ${isOggi}">${giornoCorrente}</div>`;
             giornoCorrente++;
@@ -265,129 +422,10 @@
     function chiudiGestoreScadenze() {
       document.getElementById('modal-scadenze').classList.add('hidden');
     }
-  </script>
 
-  <!-- MODALE WIDGET CALENDARIO MENSILE CON NUMERO SETTIMANE E TASTO "+" -->
-  <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
-      <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-black text-white flex items-center gap-2">
-          <i class="fa-solid fa-calendar-days text-amber-400"></i> Calendario Mensile & Scadenze di Cantiere
-        </h3>
-        <!-- Tasto rapido "+" per aggiungere attività -->
-        <button onclick="attivaModalitaNuovaAttivita()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl transition flex items-center gap-1.5 shadow-md">
-          <i class="fa-solid fa-plus text-xs"><span>Nuova Attività</span></i>
-        </button>
-      </div>
-
-      <!-- WIDGET GRIGLIA CALENDARIO CON COLONNA SETTIMANE (W) -->
-      <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4">
-        <div class="flex items-center justify-between mb-3">
-          <span id="label-mese-corrente" class="text-xs font-black text-amber-400 uppercase tracking-widest">OTTOBRE 2026</span>
-          <div class="text-[10px] text-slate-400">Clicca su un giorno per inserire o visualizzare impegni</div>
-        </div>
-        
-        <!-- Intestazione giorni e colonna W -->
-        <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1 border-b border-slate-700 pb-1">
-          <div class="text-amber-500">W</div>
-          <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
-        </div>
-        <!-- Griglia generata dinamicamente con le settimane -->
-        <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs">
-          <!-- Inserito da JS -->
-        </div>
-      </div>
-
-      <!-- FORM INSERIMENTO ATTIVITA (INIZIALMENTE COMPATTO O TOGGLE) -->
-      <div id="form-nuova-attivita-container" class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl space-y-3 mb-4">
-        <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">Aggiungi Promemoria / Attività</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="sm:col-span-2">
-            <label class="block text-[10px] font-bold text-slate-300 mb-1">Titolo Attività</label>
-            <input type="text" id="input-titolo" placeholder="Es. Verifica vasche ITA" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold text-slate-300 mb-1">Data</label>
-            <input type="date" id="input-data" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
-          </div>
-        </div>
-        <div class="flex items-center justify-between gap-3">
-          <div class="w-1/2">
-            <label class="block text-[10px] font-bold text-slate-300 mb-1">Priorità</label>
-            <select id="input-priorita" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
-              <option value="Alta">Alta (Urgente)</option>
-              <option value="Media">Media</option>
-              <option value="Bassa">Bassa</option>
-            </select>
-          </div>
-          <button onclick="aggiungiScadenza()" class="w-1/2 mt-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg transition shadow-md">
-            Salva in Calendario
-          </button>
-        </div>
-      </div>
-
-      <!-- LISTA SCADENZE MEMORIZZATE -->
-      <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Scadenze in Archivio</h4>
-      <div id="lista-scadenze-container" class="space-y-2 overflow-y-auto pr-1 max-h-32">
-        <!-- Popolato da JS -->
-      </div>
-    </div>
-  </div>
-  <!-- MODALE / GESTORE SCADENZE E WHATSAPP -->
-  <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
-      <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      
-      <h3 class="text-lg font-black text-white mb-2 flex items-center gap-2">
-        <i class="fa-solid fa-calendar-days text-amber-400"></i> Pianificatore Scadenze & WhatsApp
-      </h3>
-      <p class="text-xs text-slate-400 mb-6">Inserisci un nuovo promemoria di cantiere. Verrà visualizzato nella sezione Avvisi e potrai inviarlo direttamente su WhatsApp.</p>
-
-      <!-- FORM NUOVA SCADENZA -->
-      <div class="space-y-4 mb-6">
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Titolo Attività / Scadenza</label>
-          <input type="text" id="input-titolo" placeholder="Es. Verifica vasche ITA Cravasco" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 outline-none">
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Data Scadenza</label>
-            <input type="date" id="input-data" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Priorità</label>
-            <select id="input-priorita" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-amber-400 outline-none">
-              <option value="Alta">Alta (Urgente)</option>
-              <option value="Media">Media</option>
-              <option value="Bassa">Bassa</option>
-            </select>
-          </div>
-        </div>
-        <button onclick="aggiungiScadenza()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl transition shadow-md">
-          Salva Scadenza & Aggiorna Avvisi
-        </button>
-      </div>
-
-      <!-- LISTA SCADENZE ATTIVE -->
-      <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-3">Scadenze Memorizzate</h4>
-      <div id="lista-scadenze-container" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-        <!-- Generato dinamicamente via JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- SCRIPT GESTIONE SCADENZE & WHATSAPP -->
-  <script>
     function getScadenze() {
       let salvate = localStorage.getItem('qhse_scadenze');
       if (!salvate) {
-        // Scadenza predefinita di esempio
         return [{ titolo: "Verifica vasche ITA Cravasco in corso", data: "2026-10-25", priorita: "Alta" }];
       }
       return JSON.parse(salvate);
@@ -408,15 +446,6 @@
       }
     }
 
-    function apriGestoreScadenze() {
-      document.getElementById('modal-scadenze').classList.remove('hidden');
-      renderizzaListaModal();
-    }
-
-    function chiudiGestoreScadenze() {
-      document.getElementById('modal-scadenze').classList.add('hidden');
-    }
-
     function aggiungiScadenza() {
       let titolo = document.getElementById('input-titolo').value;
       let data = document.getElementById('input-data').value;
@@ -428,7 +457,7 @@
       }
 
       let scadenze = getScadenze();
-      scadenze.unshift({ titolo, data, priorita }); // Mette in cima la più recente
+      scadenze.unshift({ titolo, data, priorita });
       salvaScadenze(scadenze);
 
       document.getElementById('input-titolo').value = '';
@@ -480,198 +509,6 @@
         `;
       });
     }
-
-    // Esegue all'avvio della pagina
-    window.addEventListener('DOMContentLoaded', () => {
-      aggiornaWidgetAvvisi();
-    });
-  </script>
-
-
-  <!-- MAIN CONTENT: GRIGLIA DEGLI ASFETTI AMBIENTALI -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col justify-center">
-    
-    <div class="text-center max-w-2xl mx-auto mb-10">
-      <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase mb-2">
-        Aree Operative Ambientali
-      </h2>
-      <p class="text-xs sm:text-sm text-slate-400">
-        Seleziona la matrice di riferimento per accedere alla documentazione, alla registrazione dati e alla cartellonistica di cantiere.
-      </p>
-    </div>
-
-    <!-- GRIGLIA A 6 BOX CON ARMOCROMIA DEDICATA -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      
-      <!-- 1. DOCUMENTI DI CANTIERE / SGA (BLU SLATE) -->
-      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-400 flex flex-col justify-between group cursor-pointer"
-           onclick="alert('Sezione Documenti SGA in preparazione')">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 text-2xl group-hover:scale-110 transition">
-              <i class="fa-solid fa-folder-open"></i>
-            </div>
-            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 uppercase tracking-wider">
-              ISO 14001
-            </span>
-          </div>
-          <h3 class="text-lg font-black text-white group-hover:text-slate-300 transition mb-2">
-            DOCUMENTI DI CANTIERE / SGA
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed mb-4">
-            Piani di Gestione Ambientale (PGA), autorizzazioni uniche, registro prescrizioni e monitoraggio normativo.
-          </p>
-        </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-slate-300 group-hover:translate-x-1 transition">
-          <span>Consulta Documenti</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </div>
-      </div>
-
-      <!-- 2. IMPIANTO TRATTAMENTO ACQUE - ITA (AZZURRO CYAN) -->
-      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group cursor-pointer"
-           onclick="alert('Sezione Impianto Trattamento Acque in preparazione')">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition">
-              <i class="fa-solid fa-droplet"></i>
-            </div>
-            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-cyan-950 text-cyan-300 uppercase tracking-wider">
-              Scarichi & pH
-            </span>
-          </div>
-          <h3 class="text-lg font-black text-white group-hover:text-cyan-400 transition mb-2">
-            IMPIANTO TRATTAMENTO ACQUE (ITA)
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed mb-4">
-            Monitoraggio vasche di sedimentazione, controlli chimico-fisici delle acque di cantiere, pH, torbidità e portate.
-          </p>
-        </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition">
-          <span>Gestione Impianti ITA</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </div>
-      </div>
-
-      <!-- 3. RIFIUTI (GIALLO SENAPE / AMBER - COLLEGATO ALLA CARTELLONISTICA) -->
-      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-amber-500 flex flex-col justify-between group cursor-pointer bg-amber-950/10"
-           onclick="location.href='rifiutihub.html'">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-110 transition">
-              <i class="fa-solid fa-recycle"></i>
-            </div>
-            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-amber-950 text-amber-300 uppercase tracking-wider">
-              DTR & Codici EER
-            </span>
-          </div>
-          <h3 class="text-lg font-black text-white group-hover:text-amber-400 transition mb-2">
-            RIFIUTI
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed mb-4">
-            Gestione Depositi Temporanei Rifiuti (DTR), stampa cartellonistica A4/A3, registro di carico/scarico e codici EER.
-          </p>
-        </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-amber-400 group-hover:translate-x-1 transition">
-          <span>Apri Modulo Rifiuti & Cartelli</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </div>
-      </div>
-
-      <!-- 4. MATERIALE DA SCAVO - MdS (VERDE SMERALDO) -->
-<!-- 4. MATERIALE DA SCAVO - MdS (VERDE SMERALDO) -->
-<div class="glass-card rounded-2xl p-6 border-t-4 border-t-emerald-500 flex flex-col justify-between group cursor-pointer"
-     onclick="window.open('https://cociv.ate.cloud/Account/Login?ReturnUrl=%2Fglot%2Ftrasporti-consuntivo', '_blank')">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition">
-              <i class="fa-solid fa-mountain font-bold"></i>
-            </div>
-            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-300 uppercase tracking-wider">
-              D.P.R. 120/2017
-            </span>
-          </div>
-          <h3 class="text-lg font-black text-white group-hover:text-emerald-400 transition mb-2">
-            MATERIALE DA SCAVO (MdS)
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed mb-4">
-            Gestione Terre e Rocce da Scavo gestite come Sottoprodotto, tracciabilità cumuli, siti di deposito e cartelli identificativi.
-          </p>
-        </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition">
-          <span>Gestione Sottoprodotto & MdS</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </div>
-      </div>
-
-      <!-- 5. SOSTANZE PERICOLOSE (ROSSO ROSE) -->
-      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-rose-500 flex flex-col justify-between group cursor-pointer"
-           onclick="alert('Sezione Sostanze Pericolose in preparazione')">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl bg-rose-950/60 border border-rose-500/40 flex items-center justify-center text-rose-400 text-2xl group-hover:scale-110 transition">
-              <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-rose-950 text-rose-300 uppercase tracking-wider">
-              CLP & SDS
-            </span>
-          </div>
-          <h3 class="text-lg font-black text-white group-hover:text-rose-400 transition mb-2">
-            SOSTANZE PERICOLOSE
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed mb-4">
-            Registro prodotti chimici, Schede di Sicurezza (SDS), bacini di contenimento oli/carburanti e kit anti-spandimento.
-          </p>
-        </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-rose-400 group-hover:translate-x-1 transition">
-          <span>Registro Prodotto & SDS</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </div>
-      </div>
-
-      <!-- 6. VERBALI & CAMPIONAMENTI (VIOLA INDIGO) -->
-      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-indigo-500 flex flex-col justify-between group cursor-pointer"
-           onclick="location.href='verbalicampionamento.html'">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl bg-indigo-950/60 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-2xl group-hover:scale-110 transition">
-              <i class="fa-solid fa-clipboard-check"></i>
-            </div>
-            <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 uppercase tracking-wider">
-              Field Reports
-            </span>
-          </div>
-          <h3 class="text-lg font-black text-white group-hover:text-indigo-400 transition mb-2">
-            VERBALI & CAMPIONAMENTI
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed mb-4">
-            Verbali di sopralluogo ambientale da iPad/Mobile con foto, Catena di Custodia e registrazione campioni di cantiere.
-          </p>
-        </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-indigo-400 group-hover:translate-x-1 transition">
-          <span>Compila Verbali & Campioni</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </div>
-      </div>
-
-    </div>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
-      <p class="flex items-center gap-2">
-        <i class="fa-solid fa-leaf text-sky-400"></i> Modulo Gestione Ambientale di Cantiere
-      </p>
-    </div>
-  </footer>
-
-  <!-- SCRIPT PER CALENDARIO DINAMICO -->
-  <script>
-    const oggi = new Date();
-    const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
-    const giorni = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
-
-    document.getElementById('calMonth').innerText = mesi[oggi.getMonth()];
-    document.getElementById('calDay').innerText = oggi.getDate();
-    document.getElementById('calFullDate').innerText = `${giorni[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
-    document.getElementById('calYear').innerText = oggi.getFullYear();
   </script>
 
 </body>
