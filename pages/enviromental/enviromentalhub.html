@@ -82,7 +82,7 @@
       <!-- LATO DESTRA: Widget Calendario Cliccabile, Avvisi & Home -->
       <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
         
-        <!-- WIDGET CALENDARIO INTERATTIVO (APRE IL MODALE MENSILE CON SETTIMANE) -->
+        <!-- WIDGET CALENDARIO INTERATTIVO (CELLA DATA CLICCABILE) -->
         <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-amber-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile e le settimane">
           <div class="bg-amber-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
             <span id="calMonth">OTT</span> <span id="calDay">25</span>
@@ -125,6 +125,147 @@
 
     </div>
   </header>
+
+  <!-- MODALE WIDGET CALENDARIO MENSILE CON NUMERO SETTIMANE E TASTO "+" -->
+  <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+      <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
+          <i class="fa-solid fa-calendar-days text-amber-400"></i> Calendario Mensile & Scadenze di Cantiere
+        </h3>
+        <button onclick="attivaModalitaNuovaAttivita()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl transition flex items-center gap-1.5 shadow-md">
+          <i class="fa-solid fa-plus text-xs"></i> <span>Nuova Attività</span>
+        </button>
+      </div>
+
+      <!-- WIDGET GRIGLIA CALENDARIO CON COLONNA SETTIMANE (W) -->
+      <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4">
+        <div class="flex items-center justify-between mb-3">
+          <span id="label-mese-corrente" class="text-xs font-black text-amber-400 uppercase tracking-widest">OTTOBRE 2026</span>
+          <div class="text-[10px] text-slate-400">Clicca su un giorno per selezionarlo nel form</div>
+        </div>
+        
+        <!-- Intestazione giorni e colonna W -->
+        <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1 border-b border-slate-700 pb-1">
+          <div class="text-amber-500">W</div>
+          <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
+        </div>
+        <!-- Griglia generata dinamicamente con le settimane -->
+        <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs">
+          <!-- Popolato via JavaScript -->
+        </div>
+      </div>
+
+      <!-- FORM INSERIMENTO ATTIVITA -->
+      <div id="form-nuova-attivita-container" class="bg-slate-800/90 border border-slate-700 p-4 rounded-xl space-y-3 mb-4">
+        <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">Aggiungi Promemoria / Attività</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-[10px] font-bold text-slate-300 mb-1">Titolo Attività</label>
+            <input type="text" id="input-titolo" placeholder="Es. Verifica vasche ITA" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-300 mb-1">Data</label>
+            <input type="date" id="input-data" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
+          </div>
+        </div>
+        <div class="flex items-center justify-between gap-3 pt-1">
+          <div class="w-1/2">
+            <label class="block text-[10px] font-bold text-slate-300 mb-1">Priorità</label>
+            <select id="input-priorita" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-amber-400 outline-none">
+              <option value="Alta">Alta (Urgente)</option>
+              <option value="Media">Media</option>
+              <option value="Bassa">Bassa</option>
+            </select>
+          </div>
+          <div class="w-1/2 pt-4">
+            <button onclick="aggiungiScadenza()" class="w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg transition shadow-md">
+              Salva in Calendario
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTA SCADENZE MEMORIZZATE -->
+      <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Scadenze in Archivio</h4>
+      <div id="lista-scadenze-container" class="space-y-2 overflow-y-auto pr-1 max-h-32">
+        <!-- Popolato da JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGICA CALENDARIO E GESTIONE SCADENZE -->
+  <script>
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+      var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+      return weekNo;
+    }
+
+    function renderizzaCalendarioMese() {
+      const container = document.getElementById('griglia-calendario-mese');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+
+      const primoGiornoMese = new Date(year, month, 1);
+      const ultimoGiornoMese = new Date(year, month + 1, 0);
+      const totaleGiorni = ultimoGiornoMese.getDate();
+
+      let giornoInizio = primoGiornoMese.getDay() - 1;
+      if (giornoInizio === -1) giornoInizio = 6;
+
+      let giornoCorrente = 1;
+      let htmlRighe = '';
+      let numSettimana = getWeekNumber(primoGiornoMese);
+
+      while (giornoCorrente <= totaleGiorni) {
+        htmlRighe += `<div class="flex items-center justify-center font-bold text-amber-500/80 bg-slate-900/50 rounded text-[10px]">W${numSettimana}</div>`;
+        
+        for (let i = 0; i < 7; i++) {
+          if ((giornoCorrente === 1 && i < giornoInizio) || giornoCorrente > totaleGiorni) {
+            htmlRighe += `<div class="p-1"></div>`;
+          } else {
+            let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(giornoCorrente).padStart(2, '0')}`;
+            let isOggi = giornoCorrente === now.getDate() ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-900/80 text-slate-200 hover:bg-slate-700';
+            
+            htmlRighe += `<div onclick="selezionaDataCalendario('${dStr}')" class="p-1.5 rounded cursor-pointer transition text-xs font-semibold ${isOggi}">${giornoCorrente}</div>`;
+            giornoCorrente++;
+          }
+        }
+        numSettimana++;
+      }
+      container.innerHTML = htmlRighe;
+    }
+
+    function selezionaDataCalendario(dataStr) {
+      document.getElementById('input-data').value = dataStr;
+      document.getElementById('input-titolo').focus();
+    }
+
+    function attivaModalitaNuovaAttivita() {
+      document.getElementById('input-titolo').focus();
+    }
+
+    function apriGestoreScadenze() {
+      document.getElementById('modal-scadenze').classList.remove('hidden');
+      renderizzaListaModal();
+      renderizzaCalendarioMese();
+    }
+
+    function chiudiGestoreScadenze() {
+      document.getElementById('modal-scadenze').classList.add('hidden');
+    }
+  </script>
 
   <!-- MODALE WIDGET CALENDARIO MENSILE CON NUMERO SETTIMANE E TASTO "+" -->
   <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
