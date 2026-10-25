@@ -167,203 +167,7 @@
       </div>
     </div>
   </div>
-<!-- SCRIPT UNICO PER GESTIONE CALENDARIO E SCADENZE CON PALLINI INDICATORI -->
-  <script>
-    const oggi = new Date();
-    const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
-    const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
 
-    // Inizializzazione header data
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('calMonth').innerText = mesi[oggi.getMonth()];
-      document.getElementById('calDay').innerText = oggi.getDate();
-      document.getElementById('calFullDate').innerText = `${giorniSettimana[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
-      aggiornaWidgetAvvisi();
-    });
-
-    function getWeekNumber(d) {
-      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-      var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-      var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
-      return weekNo;
-    }
-
-    function renderizzaCalendarioMese() {
-      const container = document.getElementById('griglia-calendario-mese');
-      if (!container) return;
-      container.innerHTML = '';
-
-      const year = oggi.getFullYear();
-      const month = oggi.getMonth();
-
-      const primoGiornoMese = new Date(year, month, 1);
-      const ultimoGiornoMese = new Date(year, month + 1, 0);
-      const totaleGiorni = ultimoGiornoMese.getDate();
-
-      let giornoInizio = primoGiornoMese.getDay() - 1;
-      if (giornoInizio === -1) giornoInizio = 6;
-
-      let giornoCorrente = 1;
-      let htmlRighe = '';
-      let numSettimana = getWeekNumber(primoGiornoMese);
-
-      // Recupera le scadenze attive dal localStorage
-      let scadenze = getScadenze();
-
-      while (giornoCorrente <= totaleGiorni) {
-        htmlRighe += `<div class="flex items-center justify-center font-bold text-amber-500/80 bg-slate-900/50 rounded text-[10px]">W${numSettimana}</div>`;
-        
-        for (let i = 0; i < 7; i++) {
-          if ((giornoCorrente === 1 && i < giornoInizio) || giornoCorrente > totaleGiorni) {
-            htmlRighe += `<div class="p-1"></div>`;
-          } else {
-            let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(giornoCorrente).padStart(2, '0')}`;
-            
-            // Filtra le scadenze per questa specifica data
-            let scadenzeGiorno = scadenze.filter(s => s.data === dStr);
-            let haScadenze = scadenzeGiorno.length > 0;
-            
-            // Determina il colore del pallino in base alla priorità massima del giorno
-            let palliniHtml = '';
-            if (haScadenze) {
-              let haAlta = scadenzeGiorno.some(s => s.priorita === 'Alta');
-              let haMedia = scadenzeGiorno.some(s => s.priorita === 'Media');
-              let colorePallino = haAlta ? 'bg-rose-500' : (haMedia ? 'bg-amber-400' : 'bg-emerald-400');
-              
-              // Se ci sono più scadenze, mostriamo un indicatore multiplo o un pallino combinato
-              palliniHtml = `<div class="flex items-center justify-center gap-0.5 mt-1">`;
-              scadenzeGiorno.forEach(s => {
-                let c = s.priorita === 'Alta' ? 'bg-rose-500' : (s.priorita === 'Media' ? 'bg-amber-400' : 'bg-emerald-400');
-                palliniHtml += `<span class="w-1.5 h-1.5 rounded-full ${c}"></span>`;
-              });
-              palliniHtml += `</div>`;
-            }
-
-            let isOggi = (giornoCorrente === oggi.getDate() && month === oggi.getMonth()) ? 'border-2 border-amber-400 font-black' : 'border border-transparent';
-            
-            htmlRighe += `
-              <div onclick="selezionaDataCalendario('${dStr}')" class="p-1 rounded-lg cursor-pointer transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-700 flex flex-col items-center justify-between min-h-[36px] ${isOggi}">
-                <span>${giornoCorrente}</span>
-                ${palliniHtml}
-              </div>`;
-            giornoCorrente++;
-          }
-        }
-        numSettimana++;
-      }
-      container.innerHTML = htmlRighe;
-    }
-
-    function selezionaDataCalendario(dataStr) {
-      document.getElementById('input-data').value = dataStr;
-      document.getElementById('input-titolo').focus();
-    }
-
-    function attivaModalitaNuovaAttivita() {
-      document.getElementById('input-titolo').focus();
-    }
-
-    function apriGestoreScadenze() {
-      document.getElementById('modal-scadenze').classList.remove('hidden');
-      renderizzaListaModal();
-      renderizzaCalendarioMese();
-    }
-
-    function chiudiGestoreScadenze() {
-      document.getElementById('modal-scadenze').classList.add('hidden');
-    }
-
-    function getScadenze() {
-      let salvate = localStorage.getItem('qhse_scadenze');
-      if (!salvate) {
-        return [{ titolo: "Verifica vasche ITA Cravasco in corso", data: "2026-10-25", priorita: "Alta" }];
-      }
-      return JSON.parse(salvate);
-    }
-
-    function salvaScadenze(scadenze) {
-      localStorage.setItem('qhse_scadenze', JSON.stringify(scadenze));
-      aggiornaWidgetAvvisi();
-    }
-
-    function aggiornaWidgetAvvisi() {
-      let scadenze = getScadenze();
-      let testoDiv = document.getElementById('testo-prossima-scadenza');
-      if (scadenze.length > 0) {
-        testoDiv.innerText = scadenze[0].titolo;
-      } else {
-        testoDiv.innerText = "Nessuna scadenza imminente";
-      }
-    }
-
-    function aggiungiScadenza() {
-      let titolo = document.getElementById('input-titolo').value;
-      let data = document.getElementById('input-data').value;
-      let priorita = document.getElementById('input-priorita').value;
-
-      if (!titolo || !data) {
-        alert("Inserisci titolo e data della scadenza.");
-        return;
-      }
-
-      let scadenze = getScadenze();
-      scadenze.unshift({ titolo, data, priorita });
-      salvaScadenze(scadenze);
-
-      document.getElementById('input-titolo').value = '';
-      document.getElementById('input-data').value = '';
-      renderizzaListaModal();
-      renderizzaCalendarioMese(); // Aggiorna subito la griglia visiva
-      alert("Scadenza aggiunta con successo e sincronizzata nel portale!");
-    }
-
-    function eliminaScadenza(index) {
-      let scadenze = getScadenze();
-      scadenze.splice(index, 1);
-      salvaScadenze(scadenze);
-      renderizzaListaModal();
-      renderizzaCalendarioMese(); // Aggiorna subito la griglia visiva
-    }
-
-    function inviaWhatsApp(titolo, data) {
-      let testo = `🚨 *PROMEMORIA CANTIERE - QHSE*\n*Attività:* ${titolo}\n*Data Scadenza:* ${data}\n*Stato:* Da monitorare`;
-      let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(testo)}`;
-      window.open(url, '_blank');
-    }
-
-    function renderizzaListaModal() {
-      let scadenze = getScadenze();
-      let container = document.getElementById('lista-scadenze-container');
-      container.innerHTML = '';
-
-      if (scadenze.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 text-center py-4">Nessuna scadenza in archivio.</p>';
-        return;
-      }
-
-      scadenze.forEach((s, idx) => {
-        let coloreBadge = s.priorita === 'Alta' ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-        container.innerHTML += `
-          <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/80 p-2.5 rounded-xl text-xs">
-            <div>
-              <div class="font-bold text-white">${s.titolo}</div>
-              <div class="text-[10px] text-slate-400">📅 ${s.data} • <span class="px-1.5 py-0.5 rounded border ${coloreBadge}">${s.priorita}</span></div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="inviaWhatsApp('${s.titolo}', '${s.data}')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition flex items-center gap-1" title="Invia promemoria su WhatsApp">
-                <i class="fa-brands fa-whatsapp"></i>
-              </button>
-              <button onclick="eliminaScadenza(${idx})" class="text-slate-400 hover:text-rose-400 p-1" title="Elimina">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      });
-    }
-  </script>
-  
   <!-- MAIN CONTENT: GRIGLIA DEGLI ASPETTI AMBIENTALI -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col justify-center">
     
@@ -537,7 +341,7 @@
     </div>
   </footer>
 
-  <!-- SCRIPT UNICO PER GESTIONE CALENDARIO E SCADENZE -->
+  <!-- SCRIPT UNICO PER GESTIONE CALENDARIO E SCADENZE CON PALLINI INDICATORI -->
   <script>
     const oggi = new Date();
     const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
@@ -578,6 +382,9 @@
       let htmlRighe = '';
       let numSettimana = getWeekNumber(primoGiornoMese);
 
+      // Recupera le scadenze attive dal localStorage
+      let scadenze = getScadenze();
+
       while (giornoCorrente <= totaleGiorni) {
         htmlRighe += `<div class="flex items-center justify-center font-bold text-amber-500/80 bg-slate-900/50 rounded text-[10px]">W${numSettimana}</div>`;
         
@@ -586,9 +393,29 @@
             htmlRighe += `<div class="p-1"></div>`;
           } else {
             let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(giornoCorrente).padStart(2, '0')}`;
-            let isOggi = giornoCorrente === oggi.getDate() ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-900/80 text-slate-200 hover:bg-slate-700';
             
-            htmlRighe += `<div onclick="selezionaDataCalendario('${dStr}')" class="p-1.5 rounded cursor-pointer transition text-xs font-semibold ${isOggi}">${giornoCorrente}</div>`;
+            // Filtra le scadenze per questa specifica data
+            let scadenzeGiorno = scadenze.filter(s => s.data === dStr);
+            let haScadenze = scadenzeGiorno.length > 0;
+            
+            // Determina il pallino indicatore in base alla priorità
+            let palliniHtml = '';
+            if (haScadenze) {
+              palliniHtml = `<div class="flex items-center justify-center gap-0.5 mt-1">`;
+              scadenzeGiorno.forEach(s => {
+                let c = s.priorita === 'Alta' ? 'bg-rose-500' : (s.priorita === 'Media' ? 'bg-amber-400' : 'bg-emerald-400');
+                palliniHtml += `<span class="w-1.5 h-1.5 rounded-full ${c}"></span>`;
+              });
+              palliniHtml += `</div>`;
+            }
+
+            let isOggi = (giornoCorrente === oggi.getDate() && month === oggi.getMonth()) ? 'border-2 border-amber-400 font-black' : 'border border-transparent';
+            
+            htmlRighe += `
+              <div onclick="selezionaDataCalendario('${dStr}')" class="p-1 rounded-lg cursor-pointer transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-700 flex flex-col items-center justify-between min-h-[36px] ${isOggi}">
+                <span>${giornoCorrente}</span>
+                ${palliniHtml}
+              </div>`;
             giornoCorrente++;
           }
         }
@@ -599,10 +426,6 @@
 
     function selezionaDataCalendario(dataStr) {
       document.getElementById('input-data').value = dataStr;
-      document.getElementById('input-titolo').focus();
-    }
-
-    function attivaModalitaNuovaAttivita() {
       document.getElementById('input-titolo').focus();
     }
 
@@ -656,6 +479,7 @@
       document.getElementById('input-titolo').value = '';
       document.getElementById('input-data').value = '';
       renderizzaListaModal();
+      renderizzaCalendarioMese(); 
       alert("Scadenza aggiunta con successo e sincronizzata nel portale!");
     }
 
@@ -664,6 +488,7 @@
       scadenze.splice(index, 1);
       salvaScadenze(scadenze);
       renderizzaListaModal();
+      renderizzaCalendarioMese(); 
     }
 
     function inviaWhatsApp(titolo, data) {
