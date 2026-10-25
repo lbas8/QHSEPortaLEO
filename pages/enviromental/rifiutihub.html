@@ -64,7 +64,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-white">
 
-<!-- HEADER STANDARD UNIFICATA CON WIDGET CALENDARIO MENSILE E NUMERO SETTIMANE -->
+  <!-- HEADER STANDARD UNIFICATA CON WIDGET CALENDARIO MENSILE E NUMERO SETTIMANE -->
   <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       
@@ -80,7 +80,8 @@
             <i class="fa-solid fa-leaf text-xl"></i>
           </div>
           <div>
-            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Enviromental Office</h1>
+            <!-- CORRETTO TYPO QUI: Environmental -->
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Environmental Office</h1>
             <p class="text-[11px] text-amber-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
           </div>
         </div>
@@ -111,7 +112,7 @@
           <div class="text-left text-xs leading-tight">
             <div class="font-extrabold text-amber-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
             <div id="testo-prossima-scadenza" class="text-[11px] text-slate-300 truncate max-w-[180px] sm:max-w-[220px]">
-              Caricamento scadenze...
+              Nessuna scadenza vicina
             </div>
           </div>
         </div>
@@ -202,7 +203,7 @@
         </div>
       </div>
 
-      <!-- LISTA SCADENZE MEMORIZZATE (CORRETTA CON SCROLL DEDICATO) -->
+      <!-- LISTA SCADENZE MEMORIZZATE -->
       <div class="flex flex-col flex-grow min-h-[140px] overflow-hidden">
         <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2 flex-shrink-0">Scadenze in Archivio</h4>
         <div id="lista-scadenze-container" class="space-y-2 overflow-y-auto pr-1 flex-grow">
