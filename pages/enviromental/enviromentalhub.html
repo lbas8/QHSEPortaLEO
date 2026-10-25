@@ -57,7 +57,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
-  <!-- HEADER STANDARD UNIFICATA CON CALENDARIO & AVVISI INTERATTIVI -->
+<!-- HEADER STANDARD UNIFICATA CON WIDGET CALENDARIO INTERATTIVO -->
   <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       
@@ -81,18 +81,23 @@
         </div>
       </div>
 
-      <!-- LATO DESTRA: Widget Calendario Interattivo, Avvisi & Home -->
+      <!-- LATO DESTRA: Widget Calendario Cliccabile con Tasto +, Avvisi & Home -->
       <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
         
-        <!-- 1. WIDGET CALENDARIO INTERATTIVO (CLICCABILE) -->
+        <!-- 1. WIDGET CALENDARIO INTERATTIVO (CELLA DATA CLICCABILE) -->
         <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-amber-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario e aggiungere scadenze">
+          <!-- Blocco Calendario -->
           <div class="bg-amber-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
-            OTT 25
+            <span id="calMonth">OTT</span> <span id="calDay">25</span>
           </div>
+          <!-- Info Data & Tasto Più -->
           <div class="text-left text-xs leading-tight">
             <div class="font-bold text-white flex items-center gap-1.5">
-              <span>Domenica, 25 OTT</span>
-              <i class="fa-solid fa-calendar-plus text-amber-400 text-[10px]"></i>
+              <span id="calFullDate">Domenica, 25 OTT</span>
+              <!-- Tasto "+" evidenziato -->
+              <span class="w-4 h-4 rounded-full bg-amber-500/20 border border-amber-400 text-amber-400 flex items-center justify-center text-[10px] font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+                <i class="fa-solid fa-plus"></i>
+              </span>
             </div>
             <div class="text-[10px] text-slate-400 font-medium">Gestione Scadenze Cantiere</div>
           </div>
@@ -125,7 +130,6 @@
 
     </div>
   </header>
-
   <!-- MODALE / GESTORE SCADENZE E WHATSAPP -->
   <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
