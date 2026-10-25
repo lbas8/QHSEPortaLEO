@@ -99,7 +99,7 @@
     </div>
   </header>
 
-  <!-- MODALE UNICO: WIDGET CALENDARIO MENSILE CON NUMERO SETTIMANE E CAMBIO MESE -->
+  <!-- MODALE UNICO: WIDGET CALENDARIO MENSILE CON FRECCE CAMBIO MESE E NUMERO SETTIMANE -->
   <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
       <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">
@@ -112,19 +112,19 @@
         </h3>
       </div>
 
-      <!-- WIDGET GRIGLIA CALENDARIO CON SELETTORE MESE E COLONNA SETTIMANE (W) -->
+      <!-- WIDGET GRIGLIA CALENDARIO CON FRECCE CAMBIO MESE E COLONNA SETTIMANE (W) -->
       <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4">
         <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <button onclick="cambiaMese(-1)" class="w-7 h-7 bg-slate-700 hover:bg-amber-500 hover:text-slate-950 rounded-lg flex items-center justify-center text-xs font-bold transition text-white" title="Mese precedente">
+          <div class="flex items-center gap-3">
+            <button onclick="cambiaMese(-1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese precedente">
               <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <span id="label-mese-corrente" class="text-xs font-black text-amber-400 uppercase tracking-widest min-w-[120px] text-center">OTTOBRE 2026</span>
-            <button onclick="cambiaMese(1)" class="w-7 h-7 bg-slate-700 hover:bg-amber-500 hover:text-slate-950 rounded-lg flex items-center justify-center text-xs font-bold transition text-white" title="Mese successivo">
+            <span id="label-mese-corrente" class="text-xs font-black text-amber-400 uppercase tracking-widest min-w-[130px] text-center">OTTOBRE 2026</span>
+            <button onclick="cambiaMese(1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese successivo">
               <i class="fa-solid fa-chevron-right"></i>
             </button>
           </div>
-          <div class="text-[10px] text-slate-400 hidden sm:block">Clicca su un giorno per selezionarlo nel form</div>
+          <div class="text-[10px] text-slate-400">Clicca su un giorno per selezionarlo nel form</div>
         </div>
         
         <!-- Intestazione giorni e colonna W -->
@@ -161,7 +161,7 @@
             </select>
           </div>
           <div class="w-1/2 pt-4">
-            <button onclick="aggiungiScadenza()" class="w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg transition shadow-md">
+            <button onclick="aggiungiScadenza()" class="w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-lg transition shadow-md cursor-pointer">
               Salva in Calendario
             </button>
           </div>
@@ -169,9 +169,11 @@
       </div>
 
       <!-- LISTA SCADENZE MEMORIZZATE -->
-      <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Scadenze in Archivio</h4>
-      <div id="lista-scadenze-container" class="space-y-2 overflow-y-auto pr-1 max-h-42">
-        <!-- Popolato da JS -->
+      <div class="flex flex-col flex-grow min-h-0">
+        <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Scadenze in Archivio</h4>
+        <div id="lista-scadenze-container" class="space-y-2 overflow-y-auto pr-1 max-h-48">
+          <!-- Popolato da JS -->
+        </div>
       </div>
     </div>
   </div>
