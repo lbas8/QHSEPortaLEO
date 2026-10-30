@@ -6,96 +6,19 @@
   <title>Quaderno di Marcia ITA — Quarto Valico dei Giovi</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-              800: '#075985',
-              900: '#0c4a6e',
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0b0f17;
-      color: #f8fafc;
-    }
-
-    .glass-card {
-      background: rgba(18, 24, 38, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .glass-input {
-      background: rgba(11, 15, 23, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #f8fafc;
-      transition: all 0.2s ease;
-    }
-    .glass-input:focus {
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-      outline: none;
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #0284c7;
-    }
-
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+    .glass-card { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-input { background: rgba(11, 15, 23, 0.8); border: 1px solid rgba(255, 255, 255, 0.12); color: #f8fafc; }
+    .glass-input:focus { border-color: #38bdf8; outline: none; }
     @media print {
-      body {
-        background: #ffffff !important;
-        color: #000000 !important;
-      }
-      .no-print {
-        display: none !important;
-      }
-      .glass-card {
-        background: #ffffff !important;
-        border: 1px solid #cbd5e1 !important;
-        box-shadow: none !important;
-        backdrop-filter: none !important;
-        color: #000000 !important;
-      }
-      input, select, textarea {
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #94a3b8 !important;
-      }
-      .text-white, .text-slate-200, .text-slate-300, .text-slate-400 {
-        color: #000000 !important;
-      }
-      .bg-slate-900, .bg-slate-800, .bg-slate-950 {
-        background: #ffffff !important;
-      }
+      body { background: #ffffff !important; color: #000000 !important; }
+      .no-print { display: none !important; }
+      .glass-card { background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #000 !important; }
+      input, select, textarea { background: #ffffff !important; color: #000 !important; border: 1px solid #94a3b8 !important; }
     }
   </style>
 </head>
@@ -104,62 +27,55 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400">
     <i class="fa-solid fa-circle-check text-base"></i>
-    <span id="toast-message">Messaggio di notifica</span>
+    <span id="toast-message">Notifica</span>
   </div>
 
-  <!-- HEADER UNIFICATA ITA -->
-  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3 shadow-lg no-print">
+  <!-- HEADER UNIFICATO -->
+  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg no-print">
     <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
-      
       <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
         <div class="flex items-center gap-3">
-          <button onclick="window.location.href='ITAhub.html'" class="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna a ITA Hub">
+          <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
             <i class="fa-solid fa-arrow-left text-cyan-400"></i>
-            <span class="hidden sm:inline">ITA Hub</span>
+            <span class="hidden sm:inline">Indietro</span>
           </button>
-
           <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
             <i class="fa-solid fa-droplet text-xl"></i>
           </div>
           <div>
-            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none flex items-center gap-2">
-              Impianto Trattamento Acque <span class="text-xs px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-extrabold">ITA</span>
-            </h1>
-            <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quaderno di Marcia dell'Impianto — VICOC</p>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Impianto Trattamento Acque <span class="text-xs px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-extrabold">ITA</span></h1>
+            <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quaderno di Marcia — VICOC</p>
           </div>
         </div>
       </div>
-
-      <div class="flex flex-wrap items-center justify-end gap-3 w-full lg:w-auto">
-        <div id="quick-status-badge" class="flex items-center gap-2 bg-emerald-950/80 border border-emerald-500/40 rounded-xl px-3 py-1.5 shadow-inner">
-          <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
-          <div class="text-left leading-tight">
-            <div class="text-[9px] uppercase tracking-wider font-extrabold text-emerald-400">Stato Impianto</div>
-            <div id="quick-ph-summary" class="text-[11px] text-emerald-200 font-bold">pH Medio: compliant</div>
+      <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+        <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 border border-slate-700/80 rounded-xl px-3 py-1.5 shadow-inner">
+          <div class="bg-cyan-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase">LIVE</div>
+          <div class="text-left text-xs leading-tight">
+            <div class="font-bold text-white" id="current-date-disp">Cantiere Operativo</div>
+            <div class="text-[10px] text-slate-400">Gestione Cloud Reale</div>
           </div>
         </div>
-
         <button onclick="salvaQuaderno()" class="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer border border-cyan-400">
-          <i class="fa-solid fa-floppy-disk"></i>
-          <span>Salva Dati (Cloud)</span>
+          <i class="fa-solid fa-floppy-disk"></i> Salva Cloud
         </button>
-
-        <a href="archivioquadernomarciaita.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer">
-          <i class="fa-solid fa-box-archive text-amber-400"></i>
-          <span>Archivio Schede</span>
+        <a href="archivioquadernomarciaita.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2">
+          <i class="fa-solid fa-box-archive text-amber-400"></i> Archivio
         </a>
-
-        <button onclick="window.print()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-200 hover:text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer">
-          <i class="fa-solid fa-print text-cyan-400"></i>
-          <span>Stampa / PDF</span>
+        <button onclick="window.print()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2">
+          <i class="fa-solid fa-print text-cyan-400"></i> Stampa
         </button>
-
-        <button onclick="nuovaSchedaGiornaliera()" class="px-3 py-2 bg-slate-800 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/50 text-slate-400 hover:text-rose-300 font-semibold text-xs rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Crea Nuova Scheda Libera">
-          <i class="fa-solid fa-plus"></i>
-          <span class="hidden sm:inline">Nuova Scheda</span>
-        </button>
+        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-full text-xs font-bold text-white transition shadow-sm">
+          <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
+            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+          </svg>
+          <span class="hidden sm:inline">Home</span>
+        </a>
       </div>
-
     </div>
   </header>
 
