@@ -163,29 +163,43 @@
     <!-- GRIGLIA A SCHEDE (4 CARD) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto w-full">
       
-      <!-- 1. QUADERNO DI MARCIA DELL'IMPIANTO (ATTIVO) -->
-      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group cursor-pointer bg-cyan-950/10"
-           onclick="location.href='QuadernoMarciaImpianto.html'">
-        <div>
-          <div class="flex items-center justify-between mb-5">
-            <div class="w-12 h-12 rounded-xl bg-cyan-950/70 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition shadow-inner">
-              <i class="fa-solid fa-book-journal-whills"></i>
-            </div>
-            <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wider">
-              REGISTRAZIONI & TURNO
-            </span>
-          </div>
-          <h3 class="text-xl font-black text-white group-hover:text-cyan-400 transition mb-3">
-            QUADERNO DI MARCIA DELL'IMPIANTO
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed mb-6">
-            Registro giornaliero delle misurazioni orarie (pH, torbidità, conducibilità), pulizia/taratura sonde e verbali di manutenzione dei turni.
-          </p>
-        </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-cyan-400 group-hover:translate-x-1.5 transition">
-          <span>Apri Quaderno di Marcia</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </div>
+<!-- 1. QUADERNO DI MARCIA DELL'IMPIANTO (ATTIVO) -->
+<div class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group bg-cyan-950/10">
+  <div>
+    <div class="flex items-center justify-between mb-5">
+      <div class="w-12 h-12 rounded-xl bg-cyan-950/70 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition shadow-inner">
+        <i class="fa-solid fa-book-journal-whills"></i>
       </div>
+      <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wider">
+        REGISTRAZIONI & TURNO
+      </span>
+    </div>
+    <h3 class="text-xl font-black text-white group-hover:text-cyan-400 transition mb-3">
+      QUADERNO DI MARCIA DELL'IMPIANTO
+    </h3>
+    <p class="text-xs text-slate-400 leading-relaxed mb-6">
+      Registro giornaliero delle misurazioni orarie (pH, torbidità, conducibilità), pulizia/taratura sonde e verbali di manutenzione dei turni.
+    </p>
+  </div>
+
+  <!-- DOPPIO PULSANTE IN BASSO -->
+  <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-800/80">
+    <!-- Pulsante Apri Modulo -->
+    <a href="QuadernoMarciaImpianto.html" 
+       class="flex items-center gap-2 px-3.5 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 hover:border-cyan-400 rounded-xl text-xs font-bold text-cyan-400 transition shadow-sm">
+      <i class="fa-solid fa-pen-to-square"></i>
+      <span>Compila Modulo</span>
+      <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+    </a>
+
+    <!-- Pulsante Archivio Schede -->
+    <a href="archivio_quaderno_marcia.html" 
+       class="flex items-center gap-2 px-3.5 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm">
+      <i class="fa-solid fa-box-archive text-amber-400"></i>
+      <span>Archivio Schede</span>
+    </a>
+  </div>
+</div>
 
       <!-- 2. MONITORAGGIO SCARICHI & pH (IN PREPARAZIONE) -->
       <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-600 flex flex-col justify-between group cursor-pointer opacity-80 hover:opacity-100"
