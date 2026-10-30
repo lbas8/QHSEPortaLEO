@@ -1,52 +1,57 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portale Campionamenti Ambientali</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+    .glass-card { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen p-4 md:p-6">
-  <div class="max-w-5xl mx-auto">
-    
-  <!-- HEADER STANDARD UNIFICATA -->
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-white">
+
+  <!-- HEADER UNIFICATO -->
   <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
-      
-      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro Dinamico -->
       <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
-        
         <div class="flex items-center gap-3">
-          <!-- Tasto Indietro Dinamico -->
-          <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
+          <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
             <i class="fa-solid fa-arrow-left text-amber-400"></i>
             <span class="hidden sm:inline">Indietro</span>
           </button>
-
-          <!-- Logo / Icona Sezione -->
           <div class="relative w-11 h-11 rounded-xl bg-amber-500/10 border-2 border-amber-400/80 flex items-center justify-center text-amber-400 shadow-md">
-            <i class="fa-solid fa-leaf text-xl"></i>
+            <i class="fa-solid fa-vials text-xl"></i>
           </div>
           <div>
-            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Enviromental Office</h1>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Campionamenti Ambientali</h1>
             <p class="text-[11px] text-amber-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
           </div>
         </div>
-
       </div>
-
-      <!-- LATO CENTRALE / DESTRA -->
       <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
-        <a href="campionamentoform.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition">
+        <button onclick="createNewFolder()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-folder-plus text-amber-400"></i> Nuova Cartella
+        </button>
+        <a href="campionamentoform.html" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition">
           <i class="fa-solid fa-plus"></i> Nuovo Campionamento
         </a>
+        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-amber-400 rounded-full text-xs font-bold text-white transition shadow-sm">
+          <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
+            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+          </svg>
+          <span class="hidden sm:inline">Home</span>
+        </a>
       </div>
-
     </div>
   </header>
 
