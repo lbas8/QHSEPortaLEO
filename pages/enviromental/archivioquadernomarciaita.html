@@ -1,33 +1,13 @@
 <!DOCTYPE html>
-<html lang="it" class="dark">
+<html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Archivio Quaderni di Marcia ITA — Quarto Valico dei Giovi</title>
+  <title>Archivio Quaderni di Marcia ITA — Environmental Office</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-              800: '#075985',
-              900: '#0c4a6e',
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
     
     body {
       font-family: 'Inter', sans-serif;
@@ -35,88 +15,44 @@
       color: #f8fafc;
     }
 
-    /* Custom Glassmorphism Styles */
+    /* Glassmorphism Styling */
     .glass-card {
       background: rgba(18, 24, 38, 0.75);
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .glass-card:hover {
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-    }
-    
-    .glass-input {
-      background: rgba(11, 15, 23, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #f8fafc;
-      transition: all 0.2s ease;
-    }
-    .glass-input:focus {
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-      outline: none;
-    }
-
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #0284c7;
-    }
-
-    @media print {
-      body { background: #ffffff !important; color: #000000 !important; }
-      .no-print { display: none !important; }
-      .glass-card { background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #000000 !important; }
-      .text-white, .text-slate-200, .text-slate-300, .text-slate-400 { color: #000000 !important; }
-    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white pb-10">
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
 
-  <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400">
-    <i class="fa-solid fa-circle-check text-base"></i>
-    <span id="toast-message">Messaggio di notifica</span>
-  </div>
-
-  <!-- HEADER UNIFICATA -->
-  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3 shadow-lg no-print">
+  <!-- HEADER UNIFICATO CON WIDGET CALENDARIO DINAMICO -->
+  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       
-      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro -->
+      <!-- LATO SINISTRO: Torna a ITAhub & Titolo -->
       <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
         <div class="flex items-center gap-3">
-          <button onclick="location.href='ITAhub.html'" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna all'ITA Hub">
+          <a href="ITAhub.html" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna a ITA Hub">
             <i class="fa-solid fa-arrow-left text-cyan-400"></i>
-            <span class="hidden sm:inline">Indietro</span>
-          </button>
+            <span class="hidden sm:inline">Torna a ITA Hub</span>
+          </a>
 
           <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
             <i class="fa-solid fa-box-archive text-xl"></i>
           </div>
           <div>
-            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Environmental Office</h1>
-            <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">ARCHIVIO QUADERNI ITA</h1>
+            <p class="text-[11px] text-cyan-400 font-semibold mt-1">Impianto Trattamento Acque — VICOC</p>
           </div>
         </div>
       </div>
 
-      <!-- LATO DESTRA: Widget Calendario Cliccabile, Avvisi & Home -->
+      <!-- LATO DESTRA: Widget Calendario Interattivo, Avvisi & Home -->
       <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
         
         <!-- WIDGET CALENDARIO INTERATTIVO -->
-        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile">
+        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Apri Calendario & Settimane">
           <div class="bg-cyan-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
             <span id="calMonth">OTT</span> <span id="calDay">30</span>
           </div>
@@ -132,25 +68,19 @@
         </div>
 
         <!-- PORTALE AVVISI -->
-        <div id="widget-avvisi" onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-cyan-500/40 hover:border-cyan-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer">
-          <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-amber-500/40 hover:border-amber-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer">
+          <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
           <div class="text-left text-xs leading-tight">
-            <div class="font-extrabold text-cyan-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
-            <div id="testo-prossima-scadenza" class="text-[11px] text-slate-300 truncate max-w-[180px]">
-              Verifica vasche ITA Cravasco
+            <div class="font-extrabold text-amber-400 tracking-wide uppercase text-[10px]">Scadenze ITA</div>
+            <div id="testo-prossima-scadenza" class="text-[11px] text-slate-300 truncate max-w-[160px]">
+              Verifica vasche ITA
             </div>
           </div>
         </div>
 
-        <!-- HOME QHSE -->
-        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400/60 rounded-full text-xs font-bold text-white hover:text-cyan-400 transition shadow-sm">
-          <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
-            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
-            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
-            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
-            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
-            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
-          </svg>
+        <!-- HOME -->
+        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-full text-xs font-bold text-white hover:text-cyan-400 transition shadow-sm">
+          <i class="fa-solid fa-house"></i>
           <span class="hidden sm:inline">Home</span>
         </a>
 
@@ -159,7 +89,7 @@
     </div>
   </header>
 
-  <!-- MODALE CALENDARIO E SCADENZE -->
+  <!-- MODALE CALENDARIO MENSILE -->
   <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
       <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer">
@@ -183,11 +113,11 @@
               <i class="fa-solid fa-chevron-right"></i>
             </button>
           </div>
-          <div class="text-[10px] text-slate-400">Seleziona una data per i promemoria</div>
+          <div class="text-[10px] text-slate-400">Settimane e scadenze dell'impianto</div>
         </div>
         
         <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1 border-b border-slate-700 pb-1">
-          <div class="text-cyan-500">W</div>
+          <div class="text-cyan-400">W</div>
           <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
         </div>
         <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs"></div>
@@ -195,131 +125,86 @@
     </div>
   </div>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
-
-    <!-- INTESTAZIONE PAGINA -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+  <!-- MAIN CONTENT: ARCHIVIO SCHEDE -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col gap-6">
+    
+    <!-- INTESTAZIONE E AZIONI PRINCIPALI -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
-        <span class="text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-950/80 px-3 py-1 rounded-full border border-cyan-800">
-          Archivio Storico Registri
+        <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wider">
+          ARCHIVIO STORICO REGISTRI
         </span>
         <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase mt-2">
-          Archivio Quaderni di Marcia ITA
+          ARCHIVIO QUADERNI DI MARCIA ITA
         </h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+        <p class="text-xs sm:text-sm text-slate-400">
           Consultazione storica delle schede giornaliere registrate, stato di conformità pH, dati dei turni e riesame analitico.
         </p>
       </div>
 
-      <div class="flex items-center gap-3">
-        <a href="QuadernoMarciaImpianto.html" class="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition flex items-center gap-2 border border-cyan-400">
-          <i class="fa-solid fa-plus-circle text-sm"></i>
-          <span>Compila Nuova Scheda</span>
-        </a>
-      </div>
+      <a href="QuadernoMarciaImpianto.html" class="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer flex-shrink-0">
+        <i class="fa-solid fa-plus text-sm"></i> Compila Nuova Scheda
+      </a>
     </div>
 
-    <!-- STATISTICHE RAPIDE ARCHIVIO -->
+    <!-- STATISTICHE ARCHIVIO (KPI) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      
-      <div class="glass-card rounded-2xl p-4 border-l-4 border-l-cyan-500 flex items-center justify-between">
-        <div>
-          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Totale Schede In Archivio</div>
-          <div id="stat-totale" class="text-2xl font-black text-white mt-1">0</div>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-cyan-950/80 text-cyan-400 flex items-center justify-center text-lg border border-cyan-800">
-          <i class="fa-solid fa-folder-open"></i>
-        </div>
+      <div class="glass-card rounded-xl p-4 border-l-4 border-l-cyan-400">
+        <div class="text-[11px] font-bold text-slate-400 uppercase">Totale Schede in Archivio</div>
+        <div id="kpi-totale" class="text-2xl font-black text-white mt-1">0</div>
       </div>
-
-      <div class="glass-card rounded-2xl p-4 border-l-4 border-l-emerald-500 flex items-center justify-between">
-        <div>
-          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Schede Conformi</div>
-          <div id="stat-conformi" class="text-2xl font-black text-emerald-400 mt-1">0</div>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-emerald-950/80 text-emerald-400 flex items-center justify-center text-lg border border-emerald-800">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
+      <div class="glass-card rounded-xl p-4 border-l-4 border-l-emerald-400">
+        <div class="text-[11px] font-bold text-slate-400 uppercase">Schede Conformi</div>
+        <div id="kpi-conformi" class="text-2xl font-black text-emerald-400 mt-1">0</div>
       </div>
-
-      <div class="glass-card rounded-2xl p-4 border-l-4 border-l-rose-500 flex items-center justify-between">
-        <div>
-          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Anomalie / Fuori Limite</div>
-          <div id="stat-anomalie" class="text-2xl font-black text-rose-400 mt-1">0</div>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-rose-950/80 text-rose-400 flex items-center justify-center text-lg border border-rose-800">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
+      <div class="glass-card rounded-xl p-4 border-l-4 border-l-rose-500">
+        <div class="text-[11px] font-bold text-slate-400 uppercase">Anomalie / Fuori Limite</div>
+        <div id="kpi-anomalie" class="text-2xl font-black text-rose-400 mt-1">0</div>
       </div>
-
-      <div class="glass-card rounded-2xl p-4 border-l-4 border-l-amber-500 flex items-center justify-between">
-        <div>
-          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Media pH Uscita Totale</div>
-          <div id="stat-ph-medio" class="text-2xl font-black text-amber-400 mt-1">--</div>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-amber-950/80 text-amber-400 flex items-center justify-center text-lg border border-amber-800">
-          <i class="fa-solid fa-vial"></i>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- FILTRI & BARRA DI RICERCA -->
-    <div class="glass-card rounded-2xl p-4 space-y-3">
-      <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        
-        <!-- CERCA TESTO -->
-        <div class="sm:col-span-2">
-          <label class="block text-[10px] uppercase tracking-wider font-extrabold text-slate-400 mb-1">Ricerca Libera</label>
-          <div class="relative">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-            <input type="text" id="filter-search" oninput="filtraSchede()" placeholder="Cerca per operatore, note, FIR o referente..." class="glass-input pl-9 w-full rounded-xl py-1.5 text-xs text-white">
-          </div>
-        </div>
-
-        <!-- MESE / ANNO -->
-        <div>
-          <label class="block text-[10px] uppercase tracking-wider font-extrabold text-slate-400 mb-1">Mese / Periodo</label>
-          <input type="month" id="filter-month" onchange="filtraSchede()" class="glass-input w-full rounded-xl px-3 py-1.5 text-xs text-white cursor-pointer">
-        </div>
-
-        <!-- STATO CONFORMITA -->
-        <div>
-          <label class="block text-[10px] uppercase tracking-wider font-extrabold text-slate-400 mb-1">Stato Conformità</label>
-          <select id="filter-status" onchange="filtraSchede()" class="glass-input w-full rounded-xl px-3 py-1.5 text-xs text-white">
-            <option value="Tutti">Tutti gli stati</option>
-            <option value="Conforme">🟢 Solamente Conformi</option>
-            <option value="Anomalia">🔴 Con Anomalie / Fuori Limite</option>
-          </select>
-        </div>
-
+      <div class="glass-card rounded-xl p-4 border-l-4 border-l-amber-400">
+        <div class="text-[11px] font-bold text-slate-400 uppercase">Media pH Uscita Totale</div>
+        <div id="kpi-ph-medio" class="text-2xl font-black text-amber-400 mt-1">7.00</div>
       </div>
     </div>
 
-    <!-- TABELLA REGISTRI SALVATI -->
-    <div class="glass-card rounded-2xl p-5 border-t-4 border-t-cyan-500 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+    <!-- CONTROLLI FILTRO E RICERCA -->
+    <div class="glass-card rounded-xl p-4 flex flex-col md:flex-row items-center gap-4">
+      <div class="relative w-full md:w-1/2">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input type="text" id="filtro-ricerca" oninput="applicaFiltri()" placeholder="Cerca per operatore, note, FIR o referente..." class="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:border-cyan-400 outline-none">
+      </div>
+      <div class="flex items-center gap-3 w-full md:w-1/2">
+        <select id="filtro-stato" onchange="applicaFiltri()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none">
+          <option value="TUTTI">Tutti gli stati</option>
+          <option value="CONFORME">Solo Conformi</option>
+          <option value="ANOMALIA pH">Solo Anomalie pH</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- TABELLA REGISTRI ARCHIVIATI -->
+    <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+      <div class="p-4 border-b border-slate-800 bg-slate-900/60 flex items-center justify-between">
+        <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
           <i class="fa-solid fa-list text-cyan-400"></i> Schede Giornaliere Archiviate
         </h3>
-        <span id="lbl-risultati-count" class="text-xs text-slate-400 font-semibold">Trovate 0 schede</span>
+        <span id="conteggio-risultati" class="text-[11px] text-slate-400 font-bold">Trovate 0 schede</span>
       </div>
 
-      <div class="overflow-x-auto rounded-xl border border-slate-800">
+      <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-900/90 text-[10px] uppercase font-black text-slate-400 tracking-wider border-b border-slate-800">
+          <thead class="bg-slate-950/80 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-800">
             <tr>
-              <th scope="col" class="px-3 py-3 font-mono">Data Record</th>
-              <th scope="col" class="px-3 py-3 text-center">Settimana</th>
-              <th scope="col" class="px-3 py-3">Referenti Turno</th>
-              <th scope="col" class="px-3 py-3 text-center">pH Medio Uscita</th>
-              <th scope="col" class="px-3 py-3 text-center">Stato Impianto</th>
-              <th scope="col" class="px-3 py-3 text-right">Azioni</th>
+              <th class="p-4">Data Record</th>
+              <th class="p-4">Settimana</th>
+              <th class="p-4">Referenti Turno</th>
+              <th class="p-4">pH Medio Uscita</th>
+              <th class="p-4">Stato Impianto</th>
+              <th class="p-4 text-right">Azioni</th>
             </tr>
           </thead>
-          <tbody id="tbody-archivio" class="divide-y divide-slate-800/60 bg-slate-950/40">
-            <!-- Popolato via JS -->
+          <tbody id="tbody-schede">
+            <!-- Popolato via JavaScript -->
           </tbody>
         </table>
       </div>
@@ -327,439 +212,285 @@
 
   </main>
 
-  <!-- MODALE DETTAGLIO SCHEDA ARCHIVIATA -->
-  <div id="modal-dettaglio" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col space-y-4">
-      
-      <button onclick="chiudiDettaglioModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer">
+  <!-- MODALE DETTAGLI SCHEDA -->
+  <div id="modal-dettagli" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[110] hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col overflow-hidden">
+      <button onclick="chiudiDettaglioModale()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
-        <div>
-          <span class="text-[10px] font-black uppercase text-cyan-400 bg-cyan-950 px-2.5 py-0.5 rounded border border-cyan-800">
-            Dettaglio Record
-          </span>
-          <h3 id="det-titolo-data" class="text-xl font-black text-white mt-1">
-            Quaderno di Marcia — Data 2026-10-30
-          </h3>
+      <div class="mb-4 flex items-center gap-3 border-b border-slate-800 pb-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg">
+          <i class="fa-solid fa-file-contract"></i>
         </div>
-        <div id="det-badge-stato" class="mr-8"></div>
+        <div>
+          <h3 id="det-titolo" class="text-base font-black text-white uppercase">Dettaglio Scheda ITA-103001</h3>
+          <p id="det-sottotitolo" class="text-xs text-cyan-400 font-semibold">Data: --/--/---- | Settimana W--</p>
+        </div>
       </div>
 
-      <!-- CONTENUTO MODALE SCROLLABILE -->
-      <div id="det-contenuto-body" class="overflow-y-auto space-y-4 pr-1 flex-grow text-xs">
-        <!-- Popolato via JS -->
+      <div id="det-contenuto" class="space-y-4 overflow-y-auto pr-2 flex-grow text-xs text-slate-300">
+        <!-- Inserito dinamicamente -->
       </div>
 
-      <!-- FOOTER MODALE CON AZIONI -->
-      <div class="flex items-center justify-between border-t border-slate-800 pt-3 flex-shrink-0">
-        <button onclick="chiudiDettaglioModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs">
+      <div class="pt-4 border-t border-slate-800 flex justify-end gap-3 flex-shrink-0">
+        <button onclick="chiudiDettaglioModale()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition">
           Chiudi
         </button>
-        
-        <div class="flex items-center gap-2">
-          <button id="btn-modifica-dettaglio" onclick="" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold rounded-xl text-xs flex items-center gap-1.5">
-            <i class="fa-solid fa-pen-to-square"></i>
-            <span>Riapri / Modifica Scheda</span>
-          </button>
-        </div>
       </div>
-
     </div>
   </div>
 
   <!-- FOOTER -->
-  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500 mt-8 no-print">
+  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
       <p class="flex items-center gap-2">
-        <i class="fa-solid fa-droplet text-cyan-400"></i> Impianto Trattamento Acque (ITA)
+        <i class="fa-solid fa-droplet text-cyan-400"></i> Modulo Impianto Trattamento Acque
       </p>
     </div>
   </footer>
 
-  <!-- SCRIPT ARCHIVIO -->
+  <!-- SCRIPT ARCHIVIO E INTEGRAZIONE SCHEDE -->
   <script>
-    let datasetSchede = [];
-    let dataCalendarioAttuale = new Date();
+    const oggi = new Date();
     const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
+    const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+    let meseVisualizzato = oggi.getMonth();
+    let annoVisualizzato = oggi.getFullYear();
 
-    document.addEventListener("DOMContentLoaded", () => {
-      inizializzaMockSeVuoto();
-      caricaArchivioData();
-      
-      const oggi = new Date();
+    document.addEventListener('DOMContentLoaded', () => {
+      // Inizializza data header
       document.getElementById('calMonth').innerText = mesi[oggi.getMonth()];
       document.getElementById('calDay').innerText = oggi.getDate();
-      document.getElementById('calFullDate').innerText = `${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
+      document.getElementById('calFullDate').innerText = `${giorniSettimana[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
+
+      // Inizializza dati archivio se vuoti
+      inzializzaDatiEsempioSeVuoti();
+      applicaFiltri();
     });
 
-    // POPOLA MOCK DATA INIZIALI SE LOCALSTORAGE E VUOTO
-    function inizializzaMockSeVuoto() {
-      const keys = Object.keys(localStorage).filter(k => k.startsWith('ita_quaderno_'));
-      if (keys.length > 0) return;
-
-      const mockEntries = [
-        {
-          data: "2026-10-30",
-          operatoreT1: "Marco Bianchi",
-          firmaT1: "MB",
-          operatoreT2: "Giuseppe Rossi",
-          firmaT2: "GR",
-          referenteCogede: "Ing. R. Verdi",
-          firmaCogede: "RV",
-          ore: Array.from({length: 24}, (_, i) => ({
-            phIn: (7.1 + Math.random() * 0.4).toFixed(1),
-            phOut: (7.3 + Math.random() * 0.3).toFixed(1),
-            cond: "420",
-            tssVasca: "22",
-            tssIng: "0.10",
-            hc: "0.0",
-            ctrlLav: i % 8 === 0,
-            note: i === 8 ? "Verifica dosaggio polielettrolita regolare" : ""
-          })),
-          campOra: "10:30",
-          campPh: "7.4",
-          campStato: "Inviato Lab",
-          campNote: "Campione regolare prelevato al pozzetto fiscale",
-          firNumero: "",
-          firQta: "",
-          noteGenerali: "Impianto in marcia regolare per l'intero ciclo delle 24 ore."
-        },
-        {
-          data: "2026-10-29",
-          operatoreT1: "Luca Galli",
-          firmaT1: "LG",
-          operatoreT2: "Marco Bianchi",
-          firmaT2: "MB",
-          referenteCogede: "Ing. R. Verdi",
-          firmaCogede: "RV",
-          ore: Array.from({length: 24}, (_, i) => {
-            const phOutVal = i === 14 ? "9.8" : (7.4 + Math.random() * 0.4).toFixed(1);
-            return {
-              phIn: "7.8",
-              phOut: phOutVal,
-              cond: "480",
-              tssVasca: "35",
-              tssIng: "0.18",
-              hc: "0.1",
-              ctrlLav: false,
-              note: i === 14 ? "Anomalia temporanea pH elevato in vasca" : ""
-            };
-          }),
-          campOra: "14:15",
-          campPh: "8.2",
-          campStato: "Conservato",
-          firNumero: "FIR-2026-881",
-          firQta: "14.200 kg",
-          firDest: "Ecologia S.p.A.",
-          noteGenerali: "Rilevata breve escursione pH a ore 14:00, regolata subito con dosaggio neutralizzante."
-        },
-        {
-          data: "2026-10-28",
-          operatoreT1: "Giuseppe Rossi",
-          firmaT1: "GR",
-          operatoreT2: "Luca Galli",
-          firmaT2: "LG",
-          referenteCogede: "Ing. R. Verdi",
-          firmaCogede: "RV",
-          ore: Array.from({length: 24}, () => ({
-            phIn: "7.0",
-            phOut: "7.2",
-            cond: "410",
-            tssVasca: "18",
-            tssIng: "0.08",
-            hc: "0.0",
-            ctrlLav: false,
-            note: ""
-          })),
-          campOra: "09:00",
-          campPh: "7.2",
-          campStato: "Inviato Lab",
-          firNumero: "",
-          noteGenerali: "Funzionamento ottimale."
-        }
-      ];
-
-      mockEntries.forEach(item => {
-        localStorage.setItem(`ita_quaderno_${item.data}`, JSON.stringify(item));
-      });
-    }
-
-    // CARICA E ORGANIZZA I DATI DALLALOCALSTORAGE
-    function caricaArchivioData() {
-      datasetSchede = [];
-      const keys = Object.keys(localStorage).filter(k => k.startsWith('ita_quaderno_'));
-
-      keys.forEach(k => {
-        try {
-          const item = JSON.parse(localStorage.getItem(k));
-          if (item && item.data) {
-            datasetSchede.push(item);
+    // --- CARICAMENTO DATI DI ESEMPIO SE ARCHIVIO È VUOTO ---
+    function inzializzaDatiEsempioSeVuoti() {
+      let salvati = localStorage.getItem('ita_quaderni_archivio');
+      if (!salvati || JSON.parse(salvati).length === 0) {
+        const mockData = [
+          {
+            id: "ITA-103001",
+            data: "2026-10-30",
+            anno: "2026",
+            settimana: "W44",
+            giorno: "Venerdì",
+            turno1: "Marco Bianchi",
+            turno2: "Giuseppe Rossi",
+            cogede: "Ing. R. Verdi",
+            phMedio: "7.45",
+            stato: "CONFORME",
+            campionamento: { orario: "10:30", ph: "7.4", stato: "OK" },
+            fanghi: { fir: "FIR-2026/8941" },
+            note: "Regolare funzionamento vasche di sedimentazione."
+          },
+          {
+            id: "ITA-102901",
+            data: "2026-10-29",
+            anno: "2026",
+            settimana: "W44",
+            giorno: "Giovedì",
+            turno1: "Luca Galli",
+            turno2: "Marco Bianchi",
+            cogede: "Ing. R. Verdi",
+            phMedio: "9.85",
+            stato: "ANOMALIA pH",
+            campionamento: { orario: "11:00", ph: "9.8", stato: "Non Conforme" },
+            fanghi: { fir: "" },
+            note: "Dosaggio correttivo pH attivato alle ore 14:00."
+          },
+          {
+            id: "ITA-102801",
+            data: "2026-10-28",
+            anno: "2026",
+            settimana: "W44",
+            giorno: "Mercoledì",
+            turno1: "Giuseppe Rossi",
+            turno2: "Luca Galli",
+            cogede: "Ing. R. Verdi",
+            phMedio: "7.20",
+            stato: "CONFORME",
+            campionamento: { orario: "09:45", ph: "7.2", stato: "OK" },
+            fanghi: { fir: "FIR-2026/8912" },
+            note: "Effettuato contro-lavaggio filtri sabbia."
           }
-        } catch (e) {
-          console.error("Errore lettura key", k, e);
-        }
-      });
-
-      // Ordina per data decrescente
-      datasetSchede.sort((a, b) => new Date(b.data) - new Date(a.data));
-
-      renderizzaTabella(datasetSchede);
-      calcolaStatistiche(datasetSchede);
+        ];
+        localStorage.setItem('ita_quaderni_archivio', JSON.stringify(mockData));
+      }
     }
 
-    // CALCOLA STATISTICHE ARCHIVIO
-    function calcolaStatistiche(list) {
-      document.getElementById("stat-totale").innerText = list.length;
-
-      let conformiCount = 0;
-      let anomalieCount = 0;
-      let sommaPhOut = 0;
-      let conteggioPhOut = 0;
-
-      list.forEach(item => {
-        let haAnomalia = false;
-        if (item.ore && item.ore.length > 0) {
-          item.ore.forEach(o => {
-            const v = parseFloat(o.phOut);
-            if (!isNaN(v)) {
-              sommaPhOut += v;
-              conteggioPhOut++;
-              if (v < 5.5 || v > 9.5) {
-                haAnomalia = true;
-              }
-            }
-          });
-        }
-
-        if (haAnomalia) {
-          anomalieCount++;
-        } else {
-          conformiCount++;
-        }
-      });
-
-      document.getElementById("stat-conformi").innerText = conformiCount;
-      document.getElementById("stat-anomalie").innerText = anomalieCount;
-      document.getElementById("stat-ph-medio").innerText = conteggioPhOut > 0 ? (sommaPhOut / conteggioPhOut).toFixed(2) : "--";
+    function getArchivio() {
+      return JSON.parse(localStorage.getItem('ita_quaderni_archivio')) || [];
     }
 
-    // RENDERIZZA TABELLA
-    function renderizzaTabella(list) {
-      const tbody = document.getElementById("tbody-archivio");
-      const countLbl = document.getElementById("lbl-risultati-count");
-      tbody.innerHTML = "";
+    function salvaArchivio(dati) {
+      localStorage.setItem('ita_quaderni_archivio', JSON.stringify(dati));
+    }
 
-      countLbl.innerText = `Trovate ${list.length} schede`;
+    // --- GESTIONE TABELLA E FILTRI ---
+    function applicaFiltri() {
+      const archivio = getArchivio();
+      const testoRicerca = document.getElementById('filtro-ricerca').value.toLowerCase();
+      const statoSelezionato = document.getElementById('filtro-stato').value;
 
-      if (list.length === 0) {
+      const filtrati = archivio.filter(s => {
+        const matchTesto = (
+          (s.data && s.data.includes(testoRicerca)) ||
+          (s.turno1 && s.turno1.toLowerCase().includes(testoRicerca)) ||
+          (s.turno2 && s.turno2.toLowerCase().includes(testoRicerca)) ||
+          (s.note && s.note.toLowerCase().includes(testoRicerca)) ||
+          (s.fanghi && s.fanghi.fir && s.fanghi.fir.toLowerCase().includes(testoRicerca))
+        );
+        const matchStato = (statoSelezionato === 'TUTTI' || s.stato === statoSelezionato);
+        return matchTesto && matchStato;
+      });
+
+      renderizzaTabella(filtrati);
+      aggiornaKPI(archivio);
+    }
+
+    function renderizzaTabella(dati) {
+      const tbody = document.getElementById('tbody-schede');
+      const conteggio = document.getElementById('conteggio-risultati');
+      tbody.innerHTML = '';
+      conteggio.innerText = `Trovate ${dati.length} schede`;
+
+      if (dati.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="text-center py-8 text-slate-500 text-xs">
-              Nessun registro trovato in archivio.
+            <td colspan="6" class="p-8 text-center text-slate-500">
+              Nessuna scheda trovata in archivio.
             </td>
-          </tr>
-        `;
+          </tr>`;
         return;
       }
 
-      list.forEach(item => {
-        // Calcolo media pH Uscita e stato
-        let phOutSum = 0, phOutCnt = 0, haAnomalia = false;
-        if (item.ore) {
-          item.ore.forEach(o => {
-            const val = parseFloat(o.phOut);
-            if (!isNaN(val)) {
-              phOutSum += val;
-              phOutCnt++;
-              if (val < 5.5 || val > 9.5) haAnomalia = true;
-            }
-          });
-        }
+      dati.forEach(s => {
+        const badgeStato = s.stato === 'CONFORME'
+          ? `<span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black"><i class="fa-solid fa-check"></i> Conforme</span>`
+          : `<span class="px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px] font-black"><i class="fa-solid fa-triangle-exclamation"></i> Anomalia pH</span>`;
 
-        const avgPhOut = phOutCnt > 0 ? (phOutSum / phOutCnt).toFixed(2) : "--";
-        const dateObj = new Date(item.data);
-        const wNum = isNaN(dateObj) ? "--" : getWeekNumber(dateObj);
-
-        const badgeStato = haAnomalia
-          ? `<span class="px-2.5 py-1 rounded-full bg-rose-950/80 text-rose-300 border border-rose-800 font-extrabold text-[10px] inline-flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Anomalia pH</span>`
-          : `<span class="px-2.5 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800 font-extrabold text-[10px] inline-flex items-center gap-1"><i class="fa-solid fa-check"></i> Conforme</span>`;
-
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-900/60 transition";
-
-        tr.innerHTML = `
-          <td class="px-3 py-3 font-mono font-bold text-cyan-400">${item.data}</td>
-          <td class="px-3 py-3 text-center font-bold text-amber-400">W${wNum}</td>
-          <td class="px-3 py-3">
-            <div class="font-bold text-white">${item.operatoreT1 || 'N.D.'} <span class="text-slate-500 font-normal">(06-14)</span></div>
-            <div class="text-[10px] text-slate-400">${item.operatoreT2 || 'N.D.'} <span class="text-slate-500 font-normal">(14-22)</span></div>
-          </td>
-          <td class="px-3 py-3 text-center font-extrabold text-white font-mono">${avgPhOut}</td>
-          <td class="px-3 py-3 text-center">${badgeStato}</td>
-          <td class="px-3 py-3 text-right space-x-1">
-            <button onclick="apriDettaglio('${item.data}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-lg font-bold text-[11px] border border-slate-700 transition" title="Visualizza Dettaglio">
-              <i class="fa-solid fa-eye"></i> Dettagli
-            </button>
-            <a href="ita_quaderno_marcia.html" onclick="localStorage.setItem('record-data-selezionata', '${item.data}')" class="px-2.5 py-1.5 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 rounded-lg font-bold text-[11px] border border-cyan-800 transition inline-flex items-center gap-1">
-              <i class="fa-solid fa-pen"></i> Apri
-            </a>
-            <button onclick="eliminaRecord('${item.data}')" class="px-2 py-1.5 text-slate-500 hover:text-rose-400 transition" title="Elimina">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </td>
+        tbody.innerHTML += `
+          <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 transition">
+            <td class="p-4 font-bold text-cyan-400">${s.data}</td>
+            <td class="p-4 font-black text-amber-400">${s.settimana || 'W--'}</td>
+            <td class="p-4">
+              <div class="font-semibold text-white">${s.turno1 || 'N/D'} <span class="text-[10px] text-slate-400">(06-14)</span></div>
+              <div class="text-[11px] text-slate-400">${s.turno2 || 'N/D'} <span class="text-[10px] text-slate-500">(14-22)</span></div>
+            </td>
+            <td class="p-4 font-extrabold text-white">${s.phMedio || '7.00'}</td>
+            <td class="p-4">${badgeStato}</td>
+            <td class="p-4 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button onclick="apriDettaglioModale('${s.id}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Visualizza Resoconto">
+                  <i class="fa-solid fa-eye text-cyan-400"></i> Dettagli
+                </button>
+                <button onclick="apriSchedaPerModifica('${s.id}')" class="px-2.5 py-1.5 bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Apri e Integra Modulo">
+                  <i class="fa-solid fa-pen-to-square"></i> Apri
+                </button>
+                <button onclick="eliminaScheda('${s.id}')" class="p-1.5 text-slate-500 hover:text-rose-400 transition cursor-pointer" title="Elimina Scheda">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
         `;
-
-        tbody.appendChild(tr);
       });
     }
 
-    // FILTRAGGIO DINAMICO
-    function filtraSchede() {
-      const q = document.getElementById("filter-search").value.toLowerCase();
-      const monthFilter = document.getElementById("filter-month").value;
-      const statusFilter = document.getElementById("filter-status").value;
+    function aggiornaKPI(archivio) {
+      document.getElementById('kpi-totale').innerText = archivio.length;
+      const conformi = archivio.filter(s => s.stato === 'CONFORME').length;
+      const anomalie = archivio.filter(s => s.stato !== 'CONFORME').length;
+      document.getElementById('kpi-conformi').innerText = conformi;
+      document.getElementById('kpi-anomalie').innerText = anomalie;
 
-      const filtrate = datasetSchede.filter(item => {
-        // Cerca testo
-        const matchesSearch = !q || 
-          item.data.includes(q) ||
-          (item.operatoreT1 && item.operatoreT1.toLowerCase().includes(q)) ||
-          (item.operatoreT2 && item.operatoreT2.toLowerCase().includes(q)) ||
-          (item.noteGenerali && item.noteGenerali.toLowerCase().includes(q)) ||
-          (item.firNumero && item.firNumero.toLowerCase().includes(q));
-
-        // Filtro Mese (YYYY-MM)
-        const matchesMonth = !monthFilter || item.data.startsWith(monthFilter);
-
-        // Filtro Stato
-        let haAnomalia = false;
-        if (item.ore) {
-          item.ore.forEach(o => {
-            const v = parseFloat(o.phOut);
-            if (!isNaN(v) && (v < 5.5 || v > 9.5)) haAnomalia = true;
-          });
-        }
-
-        let matchesStatus = true;
-        if (statusFilter === "Conforme") matchesStatus = !haAnomalia;
-        if (statusFilter === "Anomalia") matchesStatus = haAnomalia;
-
-        return matchesSearch && matchesMonth && matchesStatus;
-      });
-
-      renderizzaTabella(filtrate);
-    }
-
-    // APRI MODALE DETTAGLIO
-    function apriDettaglio(dataKey) {
-      const item = datasetSchede.find(s => s.data === dataKey);
-      if (!item) return;
-
-      document.getElementById("det-titolo-data").innerText = `Quaderno di Marcia — Scheda del ${item.data}`;
-      document.getElementById("btn-modifica-dettaglio").onclick = () => {
-        window.location.href = `ita_quaderno_marcia.html`;
-      };
-
-      // Calcola anomalie per badge
-      let haAnomalia = false;
-      if (item.ore) {
-        item.ore.forEach(o => {
-          const v = parseFloat(o.phOut);
-          if (!isNaN(v) && (v < 5.5 || v > 9.5)) haAnomalia = true;
-        });
+      if (archivio.length > 0) {
+        const somma = archivio.reduce((acc, s) => acc + parseFloat(s.phMedio || 7), 0);
+        document.getElementById('kpi-ph-medio').innerText = (somma / archivio.length).toFixed(2);
       }
+    }
 
-      document.getElementById("det-badge-stato").innerHTML = haAnomalia
-        ? `<span class="px-3 py-1 rounded-full bg-rose-950 text-rose-300 border border-rose-800 font-extrabold text-xs">🔴 Anomalia pH Rilevata</span>`
-        : `<span class="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 font-extrabold text-xs">🟢 Registro Conforme</span>`;
+    // --- REINDIRIZZAMENTO PER MODIFICA/INTEGRAZIONE ---
+    function apriSchedaPerModifica(id) {
+      window.location.href = `QuadernoMarciaImpianto.html?id=${encodeURIComponent(id)}`;
+    }
 
-      // Costruzione HTML Dettagli
+    // --- ELIMINAZIONE SCHEDA ---
+    function eliminaScheda(id) {
+      if (confirm(`Sei sicuro di voler eliminare la scheda ${id} dall'archivio?`)) {
+        let archivio = getArchivio();
+        archivio = archivio.filter(s => s.id !== id);
+        salvaArchivio(archivio);
+        applicaFiltri();
+      }
+    }
+
+    // --- MODALE DETTAGLI ---
+    function apriDettaglioModale(id) {
+      const archivio = getArchivio();
+      const s = archivio.find(x => x.id === id);
+      if (!s) return;
+
+      document.getElementById('det-titolo').innerText = `Dettaglio Registro ${s.id}`;
+      document.getElementById('det-sottotitolo').innerText = `Data: ${s.data} | Settimana: ${s.settimana || 'W--'} | Impianto ITA`;
+
       let html = `
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
-          <div><span class="text-slate-500 font-bold">Turno 06-14:</span> <span class="text-white font-bold">${item.operatoreT1 || 'N.D.'}</span> (${item.firmaT1 || '-'})</div>
-          <div><span class="text-slate-500 font-bold">Turno 14-22:</span> <span class="text-white font-bold">${item.operatoreT2 || 'N.D.'}</span> (${item.firmaT2 || '-'})</div>
-          <div><span class="text-slate-500 font-bold">Resp. COGEDE:</span> <span class="text-cyan-400 font-bold">${item.referenteCogede || 'N.D.'}</span></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-800/60 p-3 rounded-xl border border-slate-700">
+          <div><span class="text-slate-400 font-bold block">Turno 06-14:</span> ${s.turno1 || 'N/D'}</div>
+          <div><span class="text-slate-400 font-bold block">Turno 14-22:</span> ${s.turno2 || 'N/D'}</div>
+          <div><span class="text-slate-400 font-bold block">Responsabile COGEDE:</span> ${s.cogede || 'N/D'}</div>
         </div>
 
-        <h4 class="font-black text-amber-400 uppercase text-[11px] tracking-wider mt-2">Rilevamenti Orari 24 Ore</h4>
-        <div class="overflow-x-auto rounded-lg border border-slate-800">
-          <table class="w-full text-left text-[11px] text-slate-300">
-            <thead class="bg-slate-950 text-slate-400 font-bold">
-              <tr>
-                <th class="p-1.5 text-center">Ora</th>
-                <th class="p-1.5 text-center">pH In</th>
-                <th class="p-1.5 text-center">pH Out</th>
-                <th class="p-1.5 text-center">Cond.</th>
-                <th class="p-1.5 text-center">TSS Vasca</th>
-                <th class="p-1.5">Note Ora</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800 font-mono">
-      `;
-
-      if (item.ore) {
-        item.ore.forEach((o, index) => {
-          const v = parseFloat(o.phOut);
-          const isErr = !isNaN(v) && (v < 5.5 || v > 9.5);
-          const classErr = isErr ? 'text-rose-400 font-black bg-rose-950/50' : 'text-slate-200';
-
-          html += `
-            <tr class="hover:bg-slate-900/40">
-              <td class="p-1 text-center font-bold text-cyan-400">${String(index + 1).padStart(2, '0')}:00</td>
-              <td class="p-1 text-center">${o.phIn || '-'}</td>
-              <td class="p-1 text-center ${classErr}">${o.phOut || '-'}</td>
-              <td class="p-1 text-center text-slate-400">${o.cond || '-'}</td>
-              <td class="p-1 text-center text-slate-400">${o.tssVasca || '-'}</td>
-              <td class="p-1 text-slate-300 font-sans">${o.note || ''}</td>
-            </tr>
-          `;
-        });
-      }
-
-      html += `
-            </tbody>
-          </table>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-            <div class="font-extrabold text-emerald-400 text-[11px]">Campionamento allo Scarico</div>
-            <div>Ora: <span class="text-white">${item.campOra || 'N.D.'}</span> | pH Campo: <span class="text-white">${item.campPh || 'N.D.'}</span></div>
-            <div>Stato: <span class="text-slate-300">${item.campStato || '-'}</span></div>
-            <div class="text-slate-400 italic">${item.campNote || ''}</div>
-          </div>
-
-          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-            <div class="font-extrabold text-rose-400 text-[11px]">Formulario FIR / Smaltimento Fanghi</div>
-            <div>FIR N°: <span class="text-white font-mono">${item.firNumero || 'Nessuno'}</span></div>
-            <div>Quantità: <span class="text-white">${item.firQta || '-'}</span> | Dest: <span class="text-slate-300">${item.firDest || '-'}</span></div>
+        <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/80 space-y-2">
+          <h4 class="font-black text-cyan-400 uppercase text-[11px]">Campionamento & Smaltimento Fanghi</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div><strong>Orario Campione:</strong> ${s.campionamento?.orario || 'N/D'}</div>
+            <div><strong>pH Rilevato Scarico:</strong> ${s.campionamento?.ph || 'N/D'}</div>
+            <div class="sm:col-span-2"><strong>Numero FIR Fanghi:</strong> ${s.fanghi?.fir || 'Nessuno registrato'}</div>
           </div>
         </div>
 
-        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-          <div class="font-extrabold text-slate-400 text-[11px]">Note & Osservazioni Generali</div>
-          <p class="text-slate-200 leading-relaxed">${item.noteGenerali || 'Nessuna nota registrata.'}</p>
+        <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/80">
+          <h4 class="font-black text-amber-400 uppercase text-[11px] mb-1">Note & Osservazioni di Cantiere</h4>
+          <p class="text-slate-300 italic">${s.note || 'Nessuna nota aggiuntiva.'}</p>
         </div>
       `;
 
-      document.getElementById("det-contenuto-body").innerHTML = html;
-      document.getElementById("modal-dettaglio").classList.remove("hidden");
+      document.getElementById('det-contenuto').innerHTML = html;
+      document.getElementById('modal-dettagli').classList.remove('hidden');
     }
 
-    function chiudiDettaglioModal() {
-      document.getElementById("modal-dettaglio").classList.add("hidden");
+    function chiudiDettaglioModale() {
+      document.getElementById('modal-dettagli').classList.add('hidden');
     }
 
-    // ELIMINA RECORD
-    function eliminaRecord(dataKey) {
-      if (confirm(`Sei sicuro di voler eliminare la scheda del ${dataKey} dall'archivio?`)) {
-        localStorage.removeItem(`ita_quaderno_${dataKey}`);
-        caricaArchivioData();
-        showToast(`Scheda del ${dataKey} eliminata.`);
+    // --- CALENDARIO MODALE ---
+    function apriGestoreScadenze() {
+      document.getElementById('modal-scadenze').classList.remove('hidden');
+      renderizzaCalendarioMese();
+    }
+
+    function chiudiGestoreScadenze() {
+      document.getElementById('modal-scadenze').classList.add('hidden');
+    }
+
+    function cambiaMeseCalendario(delta) {
+      meseVisualizzato += delta;
+      if (meseVisualizzato < 0) {
+        meseVisualizzato = 11;
+        annoVisualizzato--;
+      } else if (meseVisualizzato > 11) {
+        meseVisualizzato = 0;
+        annoVisualizzato++;
       }
+      renderizzaCalendarioMese();
     }
 
     function getWeekNumber(d) {
@@ -769,20 +500,42 @@
       return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
     }
 
-    function apriGestoreScadenze() {
-      document.getElementById('modal-scadenze').classList.remove('hidden');
-    }
-    function chiudiGestoreScadenze() {
-      document.getElementById('modal-scadenze').classList.add('hidden');
-    }
+    function renderizzaCalendarioMese() {
+      const container = document.getElementById('griglia-calendario-mese');
+      const label = document.getElementById('label-mese-corrente');
+      if (!container || !label) return;
 
-    function showToast(msg) {
-      const toast = document.getElementById("toast");
-      document.getElementById("toast-message").innerText = msg;
-      toast.className = "fixed bottom-5 right-5 z-50 transform opacity-100 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400";
-      setTimeout(() => {
-        toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400";
-      }, 3000);
+      label.innerText = `${mesi[meseVisualizzato]} ${annoVisualizzato}`;
+      container.innerHTML = '';
+
+      const primoGiorno = new Date(annoVisualizzato, meseVisualizzato, 1);
+      const ultimoGiorno = new Date(annoVisualizzato, meseVisualizzato + 1, 0);
+      const totaleGiorni = ultimoGiorno.getDate();
+
+      let giornoInizio = primoGiorno.getDay() - 1;
+      if (giornoInizio === -1) giornoInizio = 6;
+
+      let giornoCorrente = 1;
+      let htmlRighe = '';
+      let numSettimana = getWeekNumber(primoGiorno);
+
+      while (giornoCorrente <= totaleGiorni) {
+        htmlRighe += `<div class="flex items-center justify-center font-bold text-cyan-400 bg-slate-900/60 rounded text-[10px]">W${numSettimana}</div>`;
+        for (let i = 0; i < 7; i++) {
+          if ((giornoCorrente === 1 && i < giornoInizio) || giornoCorrente > totaleGiorni) {
+            htmlRighe += `<div class="p-1"></div>`;
+          } else {
+            let isOggi = (giornoCorrente === oggi.getDate() && meseVisualizzato === oggi.getMonth() && annoVisualizzato === oggi.getFullYear()) ? 'border-2 border-cyan-400 font-black' : 'border border-transparent';
+            htmlRighe += `
+              <div class="p-1 rounded-lg text-xs font-semibold bg-slate-900/80 hover:bg-slate-700 flex flex-col items-center justify-center min-h-[32px] ${isOggi}">
+                <span>${giornoCorrente}</span>
+              </div>`;
+            giornoCorrente++;
+          }
+        }
+        numSettimana++;
+      }
+      container.innerHTML = htmlRighe;
     }
   </script>
 
