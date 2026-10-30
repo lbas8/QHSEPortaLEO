@@ -26,14 +26,14 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
 
-  <!-- HEADER UNIFICATO CON WIDGET CALENDARIO DINAMICO -->
+  <!-- HEADER UNIFICATO -->
   <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       
       <!-- LATO SINISTRO: Torna a ITAhub & Titolo -->
       <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
         <div class="flex items-center gap-3">
-          <a href="ITAhub.html" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna a ITA Hub">
+          <a href="ITAhub.html" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
             <i class="fa-solid fa-arrow-left text-cyan-400"></i>
             <span class="hidden sm:inline">Torna a ITA Hub</span>
           </a>
@@ -42,88 +42,22 @@
             <i class="fa-solid fa-box-archive text-xl"></i>
           </div>
           <div>
-            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">ARCHIVIO QUADERNI ITA</h1>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">ARCHIVIO QUADERNI ITA (CLOUD)</h1>
             <p class="text-[11px] text-cyan-400 font-semibold mt-1">Impianto Trattamento Acque — VICOC</p>
           </div>
         </div>
       </div>
 
-      <!-- LATO DESTRA: Widget Calendario Interattivo, Avvisi & Home -->
+      <!-- LATO DESTRA -->
       <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
-        
-        <!-- WIDGET CALENDARIO INTERATTIVO -->
-        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Apri Calendario & Settimane">
-          <div class="bg-cyan-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
-            <span id="calMonth">OTT</span> <span id="calDay">30</span>
-          </div>
-          <div class="text-left text-xs leading-tight">
-            <div class="font-bold text-white flex items-center gap-1.5">
-              <span id="calFullDate">Venerdì, 30 OTT</span>
-              <span class="w-4 h-4 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-400 flex items-center justify-center text-[10px] font-black group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
-                <i class="fa-solid fa-plus"></i>
-              </span>
-            </div>
-            <div class="text-[10px] text-slate-400 font-medium">Calendario & Settimane</div>
-          </div>
-        </div>
-
-        <!-- PORTALE AVVISI -->
-        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-amber-500/40 hover:border-amber-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer">
-          <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
-          <div class="text-left text-xs leading-tight">
-            <div class="font-extrabold text-amber-400 tracking-wide uppercase text-[10px]">Scadenze ITA</div>
-            <div id="testo-prossima-scadenza" class="text-[11px] text-slate-300 truncate max-w-[160px]">
-              Verifica vasche ITA
-            </div>
-          </div>
-        </div>
-
-        <!-- HOME -->
         <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-full text-xs font-bold text-white hover:text-cyan-400 transition shadow-sm">
           <i class="fa-solid fa-house"></i>
           <span class="hidden sm:inline">Home</span>
         </a>
-
       </div>
 
     </div>
   </header>
-
-  <!-- MODALE CALENDARIO MENSILE -->
-  <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
-      <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      
-      <div class="flex items-center justify-between mb-4 flex-shrink-0">
-        <h3 class="text-lg font-black text-white flex items-center gap-2">
-          <i class="fa-solid fa-calendar-days text-cyan-400"></i> Calendario Mensile & Scadenze ITA
-        </h3>
-      </div>
-
-      <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4 flex-shrink-0">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-3">
-            <button onclick="cambiaMeseCalendario(-1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer">
-              <i class="fa-solid fa-chevron-left"></i>
-            </button>
-            <span id="label-mese-corrente" class="text-xs font-black text-cyan-400 uppercase tracking-widest min-w-[140px] text-center">OTTOBRE 2026</span>
-            <button onclick="cambiaMeseCalendario(1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer">
-              <i class="fa-solid fa-chevron-right"></i>
-            </button>
-          </div>
-          <div class="text-[10px] text-slate-400">Settimane e scadenze dell'impianto</div>
-        </div>
-        
-        <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1 border-b border-slate-700 pb-1">
-          <div class="text-cyan-400">W</div>
-          <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
-        </div>
-        <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- MAIN CONTENT: ARCHIVIO SCHEDE -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col gap-6">
@@ -132,13 +66,13 @@
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div>
         <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wider">
-          ARCHIVIO STORICO REGISTRI
+          CLOUD DATABASE REALTIME
         </span>
         <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase mt-2">
           ARCHIVIO QUADERNI DI MARCIA ITA
         </h2>
         <p class="text-xs sm:text-sm text-slate-400">
-          Consultazione storica delle schede giornaliere registrate, stato di conformità pH, dati dei turni e riesame analitico.
+          Sincronizzazione cloud automatica su tutti i dispositivi cantiere/desktop/mobile.
         </p>
       </div>
 
@@ -150,7 +84,7 @@
     <!-- STATISTICHE ARCHIVIO (KPI) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="glass-card rounded-xl p-4 border-l-4 border-l-cyan-400">
-        <div class="text-[11px] font-bold text-slate-400 uppercase">Totale Schede in Archivio</div>
+        <div class="text-[11px] font-bold text-slate-400 uppercase">Totale Schede in Cloud</div>
         <div id="kpi-totale" class="text-2xl font-black text-white mt-1">0</div>
       </div>
       <div class="glass-card rounded-xl p-4 border-l-4 border-l-emerald-400">
@@ -171,10 +105,10 @@
     <div class="glass-card rounded-xl p-4 flex flex-col md:flex-row items-center gap-4">
       <div class="relative w-full md:w-1/2">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-        <input type="text" id="filtro-ricerca" oninput="applicaFiltri()" placeholder="Cerca per operatore, note, FIR o referente..." class="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:border-cyan-400 outline-none">
+        <input type="text" id="filtro-ricerca" placeholder="Cerca per operatore, note, FIR o referente..." class="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:border-cyan-400 outline-none">
       </div>
       <div class="flex items-center gap-3 w-full md:w-1/2">
-        <select id="filtro-stato" onchange="applicaFiltri()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none">
+        <select id="filtro-stato" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 outline-none">
           <option value="TUTTI">Tutti gli stati</option>
           <option value="CONFORME">Solo Conformi</option>
           <option value="ANOMALIA pH">Solo Anomalie pH</option>
@@ -186,9 +120,9 @@
     <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
       <div class="p-4 border-b border-slate-800 bg-slate-900/60 flex items-center justify-between">
         <h3 class="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
-          <i class="fa-solid fa-list text-cyan-400"></i> Schede Giornaliere Archiviate
+          <i class="fa-solid fa-cloud text-cyan-400"></i> Schede Cloud In Tempo Reale
         </h3>
-        <span id="conteggio-risultati" class="text-[11px] text-slate-400 font-bold">Trovate 0 schede</span>
+        <span id="conteggio-risultati" class="text-[11px] text-slate-400 font-bold">Sincronizzazione in corso...</span>
       </div>
 
       <div class="overflow-x-auto">
@@ -204,7 +138,11 @@
             </tr>
           </thead>
           <tbody id="tbody-schede">
-            <!-- Popolato via JavaScript -->
+            <tr>
+              <td colspan="6" class="p-8 text-center text-slate-500">
+                <i class="fa-solid fa-spinner fa-spin mr-2"></i> Connessione a Firebase Cloud...
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -224,14 +162,12 @@
           <i class="fa-solid fa-file-contract"></i>
         </div>
         <div>
-          <h3 id="det-titolo" class="text-base font-black text-white uppercase">Dettaglio Scheda ITA-103001</h3>
-          <p id="det-sottotitolo" class="text-xs text-cyan-400 font-semibold">Data: --/--/---- | Settimana W--</p>
+          <h3 id="det-titolo" class="text-base font-black text-white uppercase">Dettaglio Scheda</h3>
+          <p id="det-sottotitolo" class="text-xs text-cyan-400 font-semibold">Data: --/--/----</p>
         </div>
       </div>
 
-      <div id="det-contenuto" class="space-y-4 overflow-y-auto pr-2 flex-grow text-xs text-slate-300">
-        <!-- Inserito dinamicamente -->
-      </div>
+      <div id="det-contenuto" class="space-y-4 overflow-y-auto pr-2 flex-grow text-xs text-slate-300"></div>
 
       <div class="pt-4 border-t border-slate-800 flex justify-end gap-3 flex-shrink-0">
         <button onclick="chiudiDettaglioModale()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition">
@@ -241,105 +177,51 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
-      <p class="flex items-center gap-2">
-        <i class="fa-solid fa-droplet text-cyan-400"></i> Modulo Impianto Trattamento Acque
-      </p>
-    </div>
-  </footer>
+  <!-- FIREBASE CONFIG & CLOUD SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  <!-- SCRIPT ARCHIVIO E INTEGRAZIONE SCHEDE -->
-  <script>
-    const oggi = new Date();
-    const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
-    const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
-    let meseVisualizzato = oggi.getMonth();
-    let annoVisualizzato = oggi.getFullYear();
+    const firebaseConfig = {
+      apiKey: "AIzaSyBNUrPHSTQovJRBMWVQDI-IH0M1YIGkv_U",
+      authDomain: "qhseleo.firebaseapp.com",
+      projectId: "qhseleo",
+      storageBucket: "qhseleo.firebasestorage.app",
+      messagingSenderId: "401651146088",
+      appId: "1:401651146088:web:eb341842059744d9974add",
+      measurementId: "G-YK2XHZTDSP"
+    };
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Inizializza data header
-      document.getElementById('calMonth').innerText = mesi[oggi.getMonth()];
-      document.getElementById('calDay').innerText = oggi.getDate();
-      document.getElementById('calFullDate').innerText = `${giorniSettimana[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-      // Inizializza dati archivio se vuoti
-      inzializzaDatiEsempioSeVuoti();
+    let schedeCache = [];
+
+    // Ascolto in tempo reale da Firestore
+    const colRef = collection(db, "ita_quaderni_archivio");
+    onSnapshot(colRef, (snapshot) => {
+      schedeCache = [];
+      snapshot.forEach(docSnap => {
+        schedeCache.push({ idDoc: docSnap.id, ...docSnap.data() });
+      });
+
+      // Ordina per data decrescente
+      schedeCache.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+
       applicaFiltri();
+    }, (error) => {
+      console.error("Errore connessione Firebase:", error);
+      document.getElementById('tbody-schede').innerHTML = `
+        <tr><td colspan="6" class="p-8 text-center text-rose-400">
+          Errore di connessione a Firebase Cloud. Verifica le regole di Firestore.
+        </td></tr>`;
     });
 
-    // --- CARICAMENTO DATI DI ESEMPIO SE ARCHIVIO È VUOTO ---
-    function inzializzaDatiEsempioSeVuoti() {
-      let salvati = localStorage.getItem('ita_quaderni_archivio');
-      if (!salvati || JSON.parse(salvati).length === 0) {
-        const mockData = [
-          {
-            id: "ITA-103001",
-            data: "2026-10-30",
-            anno: "2026",
-            settimana: "W44",
-            giorno: "Venerdì",
-            turno1: "Marco Bianchi",
-            turno2: "Giuseppe Rossi",
-            cogede: "Ing. R. Verdi",
-            phMedio: "7.45",
-            stato: "CONFORME",
-            campionamento: { orario: "10:30", ph: "7.4", stato: "OK" },
-            fanghi: { fir: "FIR-2026/8941" },
-            note: "Regolare funzionamento vasche di sedimentazione."
-          },
-          {
-            id: "ITA-102901",
-            data: "2026-10-29",
-            anno: "2026",
-            settimana: "W44",
-            giorno: "Giovedì",
-            turno1: "Luca Galli",
-            turno2: "Marco Bianchi",
-            cogede: "Ing. R. Verdi",
-            phMedio: "9.85",
-            stato: "ANOMALIA pH",
-            campionamento: { orario: "11:00", ph: "9.8", stato: "Non Conforme" },
-            fanghi: { fir: "" },
-            note: "Dosaggio correttivo pH attivato alle ore 14:00."
-          },
-          {
-            id: "ITA-102801",
-            data: "2026-10-28",
-            anno: "2026",
-            settimana: "W44",
-            giorno: "Mercoledì",
-            turno1: "Giuseppe Rossi",
-            turno2: "Luca Galli",
-            cogede: "Ing. R. Verdi",
-            phMedio: "7.20",
-            stato: "CONFORME",
-            campionamento: { orario: "09:45", ph: "7.2", stato: "OK" },
-            fanghi: { fir: "FIR-2026/8912" },
-            note: "Effettuato contro-lavaggio filtri sabbia."
-          }
-        ];
-        localStorage.setItem('ita_quaderni_archivio', JSON.stringify(mockData));
-      }
-    }
-
-    function getArchivio() {
-      return JSON.parse(localStorage.getItem('ita_quaderni_archivio')) || [];
-    }
-
-    function salvaArchivio(dati) {
-      localStorage.setItem('ita_quaderni_archivio', JSON.stringify(dati));
-    }
-
-    // --- GESTIONE TABELLA E FILTRI ---
-    function applicaFiltri() {
-      const archivio = getArchivio();
+    window.applicaFiltri = function() {
       const testoRicerca = document.getElementById('filtro-ricerca').value.toLowerCase();
       const statoSelezionato = document.getElementById('filtro-stato').value;
 
-      const filtrati = archivio.filter(s => {
+      const filtrati = schedeCache.filter(s => {
         const matchTesto = (
           (s.data && s.data.includes(testoRicerca)) ||
           (s.turno1 && s.turno1.toLowerCase().includes(testoRicerca)) ||
@@ -352,8 +234,11 @@
       });
 
       renderizzaTabella(filtrati);
-      aggiornaKPI(archivio);
-    }
+      aggiornaKPI(schedeCache);
+    };
+
+    document.getElementById('filtro-ricerca').addEventListener('input', window.applicaFiltri);
+    document.getElementById('filtro-stato').addEventListener('change', window.applicaFiltri);
 
     function renderizzaTabella(dati) {
       const tbody = document.getElementById('tbody-schede');
@@ -363,11 +248,9 @@
 
       if (dati.length === 0) {
         tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="p-8 text-center text-slate-500">
-              Nessuna scheda trovata in archivio.
-            </td>
-          </tr>`;
+          <tr><td colspan="6" class="p-8 text-center text-slate-500">
+            Nessuna scheda presente nel Cloud Database.
+          </td></tr>`;
         return;
       }
 
@@ -378,7 +261,7 @@
 
         tbody.innerHTML += `
           <tr class="border-b border-slate-800/60 hover:bg-slate-800/40 transition">
-            <td class="p-4 font-bold text-cyan-400">${s.data}</td>
+            <td class="p-4 font-bold text-cyan-400">${s.data || 'N/D'}</td>
             <td class="p-4 font-black text-amber-400">${s.settimana || 'W--'}</td>
             <td class="p-4">
               <div class="font-semibold text-white">${s.turno1 || 'N/D'} <span class="text-[10px] text-slate-400">(06-14)</span></div>
@@ -388,13 +271,13 @@
             <td class="p-4">${badgeStato}</td>
             <td class="p-4 text-right">
               <div class="flex items-center justify-end gap-2">
-                <button onclick="apriDettaglioModale('${s.id}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Visualizza Resoconto">
+                <button onclick="apriDettaglioModale('${s.idDoc}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
                   <i class="fa-solid fa-eye text-cyan-400"></i> Dettagli
                 </button>
-                <button onclick="apriSchedaPerModifica('${s.id}')" class="px-2.5 py-1.5 bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Apri e Integra Modulo">
+                <button onclick="apriSchedaPerModifica('${s.idDoc}')" class="px-2.5 py-1.5 bg-cyan-950 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
                   <i class="fa-solid fa-pen-to-square"></i> Apri
                 </button>
-                <button onclick="eliminaScheda('${s.id}')" class="p-1.5 text-slate-500 hover:text-rose-400 transition cursor-pointer" title="Elimina Scheda">
+                <button onclick="eliminaSchedaCloud('${s.idDoc}')" class="p-1.5 text-slate-500 hover:text-rose-400 transition cursor-pointer">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
               </div>
@@ -417,29 +300,26 @@
       }
     }
 
-    // --- REINDIRIZZAMENTO PER MODIFICA/INTEGRAZIONE ---
-    function apriSchedaPerModifica(id) {
-      window.location.href = `QuadernoMarciaImpianto.html?id=${encodeURIComponent(id)}`;
-    }
+    window.apriSchedaPerModifica = function(idDoc) {
+      window.location.href = `QuadernoMarciaImpianto.html?id=${encodeURIComponent(idDoc)}`;
+    };
 
-    // --- ELIMINAZIONE SCHEDA ---
-    function eliminaScheda(id) {
-      if (confirm(`Sei sicuro di voler eliminare la scheda ${id} dall'archivio?`)) {
-        let archivio = getArchivio();
-        archivio = archivio.filter(s => s.id !== id);
-        salvaArchivio(archivio);
-        applicaFiltri();
+    window.eliminaSchedaCloud = async function(idDoc) {
+      if (confirm("Sei sicuro di voler eliminare definitivamente questa scheda dal Cloud?")) {
+        try {
+          await deleteDoc(doc(db, "ita_quaderni_archivio", idDoc));
+        } catch (e) {
+          alert("Errore eliminazione: " + e.message);
+        }
       }
-    }
+    };
 
-    // --- MODALE DETTAGLI ---
-    function apriDettaglioModale(id) {
-      const archivio = getArchivio();
-      const s = archivio.find(x => x.id === id);
+    window.apriDettaglioModale = function(idDoc) {
+      const s = schedeCache.find(x => x.idDoc === idDoc);
       if (!s) return;
 
-      document.getElementById('det-titolo').innerText = `Dettaglio Registro ${s.id}`;
-      document.getElementById('det-sottotitolo').innerText = `Data: ${s.data} | Settimana: ${s.settimana || 'W--'} | Impianto ITA`;
+      document.getElementById('det-titolo').innerText = `Dettaglio Scheda ${s.id || s.idDoc}`;
+      document.getElementById('det-sottotitolo').innerText = `Data: ${s.data} | Settimana: ${s.settimana || 'W--'}`;
 
       let html = `
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-800/60 p-3 rounded-xl border border-slate-700">
@@ -465,78 +345,11 @@
 
       document.getElementById('det-contenuto').innerHTML = html;
       document.getElementById('modal-dettagli').classList.remove('hidden');
-    }
+    };
 
-    function chiudiDettaglioModale() {
+    window.chiudiDettaglioModale = function() {
       document.getElementById('modal-dettagli').classList.add('hidden');
-    }
-
-    // --- CALENDARIO MODALE ---
-    function apriGestoreScadenze() {
-      document.getElementById('modal-scadenze').classList.remove('hidden');
-      renderizzaCalendarioMese();
-    }
-
-    function chiudiGestoreScadenze() {
-      document.getElementById('modal-scadenze').classList.add('hidden');
-    }
-
-    function cambiaMeseCalendario(delta) {
-      meseVisualizzato += delta;
-      if (meseVisualizzato < 0) {
-        meseVisualizzato = 11;
-        annoVisualizzato--;
-      } else if (meseVisualizzato > 11) {
-        meseVisualizzato = 0;
-        annoVisualizzato++;
-      }
-      renderizzaCalendarioMese();
-    }
-
-    function getWeekNumber(d) {
-      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-      var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
-    }
-
-    function renderizzaCalendarioMese() {
-      const container = document.getElementById('griglia-calendario-mese');
-      const label = document.getElementById('label-mese-corrente');
-      if (!container || !label) return;
-
-      label.innerText = `${mesi[meseVisualizzato]} ${annoVisualizzato}`;
-      container.innerHTML = '';
-
-      const primoGiorno = new Date(annoVisualizzato, meseVisualizzato, 1);
-      const ultimoGiorno = new Date(annoVisualizzato, meseVisualizzato + 1, 0);
-      const totaleGiorni = ultimoGiorno.getDate();
-
-      let giornoInizio = primoGiorno.getDay() - 1;
-      if (giornoInizio === -1) giornoInizio = 6;
-
-      let giornoCorrente = 1;
-      let htmlRighe = '';
-      let numSettimana = getWeekNumber(primoGiorno);
-
-      while (giornoCorrente <= totaleGiorni) {
-        htmlRighe += `<div class="flex items-center justify-center font-bold text-cyan-400 bg-slate-900/60 rounded text-[10px]">W${numSettimana}</div>`;
-        for (let i = 0; i < 7; i++) {
-          if ((giornoCorrente === 1 && i < giornoInizio) || giornoCorrente > totaleGiorni) {
-            htmlRighe += `<div class="p-1"></div>`;
-          } else {
-            let isOggi = (giornoCorrente === oggi.getDate() && meseVisualizzato === oggi.getMonth() && annoVisualizzato === oggi.getFullYear()) ? 'border-2 border-cyan-400 font-black' : 'border border-transparent';
-            htmlRighe += `
-              <div class="p-1 rounded-lg text-xs font-semibold bg-slate-900/80 hover:bg-slate-700 flex flex-col items-center justify-center min-h-[32px] ${isOggi}">
-                <span>${giornoCorrente}</span>
-              </div>`;
-            giornoCorrente++;
-          }
-        }
-        numSettimana++;
-      }
-      container.innerHTML = htmlRighe;
-    }
+    };
   </script>
 
 </body>
