@@ -35,7 +35,6 @@
       color: #f8fafc;
     }
 
-    /* Custom Glassmorphism Styles */
     .glass-card {
       background: rgba(18, 24, 38, 0.75);
       backdrop-filter: blur(12px);
@@ -56,7 +55,6 @@
       outline: none;
     }
 
-    /* Custom Scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -72,7 +70,6 @@
       background: #0284c7;
     }
 
-    /* Print Optimization */
     @media print {
       body {
         background: #ffffff !important;
@@ -99,15 +96,12 @@
       .bg-slate-900, .bg-slate-800, .bg-slate-950 {
         background: #ffffff !important;
       }
-      .print-break-before {
-        page-break-before: always;
-      }
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white pb-10">
 
-  <!-- NOTIFICATION BANNER / TOAST -->
+  <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400">
     <i class="fa-solid fa-circle-check text-base"></i>
     <span id="toast-message">Messaggio di notifica</span>
@@ -117,7 +111,6 @@
   <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3 shadow-lg no-print">
     <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       
-      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro -->
       <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
         <div class="flex items-center gap-3">
           <button onclick="window.location.href='ITAhub.html'" class="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna a ITA Hub">
@@ -137,10 +130,7 @@
         </div>
       </div>
 
-      <!-- CENTRO / DESTRA: Controlli rapidi e azioni salva/stampa/archivio -->
       <div class="flex flex-wrap items-center justify-end gap-3 w-full lg:w-auto">
-        
-        <!-- STATO CONFORMITA RAPIDO -->
         <div id="quick-status-badge" class="flex items-center gap-2 bg-emerald-950/80 border border-emerald-500/40 rounded-xl px-3 py-1.5 shadow-inner">
           <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
           <div class="text-left leading-tight">
@@ -149,10 +139,9 @@
           </div>
         </div>
 
-        <!-- AZIONI SALVATAGGIO / REGISTRO -->
         <button onclick="salvaQuaderno()" class="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer border border-cyan-400">
           <i class="fa-solid fa-floppy-disk"></i>
-          <span>Salva Dati</span>
+          <span>Salva Dati (Cloud)</span>
         </button>
 
         <a href="archivioquadernomarciaita.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer">
@@ -169,7 +158,6 @@
           <i class="fa-solid fa-plus"></i>
           <span class="hidden sm:inline">Nuova Scheda</span>
         </button>
-
       </div>
 
     </div>
@@ -178,7 +166,7 @@
   <!-- BANNER NOTIFICA MODIFICA -->
   <div id="banner-modifica-id" class="hidden max-w-[1600px] w-full mx-auto px-4 sm:px-8 pt-4">
     <div class="bg-amber-500/10 border border-amber-500/40 text-amber-300 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between">
-      <span><i class="fa-solid fa-pen-to-square mr-2"></i> Stai integrando/modificando la scheda archiviata: <strong id="lbl-scheda-id-modifica">--</strong></span>
+      <span><i class="fa-solid fa-pen-to-square mr-2"></i> Stai integrando/modificando la scheda cloud: <strong id="lbl-scheda-id-modifica">--</strong></span>
       <button onclick="nuovaSchedaGiornaliera()" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 px-2.5 py-1 rounded-lg">Annulla e crea Nuova</button>
     </div>
   </div>
@@ -186,7 +174,7 @@
   <!-- MAIN CONTAINER -->
   <main class="max-w-[1600px] w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
 
-    <!-- HEADER ANAGRAFICA CANTIERE & RECORD GIORNALIERO -->
+    <!-- HEADER ANAGRAFICA CANTIERE -->
     <div class="glass-card rounded-2xl p-5 border-t-4 border-t-cyan-500 shadow-xl">
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4 border-b border-slate-800 pb-3">
         <div>
@@ -206,26 +194,18 @@
         </div>
       </div>
 
-      <!-- GRIGLIA INFO DATA AUTOMATICA & REFERENTI TURNO -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <!-- DATA METADATA -->
         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
           <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Parametri Temporali</div>
           <div class="mt-2 space-y-1">
-            <div class="text-xs font-semibold text-slate-300">Giorno: <span id="lbl-giorno-settimana" class="font-black text-cyan-400">Venerdì</span></div>
-            <div class="text-xs font-semibold text-slate-300">Settimana N°: <span id="lbl-settimana-nr" class="font-black text-amber-400">44</span></div>
-            <div class="text-xs font-semibold text-slate-300">Anno: <span id="lbl-anno-corrente" class="font-black text-white">2026</span></div>
+            <div class="text-xs font-semibold text-slate-300">Giorno: <span id="lbl-giorno-settimana" class="font-black text-cyan-400">--</span></div>
+            <div class="text-xs font-semibold text-slate-300">Settimana N°: <span id="lbl-settimana-nr" class="font-black text-amber-400">--</span></div>
+            <div class="text-xs font-semibold text-slate-300">Anno: <span id="lbl-anno-corrente" class="font-black text-white">--</span></div>
           </div>
         </div>
 
-        <!-- TURNO 06-14 / GIORNALIERO -->
         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-extrabold uppercase text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">
-              Turno 06:00 - 14:00 / Giornaliero
-            </span>
-          </div>
+          <span class="text-[10px] font-extrabold uppercase text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800 block text-center">Turno 06:00 - 14:00</span>
           <div>
             <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Operatore / Manutentore</label>
             <input type="text" id="operatore-t1" placeholder="Nome Cognome" class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white">
@@ -236,13 +216,8 @@
           </div>
         </div>
 
-        <!-- TURNO 14-22 -->
         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-extrabold uppercase text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800">
-              Turno 14:00 - 22:00
-            </span>
-          </div>
+          <span class="text-[10px] font-extrabold uppercase text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800 block text-center">Turno 14:00 - 22:00</span>
           <div>
             <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Operatore / Manutentore</label>
             <input type="text" id="operatore-t2" placeholder="Nome Cognome" class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white">
@@ -253,13 +228,8 @@
           </div>
         </div>
 
-        <!-- REFERENTE COGEDE / SUPERVISORE -->
         <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-extrabold uppercase text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
-              Supervisione COGEDE / DL
-            </span>
-          </div>
+          <span class="text-[10px] font-extrabold uppercase text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800 block text-center">Supervisione COGEDE / DL</span>
           <div>
             <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Responsabile Cantiere / ITA</label>
             <input type="text" id="referente-cogede" placeholder="Ing. Referente" class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white">
@@ -269,24 +239,17 @@
             <input type="text" id="firma-cogede" placeholder="Sigla Validazione" class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white font-mono">
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- SEZIONE 1: TABELLA ORARIA REGISTRAZIONE PARAMETRI E SONDE (01:00 -> 24:00) -->
+    <!-- SEZIONE 1: TABELLA ORARIA -->
     <div class="glass-card rounded-2xl p-5 border-t-4 border-t-cyan-400 shadow-xl space-y-4">
-      
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
         <div>
           <h3 class="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
             <i class="fa-solid fa-clock text-cyan-400"></i> Sezione 1: Registrazione Oraria Parametri e Sonde (01:00 — 24:00)
           </h3>
-          <p class="text-xs text-slate-400 mt-0.5">
-            Inserire i rilevamenti orari per le 24 ore. I parametri di pH al di fuori dei limiti legali (5.5 - 9.5) verranno evidenziati in rosso.
-          </p>
         </div>
-
-        <!-- MEDIA E MONITORAGGIO -->
         <div class="flex items-center gap-3 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
           <div class="text-right">
             <div class="text-[9px] uppercase font-bold text-slate-400">Media pH Entrata / Uscita</div>
@@ -294,678 +257,128 @@
               <span id="avg-ph-in" class="text-cyan-400">--</span> / <span id="avg-ph-out" class="text-emerald-400">--</span>
             </div>
           </div>
-          <div id="ph-status-indicator" class="w-3 h-3 rounded-full bg-slate-600" title="Stato Valori pH"></div>
+          <div id="ph-status-indicator" class="w-3 h-3 rounded-full bg-slate-600"></div>
         </div>
       </div>
 
-      <!-- TABELLA ORARIA SCROLLABILE -->
       <div class="overflow-x-auto rounded-xl border border-slate-800">
         <table class="w-full text-left text-xs text-slate-300">
           <thead class="bg-slate-900/90 text-[10px] uppercase font-black text-slate-400 tracking-wider border-b border-slate-800">
             <tr>
-              <th scope="col" class="px-2 py-2.5 text-center w-16 bg-slate-950">Ora</th>
-              <th scope="col" class="px-2 py-2.5 text-center min-w-[90px]">pH Entrata</th>
-              <th scope="col" class="px-2 py-2.5 text-center min-w-[90px]">pH Uscita</th>
-              <th scope="col" class="px-2 py-2.5 text-center min-w-[100px]">Conducibilità <br><span class="text-[8px] text-slate-500">(µS/cm)</span></th>
-              <th scope="col" class="px-2 py-2.5 text-center min-w-[100px]">Vasca TSS <br><span class="text-[8px] text-slate-500">(mg/L)</span></th>
-              <th scope="col" class="px-2 py-2.5 text-center min-w-[100px]">Ingresso TSS <br><span class="text-[8px] text-slate-500">(g/L)</span></th>
-              <th scope="col" class="px-2 py-2.5 text-center min-w-[90px]">Idrocarburi <br><span class="text-[8px] text-slate-500">(mg/L o PPM)</span></th>
-              <th scope="col" class="px-2 py-2.5 text-center min-w-[80px]">Controlav.</th>
-              <th scope="col" class="px-2 py-2.5 min-w-[220px]">Note & Consegna Prodotti Chimici / Eventi</th>
+              <th class="px-2 py-2.5 text-center w-16 bg-slate-950">Ora</th>
+              <th class="px-2 py-2.5 text-center min-w-[90px]">pH Entrata</th>
+              <th class="px-2 py-2.5 text-center min-w-[90px]">pH Uscita</th>
+              <th class="px-2 py-2.5 text-center min-w-[100px]">Conducibilità (µS/cm)</th>
+              <th class="px-2 py-2.5 text-center min-w-[100px]">Vasca TSS (mg/L)</th>
+              <th class="px-2 py-2.5 text-center min-w-[100px]">Ingresso TSS (g/L)</th>
+              <th class="px-2 py-2.5 text-center min-w-[90px]">Idrocarburi</th>
+              <th class="px-2 py-2.5 text-center min-w-[80px]">Controlav.</th>
+              <th class="px-2 py-2.5 min-w-[220px]">Note & Consegna Prodotti</th>
             </tr>
           </thead>
-          <tbody id="tbody-ore-registrazione" class="divide-y divide-slate-800/60 bg-slate-950/40 font-medium">
-            <!-- Popolato via JavaScript (24 righe) -->
-          </tbody>
+          <tbody id="tbody-ore-registrazione" class="divide-y divide-slate-800/60 bg-slate-950/40 font-medium"></tbody>
         </table>
       </div>
 
-      <!-- SCHEDA MANUTENZIONE / TARATURA SONDE E STRUMENTI -->
+      <!-- MANUTENZIONE SONDE -->
       <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-3 mt-4">
-        <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+        <h4 class="text-xs font-black uppercase tracking-wider text-amber-400">
           <i class="fa-solid fa-screws-tilting"></i> Manutenzione e Taratura Sonde / Strumentazione ITA
         </h4>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-          
-          <!-- PH ENTRATA -->
           <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
             <div class="font-bold text-slate-200 text-[11px]">Sonda pH Entrata</div>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-ph-in-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Pulizia Sonda
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-ph-in-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Taratura (pH7 / pH4)
-            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-ph-in-clean"> Pulizia</label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-ph-in-cal"> Taratura</label>
           </div>
-
-          <!-- PH USCITA -->
           <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
             <div class="font-bold text-slate-200 text-[11px]">Sonda pH Uscita</div>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-ph-out-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Pulizia Sonda
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-ph-out-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Taratura (pH7 / pH4)
-            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-ph-out-clean"> Pulizia</label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-ph-out-cal"> Taratura</label>
           </div>
-
-          <!-- CONDUCIMETRO -->
           <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
             <div class="font-bold text-slate-200 text-[11px]">Conducimetro</div>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-cond-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Pulizia Sensore
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-cond-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Verifica Standard
-            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-cond-clean"> Pulizia</label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-cond-cal"> Verifica</label>
           </div>
-
-          <!-- TORBIMETRO VASCA -->
           <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
-            <div class="font-bold text-slate-200 text-[11px]">Torbimetro Vasca TSS</div>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-turb-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Pulizia Ottica
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-turb-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Zero / Taratura
-            </label>
+            <div class="font-bold text-slate-200 text-[11px]">Torbimetro Vasca</div>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-turb-clean"> Pulizia</label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-turb-cal"> Zero</label>
           </div>
-
-          <!-- IDROCARBURI -->
           <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
-            <div class="font-bold text-slate-200 text-[11px]">Sensore Idrocarburi</div>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-hc-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Ispezione & Pulizia
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
-              <input type="checkbox" id="maint-hc-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
-              Test Allarme
-            </label>
+            <div class="font-bold text-slate-200 text-[11px]">Idrocarburi</div>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-hc-clean"> Ispezione</label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]"><input type="checkbox" id="maint-hc-cal"> Test</label>
           </div>
-
         </div>
       </div>
-
     </div>
 
-    <!-- SEZIONE 2: MANUTENZIONI E CONTROLLI PERIODICI GIORNALIERI -->
+    <!-- SEZIONE 2: MANUTENZIONI PERIODICHE -->
     <div class="glass-card rounded-2xl p-5 border-t-4 border-t-amber-500 shadow-xl space-y-4">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
-        <div>
-          <h3 class="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-list-check text-amber-400"></i> Sezione 2: Controlli Periodici e Attività di Manutenzione Giornaliera
-          </h3>
-          <p class="text-xs text-slate-400 mt-0.5">
-            Compilazione stato operativo per il Turno 06-14 e Turno 14-22 conforme al tracciato originale di cantiere.
-          </p>
-        </div>
-      </div>
-
+      <h3 class="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-list-check text-amber-400"></i> Sezione 2: Controlli Periodici e Attività di Manutenzione Giornaliera
+      </h3>
       <div class="overflow-x-auto rounded-xl border border-slate-800">
         <table class="w-full text-left text-xs text-slate-300">
           <thead class="bg-slate-900/90 text-[10px] uppercase font-black text-slate-400 tracking-wider border-b border-slate-800">
             <tr>
-              <th scope="col" class="px-3 py-3 w-1/3">Descrizione Attività / Controllo Impianto</th>
-              <th scope="col" class="px-3 py-3 text-center min-w-[140px]">Stato Turno 06:00 - 14:00</th>
-              <th scope="col" class="px-3 py-3 text-center min-w-[140px]">Stato Turno 14:00 - 22:00</th>
-              <th scope="col" class="px-3 py-3 min-w-[200px]">Note Operative & Dettagli</th>
-              <th scope="col" class="px-3 py-3 text-center w-24">Firma Operatore</th>
+              <th class="px-3 py-3 w-1/3">Descrizione Attività</th>
+              <th class="px-3 py-3 text-center min-w-[140px]">Turno 06-14</th>
+              <th class="px-3 py-3 text-center min-w-[140px]">Turno 14-22</th>
+              <th class="px-3 py-3 min-w-[200px]">Note Operative</th>
+              <th class="px-3 py-3 text-center w-24">Firma</th>
             </tr>
           </thead>
-          <tbody id="tbody-attivita-manutenzione" class="divide-y divide-slate-800/60 bg-slate-950/40">
-            <!-- Popolato via JS -->
-          </tbody>
+          <tbody id="tbody-attivita-manutenzione" class="divide-y divide-slate-800/60 bg-slate-950/40"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- SEZIONE SPECIALI: CAMPIONAMENTI, SMALTIMENTO FANGHI E DTR -->
+    <!-- SEZIONE SPECIALI -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      
-      <!-- SCHEDA PRELIEVO CAMPIONI ALLO SCARICO -->
       <div class="glass-card rounded-2xl p-5 border-t-4 border-t-emerald-500 space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <h4 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-vial text-emerald-400"></i> Prelievo Campioni allo Scarico (Pozzetto Fiscale)
-          </h4>
-          <span class="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold px-2 py-0.5 rounded uppercase">D.Lgs 152/06</span>
-        </div>
-
+        <h4 class="text-sm font-black text-white uppercase tracking-wider">
+          <i class="fa-solid fa-vial text-emerald-400"></i> Prelievo Campioni allo Scarico
+        </h4>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold mb-1">Orario Campionamento</label>
-            <input type="time" id="camp-ora" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
-          </div>
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold mb-1">pH Misurato in Campo</label>
-            <input type="number" step="0.1" id="camp-ph" placeholder="Es. 7.4" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
-          </div>
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold mb-1">Stato Campione</label>
-            <select id="camp-stato" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
-              <option value="Inviato Lab">Inviato Lab Esterno</option>
-              <option value="Conservato">Conservato in Frigo</option>
-              <option value="Conforme Intermedio">Test Rapido OK</option>
-            </select>
-          </div>
+          <div><label class="block text-[10px] text-slate-400 font-bold mb-1">Orario</label><input type="time" id="camp-ora" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white"></div>
+          <div><label class="block text-[10px] text-slate-400 font-bold mb-1">pH Campo</label><input type="number" step="0.1" id="camp-ph" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white"></div>
+          <div><label class="block text-[10px] text-slate-400 font-bold mb-1">Stato</label><select id="camp-stato" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white"><option value="Inviato Lab">Inviato Lab</option><option value="Conservato">Conservato</option></select></div>
         </div>
-
-        <div>
-          <label class="block text-[10px] text-slate-400 font-bold mb-1">Note / Sigla Operatore Prelievo</label>
-          <input type="text" id="camp-note" placeholder="Dettagli pozzetto, verbale o numero sigillo" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
-        </div>
+        <div><label class="block text-[10px] text-slate-400 font-bold mb-1">Note</label><input type="text" id="camp-note" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white"></div>
       </div>
 
-      <!-- SCHEDA SMALTIMENTO FANGHI & REGISTRO FIR -->
       <div class="glass-card rounded-2xl p-5 border-t-4 border-t-rose-500 space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-          <h4 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-truck-ramp-box text-rose-400"></i> Smaltimento Fanghi ITA & Formulario FIR
-          </h4>
-          <span class="text-[9px] bg-rose-950 text-rose-400 border border-rose-800 font-bold px-2 py-0.5 rounded uppercase">Rifiuti Speciali</span>
-        </div>
-
+        <h4 class="text-sm font-black text-white uppercase tracking-wider">
+          <i class="fa-solid fa-truck-ramp-box text-rose-400"></i> Smaltimento Fanghi & FIR
+        </h4>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold mb-1">N° FIR (Formulario)</label>
-            <input type="text" id="fir-numero" placeholder="Es. FIR-2026-998" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
-          </div>
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold mb-1">Quantità Stimata (kg/m³)</label>
-            <input type="text" id="fir-qta" placeholder="Es. 12.500 kg" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
-          </div>
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold mb-1">Trasportatore / Destinatario</label>
-            <input type="text" id="fir-dest" placeholder="Azienda Smaltimento" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
-          </div>
+          <div><label class="block text-[10px] text-slate-400 font-bold mb-1">N° FIR</label><input type="text" id="fir-numero" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white font-mono"></div>
+          <div><label class="block text-[10px] text-slate-400 font-bold mb-1">Quantità</label><input type="text" id="fir-qta" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white"></div>
+          <div><label class="block text-[10px] text-slate-400 font-bold mb-1">Destinatario</label><input type="text" id="fir-dest" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white"></div>
         </div>
-
-        <div>
-          <label class="block text-[10px] text-slate-400 font-bold mb-1">Firma / Note Trasporto Fanghi</label>
-          <input type="text" id="fir-note" placeholder="Es. Evacuazione pressafiltro/vasca eseguita con successo" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
-        </div>
+        <div><label class="block text-[10px] text-slate-400 font-bold mb-1">Note Fanghi</label><input type="text" id="fir-note" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white"></div>
       </div>
-
     </div>
 
-    <!-- BOX OSSERVAZIONI FINALI -->
     <div class="glass-card rounded-2xl p-5 border-t-4 border-t-slate-500 shadow-xl space-y-2">
-      <h4 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
-        <i class="fa-solid fa-comment-dots text-cyan-400"></i> Osservazioni Generali, Anomalie o Interventi Straordinari
+      <h4 class="text-xs font-black uppercase tracking-wider text-slate-300">
+        <i class="fa-solid fa-comment-dots text-cyan-400"></i> Osservazioni Generali e Anomalie
       </h4>
-      <textarea id="note-generali-fine-giornata" rows="3" placeholder="Segnalazioni per il turno successivo, consumo reagenti o interventi meccanici/elettrici..." class="glass-input w-full rounded-xl p-3 text-xs text-slate-200 outline-none focus:border-cyan-400"></textarea>
+      <textarea id="note-generali-fine-giornata" rows="3" class="glass-input w-full rounded-xl p-3 text-xs text-slate-200 outline-none"></textarea>
     </div>
 
   </main>
 
-  <!-- FOOTER UNIFICATO -->
   <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500 mt-8 no-print">
     <div class="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
       <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
-      <p class="flex items-center gap-2">
-        <i class="fa-solid fa-droplet text-cyan-400"></i> Impianto Trattamento Acque (ITA) — Quaderno di Marcia
-      </p>
     </div>
   </footer>
 
-  <!-- SCRIPT LOGICA E GESTIONE ARCHIVIO COMPLETA -->
-  <script>
-    const attivitaManutenzioneExcel = [
-      "Controllo visivo dello scarico (contatore volumetrico acque in uscita) e delle vasche",
-      "Verifica dosaggio reagenti (Polielettrolita, Coagulante, Correttore pH)",
-      "Pulizia Skid, Tombini e Tubazioni di cantiere",
-      "Manutenzione / controllo pompe di rilancio GN",
-      "Manutenzione / controllo pompe di rilancio vasca di accumulo (Serbatoio Antincendio)",
-      "Prelievo Campioni allo Scarico (Pozzetto Fiscale)",
-      "Smaltimento dei fanghi (Verifica e pulizia pressafiltro / vasca ispessimento)",
-      "Manutenzione ordinaria parti meccaniche (Mascotte, Agitatori, Valvole)",
-      "Manutenzione straordinaria parti meccaniche / Elettromeccaniche",
-      "Verifica Rio / Corso d'Acqua ricettore finale",
-      "Verifica pulizia canalette di scolo e griglie di filtrazione"
-    ];
-
-    const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
-    let idSchedaInModifica = null;
-
-    document.addEventListener("DOMContentLoaded", () => {
-      generaRigheOre();
-      generaRigheManutenzione();
-
-      // Controlla se siamo in modalità modifica scheda via URL (?id=ITA-xxxxx)
-      const urlParams = new URLSearchParams(window.location.search);
-      const idParam = urlParams.get('id');
-
-      if (idParam) {
-        idSchedaInModifica = idParam;
-        caricaSchedaDaArchivioPerId(idParam);
-      } else {
-        // SCHEDA COMPLETAMENTE NUOVA E LIBERA
-        const oggi = new Date();
-        document.getElementById("record-data").value = meDataToISO(oggi);
-        resetFormInputs(false);
-      }
-
-      aggiornaInfoData();
-    });
-
-    function meDataToISO(d) {
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-
-    function getWeekNumber(d) {
-      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    }
-
-    function aggiornaInfoData() {
-      const inputVal = document.getElementById("record-data").value;
-      if (!inputVal) return;
-
-      const dateObj = new Date(inputVal);
-      if (isNaN(dateObj)) return;
-
-      document.getElementById("lbl-giorno-settimana").innerText = giorniSettimana[dateObj.getDay()];
-      document.getElementById("lbl-settimana-nr").innerText = "W" + getWeekNumber(dateObj);
-      document.getElementById("lbl-anno-corrente").innerText = dateObj.getFullYear();
-    }
-
-    function generaRigheOre() {
-      const tbody = document.getElementById("tbody-ore-registrazione");
-      tbody.innerHTML = "";
-
-      for (let hour = 1; hour <= 24; hour++) {
-        const hourStr = String(hour).padStart(2, '0') + ":00";
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-900/60 transition";
-
-        tr.innerHTML = `
-          <td class="px-2 py-1.5 text-center font-extrabold text-cyan-400 bg-slate-950/80 font-mono">${hourStr}</td>
-          <td class="px-1 py-1"><input type="number" step="0.1" id="ph-in-${hour}" oninput="calcolaMedieEStato()" placeholder="" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-white"></td>
-          <td class="px-1 py-1"><input type="number" step="0.1" id="ph-out-${hour}" oninput="calcolaMedieEStato()" placeholder="" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-white font-bold"></td>
-          <td class="px-1 py-1"><input type="number" id="cond-${hour}" placeholder="" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-slate-200"></td>
-          <td class="px-1 py-1"><input type="number" id="tss-vasca-${hour}" placeholder="" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-slate-200"></td>
-          <td class="px-1 py-1"><input type="number" step="0.01" id="tss-ing-${hour}" placeholder="" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-slate-200"></td>
-          <td class="px-1 py-1"><input type="number" step="0.1" id="hc-${hour}" placeholder="" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-slate-200"></td>
-          <td class="px-1 py-1 text-center">
-            <input type="checkbox" id="ctrl-lav-${hour}" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0 cursor-pointer">
-          </td>
-          <td class="px-1.5 py-1">
-            <input type="text" id="note-ora-${hour}" placeholder="" class="glass-input w-full rounded px-2 py-1 text-xs text-slate-300">
-          </td>
-        `;
-
-        tbody.appendChild(tr);
-      }
-    }
-
-    function generaRigheManutenzione() {
-      const tbody = document.getElementById("tbody-attivita-manutenzione");
-      tbody.innerHTML = "";
-
-      attivitaManutenzioneExcel.forEach((attivita, idx) => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-900/60 transition";
-
-        tr.innerHTML = `
-          <td class="px-3 py-2 font-semibold text-slate-200">${attivita}</td>
-          <td class="px-2 py-2 text-center">
-            <select id="maint-t1-st-${idx}" class="glass-input rounded px-2 py-1 text-xs text-white w-full">
-              <option value="Conforme/OK">🟢 Conforme / OK</option>
-              <option value="Anomalia">🔴 Anomalia</option>
-              <option value="Non Eseguito">⚪ Non Eseguito</option>
-            </select>
-          </td>
-          <td class="px-2 py-2 text-center">
-            <select id="maint-t2-st-${idx}" class="glass-input rounded px-2 py-1 text-xs text-white w-full">
-              <option value="Conforme/OK">🟢 Conforme / OK</option>
-              <option value="Anomalia">🔴 Anomalia</option>
-              <option value="Non Eseguito">⚪ Non Eseguito</option>
-            </select>
-          </td>
-          <td class="px-2 py-2">
-            <input type="text" id="maint-note-${idx}" placeholder="" class="glass-input w-full rounded px-2 py-1 text-xs text-slate-300">
-          </td>
-          <td class="px-2 py-2 text-center">
-            <input type="text" id="maint-firma-${idx}" placeholder="" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs font-mono text-slate-200">
-          </td>
-        `;
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function calcolaMedieEStato() {
-      let sumIn = 0, countIn = 0;
-      let sumOut = 0, countOut = 0;
-      let fuoriTolleranza = false;
-
-      for (let hour = 1; hour <= 24; hour++) {
-        const valIn = parseFloat(document.getElementById(`ph-in-${hour}`).value);
-        const valOut = parseFloat(document.getElementById(`ph-out-${hour}`).value);
-
-        if (!isNaN(valIn)) {
-          sumIn += valIn;
-          countIn++;
-        }
-
-        if (!isNaN(valOut)) {
-          sumOut += valOut;
-          countOut++;
-
-          const inputEl = document.getElementById(`ph-out-${hour}`);
-          if (valOut < 5.5 || valOut > 9.5) {
-            inputEl.classList.add("bg-rose-950/80", "text-rose-300", "border-rose-500");
-            fuoriTolleranza = true;
-          } else {
-            inputEl.classList.remove("bg-rose-950/80", "text-rose-300", "border-rose-500");
-          }
-        }
-      }
-
-      const avgInStr = countIn > 0 ? (sumIn / countIn).toFixed(2) : "--";
-      const avgOutStr = countOut > 0 ? (sumOut / countOut).toFixed(2) : "--";
-
-      document.getElementById("avg-ph-in").innerText = avgInStr;
-      document.getElementById("avg-ph-out").innerText = avgOutStr;
-
-      const statusInd = document.getElementById("ph-status-indicator");
-      const quickSummary = document.getElementById("quick-ph-summary");
-      const quickBadge = document.getElementById("quick-status-badge");
-
-      if (fuoriTolleranza) {
-        statusInd.className = "w-3 h-3 rounded-full bg-rose-500 animate-ping";
-        quickSummary.innerText = `pH Fuori Limiti! (Media Uscita: ${avgOutStr})`;
-        quickBadge.className = "flex items-center gap-2 bg-rose-950/90 border border-rose-500/50 rounded-xl px-3 py-1.5 shadow-inner";
-      } else {
-        statusInd.className = "w-3 h-3 rounded-full bg-emerald-400";
-        quickSummary.innerText = `pH Conforme (Media Uscita: ${avgOutStr})`;
-        quickBadge.className = "flex items-center gap-2 bg-emerald-950/80 border border-emerald-500/40 rounded-xl px-3 py-1.5 shadow-inner";
-      }
-
-      return { avgOutStr, fuoriTolleranza };
-    }
-
-    // SALVA QUADERNO NELL'ARCHIVIO GENERALE (ita_quaderni_archivio)
-    function salvaQuaderno() {
-      const dataKey = document.getElementById("record-data").value;
-      if (!dataKey) {
-        showToast("Seleziona una data valida prima di salvare.", true);
-        return;
-      }
-
-      const { avgOutStr, fuoriTolleranza } = calcolaMedieEStato();
-      const statoFinale = fuoriTolleranza ? "ANOMALIA pH" : "CONFORME";
-      const dateObj = new Date(dataKey);
-
-      // Genera ID univoco se è nuova scheda, altrimenti mantieni quello in modifica
-      const recordId = idSchedaInModifica ? idSchedaInModifica : "ITA-" + Date.now().toString().slice(-6);
-
-      // Raccogli misurazioni orarie
-      const misurazioni = [];
-      for (let h = 1; h <= 24; h++) {
-        misurazioni.push({
-          ora: String(h).padStart(2, '0') + ":00",
-          phIn: document.getElementById(`ph-in-${h}`).value,
-          phOut: document.getElementById(`ph-out-${h}`).value,
-          msCond: document.getElementById(`cond-${h}`).value,
-          mglVasca: document.getElementById(`tss-vasca-${h}`).value,
-          glIngr: document.getElementById(`tss-ing-${h}`).value,
-          hc: document.getElementById(`hc-${h}`).value,
-          ctrlLav: document.getElementById(`ctrl-lav-${h}`).checked,
-          note: document.getElementById(`note-ora-${h}`).value
-        });
-      }
-
-      // Raccogli attività periodiche
-      const attivita = [];
-      attivitaManutenzioneExcel.forEach((_, idx) => {
-        attivita.push({
-          stT1: document.getElementById(`maint-t1-st-${idx}`).value,
-          stT2: document.getElementById(`maint-t2-st-${idx}`).value,
-          note: document.getElementById(`maint-note-${idx}`).value,
-          firma: document.getElementById(`maint-firma-${idx}`).value
-        });
-      });
-
-      const nuovaScheda = {
-        id: recordId,
-        data: dataKey,
-        anno: dateObj.getFullYear().toString(),
-        settimana: "W" + getWeekNumber(dateObj),
-        giorno: giorniSettimana[dateObj.getDay()],
-        turno1: document.getElementById("operatore-t1").value,
-        firmaT1: document.getElementById("firma-t1").value,
-        turno2: document.getElementById("operatore-t2").value,
-        firmaT2: document.getElementById("firma-t2").value,
-        cogede: document.getElementById("referente-cogede").value,
-        firmaCogede: document.getElementById("firma-cogede").value,
-        phMedio: avgOutStr === "--" ? "7.00" : avgOutStr,
-        stato: statoFinale,
-
-        // Sonde
-        sonde: {
-          phInClean: document.getElementById("maint-ph-in-clean").checked,
-          phInCal: document.getElementById("maint-ph-in-cal").checked,
-          phOutClean: document.getElementById("maint-ph-out-clean").checked,
-          phOutCal: document.getElementById("maint-ph-out-cal").checked,
-          condClean: document.getElementById("maint-cond-clean").checked,
-          condCal: document.getElementById("maint-cond-cal").checked,
-          turbClean: document.getElementById("maint-turb-clean").checked,
-          turbCal: document.getElementById("maint-turb-cal").checked,
-          hcClean: document.getElementById("maint-hc-clean").checked,
-          hcCal: document.getElementById("maint-hc-cal").checked
-        },
-
-        misurazioni: misurazioni,
-        attivita: attivita,
-
-        campionamento: {
-          orario: document.getElementById("camp-ora").value,
-          ph: document.getElementById("camp-ph").value,
-          stato: document.getElementById("camp-stato").value,
-          note: document.getElementById("camp-note").value
-        },
-
-        fanghi: {
-          fir: document.getElementById("fir-numero").value,
-          qta: document.getElementById("fir-qta").value,
-          dest: document.getElementById("fir-dest").value,
-          note: document.getElementById("fir-note").value
-        },
-
-        note: document.getElementById("note-generali-fine-giornata").value
-      };
-
-      // SALVATAGGIO NELL'ARCHIVIO GENERALE
-      let archivio = JSON.parse(localStorage.getItem('ita_quaderni_archivio')) || [];
-      const indexEsistente = archivio.findIndex(s => s.id === recordId);
-
-      if (indexEsistente >= 0) {
-        archivio[indexEsistente] = nuovaScheda;
-      } else {
-        archivio.unshift(nuovaScheda);
-      }
-
-      localStorage.setItem('ita_quaderni_archivio', JSON.stringify(archivio));
-      showToast(`Scheda ${recordId} salvata con successo nell'Archivio!`);
-    }
-
-    // CARICAMENTO SCHEDA SPECIFICA DALL'ARCHIVIO (MODALITÀ APRI)
-    function caricaSchedaDaArchivioPerId(id) {
-      const archivio = JSON.parse(localStorage.getItem('ita_quaderni_archivio')) || [];
-      const scheda = archivio.find(s => s.id === id);
-
-      if (!scheda) {
-        showToast("Scheda non trovata in archivio", true);
-        return;
-      }
-
-      document.getElementById('lbl-scheda-id-modifica').innerText = scheda.id;
-      document.getElementById('banner-modifica-id').classList.remove('hidden');
-
-      if (scheda.data) document.getElementById("record-data").value = scheda.data;
-      document.getElementById("operatore-t1").value = scheda.turno1 || "";
-      document.getElementById("firma-t1").value = scheda.firmaT1 || "";
-      document.getElementById("operatore-t2").value = scheda.turno2 || "";
-      document.getElementById("firma-t2").value = scheda.firmaT2 || "";
-      document.getElementById("referente-cogede").value = scheda.cogede || "";
-      document.getElementById("firma-cogede").value = scheda.firmaCogede || "";
-
-      // Sonde
-      if (scheda.sonde) {
-        document.getElementById("maint-ph-in-clean").checked = !!scheda.sonde.phInClean;
-        document.getElementById("maint-ph-in-cal").checked = !!scheda.sonde.phInCal;
-        document.getElementById("maint-ph-out-clean").checked = !!scheda.sonde.phOutClean;
-        document.getElementById("maint-ph-out-cal").checked = !!scheda.sonde.phOutCal;
-        document.getElementById("maint-cond-clean").checked = !!scheda.sonde.condClean;
-        document.getElementById("maint-cond-cal").checked = !!scheda.sonde.condCal;
-        document.getElementById("maint-turb-clean").checked = !!scheda.sonde.turbClean;
-        document.getElementById("maint-turb-cal").checked = !!scheda.sonde.turbCal;
-        document.getElementById("maint-hc-clean").checked = !!scheda.sonde.hcClean;
-        document.getElementById("maint-hc-cal").checked = !!scheda.sonde.hcCal;
-      }
-
-      // Ore
-      if (scheda.misurazioni && scheda.misurazioni.length === 24) {
-        scheda.misurazioni.forEach((m, idx) => {
-          const h = idx + 1;
-          document.getElementById(`ph-in-${h}`).value = m.phIn || "";
-          document.getElementById(`ph-out-${h}`).value = m.phOut || "";
-          document.getElementById(`cond-${h}`).value = m.msCond || m.cond || "";
-          document.getElementById(`tss-vasca-${h}`).value = m.mglVasca || m.tssVasca || "";
-          document.getElementById(`tss-ing-${h}`).value = m.glIngr || m.tssIng || "";
-          document.getElementById(`hc-${h}`).value = m.hc || "";
-          document.getElementById(`ctrl-lav-${h}`).checked = !!m.ctrlLav;
-          document.getElementById(`note-ora-${h}`).value = m.note || "";
-        });
-      }
-
-      // Attività
-      if (scheda.attivita) {
-        scheda.attivita.forEach((a, idx) => {
-          if (document.getElementById(`maint-t1-st-${idx}`)) {
-            document.getElementById(`maint-t1-st-${idx}`).value = a.stT1 || "Conforme/OK";
-            document.getElementById(`maint-t2-st-${idx}`).value = a.stT2 || "Conforme/OK";
-            document.getElementById(`maint-note-${idx}`).value = a.note || "";
-            document.getElementById(`maint-firma-${idx}`).value = a.firma || "";
-          }
-        });
-      }
-
-      // Campionamento & FIR
-      if (scheda.campionamento) {
-        document.getElementById("camp-ora").value = scheda.campionamento.orario || "";
-        document.getElementById("camp-ph").value = scheda.campionamento.ph || "";
-        document.getElementById("camp-stato").value = scheda.campionamento.stato || "Inviato Lab";
-        document.getElementById("camp-note").value = scheda.campionamento.note || "";
-      }
-
-      if (scheda.fanghi) {
-        document.getElementById("fir-numero").value = scheda.fanghi.fir || "";
-        document.getElementById("fir-qta").value = scheda.fanghi.qta || "";
-        document.getElementById("fir-dest").value = scheda.fanghi.dest || "";
-        document.getElementById("fir-note").value = scheda.fanghi.note || "";
-      }
-
-      document.getElementById("note-generali-fine-giornata").value = scheda.note || "";
-
-      aggiornaInfoData();
-      calcolaMedieEStato();
-      showToast(`Scheda ${id} caricata per la modifica`);
-    }
-
-    // CREA NUOVA SCHEDA COMPLETAMENTE LIBERA
-    function nuovaSchedaGiornaliera() {
-      window.location.href = 'QuadernoMarciaImpianto.html';
-    }
-
-    function resetFormInputs(resetData) {
-      idSchedaInModifica = null;
-      document.getElementById('banner-modifica-id').classList.add('hidden');
-
-      if (resetData) {
-        const oggi = new Date();
-        document.getElementById("record-data").value = meDataToISO(oggi);
-      }
-
-      document.getElementById("operatore-t1").value = "";
-      document.getElementById("firma-t1").value = "";
-      document.getElementById("operatore-t2").value = "";
-      document.getElementById("firma-t2").value = "";
-      document.getElementById("referente-cogede").value = "";
-      document.getElementById("firma-cogede").value = "";
-
-      // Sonde
-      ["maint-ph-in-clean", "maint-ph-in-cal", "maint-ph-out-clean", "maint-ph-out-cal", "maint-cond-clean", "maint-cond-cal", "maint-turb-clean", "maint-turb-cal", "maint-hc-clean", "maint-hc-cal"].forEach(id => {
-        document.getElementById(id).checked = false;
-      });
-
-      // Reset Ore
-      for (let h = 1; h <= 24; h++) {
-        document.getElementById(`ph-in-${h}`).value = "";
-        document.getElementById(`ph-out-${h}`).value = "";
-        document.getElementById(`cond-${h}`).value = "";
-        document.getElementById(`tss-vasca-${h}`).value = "";
-        document.getElementById(`tss-ing-${h}`).value = "";
-        document.getElementById(`hc-${h}`).value = "";
-        document.getElementById(`ctrl-lav-${h}`).checked = false;
-        document.getElementById(`note-ora-${h}`).value = "";
-      }
-
-      // Reset Attività
-      attivitaManutenzioneExcel.forEach((_, idx) => {
-        document.getElementById(`maint-t1-st-${idx}`).value = "Conforme/OK";
-        document.getElementById(`maint-t2-st-${idx}`).value = "Conforme/OK";
-        document.getElementById(`maint-note-${idx}`).value = "";
-        document.getElementById(`maint-firma-${idx}`).value = "";
-      });
-
-      document.getElementById("camp-ora").value = "";
-      document.getElementById("camp-ph").value = "";
-      document.getElementById("camp-stato").value = "Inviato Lab";
-      document.getElementById("camp-note").value = "";
-
-      document.getElementById("fir-numero").value = "";
-      document.getElementById("fir-qta").value = "";
-      document.getElementById("fir-dest").value = "";
-      document.getElementById("fir-note").value = "";
-
-      document.getElementById("note-generali-fine-giornata").value = "";
-
-      aggiornaInfoData();
-      calcolaMedieEStato();
-    }
-
-    function showToast(msg, isError = false) {
-      const toast = document.getElementById("toast");
-      const toastMsg = document.getElementById("toast-message");
-
-      toastMsg.innerText = msg;
-      if (isError) {
-        toast.className = "fixed bottom-5 right-5 z-50 transform opacity-100 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-rose-600 text-white font-semibold text-xs border border-rose-400";
-      } else {
-        toast.className = "fixed bottom-5 right-5 z-50 transform opacity-100 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400";
-      }
-
-      setTimeout(() => {
-        toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400";
-      }, 3500);
-    }
-    <!-- SCRIPT FIREBASE INTEGRATO PER SALVATAGGIO IN CLOUD -->
+  <!-- SCRIPT UNICO FIREBASE CLOUD -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -1068,7 +481,6 @@
             <input type="text" id="note-ora-${hour}" class="glass-input w-full rounded px-2 py-1 text-xs text-slate-300">
           </td>
         `;
-
         tbody.appendChild(tr);
       }
     }
@@ -1104,7 +516,6 @@
             <input type="text" id="maint-firma-${idx}" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs font-mono text-slate-200">
           </td>
         `;
-
         tbody.appendChild(tr);
       });
     }
@@ -1140,7 +551,6 @@
       return { avgOutStr, fuoriTolleranza };
     };
 
-    // SALVA SCHEDA SU CLOUD FIREBASE FIRESTORE
     window.salvaQuaderno = async function() {
       const dataKey = document.getElementById("record-data").value;
       if (!dataKey) {
@@ -1268,6 +678,9 @@
 
         document.getElementById("note-generali-fine-giornata").value = scheda.note || "";
 
+        document.getElementById('lbl-scheda-id-modifica').innerText = idDoc;
+        document.getElementById('banner-modifica-id').classList.remove('hidden');
+
         aggiornaInfoData();
         calcolaMedieEStato();
         showToast(`Scheda Cloud ${idDoc} caricata`);
@@ -1295,7 +708,6 @@
         toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400";
       }, 3500);
     }
-  </script>
   </script>
 
 </body>
