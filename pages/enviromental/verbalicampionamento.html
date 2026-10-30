@@ -15,72 +15,74 @@ if (sessionStorage.getItem('QHSE_authenticated') !== 'true') {
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
 
-<!-- HEADER STANDARD UNIFICATA -->
-  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
-    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+<!-- HEADER UNIFICATO UNIVERSALE -->
+<header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
+  <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+    
+    <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro -->
+    <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
+      <div class="flex items-center gap-3">
+        <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
+          <i class="fa-solid fa-arrow-left text-cyan-400"></i>
+          <span class="hidden sm:inline">Indietro</span>
+        </button>
+
+        <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
+          <i class="fa-solid fa-shield-halved text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Environmental Office</h1>
+          <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LATO DESTRA: Widget Calendario Interattivo, Avvisi & Home -->
+    <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
       
-      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro Dinamico -->
-      <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
-        
-        <div class="flex items-center gap-3">
-          <!-- Tasto Indietro Dinamico -->
-          <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
-            <i class="fa-solid fa-arrow-left text-amber-400"></i>
-            <span class="hidden sm:inline">Indietro</span>
-          </button>
-
-          <!-- Logo / Icona Sezione -->
-          <div class="relative w-11 h-11 rounded-xl bg-amber-500/10 border-2 border-amber-400/80 flex items-center justify-center text-amber-400 shadow-md">
-            <i class="fa-solid fa-leaf text-xl"></i>
-          </div>
-          <div>
-            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Enviromental Office</h1>
-            <p class="text-[11px] text-amber-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
-          </div>
+      <!-- WIDGET CALENDARIO CLICCABILE -->
+      <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile">
+        <div class="bg-cyan-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
+          <span id="calMonth">OTT</span> <span id="calDay">30</span>
         </div>
-
+        <div class="text-left text-xs leading-tight">
+          <div class="font-bold text-white flex items-center gap-1.5">
+            <span id="calFullDate">Venerdì, 30 OTT</span>
+            <span class="w-4 h-4 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-400 flex items-center justify-center text-[10px] font-black group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
+              <i class="fa-solid fa-plus"></i>
+            </span>
+          </div>
+          <div class="text-[10px] text-slate-400 font-medium">Calendario & Scadenze</div>
+        </div>
       </div>
 
-      <!-- LATO CENTRALE / DESTRA: Widget Calendario, Avvisi & Home QHSE -->
-      <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
-        
-        <!-- 1. WIDGET DATA / CALENDARIO -->
-        <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 border border-slate-700/80 rounded-xl px-3 py-1.5 shadow-inner">
-          <div class="bg-amber-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider">
-            OTT 24
-          </div>
-          <div class="text-left text-xs leading-tight">
-            <div class="font-bold text-white">Sabato, 24 OTT</div>
-            <div class="text-[10px] text-slate-400 font-medium">2026 — Operatività Cantiere</div>
+      <!-- PORTALE AVVISI -->
+      <div onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-cyan-500/40 hover:border-cyan-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
+        <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+        <div class="text-left text-xs leading-tight">
+          <div class="font-extrabold text-cyan-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
+          <div class="text-[11px] text-slate-300 truncate max-w-[180px] sm:max-w-[220px]">
+            Attività di cantiere in corso
           </div>
         </div>
-
-        <!-- 2. PORTALE DEGLI AVVISI & SCADENZE -->
-        <div class="flex items-center gap-2.5 bg-slate-800/80 border border-amber-500/30 hover:border-amber-500/60 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer"
-             onclick="alert('Nessuna nuova scadenza critica al momento.')">
-          <div class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
-          <div class="text-left text-xs leading-tight">
-            <div class="font-extrabold text-amber-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
-            <div class="text-[11px] text-slate-300 truncate max-w-[180px] sm:max-w-[220px]">Verifica vasche ITA Cravasco in corso</div>
-          </div>
-        </div>
-
-        <!-- 3. HOME QHSE (COLLEGAMENTO PRINCIPALE) -->
-        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-amber-400/60 rounded-full text-xs font-bold text-white hover:text-amber-400 transition shadow-sm" title="Torna alla Home Principale QHSE">
-          <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
-            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
-            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
-            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
-            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
-            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
-          </svg>
-          <span class="hidden sm:inline">Home</span>
-        </a>
-
       </div>
+
+      <!-- HOME QHSE -->
+      <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400/60 rounded-full text-xs font-bold text-white hover:text-cyan-400 transition shadow-sm" title="Home Principale QHSE">
+        <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
+          <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+          <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+          <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+          <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+          <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+        </svg>
+        <span class="hidden sm:inline">Home</span>
+      </a>
 
     </div>
-  </header>
+
+  </div>
+</header>
 
   <!-- CONTENUTO CENTRALE -->
   <main class="max-w-6xl mx-auto px-4 py-8 flex-1 flex flex-col justify-center items-center w-full">
@@ -164,5 +166,133 @@ if (sessionStorage.getItem('QHSE_authenticated') !== 'true') {
       window.location.href = 'login.html';
     }
   </script>
+        <!-- MODALE CALENDARIO E SCADENZE UNIVERSALE -->
+<div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+    <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    
+    <div class="flex items-center justify-between mb-4 flex-shrink-0">
+      <h3 class="text-lg font-black text-white flex items-center gap-2">
+        <i class="fa-solid fa-calendar-days text-cyan-400"></i> Calendario Mensile & Scadenze
+      </h3>
+    </div>
+
+    <!-- WIDGET GRIGLIA CALENDARIO CON FRECCE CAMBIO MESE -->
+    <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4 flex-shrink-0">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <button onclick="cambiaMeseCalendario(-1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese precedente">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span id="label-mese-corrente" class="text-xs font-black text-cyan-400 uppercase tracking-widest min-w-[140px] text-center">OTTOBRE 2026</span>
+          <button onclick="cambiaMeseCalendario(1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese successivo">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+        <div class="text-[10px] text-slate-400">Seleziona una data</div>
+      </div>
+      
+      <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1 border-b border-slate-700 pb-1">
+        <div class="text-cyan-500">W</div>
+        <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
+      </div>
+      <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs">
+        <!-- Popolato via JS -->
+      </div>
+    </div>
+  </div>
+</div>
+        <script>
+  let dataCalendarioAttuale = new Date();
+  const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
+  const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const oggi = new Date();
+    const elMonth = document.getElementById('calMonth');
+    const elDay = document.getElementById('calDay');
+    const elFull = document.getElementById('calFullDate');
+    
+    if (elMonth) elMonth.innerText = mesi[oggi.getMonth()];
+    if (elDay) elDay.innerText = oggi.getDate();
+    if (elFull) elFull.innerText = `${giorniSettimana[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
+    
+    renderizzaCalendarioMese();
+  });
+
+  function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+  }
+
+  function cambiaMeseCalendario(delta) {
+    dataCalendarioAttuale.setMonth(dataCalendarioAttuale.getMonth() + delta);
+    renderizzaCalendarioMese();
+  }
+
+  function renderizzaCalendarioMese() {
+    const container = document.getElementById('griglia-calendario-mese');
+    const labelMese = document.getElementById('label-mese-corrente');
+    if (!container || !labelMese) return;
+
+    container.innerHTML = '';
+    const year = dataCalendarioAttuale.getFullYear();
+    const month = dataCalendarioAttuale.getMonth();
+
+    labelMese.innerText = `${mesi[month]} ${year}`;
+
+    const primoGiornoMese = new Date(year, month, 1);
+    const ultimoGiornoMese = new Date(year, month + 1, 0);
+    const totaleGiorni = ultimoGiornoMese.getDate();
+
+    let giornoInizio = primoGiornoMese.getDay() - 1;
+    if (giornoInizio === -1) giornoInizio = 6;
+
+    let giornoCorrente = 1;
+    let htmlRighe = '';
+    let numSettimana = getWeekNumber(primoGiornoMese);
+    const oggi = new Date();
+
+    while (giornoCorrente <= totaleGiorni) {
+      htmlRighe += `<div class="flex items-center justify-center font-bold text-cyan-500/80 bg-slate-900/50 rounded text-[10px]">W${numSettimana}</div>`;
+      
+      for (let i = 0; i < 7; i++) {
+        if ((giornoCorrente === 1 && i < giornoInizio) || giornoCorrente > totaleGiorni) {
+          htmlRighe += `<div class="p-1"></div>`;
+        } else {
+          let isOggi = (giornoCorrente === oggi.getDate() && month === oggi.getMonth() && year === oggi.getFullYear()) 
+            ? 'border-2 border-cyan-400 font-black text-cyan-300' 
+            : 'border border-transparent text-slate-300';
+
+          htmlRighe += `
+            <div class="p-1 rounded-lg transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-700 flex items-center justify-center min-h-[32px] ${isOggi}">
+              <span>${giornoCorrente}</span>
+            </div>`;
+          giornoCorrente++;
+        }
+      }
+      numSettimana++;
+    }
+    container.innerHTML = htmlRighe;
+  }
+
+  function apriGestoreScadenze() {
+    const modal = document.getElementById('modal-scadenze');
+    if (modal) {
+      modal.classList.remove('hidden');
+      renderizzaCalendarioMese();
+    }
+  }
+
+  function chiudiGestoreScadenze() {
+    const modal = document.getElementById('modal-scadenze');
+    if (modal) modal.classList.add('hidden');
+  }
+</script>
+        
 </body>
 </html>
