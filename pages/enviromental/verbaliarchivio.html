@@ -18,7 +18,7 @@
     <header class="bg-slate-900 text-white p-5 rounded-xl shadow-md mb-6 flex flex-wrap justify-between items-center gap-4">
       <div>
         <h1 class="text-xl font-bold">Archivio Verbali di Sopralluogo</h1>
-        <p class="text-xs text-slate-400">quarti Valico dei Giovi — Gestione Cartelle e Cloud</p>
+        <p class="text-xs text-slate-400">Quarto Valico dei Giovi — Gestione Cartelle e Cloud</p>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
         <a href="enviromentalhub.html" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition border border-slate-700">
@@ -27,7 +27,7 @@
         <button onclick="createNewFolder()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition">
           <i class="fa-solid fa-folder-plus text-amber-400"></i> Nuova Cartella
         </button>
-        <a href="verbale.html" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow transition">
+        <a href="verbale (1).html" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow transition">
           <i class="fa-solid fa-plus"></i> Nuovo Verbale
         </a>
       </div>
@@ -79,7 +79,6 @@
 
     setTimeout(() => {
       if (!dataLoaded) {
-        console.warn("Timeout connessione Firebase. Forzatura sblocco interfaccia.");
         renderPortal();
       }
     }, 2500);
@@ -89,7 +88,6 @@
       dataLoaded = true;
       renderPortal();
     }, (error) => {
-      console.error("Errore lettura verbali:", error);
       dataLoaded = true;
       renderPortal();
     });
@@ -99,7 +97,6 @@
       dataLoaded = true;
       renderPortal();
     }, (error) => {
-      console.error("Errore lettura cartelle:", error);
       dataLoaded = true;
       renderPortal();
     });
@@ -176,8 +173,6 @@
           const folderEl = document.createElement('div');
           folderEl.className = "border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50 shadow-sm";
 
-          let verbaliListHTML = '<p class="text-xs text-slate-400 italic p-3">Cartella vuota. Sposta qui i verbali utilizzando il selettore.</p>';
-
           folderEl.innerHTML = `
             <div class="bg-slate-200/70 px-4 py-3 flex justify-between items-center cursor-pointer border-b border-slate-200" onclick="toggleFolderContent('${fKey}')">
               <div class="flex items-center gap-2">
@@ -192,15 +187,14 @@
                 <i id="icon_folder_${fKey}" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform"></i>
               </div>
             </div>
-            <div id="content_folder_${fKey}" class="p-3 space-y-2 bg-white hidden">
-            </div>
+            <div id="content_folder_${fKey}" class="p-3 space-y-2 bg-white hidden"></div>
           `;
 
           foldersContainer.appendChild(folderEl);
 
           const contentBox = folderEl.querySelector(`#content_folder_${fKey}`);
           if (folderVerbali.length === 0) {
-            contentBox.innerHTML = verbaliListHTML;
+            contentBox.innerHTML = '<p class="text-xs text-slate-400 italic p-3">Cartella vuota. Sposta qui i verbali utilizzando il selettore.</p>';
           } else {
             folderVerbali.forEach(vKey => {
               contentBox.appendChild(createVerbaleCard(vKey, allVerbali[vKey], folderKeys));
@@ -240,7 +234,7 @@
             ${folderOptions}
           </select>
           
-          <a href="verbale.html?load=${encodeURIComponent(vKey)}" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition whitespace-nowrap">
+          <a href="verbale (1).html?load=${encodeURIComponent(vKey)}" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition whitespace-nowrap">
             <i class="fa-solid fa-eye"></i> Apri
           </a>
 
