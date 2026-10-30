@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quaderno di Marcia ITA — Quarto Valico dei Giovi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f17;
+      color: #f8fafc;
+    }
+
+    /* Custom Glassmorphism Styles */
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .glass-input {
+      background: rgba(11, 15, 23, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f8fafc;
+      transition: all 0.2s ease;
+    }
+    .glass-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+      outline: none;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0284c7;
+    }
+
+    /* Print Optimization */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .glass-card {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        color: #000000 !important;
+      }
+      input, select, textarea {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #94a3b8 !important;
+      }
+      .text-white, .text-slate-200, .text-slate-300, .text-slate-400 {
+        color: #000000 !important;
+      }
+      .bg-slate-900, .bg-slate-800, .bg-slate-950 {
+        background: #ffffff !important;
+      }
+      .print-break-before {
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white pb-10">
+
+  <!-- NOTIFICATION BANNER / TOAST -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400">
+    <i class="fa-solid fa-circle-check text-base"></i>
+    <span id="toast-message">Messaggio di notifica</span>
+  </div>
+
+  <!-- HEADER UNIFICATA ITA -->
+  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3 shadow-lg no-print">
+    <div class="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+      
+      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro -->
+      <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
+        <div class="flex items-center gap-3">
+          <button onclick="window.history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla dashboard">
+            <i class="fa-solid fa-arrow-left text-cyan-400"></i>
+            <span class="hidden sm:inline">Indietro</span>
+          </button>
+
+          <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
+            <i class="fa-solid fa-droplet text-xl"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none flex items-center gap-2">
+              Impianto Trattamento Acque <span class="text-xs px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-extrabold">ITA</span>
+            </h1>
+            <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quaderno di Marcia dell'Impianto — VICOC</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTRO / DESTRA: Controlli rapidi e azioni salva/stampa -->
+      <div class="flex flex-wrap items-center justify-end gap-3 w-full lg:w-auto">
+        
+        <!-- STATO CONFORMITA RAPIDO -->
+        <div id="quick-status-badge" class="flex items-center gap-2 bg-emerald-950/80 border border-emerald-500/40 rounded-xl px-3 py-1.5 shadow-inner">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+          <div class="text-left leading-tight">
+            <div class="text-[9px] uppercase tracking-wider font-extrabold text-emerald-400">Stato Impianto</div>
+            <div id="quick-ph-summary" class="text-[11px] text-emerald-200 font-bold">pH Medio: compliant</div>
+          </div>
+        </div>
+
+        <!-- AZIONI SALVATAGGIO / REGISTRO -->
+        <button onclick="salvaQuaderno()" class="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer border border-cyan-400">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Salva Dati</span>
+        </button>
+
+        <button onclick="window.print()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-200 hover:text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-print text-amber-400"></i>
+          <span>Stampa / PDF</span>
+        </button>
+
+        <button onclick="nuovaSchedaGiornaliera()" class="px-3 py-2 bg-slate-800 hover:bg-rose-950/60 border border-slate-700 hover:border-rose-500/50 text-slate-400 hover:text-rose-300 font-semibold text-xs rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Azzera o Crea Nuova Scheda">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span class="hidden sm:inline">Nuova Scheda</span>
+        </button>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-[1600px] w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
+
+    <!-- HEADER ANAGRAFICA CANTIERE & RECORD GIORNALIERO -->
+    <div class="glass-card rounded-2xl p-5 border-t-4 border-t-cyan-500 shadow-xl">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4 border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-950/80 px-2.5 py-1 rounded-full border border-cyan-800/80">
+            Modulo Registro Giornaliero ITA-01
+          </span>
+          <h2 class="text-xl font-black text-white tracking-wide uppercase mt-2">
+            INTESTAZIONE E REFERENTI TURNO
+          </h2>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Seleziona Data Record</label>
+            <input type="date" id="record-data" onchange="aggiornaInfoData()" class="glass-input text-xs font-bold rounded-xl px-3 py-1.5 text-white cursor-pointer">
+          </div>
+        </div>
+      </div>
+
+      <!-- GRIGLIA INFO DATA AUTOMATICA & REFERENTI TURNO -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- DATA METADATA -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Parametri Temporali</div>
+          <div class="mt-2 space-y-1">
+            <div class="text-xs font-semibold text-slate-300">Giorno: <span id="lbl-giorno-settimana" class="font-black text-cyan-400">Lunedì</span></div>
+            <div class="text-xs font-semibold text-slate-300">Settimana N°: <span id="lbl-settimana-nr" class="font-black text-amber-400">44</span></div>
+            <div class="text-xs font-semibold text-slate-300">Anno: <span id="lbl-anno-corrente" class="font-black text-white">2026</span></div>
+          </div>
+        </div>
+
+        <!-- TURNO 06-14 / GIORNALIERO -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">
+              Turno 06:00 - 14:00 / Giornaliero
+            </span>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Operatore / Manutentore</label>
+            <input type="text" id="operatore-t1" placeholder="Nome Cognome" class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Firma / Sigla</label>
+            <input type="text" id="firma-t1" placeholder="Sigla Resp." class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white font-mono">
+          </div>
+        </div>
+
+        <!-- TURNO 14-22 -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800">
+              Turno 14:00 - 22:00
+            </span>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Operatore / Manutentore</label>
+            <input type="text" id="operatore-t2" placeholder="Nome Cognome" class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Firma / Sigla</label>
+            <input type="text" id="firma-t2" placeholder="Sigla Resp." class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white font-mono">
+          </div>
+        </div>
+
+        <!-- REFERENTE COGEDE / SUPERVISORE -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold uppercase text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
+              Supervisione COGEDE / DL
+            </span>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Responsabile Cantiere / ITA</label>
+            <input type="text" id="referente-cogede" placeholder="Ing. Referente" class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Visto / Validazione</label>
+            <input type="text" id="firma-cogede" placeholder="Sigla Validazione" class="w-full glass-input text-xs rounded-lg px-2.5 py-1 text-white font-mono">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEZIONE 1: TABELLA ORARIA REGISTRAZIONE PARAMETRI E SONDE (01:00 -> 24:00) -->
+    <div class="glass-card rounded-2xl p-5 border-t-4 border-t-cyan-400 shadow-xl space-y-4">
+      
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-clock text-cyan-400"></i> Sezione 1: Registrazione Oraria Parametri e Sonde (01:00 — 24:00)
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Inserire i rilevamenti orari per le 24 ore. I parametri di pH al di fuori dei limiti legali (5.5 - 9.5) verranno evidenziati in rosso.
+          </p>
+        </div>
+
+        <!-- MEDIA E MONITORAGGIO -->
+        <div class="flex items-center gap-3 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+          <div class="text-right">
+            <div class="text-[9px] uppercase font-bold text-slate-400">Media pH Entrata / Uscita</div>
+            <div class="text-xs font-black text-white">
+              <span id="avg-ph-in" class="text-cyan-400">--</span> / <span id="avg-ph-out" class="text-emerald-400">--</span>
+            </div>
+          </div>
+          <div id="ph-status-indicator" class="w-3 h-3 rounded-full bg-slate-600" title="Stato Valori pH"></div>
+        </div>
+      </div>
+
+      <!-- TABELLA ORARIA SCROLLABILE -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900/90 text-[10px] uppercase font-black text-slate-400 tracking-wider border-b border-slate-800">
+            <tr>
+              <th scope="col" class="px-2 py-2.5 text-center w-16 bg-slate-950">Ora</th>
+              <th scope="col" class="px-2 py-2.5 text-center min-w-[90px]">pH Entrata</th>
+              <th scope="col" class="px-2 py-2.5 text-center min-w-[90px]">pH Uscita</th>
+              <th scope="col" class="px-2 py-2.5 text-center min-w-[100px]">Conducibilità <br><span class="text-[8px] text-slate-500">(µS/cm)</span></th>
+              <th scope="col" class="px-2 py-2.5 text-center min-w-[100px]">Vasca TSS <br><span class="text-[8px] text-slate-500">(mg/L)</span></th>
+              <th scope="col" class="px-2 py-2.5 text-center min-w-[100px]">Ingresso TSS <br><span class="text-[8px] text-slate-500">(g/L)</span></th>
+              <th scope="col" class="px-2 py-2.5 text-center min-w-[90px]">Idrocarburi <br><span class="text-[8px] text-slate-500">(mg/L o PPM)</span></th>
+              <th scope="col" class="px-2 py-2.5 text-center min-w-[80px]">Controlav.</th>
+              <th scope="col" class="px-2 py-2.5 min-w-[220px]">Note & Consegna Prodotti Chimici / Eventi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-ore-registrazione" class="divide-y divide-slate-800/60 bg-slate-950/40 font-medium">
+            <!-- Popolato via JavaScript (24 righe) -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SCHEDA MANUTENZIONE / TARATURA SONDE E STRUMENTI -->
+      <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-3 mt-4">
+        <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+          <i class="fa-solid fa-screws-tilting"></i> Manutenzione e Taratura Sonde / Strumentazione ITA
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+          
+          <!-- PH ENTRATA -->
+          <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
+            <div class="font-bold text-slate-200 text-[11px]">Sonda pH Entrata</div>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-ph-in-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Pulizia Sonda
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-ph-in-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Taratura (pH7 / pH4)
+            </label>
+          </div>
+
+          <!-- PH USCITA -->
+          <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
+            <div class="font-bold text-slate-200 text-[11px]">Sonda pH Uscita</div>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-ph-out-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Pulizia Sonda
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-ph-out-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Taratura (pH7 / pH4)
+            </label>
+          </div>
+
+          <!-- CONDUCIMETRO -->
+          <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
+            <div class="font-bold text-slate-200 text-[11px]">Conducimetro</div>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-cond-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Pulizia Sensore
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-cond-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Verifica Standard
+            </label>
+          </div>
+
+          <!-- TORBIMETRO VASCA -->
+          <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
+            <div class="font-bold text-slate-200 text-[11px]">Torbimetro Vasca TSS</div>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-turb-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Pulizia Ottica
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-turb-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Zero / Taratura
+            </label>
+          </div>
+
+          <!-- IDROCARBURI -->
+          <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
+            <div class="font-bold text-slate-200 text-[11px]">Sensore Idrocarburi</div>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-hc-clean" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Ispezione & Pulizia
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-[11px]">
+              <input type="checkbox" id="maint-hc-cal" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0">
+              Test Allarme
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SEZIONE 2: MANUTENZIONI E CONTROLLI PERIODICI GIORNALIERI (ESATTE VOCI EXCEL) -->
+    <div class="glass-card rounded-2xl p-5 border-t-4 border-t-amber-500 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-amber-400"></i> Sezione 2: Controlli Periodici e Attività di Manutenzione Giornaliera
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Compilazione stato operativo per il Turno 06-14 e Turno 14-22 conforme al tracciato originale di cantiere.
+          </p>
+        </div>
+      </div>
+
+      <!-- TABELLA ATTIVITÀ PERIODICHE -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900/90 text-[10px] uppercase font-black text-slate-400 tracking-wider border-b border-slate-800">
+            <tr>
+              <th scope="col" class="px-3 py-3 w-1/3">Descrizione Attività / Controllo Impianto</th>
+              <th scope="col" class="px-3 py-3 text-center min-w-[140px]">Stato Turno 06:00 - 14:00</th>
+              <th scope="col" class="px-3 py-3 text-center min-w-[140px]">Stato Turno 14:00 - 22:00</th>
+              <th scope="col" class="px-3 py-3 min-w-[200px]">Note Operative & Dettagli</th>
+              <th scope="col" class="px-3 py-3 text-center w-24">Firma Operatore</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-attivita-manutenzione" class="divide-y divide-slate-800/60 bg-slate-950/40">
+            <!-- Popolato via JS con le voci esatte Excel -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SEZIONE SPECIALI: CAMPIONAMENTI, SMALTIMENTO FANGHI E DTR -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- SCHEDA PRELIEVO CAMPIONI ALLO SCARICO -->
+      <div class="glass-card rounded-2xl p-5 border-t-4 border-t-emerald-500 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h4 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-vial text-emerald-400"></i> Prelievo Campioni allo Scarico (Pozzetto Fiscale)
+          </h4>
+          <span class="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold px-2 py-0.5 rounded uppercase">D.Lgs 152/06</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[10px] text-slate-400 font-bold mb-1">Orario Campionamento</label>
+            <input type="time" id="camp-ora" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-bold mb-1">pH Misurato in Campo</label>
+            <input type="number" step="0.1" id="camp-ph" placeholder="Es. 7.4" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-bold mb-1">Stato Campione</label>
+            <select id="camp-stato" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
+              <option value="Inviato Lab">Inviato Lab Esterno</option>
+              <option value="Conservato">Conservato in Frigo</option>
+              <option value="Conforme Intermedio">Test Rapido OK</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] text-slate-400 font-bold mb-1">Note / Sigla Operatore Prelievo</label>
+          <input type="text" id="camp-note" placeholder="Dettagli pozzetto, verbale o numero sigillo" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
+        </div>
+      </div>
+
+      <!-- SCHEDA SMALTIMENTO FANGHI & REGISTRO FIR -->
+      <div class="glass-card rounded-2xl p-5 border-t-4 border-t-rose-500 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <h4 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-truck-ramp-box text-rose-400"></i> Smaltimento Fanghi ITA & Formulario FIR
+          </h4>
+          <span class="text-[9px] bg-rose-950 text-rose-400 border border-rose-800 font-bold px-2 py-0.5 rounded uppercase">Rifiuti Speciali</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[10px] text-slate-400 font-bold mb-1">N° FIR (Formulario)</label>
+            <input type="text" id="fir-numero" placeholder="Es. FIR-2026-998" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-bold mb-1">Quantità Stimata (kg/m³)</label>
+            <input type="text" id="fir-qta" placeholder="Es. 12.500 kg" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 font-bold mb-1">Trasportatore / Destinatario</label>
+            <input type="text" id="fir-dest" placeholder="Azienda Smaltimento" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] text-slate-400 font-bold mb-1">Firma / Note Trasporto Fanghi</label>
+          <input type="text" id="fir-note" placeholder="Es. Evacuazione pressafiltro/vasca eseguita con successo" class="glass-input w-full rounded-lg px-2.5 py-1.5 text-xs text-white">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOX OSSERVAZIONI FINALI E ANOMALIE CANTIERE -->
+    <div class="glass-card rounded-2xl p-5 border-t-4 border-t-slate-500 shadow-xl space-y-2">
+      <h4 class="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
+        <i class="fa-solid fa-comment-dots text-cyan-400"></i> Osservazioni Generali, Anomalie o Interventi Straordinari
+      </h4>
+      <textarea id="note-generali-fine-giornata" rows="3" placeholder="Segnalazioni per il turno successivo, consumo reagenti (polielettrolita, idrossido di sodio, ecc.) o interventi meccanici/elettrici..." class="glass-input w-full rounded-xl p-3 text-xs text-slate-200 outline-none focus:border-cyan-400"></textarea>
+    </div>
+
+  </main>
+
+  <!-- FOOTER UNIFICATO -->
+  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500 mt-8 no-print">
+    <div class="max-w-[1600px] mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+      <p class="flex items-center gap-2">
+        <i class="fa-solid fa-droplet text-cyan-400"></i> Impianto Trattamento Acque (ITA) — Quaderno di Marcia
+      </p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGICA E GESTIONE DATI COMPLETA -->
+  <script>
+    // LISTA ATTIVITÀ PERIODICHE DERIVATA ESATTAMENTE DAL FILE EXCEL ITA
+    const attivitaManutenzioneExcel = [
+      "Controllo visivo dello scarico (contatore volumetrico acque in uscita) e delle vasche",
+      "Verifica dosaggio reagenti (Polielettrolita, Coagulante, Correttore pH)",
+      "Pulizia Skid, Tombini e Tubazioni di cantiere",
+      "Manutenzione / controllo pompe di rilancio GN",
+      "Manutenzione / controllo pompe di rilancio vasca di accumulo (Serbatoio Antincendio)",
+      "Prelievo Campioni allo Scarico (Pozzetto Fiscale)",
+      "Smaltimento dei fanghi (Verifica e pulizia pressafiltro / vasca ispessimento)",
+      "Manutenzione ordinaria parti meccaniche (Mascotte, Agitatori, Valvole)",
+      "Manutenzione straordinaria parti meccaniche / Elettromeccaniche",
+      "Verifica Rio / Corso d'Acqua ricettore finale",
+      "Verifica pulizia canalette di scolo e griglie di filtrazione"
+    ];
+
+    const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Imposta data corrente di default
+      const oggi = new Date();
+      const dateStr = meDataToISO(oggi);
+      document.getElementById("record-data").value = dateStr;
+
+      // Inizializza layout tabelle
+      generaRigheOre();
+      generaRigheManutenzione();
+      aggiornaInfoData();
+
+      // Carica eventuali dati salvati per questa data
+      caricaQuaderno();
+    });
+
+    // Helper data ISO
+    function meDataToISO(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // Calcolo numero settimana ISO
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    // Aggiorna etichette temporali al cambio data
+    function aggiornaInfoData() {
+      const inputVal = document.getElementById("record-data").value;
+      if (!inputVal) return;
+
+      const dateObj = new Date(inputVal);
+      if (isNaN(dateObj)) return;
+
+      document.getElementById("lbl-giorno-settimana").innerText = giorniSettimana[dateObj.getDay()];
+      document.getElementById("lbl-settimana-nr").innerText = getWeekNumber(dateObj);
+      document.getElementById("lbl-anno-corrente").innerText = dateObj.getFullYear();
+
+      // Tenta caricamento se esiste record in localStorage
+      caricaQuaderno();
+    }
+
+    // GENERA RIGHE ORARIE (01:00 -> 24:00)
+    function generaRigheOre() {
+      const tbody = document.getElementById("tbody-ore-registrazione");
+      tbody.innerHTML = "";
+
+      for (let hour = 1; hour <= 24; hour++) {
+        const hourStr = String(hour).padStart(2, '0') + ":00";
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/60 transition";
+
+        tr.innerHTML = `
+          <td class="px-2 py-1.5 text-center font-extrabold text-cyan-400 bg-slate-950/80 font-mono">${hourStr}</td>
+          <td class="px-1 py-1"><input type="number" step="0.1" id="ph-in-${hour}" oninput="calcolaMedieEStato()" placeholder="7.2" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-white"></td>
+          <td class="px-1 py-1"><input type="number" step="0.1" id="ph-out-${hour}" oninput="calcolaMedieEStato()" placeholder="7.4" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-white font-bold"></td>
+          <td class="px-1 py-1"><input type="number" id="cond-${hour}" placeholder="450" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-slate-200"></td>
+          <td class="px-1 py-1"><input type="number" id="tss-vasca-${hour}" placeholder="25" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-slate-200"></td>
+          <td class="px-1 py-1"><input type="number" step="0.01" id="tss-ing-${hour}" placeholder="0.12" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-slate-200"></td>
+          <td class="px-1 py-1"><input type="number" step="0.1" id="hc-${hour}" placeholder="0.0" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs text-slate-200"></td>
+          <td class="px-1 py-1 text-center">
+            <input type="checkbox" id="ctrl-lav-${hour}" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0 cursor-pointer">
+          </td>
+          <td class="px-1.5 py-1">
+            <input type="text" id="note-ora-${hour}" placeholder="Es. Dosaggio regolare, pulizia vasca" class="glass-input w-full rounded px-2 py-1 text-xs text-slate-300">
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      }
+    }
+
+    // GENERA RIGHE TABELLA MANUTENZIONE GIORNALIERA
+    function generaRigheManutenzione() {
+      const tbody = document.getElementById("tbody-attivita-manutenzione");
+      tbody.innerHTML = "";
+
+      attivitaManutenzioneExcel.forEach((attivita, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-900/60 transition";
+
+        tr.innerHTML = `
+          <td class="px-3 py-2 font-semibold text-slate-200">${attivita}</td>
+          <td class="px-2 py-2 text-center">
+            <select id="maint-t1-st-${idx}" class="glass-input rounded px-2 py-1 text-xs text-white w-full">
+              <option value="Conforme/OK">🟢 Conforme / OK</option>
+              <option value="Anomalia">🔴 Anomalia</option>
+              <option value="Non Eseguito">⚪ Non Eseguito</option>
+            </select>
+          </td>
+          <td class="px-2 py-2 text-center">
+            <select id="maint-t2-st-${idx}" class="glass-input rounded px-2 py-1 text-xs text-white w-full">
+              <option value="Conforme/OK">🟢 Conforme / OK</option>
+              <option value="Anomalia">🔴 Anomalia</option>
+              <option value="Non Eseguito">⚪ Non Eseguito</option>
+            </select>
+          </td>
+          <td class="px-2 py-2">
+            <input type="text" id="maint-note-${idx}" placeholder="Note operative / Azioni correttive..." class="glass-input w-full rounded px-2 py-1 text-xs text-slate-300">
+          </td>
+          <td class="px-2 py-2 text-center">
+            <input type="text" id="maint-firma-${idx}" placeholder="Sigla" class="glass-input w-full text-center rounded px-1.5 py-1 text-xs font-mono text-slate-200">
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // CALCOLA MEDIE PH E VERIFICA SOVRATOLERANZA
+    function calcolaMedieEStato() {
+      let sumIn = 0, countIn = 0;
+      let sumOut = 0, countOut = 0;
+      let fuoriTolleranza = false;
+
+      for (let hour = 1; hour <= 24; hour++) {
+        const valIn = parseFloat(document.getElementById(`ph-in-${hour}`).value);
+        const valOut = parseFloat(document.getElementById(`ph-out-${hour}`).value);
+
+        if (!isNaN(valIn)) {
+          sumIn += valIn;
+          countIn++;
+        }
+
+        if (!isNaN(valOut)) {
+          sumOut += valOut;
+          countOut++;
+
+          // Verifica scarico di legge (5.5 - 9.5)
+          const inputEl = document.getElementById(`ph-out-${hour}`);
+          if (valOut < 5.5 || valOut > 9.5) {
+            inputEl.classList.add("bg-rose-950/80", "text-rose-300", "border-rose-500");
+            fuoriTolleranza = true;
+          } else {
+            inputEl.classList.remove("bg-rose-950/80", "text-rose-300", "border-rose-500");
+          }
+        }
+      }
+
+      const avgInStr = countIn > 0 ? (sumIn / countIn).toFixed(2) : "--";
+      const avgOutStr = countOut > 0 ? (sumOut / countOut).toFixed(2) : "--";
+
+      document.getElementById("avg-ph-in").innerText = avgInStr;
+      document.getElementById("avg-ph-out").innerText = avgOutStr;
+
+      // Indicatori visivi di conformità
+      const statusInd = document.getElementById("ph-status-indicator");
+      const quickSummary = document.getElementById("quick-ph-summary");
+      const quickBadge = document.getElementById("quick-status-badge");
+
+      if (fuoriTolleranza) {
+        statusInd.className = "w-3 h-3 rounded-full bg-rose-500 animate-ping";
+        quickSummary.innerText = `pH Fuori Limiti! (Media Uscita: ${avgOutStr})`;
+        quickBadge.className = "flex items-center gap-2 bg-rose-950/90 border border-rose-500/50 rounded-xl px-3 py-1.5 shadow-inner";
+      } else {
+        statusInd.className = "w-3 h-3 rounded-full bg-emerald-400";
+        quickSummary.innerText = `pH Conforme (Media Uscita: ${avgOutStr})`;
+        quickBadge.className = "flex items-center gap-2 bg-emerald-950/80 border border-emerald-500/40 rounded-xl px-3 py-1.5 shadow-inner";
+      }
+    }
+
+    // SALVA QUADERNO IN LOCALSTORAGE
+    function salvaQuaderno() {
+      const dataKey = document.getElementById("record-data").value;
+      if (!dataKey) {
+        showToast("Seleziona una data valida prima di salvare.", true);
+        return;
+      }
+
+      const payload = {
+        data: dataKey,
+        operatoreT1: document.getElementById("operatore-t1").value,
+        firmaT1: document.getElementById("firma-t1").value,
+        operatoreT2: document.getElementById("operatore-t2").value,
+        firmaT2: document.getElementById("firma-t2").value,
+        referenteCogede: document.getElementById("referente-cogede").value,
+        firmaCogede: document.getElementById("firma-cogede").value,
+
+        // Ore (24h)
+        ore: [],
+
+        // Manutenzione Sonde Checkbox
+        sondaPhInClean: document.getElementById("maint-ph-in-clean").checked,
+        sondaPhInCal: document.getElementById("maint-ph-in-cal").checked,
+        sondaPhOutClean: document.getElementById("maint-ph-out-clean").checked,
+        sondaPhOutCal: document.getElementById("maint-ph-out-cal").checked,
+        sondaCondClean: document.getElementById("maint-cond-clean").checked,
+        sondaCondCal: document.getElementById("maint-cond-cal").checked,
+        sondaTurbClean: document.getElementById("maint-turb-clean").checked,
+        sondaTurbCal: document.getElementById("maint-turb-cal").checked,
+        sondaHcClean: document.getElementById("maint-hc-clean").checked,
+        sondaHcCal: document.getElementById("maint-hc-cal").checked,
+
+        // Attività Manutenzione
+        attivita: [],
+
+        // Campionamento & FIR
+        campOra: document.getElementById("camp-ora").value,
+        campPh: document.getElementById("camp-ph").value,
+        campStato: document.getElementById("camp-stato").value,
+        campNote: document.getElementById("camp-note").value,
+
+        firNumero: document.getElementById("fir-numero").value,
+        firQta: document.getElementById("fir-qta").value,
+        firDest: document.getElementById("fir-dest").value,
+        firNote: document.getElementById("fir-note").value,
+
+        noteGenerali: document.getElementById("note-generali-fine-giornata").value
+      };
+
+      // Raccogli dati orari
+      for (let h = 1; h <= 24; h++) {
+        payload.ore.push({
+          phIn: document.getElementById(`ph-in-${h}`).value,
+          phOut: document.getElementById(`ph-out-${h}`).value,
+          cond: document.getElementById(`cond-${h}`).value,
+          tssVasca: document.getElementById(`tss-vasca-${h}`).value,
+          tssIng: document.getElementById(`tss-ing-${h}`).value,
+          hc: document.getElementById(`hc-${h}`).value,
+          ctrlLav: document.getElementById(`ctrl-lav-${h}`).checked,
+          note: document.getElementById(`note-ora-${h}`).value
+        });
+      }
+
+      // Raccogli attività periodiche
+      attivitaManutenzioneExcel.forEach((_, idx) => {
+        payload.attivita.push({
+          stT1: document.getElementById(`maint-t1-st-${idx}`).value,
+          stT2: document.getElementById(`maint-t2-st-${idx}`).value,
+          note: document.getElementById(`maint-note-${idx}`).value,
+          firma: document.getElementById(`maint-firma-${idx}`).value
+        });
+      });
+
+      // Salvataggio effettivo
+      localStorage.setItem(`ita_quaderno_${dataKey}`, JSON.stringify(payload));
+      showToast(`Scheda del ${dataKey} salvata con successo in archivio!`);
+    }
+
+    // CARICA QUADERNO
+    function caricaQuaderno() {
+      const dataKey = document.getElementById("record-data").value;
+      const raw = localStorage.getItem(`ita_quaderno_${dataKey}`);
+
+      if (!raw) {
+        resetFormInputs(false); // Non azzera la data
+        return;
+      }
+
+      try {
+        const data = JSON.parse(raw);
+
+        document.getElementById("operatore-t1").value = data.operatoreT1 || "";
+        document.getElementById("firma-t1").value = data.firmaT1 || "";
+        document.getElementById("operatore-t2").value = data.operatoreT2 || "";
+        document.getElementById("firma-t2").value = data.firmaT2 || "";
+        document.getElementById("referente-cogede").value = data.referenteCogede || "";
+        document.getElementById("firma-cogede").value = data.firmaCogede || "";
+
+        // Sonde
+        document.getElementById("maint-ph-in-clean").checked = !!data.sondaPhInClean;
+        document.getElementById("maint-ph-in-cal").checked = !!data.sondaPhInCal;
+        document.getElementById("maint-ph-out-clean").checked = !!data.sondaPhOutClean;
+        document.getElementById("maint-ph-out-cal").checked = !!data.sondaPhOutCal;
+        document.getElementById("maint-cond-clean").checked = !!data.sondaCondClean;
+        document.getElementById("maint-cond-cal").checked = !!data.sondaCondCal;
+        document.getElementById("maint-turb-clean").checked = !!data.sondaTurbClean;
+        document.getElementById("maint-turb-cal").checked = !!data.sondaTurbCal;
+        document.getElementById("maint-hc-clean").checked = !!data.sondaHcClean;
+        document.getElementById("maint-hc-cal").checked = !!data.sondaHcCal;
+
+        // Ore
+        if (data.ore && data.ore.length === 24) {
+          data.ore.forEach((o, index) => {
+            const h = index + 1;
+            document.getElementById(`ph-in-${h}`).value = o.phIn || "";
+            document.getElementById(`ph-out-${h}`).value = o.phOut || "";
+            document.getElementById(`cond-${h}`).value = o.cond || "";
+            document.getElementById(`tss-vasca-${h}`).value = o.tssVasca || "";
+            document.getElementById(`tss-ing-${h}`).value = o.tssIng || "";
+            document.getElementById(`hc-${h}`).value = o.hc || "";
+            document.getElementById(`ctrl-lav-${h}`).checked = !!o.ctrlLav;
+            document.getElementById(`note-ora-${h}`).value = o.note || "";
+          });
+        }
+
+        // Attività
+        if (data.attivita) {
+          data.attivita.forEach((a, idx) => {
+            if (document.getElementById(`maint-t1-st-${idx}`)) {
+              document.getElementById(`maint-t1-st-${idx}`).value = a.stT1 || "Conforme/OK";
+              document.getElementById(`maint-t2-st-${idx}`).value = a.stT2 || "Conforme/OK";
+              document.getElementById(`maint-note-${idx}`).value = a.note || "";
+              document.getElementById(`maint-firma-${idx}`).value = a.firma || "";
+            }
+          });
+        }
+
+        // Campionamento & FIR
+        document.getElementById("camp-ora").value = data.campOra || "";
+        document.getElementById("camp-ph").value = data.campPh || "";
+        document.getElementById("camp-stato").value = data.campStato || "Inviato Lab";
+        document.getElementById("camp-note").value = data.campNote || "";
+
+        document.getElementById("fir-numero").value = data.firNumero || "";
+        document.getElementById("fir-qta").value = data.firQta || "";
+        document.getElementById("fir-dest").value = data.firDest || "";
+        document.getElementById("fir-note").value = data.firNote || "";
+
+        document.getElementById("note-generali-fine-giornata").value = data.noteGenerali || "";
+
+        calcolaMedieEStato();
+        showToast(`Record caricato per la data ${dataKey}`);
+      } catch (err) {
+        console.error("Errore caricamento dati:", err);
+      }
+    }
+
+    // CREA NUOVA SCHEDA GIORNALIERA
+    function nuovaSchedaGiornaliera() {
+      if (confirm("Vuoi resettare i campi per creare una nuova scheda giornaliera?")) {
+        resetFormInputs(true);
+        showToast("Nuova scheda formattata!");
+      }
+    }
+
+    function resetFormInputs(resetData) {
+      if (resetData) {
+        const oggi = new Date();
+        document.getElementById("record-data").value = meDataToISO(oggi);
+      }
+
+      document.getElementById("operatore-t1").value = "";
+      document.getElementById("firma-t1").value = "";
+      document.getElementById("operatore-t2").value = "";
+      document.getElementById("firma-t2").value = "";
+      document.getElementById("referente-cogede").value = "";
+      document.getElementById("firma-cogede").value = "";
+
+      // Sonde
+      ["maint-ph-in-clean", "maint-ph-in-cal", "maint-ph-out-clean", "maint-ph-out-cal", "maint-cond-clean", "maint-cond-cal", "maint-turb-clean", "maint-turb-cal", "maint-hc-clean", "maint-hc-cal"].forEach(id => {
+        document.getElementById(id).checked = false;
+      });
+
+      // Reset Ore
+      for (let h = 1; h <= 24; h++) {
+        document.getElementById(`ph-in-${h}`).value = "";
+        document.getElementById(`ph-out-${h}`).value = "";
+        document.getElementById(`cond-${h}`).value = "";
+        document.getElementById(`tss-vasca-${h}`).value = "";
+        document.getElementById(`tss-ing-${h}`).value = "";
+        document.getElementById(`hc-${h}`).value = "";
+        document.getElementById(`ctrl-lav-${h}`).checked = false;
+        document.getElementById(`note-ora-${h}`).value = "";
+      }
+
+      // Reset Attività
+      attivitaManutenzioneExcel.forEach((_, idx) => {
+        document.getElementById(`maint-t1-st-${idx}`).value = "Conforme/OK";
+        document.getElementById(`maint-t2-st-${idx}`).value = "Conforme/OK";
+        document.getElementById(`maint-note-${idx}`).value = "";
+        document.getElementById(`maint-firma-${idx}`).value = "";
+      });
+
+      document.getElementById("camp-ora").value = "";
+      document.getElementById("camp-ph").value = "";
+      document.getElementById("camp-stato").value = "Inviato Lab";
+      document.getElementById("camp-note").value = "";
+
+      document.getElementById("fir-numero").value = "";
+      document.getElementById("fir-qta").value = "";
+      document.getElementById("fir-dest").value = "";
+      document.getElementById("fir-note").value = "";
+
+      document.getElementById("note-generali-fine-giornata").value = "";
+
+      aggiornaInfoData();
+      calcolaMedieEStato();
+    }
+
+    // TOAST NOTIFICATION HELPERS
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toast-message");
+
+      toastMsg.innerText = msg;
+      if (isError) {
+        toast.className = "fixed bottom-5 right-5 z-50 transform opacity-100 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-rose-600 text-white font-semibold text-xs border border-rose-400";
+      } else {
+        toast.className = "fixed bottom-5 right-5 z-50 transform opacity-100 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400";
+      }
+
+      setTimeout(() => {
+        toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 bg-cyan-600 text-white font-semibold text-xs border border-cyan-400";
+      }, 3500);
+    }
+  </script>
+
+</body>
+</html>
