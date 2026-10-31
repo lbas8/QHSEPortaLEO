@@ -44,54 +44,8 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white" onclick="closeUserMenu(event)">
 
-  <!-- Header Top Portale -->
-  <header class="w-full bg-slate-900/80 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      
-      <!-- Logo e Titolo -->
-      <div class="flex items-center gap-4">
-        <img src="logowb.jpeg" alt="Webuild" class="h-10 object-contain rounded bg-white p-1" onerror="this.src='https://via.placeholder.com/120x40?text=WEBUILD'">
-        <div class="h-8 w-[1px] bg-slate-700 hidden sm:block"></div>
-        <div>
-          <h1 class="font-black text-lg tracking-wide uppercase text-slate-100">Portale QHSE Cantiere</h1>
-          <p class="text-xs text-sky-400 font-semibold">Quarto Valico dei Giovi — VICOC</p>
-        </div>
-      </div>
-      
-      <!-- Area Destra: Stato Sistema & Profilo Utente (Ciao Leone) -->
-      <div class="flex items-center gap-4">
-        <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistema Attivo
-        </span>
-
-        <!-- Profilo Utente Dropdown -->
-        <div class="relative">
-          <button onclick="toggleUserMenu(event)" class="flex items-center gap-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 px-3.5 py-2 rounded-xl transition text-left focus:outline-none">
-            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-sky-500 to-emerald-500 flex items-center justify-center text-white font-black text-sm shadow">
-              L
-            </div>
-            <div class="hidden md:block">
-              <p class="text-xs text-slate-400 leading-tight">Benvenuto</p>
-              <p class="text-sm font-bold text-slate-100">Ciao Leone</p>
-            </div>
-            <i class="fa-solid fa-chevron-down text-xs text-slate-400 ml-1"></i>
-          </button>
-
-          <!-- Menu a tendina Logout / Cambio Account -->
-          <div id="userMenu" class="hidden absolute right-0 mt-2 w-52 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl py-2 z-50 backdrop-blur-xl">
-            <div class="px-4 py-2 border-b border-slate-800 md:hidden">
-              <p class="text-xs text-slate-400">Benvenuto</p>
-              <p class="text-sm font-bold text-slate-100">Ciao Leone</p>
-            </div>
-            <a href="#" onclick="handleLogout(event)" class="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition">
-              <i class="fa-solid fa-right-from-bracket text-sm"></i> Cambia Account / Logout
-            </a>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </header>
+<!-- Header Dinamico Comune -->
+<div id="app-header"></div>
 
   <!-- Main Content -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center justify-center">
@@ -259,7 +213,6 @@
       window.location.href = 'index.html'; 
     }
   </script>
-
-
+<script src="header.js"></script> <!-- Metti "../../header.js" se ti trovi in una sottocartella -->
 </body>
 </html>
