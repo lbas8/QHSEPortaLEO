@@ -3,82 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> Accesso Portale QHSE - Quarto Valico AV/AC</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Accesso Portale QHSE — Quarto Valico AV/AC</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Icona per iPhone / iPad (Apple Touch Icon) -->
-<link rel="apple-touch-icon" sizes="180x180" href="assets/img/QHSElogo.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Icona e Manifest personalizzati -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/QHSElogo.jpg">
+  <link rel="icon" type="image/jpeg" sizes="192x192" href="assets/img/QHSElogo.jpg">
+  <link rel="icon" type="image/jpeg" sizes="512x512" href="assets/img/QHSElogo.jpg">
+  <meta name="apple-mobile-web-app-title" content="QHSE Cantiere">
+  <meta name="application-name" content="QHSE Cantiere">
+  <link rel="manifest" href="manifest.json">
 
-<!-- Icona per Android (Chrome e altri browser) -->
-<link rel="icon" type="image/jpeg" sizes="192x192" href="assets/img/QHSElogo.jpg">
-<link rel="icon" type="image/jpeg" sizes="512x512" href="assets/img/QHSElogo.jpg">
-
-<!-- Titolo dell'applicazione sotto l'icona nella Home -->
-<meta name="apple-mobile-web-app-title" content="QHSE Cantiere">
-<meta name="application-name" content="QHSE Cantiere">
-<link rel="manifest" href="manifest.json">
-
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-800 font-sans min-h-screen flex items-center justify-center p-4">
 
-  <div class="bg-white rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full p-8 space-y-6">
+  <div class="bg-white rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full p-8 space-y-6 text-center">
+    
     <!-- LOGO E INTESTAZIONE -->
-    <div class="text-center space-y-2">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full border border-slate-300 mb-2">
-        <i class="fa-solid fa-shield-halved text-emerald-600 text-2xl"></i>
+    <div class="space-y-3">
+      <div class="w-20 h-20 mx-auto rounded-full overflow-hidden border-2 border-slate-700 shadow-md flex items-center justify-center bg-slate-900">
+        <img src="assets/img/QHSElogo.jpg" alt="Logo QHSE" class="w-full h-full object-cover">
       </div>
-      <h1 class="text-xl font-bold text-slate-900 uppercase">Portale QHSE</h1>
-      <p class="text-xs text-slate-500 font-medium">Quarto Valico dei Giovi — VICOC / XXXX</p>
+      <h1 class="text-xl font-black text-slate-900 uppercase tracking-wide">Portale QHSE Cantiere</h1>
+      <p class="text-xs text-slate-500 font-medium">Verifica autenticazione in corso...</p>
     </div>
 
-    <!-- FORM DI LOGIN -->
-    <form onsubmit="handleLogin(event)" class="space-y-4">
-      <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Password / PIN Aziendale</label>
-        <div class="relative">
-          <input type="password" id="password_input" required placeholder="Inserisci la password..." 
-                 class="w-full border border-slate-300 rounded-lg px-3 py-2.5 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <i class="fa-solid fa-key text-slate-400 absolute left-3 top-3.5 text-xs"></i>
-        </div>
-      </div>
+    <!-- INDICATORE DI CARICAMENTO -->
+    <div class="flex justify-center items-center py-4">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+    </div>
 
-      <div id="error_msg" class="hidden text-xs text-red-600 bg-red-50 border border-red-200 p-2.5 rounded-lg text-center font-medium">
-        <i class="fa-solid fa-circle-exclamation mr-1"></i> Password errata. Riprova.
-      </div>
-
-      <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2.5 px-4 rounded-lg shadow-md transition text-sm flex items-center justify-center gap-2">
-        <i class="fa-solid fa-right-to-bracket"></i> Accedi al Portale
+    <!-- PULSANTE LOGOUT (Disponibile se loggato) -->
+    <div class="border-t border-slate-200 pt-4">
+      <button onclick="eseguiLogout()" class="text-xs font-bold text-rose-600 hover:text-rose-800 transition cursor-pointer">
+        <i class="fa-solid fa-right-from-bracket">⁠</i> Esci / Cambia Account
       </button>
-    </form>
-
-    <div class="text-center border-t border-slate-200 pt-4 text-[10px] text-slate-400">
-      Accesso riservato al personale autorizzato da Leone / Subappaltatori.
     </div>
+
   </div>
 
+  <!-- SCRIPT DI CONTROLLO FIREBASE AUTH -->
   <script>
-    // Configura qui la password di accesso al portale
-    const PORTAL_PASSWORD = "Castagnola2027!"; 
+    const firebaseConfig = {
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-    // Se l'utente è già autenticato, reindirizza subito alla home
-    if (sessionStorage.getItem('QHSE_authenticated') === 'true') {
-      window.location.href = 'HomeQHSE.html';
-    }
-
-    function handleLogin(event) {
-      event.preventDefault();
-      const inputPass = document.getElementById('password_input').value;
-      const errorMsg = document.getElementById('error_msg');
-
-      if (inputPass === PORTAL_PASSWORD) {
-        // Salva la sessione nel browser
-        sessionStorage.setItem('QHSE_authenticated', 'true');
-        window.location.href = 'HomeQHSE.html';
+    // CONTROLLO DI ACCESSO
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        // Se l'utente NON è loggato, reindirizza subito alla pagina di login
+        window.location.href = "login.html";
       } else {
-        errorMsg.classList.remove('hidden');
-        document.getElementById('password_input').value = '';
+        // Se è loggato, dopo un breve istante lo mandiamo all'hub principale o carichiamo la pagina
+        setTimeout(() => {
+          window.location.href = "enviromentalhub.html";
+        }, 800);
       }
+    });
+
+    function eseguiLogout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
     }
   </script>
+
 </body>
 </html>
