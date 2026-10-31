@@ -47,32 +47,42 @@
 
   </div>
 
-  <!-- SCRIPT DI CONTROLLO FIREBASE AUTH -->
-  <script>
-    const firebaseConfig = {
-      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+<!-- SCRIPT DI CONTROLLO FIREBASE AUTH -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBNUrPHSTQovJRBMWVQDI-IH0M1YIGkv_U",
+    authDomain: "qhseleo.firebaseapp.com",
+    databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "qhseleo",
+    storageBucket: "qhseleo.firebasestorage.app",
+    messagingSenderId: "401651146088",
+    appId: "1:401651146088:web:eb341842059744d9974add",
+    measurementId: "G-YK2XHZTDSP"
+  };
 
-    // CONTROLLO DI ACCESSO
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        // Se l'utente NON è loggato, reindirizza subito alla pagina di login
-        window.location.href = "login.html";
-      } else {
-        // Se è loggato, dopo un breve istante lo mandiamo all'hub principale o carichiamo la pagina
-        setTimeout(() => {
-          window.location.href = "enviromentalhub.html";
-        }, 800);
-      }
-    });
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
 
-    function eseguiLogout() {
-      firebase.auth().signOut().then(() => {
-        window.location.href = "login.html";
-      });
+  // CONTROLLO DI ACCESSO
+  firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+      // Se l'utente NON è loggato, reindirizza alla pagina di login
+      window.location.href = "login.html";
+    } else {
+      // Se è loggato, reindirizza all'hub principale
+      setTimeout(() => {
+        window.location.href = "enviromentalhub.html";
+      }, 800);
     }
-  </script>
+  });
+
+  function eseguiLogout() {
+    firebase.auth().signOut().then(() => {
+      window.location.href = "login.html";
+    });
+  }
+</script>
 
 </body>
 </html>
