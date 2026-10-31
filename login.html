@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Portale QHSE Cantiere</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+    .glass-card {
+      background: rgba(18, 24, 38, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 selection:bg-amber-500 selection:text-white">
+
+  <div class="glass-card rounded-2xl max-w-md w-full p-8 shadow-2xl relative space-y-6">
+    
+    <!-- INTESTAZIONE LOGO -->
+    <div class="text-center space-y-2">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/10 border-2 border-amber-400/80 flex items-center justify-center text-amber-400 shadow-md">
+        <i class="fa-solid fa-shield-halved text-3xl"></i>
+      </div>
+      <h1 class="text-xl font-black text-white uppercase tracking-wider">Environmental Office</h1>
+      <p class="text-xs text-amber-400 font-semibold">Accesso Riservato — Quarto Valico dei Giovi</p>
+    </div>
+
+    <!-- FORM DI ACCESSO -->
+    <form id="form-login" onsubmit="eseguiLogin(event)" class="space-y-4 text-xs">
+      <div>
+        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Email Aziendale</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+            <i class="fa-solid fa-envelope"></i>
+          </span>
+          <input type="email5" id="login-email" required placeholder="nome.cognome@cantiere.it" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-white outline-none focus:border-amber-400">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Password</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-white outline-none focus:border-amber-400">
+        </div>
+      </div>
+
+      <div id="messaggio-errore" class="text-rose-400 text-center font-bold hidden"></div>
+
+      <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 rounded-xl transition shadow-lg cursor-pointer flex items-center justify-center gap-2 text-sm">
+        <i class="fa-solid fa-right-to-bracket"></i> Accedi al Portale
+      </button>
+    </form>
+
+    <div class="text-center text-[10px] text-slate-500 border-t border-slate-800 pt-4">
+      Sistema di Autenticazione Cloud Sicuro QHSE
+    </div>
+
+  </div>
+
+  <!-- SCRIPT LOGICA FIREBASE AUTH -->
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app",
+      // Nota: Aggiungi qui anche le credenziali di autenticazione del tuo progetto Firebase se non già presenti
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+    function eseguiLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const errBox = document.getElementById('messaggio-errore');
+
+      errBox.classList.add('hidden');
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Login riuscito: reindirizza all'Hub principale
+          window.location.href = "enviromentalhub.html";
+        })
+        .catch((error) => {
+          errBox.innerText = "Errore: credenziali non valide o accesso negato.";
+          errBox.classList.remove('hidden');
+        });
+    }
+  </script>
+
+</body>
+</html>
