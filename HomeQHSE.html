@@ -80,60 +80,67 @@
       
       <!-- Interactive SVG Wheel (5 Cols) -->
       <div class="lg:col-span-5 flex justify-center items-center relative">
-        <div class="relative w-[320px] h-[320px] sm:w-[380px] sm:h-[380px]">
+        <div class="relative w-[340px] h-[340px] sm:w-[400px] sm:h-[400px]">
           
           <svg viewBox="0 0 400 400" class="w-full h-full drop-shadow-2xl">
-            <!-- Center Hub Circle -->
+            <!-- Center Hub Circle Background -->
             <circle cx="200" cy="200" r="190" fill="#0f172a" stroke="#1e293b" stroke-width="4"/>
 
-            <!-- SPICCHIO E (Environment) -> RICONNESSO AL PORTALE AMBIENTALE COMPLETO -->
+            <!-- SPICCHIO E (Environment) -->
             <g class="slice-group cursor-pointer" onclick="location.href='pages/enviromental/enviromentalhub.html'">
               <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" 
-                    fill="#0284c7" class="slice-path opacity-85 hover:opacity-100 transition" />
-              <!-- Icona Foglia & Testo E -->
-              <g transform="translate(260, 95)" class="pointer-events-none text-white text-center">
-                <foreignObject x="-25" y="-15" width="60" height="60">
-                  <div xmlns="http://www.w3.org/1999/xhtml" class="flex flex-col items-center justify-center text-sky-200">
-                    <i class="fa-solid fa-leaf text-2xl mb-1"></i>
-                    <span class="text-lg font-black text-white tracking-wider">E</span>
-                  </div>
-                </foreignObject>
+                    fill="#0284c7" class="slice-path opacity-90 hover:opacity-100 transition" />
+              <!-- Icona Foglia & Lettera E -->
+              <g transform="translate(268, 125)" class="pointer-events-none">
+                <!-- Foglia -->
+                <path d="M-12,-20 C-22,-5 -18,15 5,20 C18,22 22,8 20,-5 C18,-18 2,-22 -12,-20 Z M-12,-20 Q2,2 18,18" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+                <!-- Testo E -->
+                <text x="0" y="46" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">E</text>
               </g>
             </g>
 
             <!-- SPICCHIO HS (Health & Safety) -->
             <g class="slice-group cursor-pointer" onclick="alert('Modulo Health & Safety in attivazione')">
               <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" 
-                    fill="#d97706" class="slice-path opacity-85 hover:opacity-100 transition" />
-              <!-- Icona Caschetto/Pronto Soccorso & Testo HS -->
-              <g transform="translate(170, 245)" class="pointer-events-none text-white text-center">
-                <foreignObject x="-35" y="-10" width="100" height="70">
-                  <div xmlns="http://www.w3.org/1999/xhtml" class="flex flex-col items-center justify-center text-amber-100">
-                    <div class="flex items-center gap-1.5 mb-1">
-                      <i class="fa-solid fa-hard-hat text-xl"></i>
-                      <i class="fa-solid fa-suitcase-medical text-lg"></i>
-                    </div>
-                    <span class="text-base font-black text-white tracking-wider">HS</span>
-                  </div>
-                </foreignObject>
+                    fill="#d97706" class="slice-path opacity-90 hover:opacity-100 transition" />
+              <!-- Icone Caschetto + Cassetta Medicata & Lettera HS -->
+              <g transform="translate(200, 290)" class="pointer-events-none">
+                <!-- Caschetto Cantiere (Sinistra) -->
+                <g transform="translate(-24, -25)">
+                  <path d="M -12,2 A 12,12 0 0,1 12,2 L 16,5 L -16,5 Z" fill="#ffffff"/>
+                  <rect x="-14" y="5" width="28" height="3" rx="1" fill="#ffffff"/>
+                </g>
+                <!-- Cassetta Primo Soccorso (Destra) -->
+                <g transform="translate(24, -25)">
+                  <rect x="-13" y="-8" width="26" height="18" rx="3" fill="none" stroke="#ffffff" stroke-width="3"/>
+                  <path d="M -5,-8 L -5,-12 L 5,-12 L 5,-8" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+                  <!-- Croce -->
+                  <path d="M 0,-4 L 0,2 M -3,-1 L 3,-1" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </g>
+                <!-- Testo HS -->
+                <text x="0" y="24" font-size="26" font-weight="900" fill="#ffffff" text-anchor="middle">HS</text>
               </g>
             </g>
 
             <!-- SPICCHIO Q (Quality) -->
             <g class="slice-group cursor-pointer" onclick="alert('Modulo Qualità in attivazione')">
               <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" 
-                    fill="#059669" class="slice-path opacity-85 hover:opacity-100 transition" />
-              <!-- Icona Quaderno/Penna & Testo Q -->
-              <g transform="translate(85, 95)" class="pointer-events-none text-white text-center">
-                <foreignObject x="-20" y="-15" width="70" height="70">
-                  <div xmlns="http://www.w3.org/1999/xhtml" class="flex flex-col items-center justify-center text-emerald-100">
-                    <div class="flex items-center gap-1 mb-1">
-                      <i class="fa-solid fa-book text-lg"></i>
-                      <i class="fa-solid fa-pen text-sm"></i>
-                    </div>
-                    <span class="text-lg font-black text-white tracking-wider">Q</span>
-                  </div>
-                </foreignObject>
+                    fill="#059669" class="slice-path opacity-90 hover:opacity-100 transition" />
+              <!-- Icona Quaderno + Penna & Lettera Q -->
+              <g transform="translate(132, 125)" class="pointer-events-none">
+                <!-- Quaderno con Penna -->
+                <g transform="translate(0, -5)">
+                  <!-- Blocco Note -->
+                  <rect x="-16" y="-18" width="22" height="28" rx="2" fill="none" stroke="#ffffff" stroke-width="3"/>
+                  <!-- Anelli -->
+                  <line x1="-16" y1="-12" x2="-20" y2="-12" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="-16" y1="-4" x2="-20" y2="-4" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="-16" y1="4" x2="-20" y2="4" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                  <!-- Penna -->
+                  <path d="M 10,-16 L 18,-8 L 4,6 L -2,6 L -2,0 Z" fill="#ffffff"/>
+                </g>
+                <!-- Testo Q -->
+                <text x="0" y="46" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">Q</text>
               </g>
             </g>
 
@@ -192,7 +199,7 @@
           </div>
         </div>
 
-        <!-- CARD E - ENVIRONMENT (COLLEGAMENTO AL PORTALE COMPLETO CON VERBALI E CATENA DI CUSTODIA) -->
+        <!-- CARD E - ENVIRONMENT -->
         <div class="glass-card rounded-2xl p-5 flex items-start gap-4 border-l-4 border-l-sky-500 cursor-pointer group bg-sky-950/20 shadow-lg shadow-sky-950/20"
              onclick="location.href='pages/enviromental/enviromentalhub.html'">
           <div class="w-14 h-14 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-2xl group-hover:scale-110 transition flex-shrink-0">
