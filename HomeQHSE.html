@@ -42,13 +42,15 @@
   </style>
   <link rel="apple-touch-icon" href="assets/img/QHSElogo2.png">
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white" onclick="closeUserMenu(event)">
 
   <!-- Header Top Portale -->
   <header class="w-full bg-slate-900/80 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Logo e Titolo -->
       <div class="flex items-center gap-4">
-        <img src="assets/img/logowb.jpg" alt="Webuild" class="h-10 object-contain rounded bg-white p-1" onerror="this.src='https://via.placeholder.com/120x40?text=WEBUILD'">
+        <img src="logowb.jpeg" alt="Webuild" class="h-10 object-contain rounded bg-white p-1" onerror="this.src='https://via.placeholder.com/120x40?text=WEBUILD'">
         <div class="h-8 w-[1px] bg-slate-700 hidden sm:block"></div>
         <div>
           <h1 class="font-black text-lg tracking-wide uppercase text-slate-100">Portale QHSE Cantiere</h1>
@@ -56,10 +58,37 @@
         </div>
       </div>
       
-      <div class="flex items-center gap-3">
-        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+      <!-- Area Destra: Stato Sistema & Profilo Utente (Ciao Leone) -->
+      <div class="flex items-center gap-4">
+        <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sistema Attivo
         </span>
+
+        <!-- Profilo Utente Dropdown -->
+        <div class="relative">
+          <button onclick="toggleUserMenu(event)" class="flex items-center gap-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 px-3.5 py-2 rounded-xl transition text-left focus:outline-none">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-sky-500 to-emerald-500 flex items-center justify-center text-white font-black text-sm shadow">
+              L
+            </div>
+            <div class="hidden md:block">
+              <p class="text-xs text-slate-400 leading-tight">Benvenuto</p>
+              <p class="text-sm font-bold text-slate-100">Ciao Leone</p>
+            </div>
+            <i class="fa-solid fa-chevron-down text-xs text-slate-400 ml-1"></i>
+          </button>
+
+          <!-- Menu a tendina Logout / Cambio Account -->
+          <div id="userMenu" class="hidden absolute right-0 mt-2 w-52 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl py-2 z-50 backdrop-blur-xl">
+            <div class="px-4 py-2 border-b border-slate-800 md:hidden">
+              <p class="text-xs text-slate-400">Benvenuto</p>
+              <p class="text-sm font-bold text-slate-100">Ciao Leone</p>
+            </div>
+            <a href="#" onclick="handleLogout(event)" class="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition">
+              <i class="fa-solid fa-right-from-bracket text-sm"></i> Cambia Account / Logout
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
   </header>
@@ -104,17 +133,17 @@
 
             <!-- SPICCHIO Q (QUALITY) -->
             <g class="slice-group" onclick="alert('Modulo Qualità in attivazione')">
-              <image href="assets/img/wheelQHSE.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-q)" preserveAspectRatio="xMidYMid slice" onerror="this.href='wheel_qhse.png'" />
+              <image href="wheel_qhse.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-q)" preserveAspectRatio="xMidYMid slice" onerror="this.href='assets/img/wheel_qhse.png'" />
             </g>
 
             <!-- SPICCHIO E (ENVIRONMENT) -->
             <g class="slice-group" onclick="location.href='pages/enviromental/enviromentalhub.html'">
-              <image href="assets/img/wheelQHSE.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-e)" preserveAspectRatio="xMidYMid slice" onerror="this.href='wheel_qhse.png'" />
+              <image href="wheel_qhse.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-e)" preserveAspectRatio="xMidYMid slice" onerror="this.href='assets/img/wheel_qhse.png'" />
             </g>
 
             <!-- SPICCHIO HS (HEALTH & SAFETY) -->
             <g class="slice-group" onclick="alert('Modulo Health & Safety in attivazione')">
-              <image href="assets/img/wheelQHSE.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-hs)" preserveAspectRatio="xMidYMid slice" onerror="this.href='wheel_qhse.png'" />
+              <image href="wheel_qhse.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-hs)" preserveAspectRatio="xMidYMid slice" onerror="this.href='assets/img/wheel_qhse.png'" />
             </g>
 
             <!-- CERCHIO CENTRALE (Hub Principale) -->
@@ -180,14 +209,14 @@
           </div>
           <div class="flex-grow">
             <div class="flex items-center justify-between mb-1">
-              <h3 class="text-lg font-black text-white group-hover:text-sky-400 transition">E — ENVIRONMENT (Ambiente)</h3>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 uppercase">ISO 14001</span>
+              <h3 class="text-lg font-black text-white group-hover:text-sky-400 transition">E — ENVIRONMENT (Ambiente & Cantiere)</h3>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 uppercase">D.Lgs. 152/06</span>
             </div>
             <p class="text-xs text-slate-400 mb-2">
-              Verbali di Sopralluogo di Cantiere, Catena di Custodia Campionamenti, Gestione Rifiuti e Gestione Terre e Rocce da Scavo.
+              Verbali di Sopralluogo sul campo, Catena di Custodia campionamenti, Cartellonistica DTR e gestione Terre e Rocce da Scavo.
             </p>
             <div class="flex items-center gap-2 text-xs text-sky-400 font-bold">
-              <span>Acceedi ai moduli Ambiente</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              <span>Apri Portale Ambientale Completo</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
             </div>
           </div>
         </div>
@@ -201,12 +230,37 @@
   <!-- Footer -->
   <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-      <p>© 2026 Quarto Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione QHSE</p>
       <p class="flex items-center gap-2">
         <i class="fa-solid fa-mobile-screen"></i> Ottimizzato per Tablet e Smartphone di Cantiere
       </p>
     </div>
   </footer>
+
+  <!-- Script per la gestione del menu utente e logout -->
+  <script>
+    function toggleUserMenu(event) {
+      event.stopPropagation();
+      const menu = document.getElementById('userMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    function closeUserMenu(event) {
+      const menu = document.getElementById('userMenu');
+      if (!menu.classList.contains('hidden')) {
+        menu.classList.add('hidden');
+      }
+    }
+
+    function handleLogout(event) {
+      event.preventDefault();
+      // Qui puoi reindirizzare alla pagina di login (es. index.html o login.html)
+      // window.location.href = '../../index.html'; 
+      alert('Logout effettuato con successo. Reindirizzamento alla pagina di login...');
+      // Esempio fittizio di redirect:
+      // window.location.href = 'login.html';
+    }
+  </script>
 
 </body>
 </html>
