@@ -7,14 +7,14 @@
   "theme_color": "#0b0f17",
   "icons": [
     {
-      "src": "QHSElogo.jpg",
+      "src": "assets/img/QHSElogo.jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
-      "src": "QHSElogo.jpg",
+      "src": "assets/img/QHSElogo.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }
