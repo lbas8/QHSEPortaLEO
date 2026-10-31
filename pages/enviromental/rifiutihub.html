@@ -55,12 +55,37 @@
       flex-shrink: 0;
     }
   </style>
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script>
-    // Controllo Protezione Sessione Gate
-    if (sessionStorage.getItem('QHSE_authenticated') !== 'true') {
-      window.location.href = '../../index.html';
+    const firebaseConfig = {
+      apiKey: "AIzaSyBNUrPHSTQovJRBMWVQDI-IH0M1YIGkv_U",
+      authDomain: "qhseleo.firebaseapp.com",
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "qhseleo",
+      storageBucket: "qhseleo.firebasestorage.app",
+      messagingSenderId: "401651146088",
+      appId: "1:401651146088:web:eb341842059744d9974add",
+      measurementId: "G-YK2XHZTDSP"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
     }
+
+    // Controllo Autenticazione Universale
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        // Se non sei loggato, reindirizza al login (regola i '../' in base a dove si trova la pagina)
+        window.location.href = '../../login.html';
+      } else {
+        // Se sei loggato, mostra la pagina
+        document.body.style.visibility = 'visible';
+      }
+    });
   </script>
+
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-white">
 
