@@ -15,7 +15,7 @@
       color: #f8fafc;
     }
 
-    /* SVG Interactive Wheel & Spicchi */
+    /* Effetto Ingrandimento Fluido sugli Spicchi dell'Immagine */
     .slice-group {
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
       transform-origin: 200px 200px;
@@ -24,10 +24,11 @@
 
     .slice-group:hover {
       transform: scale(1.06);
-      filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.4));
+      filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.5));
+      z-index: 10;
     }
 
-    /* Card Glassmorphic */
+    /* Glassmorphism Cards */
     .glass-card {
       background: rgba(18, 24, 38, 0.75);
       backdrop-filter: blur(12px);
@@ -47,7 +48,7 @@
   <header class="w-full bg-slate-900/80 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <img src="logowb.jpg" alt="Webuild" class="h-10 object-contain rounded bg-white p-1" onerror="this.src='https://via.placeholder.com/120x40?text=WEBUILD'">
+        <img src="logo_webuild.jpg" alt="Webuild" class="h-10 object-contain rounded bg-white p-1" onerror="this.src='https://via.placeholder.com/120x40?text=WEBUILD'">
         <div class="h-8 w-[1px] bg-slate-700 hidden sm:block"></div>
         <div>
           <h1 class="font-black text-lg tracking-wide uppercase text-slate-100">Portale QHSE Cantiere</h1>
@@ -79,71 +80,47 @@
     <!-- Interactive Wheel & Interactive Hub Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full my-4">
       
-      <!-- RUOTA VETTORIALE INTERATTIVA SVG (5 Cols) -->
+      <!-- RUOTA INTERATTIVA CON IMMAGINE UFFICIALE (5 Cols) -->
       <div class="lg:col-span-5 flex justify-center items-center relative">
         <div class="relative w-[340px] h-[340px] sm:w-[400px] sm:h-[400px]">
           
-          <svg viewBox="0 0 400 400" class="w-full h-full drop-shadow-2xl">
-            <!-- Anello Esterno -->
-            <circle cx="200" cy="200" r="195" fill="none" stroke="#0b1329" stroke-width="8"/>
+          <svg viewBox="0 0 400 400" class="w-full h-full drop-shadow-2xl overflow-visible">
+            
+            <!-- DEFINIZIONE DEI RITAGLI PER I TRE SPICCHI -->
+            <defs>
+              <!-- Spicchio Q (Quality - Verde) -->
+              <clipPath id="clip-q">
+                <path d="M 200 200 L 35.46 295 A 190 190 0 0 1 200 10 Z" />
+              </clipPath>
+              <!-- Spicchio E (Environment - Blu) -->
+              <clipPath id="clip-e">
+                <path d="M 200 200 L 200 10 A 190 190 0 0 1 364.54 295 Z" />
+              </clipPath>
+              <!-- Spicchio HS (Health & Safety - Arancione) -->
+              <clipPath id="clip-hs">
+                <path d="M 200 200 L 364.54 295 A 190 190 0 0 1 35.46 295 Z" />
+              </clipPath>
+            </defs>
 
-            <!-- SPICCHIO E (Environment - Blu) -->
-            <g class="slice-group" onclick="location.href='pages/enviromental/enviromentalhub.html'">
-              <path d="M 200 200 L 200 10 A 190 190 0 0 1 364.54 295 Z" fill="#0284c7" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
-              <!-- Icona Foglia & Lettera E -->
-              <g transform="translate(268, 125)" class="pointer-events-none">
-                <path d="M -16,-24 C -30,-5 -22,20 10,25 C 28,28 32,10 30,-5 C 26,-22 5,-28 -16,-24 Z M -16,-24 Q 2,2 25,22" fill="#ffffff"/>
-                <text x="2" y="58" font-size="32" font-weight="900" fill="#ffffff" text-anchor="middle">E</text>
-              </g>
-            </g>
-
-            <!-- SPICCHIO HS (Health & Safety - Arancione/Marrone) -->
-            <g class="slice-group" onclick="alert('Modulo Health & Safety in attivazione')">
-              <path d="M 200 200 L 364.54 295 A 190 190 0 0 1 35.46 295 Z" fill="#b45309" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
-              <!-- Icone Caschetto + Cassetta & Lettera HS -->
-              <g transform="translate(200, 290)" class="pointer-events-none">
-                <!-- Caschetto Cantiere -->
-                <g transform="translate(-32, -28) scale(1.1)">
-                  <path d="M -12,2 A 12,12 0 0,1 12,2 L 16,5 L -16,5 Z" fill="#ffffff"/>
-                  <rect x="-15" y="5" width="30" height="3" rx="1" fill="#ffffff"/>
-                </g>
-                <!-- Cassetta Primo Soccorso -->
-                <g transform="translate(32, -28) scale(1.1)">
-                  <rect x="-14" y="-8" width="28" height="20" rx="4" fill="#ffffff"/>
-                  <path d="M -5,-8 L -5,-12 L 5,-12 L 5,-8" fill="none" stroke="#ffffff" stroke-width="3"/>
-                  <path d="M 0,-3 L 0,5 M -4,1 L 4,1" stroke="#b45309" stroke-width="3.5" stroke-linecap="round"/>
-                </g>
-                <!-- Testo HS -->
-                <text x="0" y="32" font-size="32" font-weight="900" fill="#ffffff" text-anchor="middle">HS</text>
-              </g>
-            </g>
-
-            <!-- SPICCHIO Q (Quality - Verde) -->
+            <!-- SPICCHIO Q (QUALITY) -->
             <g class="slice-group" onclick="alert('Modulo Qualità in attivazione')">
-              <path d="M 200 200 L 35.46 295 A 190 190 0 0 1 200 10 Z" fill="#047857" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
-              <!-- Icona Quaderno + Penna & Lettera Q -->
-              <g transform="translate(132, 125)" class="pointer-events-none">
-                <g transform="translate(-2, -8) scale(1.1)">
-                  <!-- Blocco Note -->
-                  <rect x="-16" y="-18" width="24" height="30" rx="3" fill="#ffffff"/>
-                  <!-- Anelli -->
-                  <circle cx="-16" cy="-12" r="2" fill="#047857"/>
-                  <circle cx="-16" cy="-3" r="2" fill="#047857"/>
-                  <circle cx="-16" cy="6" r="2" fill="#047857"/>
-                  <!-- Penna Stilizzata -->
-                  <path d="M 10,-18 L 18,-10 L 4,6 L -2,6 L -2,0 Z" fill="#ffffff" stroke="#047857" stroke-width="1.5"/>
-                </g>
-                <!-- Testo Q -->
-                <text x="-2" y="58" font-size="32" font-weight="900" fill="#ffffff" text-anchor="middle">Q</text>
-              </g>
+              <image href="assets/img/wheel_qhse.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-q)" preserveAspectRatio="xMidYMid slice" onerror="this.href='wheel_qhse.png'" />
             </g>
 
-            <!-- CERCHIO CENTRALE QHSE HUB -->
-            <g class="pointer-events-none">
-              <circle cx="200" cy="200" r="58" fill="#0f172a" stroke="#ffffff" stroke-width="5"/>
-              <text x="200" y="196" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="1">QHSE</text>
-              <text x="200" y="216" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle" letter-spacing="0.5">HUB CANTIERE</text>
+            <!-- SPICCHIO E (ENVIRONMENT) -->
+            <g class="slice-group" onclick="location.href='pages/enviromental/enviromentalhub.html'">
+              <image href="assets/img/wheel_qhse.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-e)" preserveAspectRatio="xMidYMid slice" onerror="this.href='wheel_qhse.png'" />
             </g>
+
+            <!-- SPICCHIO HS (HEALTH & SAFETY) -->
+            <g class="slice-group" onclick="alert('Modulo Health & Safety in attivazione')">
+              <image href="assets/img/wheel_qhse.png" x="0" y="0" width="400" height="400" clip-path="url(#clip-hs)" preserveAspectRatio="xMidYMid slice" onerror="this.href='wheel_qhse.png'" />
+            </g>
+
+            <!-- CERCHIO CENTRALE (Hub Principale) -->
+            <circle cx="200" cy="200" r="56" fill="#0b0f17" stroke="#1e293b" stroke-width="4" class="pointer-events-none"/>
+            <text x="200" y="196" font-size="16" font-weight="900" fill="#ffffff" text-anchor="middle" class="pointer-events-none">QHSE</text>
+            <text x="200" y="214" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="middle" class="pointer-events-none">HUB CANTIERE</text>
           </svg>
 
         </div>
