@@ -68,32 +68,41 @@
 
   </div>
 
-  <!-- SCRIPT LOGICA FIREBASE AUTH -->
-  <script>
-    const firebaseConfig = {
-      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app",
-      // Nota: Aggiungi qui anche le credenziali di autenticazione del tuo progetto Firebase se non già presenti
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+<!-- SCRIPT LOGICA FIREBASE AUTH -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBNUrPHSTQovJRBMWVQDI-IH0M1YIGkv_U",
+    authDomain: "qhseleo.firebaseapp.com",
+    databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "qhseleo",
+    storageBucket: "qhseleo.firebasestorage.app",
+    messagingSenderId: "401651146088",
+    appId: "1:401651146088:web:eb341842059744d9974add",
+    measurementId: "G-YK2XHZTDSP"
+  };
 
-    function eseguiLogin(event) {
-      event.preventDefault();
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
-      const errBox = document.getElementById('messaggio-errore');
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
 
-      errBox.classList.add('hidden');
+  function eseguiLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const errBox = document.getElementById('messaggio-errore');
 
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          // Login riuscito: reindirizza all'Hub principale
-          window.location.href = "enviromentalhub.html";
-        })
-        .catch((error) => {
-          errBox.innerText = "Errore: credenziali non valide o accesso negato.";
-          errBox.classList.remove('hidden');
-        });
-    }
+    errBox.classList.add('hidden');
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // Login riuscito: reindirizza all'Hub principale
+        window.location.href = "enviromentalhub.html";
+      })
+      .catch((error) => {
+        errBox.innerText = "Errore: credenziali non valide o accesso negato.";
+        errBox.classList.remove('hidden');
+      });
+  }
   </script>
 
 </body>
