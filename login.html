@@ -96,7 +96,7 @@
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
         // Login riuscito: reindirizza all'Hub principale
-        window.location.href = "enviromentalhub.html";
+        window.location.href = "HomeQHSE.html";
       })
       .catch((error) => {
         errBox.innerText = "Errore: credenziali non valide o accesso negato.";
