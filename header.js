@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         </header>
 
-        <!-- MODALE CALENDARIO DINAMICO, AGGIUNGI ATTIVITÀ & SCADENZE (CONDIVISO IN OGNI PAGINA) -->
+        <!-- MODALE CALENDARIO DINAMICO, CLASSIFICAZIONE SETTORE & SCADENZE -->
         <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-auto space-y-5" onclick="event.stopPropagation()">
             
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>
             </div>
 
-            <!-- FORM AGGIUNGI PROMEMORIA / ATTIVITÀ -->
+            <!-- FORM AGGIUNGI PROMEMORIA / ATTIVITÀ CON SETTORE Q/HS/E -->
             <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3">
               <h4 class="text-xs font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
                 <i class="fa-solid fa-circle-plus"></i> AGGIUNGI PROMEMORIA / ATTIVITÀ
@@ -139,11 +139,11 @@ document.addEventListener("DOMContentLoaded", function () {
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs items-end">
                 <div>
-                  <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Priorità</label>
-                  <select id="input-priorita-attivita" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400">
-                    <option value="Alta">Alta (Urgente)</option>
-                    <option value="Media">Media</option>
-                    <option value="Bassa">Bassa</option>
+                  <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Settore Competenza (Q / HS / E)</label>
+                  <select id="input-settore-attivita" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400 font-bold">
+                    <option value="E">Environment (E - Blu)</option>
+                    <option value="HS">Health & Safety (HS - Arancione)</option>
+                    <option value="Q">Quality (Q - Verde)</option>
                   </select>
                 </div>
                 <button onclick="salvaNuovaAttivita()" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-black py-2.5 rounded-xl transition shadow-lg cursor-pointer flex items-center justify-center gap-2">
@@ -164,7 +164,6 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
     `;
 
-    // Inizializzazione date header e database Firebase (se disponibile)
     inizializzaHeaderCalendario();
 });
 
@@ -192,7 +191,6 @@ function inizializzaHeaderCalendario() {
         elInputData.value = `${anno}-${mese}-${giorno}`;
     }
 
-    // Connessione a Firebase Realtime Database per le scadenze condivise
     if (typeof firebase !== 'undefined') {
         try {
             const db = firebase.database();
@@ -261,7 +259,17 @@ function renderizzaCalendarioMese() {
                 const gStr = String(giornoCorrente).padStart(2, '0');
                 const dataIsoKey = `${year}-${mStr}-${gStr}`;
                 
-                const haScadenze = Object.values(scadenzeCloudHeader).some(s => s.data === dataIsoKey);
+                const scadenzeGiorno = Object.values(scadenzeCloudHeader).filter(s => s.data === dataIsoKey);
+                const haScadenze = scadenzeGiorno.length > 0;
+
+                // Determina il colore del pallino in base al settore prevalente del giorno
+                let puntoColore = 'bg-sky-400';
+                if (haScadenze) {
+                    const settore = scadenzeGiorno[0].settore;
+                    if (settore === 'Q') puntoColore = 'bg-emerald-500';
+                    else if (settore === 'HS') puntoColore = 'bg-amber-500';
+                    else if (settore === 'E') puntoColore = 'bg-sky-500';
+                }
 
                 let isOggi = (giornoCorrente === oggi.getDate() && month === oggi.getMonth() && year === oggi.getFullYear()) 
                     ? 'border-2 border-sky-400 font-black text-sky-300' 
@@ -270,7 +278,7 @@ function renderizzaCalendarioMese() {
                 htmlRighe += `
                     <div onclick="selezionaGiornoForm(${year}, ${month}, ${giornoCorrente})" class="p-1 rounded-lg transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-800 flex flex-col items-center justify-center min-h-[36px] cursor-pointer relative ${isOggi}">
                         <span>${giornoCorrente}</span>
-                        ${haScadenze ? '<span class="w-1.5 h-1.5 rounded-full bg-rose-500 absolute bottom-1"></span>' : ''}
+                        ${haScadenze ? `<span class="w-1.5 h-1.5 rounded-full ${puntoColore} absolute bottom-1"></span>` : ''}
                     </div>`;
                 giornoCorrente++;
             }
@@ -283,7 +291,7 @@ function renderizzaCalendarioMese() {
 function salvaNuovaAttivita() {
     const titolo = document.getElementById('input-titolo-attivita').value.trim();
     const data = document.getElementById('input-data-attivita').value;
-    const priorita = document.getElementById('input-priorita-attivita').value;
+    const settore = document.getElementById('input-settore-attivita').value;
 
     if (!titolo || !data) {
         alert("Inserisci un titolo e seleziona una data valida.");
@@ -301,7 +309,7 @@ function salvaNuovaAttivita() {
         id: id,
         titolo: titolo,
         data: data,
-        priorita: priorita,
+        settore: settore, // Q, HS oppure E
         timestamp: Date.now()
     };
 
@@ -351,20 +359,37 @@ function renderizzaListaScadenze() {
 
     keys.forEach(key => {
         const item = scadenzeCloudHeader[key];
-        const badgeColor = item.priorita === 'Alta' ? 'bg-rose-950 text-rose-300 border-rose-800' : 'bg-sky-950 text-sky-300 border-sky-800';
+        
+        // Assegnazione colori in base al settore Q / HS / E
+        let badgeColore = 'bg-sky-950 text-sky-300 border-sky-800';
+        let puntoColore = 'bg-sky-400';
+        let nomeSettore = 'ENVIRONMENT (E)';
+
+        if (item.settore === 'Q') {
+            badgeColore = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+            puntoColore = 'bg-emerald-500';
+            nomeSettore = 'QUALITY (Q)';
+        } else if (item.settore === 'HS') {
+            badgeColore = 'bg-amber-950 text-amber-300 border-amber-800';
+            puntoColore = 'bg-amber-500';
+            nomeSettore = 'HEALTH & SAFETY (HS)';
+        }
 
         const div = document.createElement('div');
         div.className = "flex items-center justify-between bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm text-xs";
         div.innerHTML = `
-            <div>
-                <div class="font-bold text-white">${item.titolo}</div>
-                <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-2">
-                    <span><i class="fa-regular fa-calendar"></i> ${item.data}</span>
-                    <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColor}">${item.priorita}</span>
+            <div class="flex items-start gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full ${puntoColore} mt-1 flex-shrink-0"></span>
+                <div>
+                    <div class="font-bold text-white">${item.titolo}</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-2">
+                        <span><i class="fa-regular fa-calendar"></i> ${item.data}</span>
+                        <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColore}">${nomeSettore}</span>
+                    </div>
                 </div>
             </div>
             <div class="flex items-center gap-1.5">
-                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('Promemoria Cantiere Terzo Valico: ' + item.titolo + ' in data ' + item.data)}" target="_blank" class="w-7 h-7 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition" title="Condividi su WhatsApp">
+                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('Promemoria Cantiere Terzo Valico [' + item.settore + ']: ' + item.titolo + ' in data ' + item.data)}" target="_blank" class="w-7 h-7 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition" title="Condividi su WhatsApp">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
                 <button onclick="eliminaScadenza('${key}')" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg flex items-center justify-center transition" title="Elimina">
