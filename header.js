@@ -2,17 +2,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const headerContainer = document.getElementById("app-header");
     if (!headerContainer) return;
 
-    // Determina il percorso relativo corretto in base alla posizione della pagina
     const isInsideSubfolder = window.location.pathname.includes('/pages/');
     const logoPath = isInsideSubfolder ? "../../logowb.jpeg" : "logowb.jpeg";
     const logoutPath = isInsideSubfolder ? "../../index.html" : "index.html";
 
-    // Inserisce l'HTML dell'header comune in tutte le pagine
     headerContainer.innerHTML = `
         <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
             <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
               
-              <!-- LATO SINISTRO: Logo Webuild & Titolo Portale -->
               <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
                 <div class="flex items-center gap-3">
                   <img src="${logoPath}" alt="Webuild" class="h-10 object-contain rounded bg-white p-1" onerror="this.src='https://via.placeholder.com/120x40?text=WEBUILD'">
@@ -24,10 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
               </div>
 
-              <!-- LATO DESTRA: Widget Calendario Cliccabile, Avvisi & Profilo Utente (Ciao Leone) -->
               <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
                 
-                <!-- WIDGET CALENDARIO DINAMICO CLICCABILE -->
                 <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-sky-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile">
                   <div class="bg-sky-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
                     <span id="calMonth">OTT</span> <span id="calDay">30</span>
@@ -43,7 +38,6 @@ document.addEventListener("DOMContentLoaded", function () {
                   </div>
                 </div>
 
-                <!-- PORTALE AVVISI & PROSSIMA SCADENZA -->
                 <div onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-sky-500/40 hover:border-sky-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
                   <div class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></div>
                   <div class="text-left text-xs leading-tight">
@@ -54,7 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
                   </div>
                 </div>
 
-                <!-- PROFILO UTENTE (CIAO LEONE) CON LOGOUT -->
                 <div class="relative">
                   <button onclick="toggleUserMenu(event)" class="flex items-center gap-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 px-3.5 py-1.5 rounded-xl transition text-left focus:outline-none">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-500 to-emerald-500 flex items-center justify-center text-white font-black text-xs shadow">
@@ -67,7 +60,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
                   </button>
 
-                  <!-- Menu a tendina Logout / Cambio Account -->
                   <div id="userMenu" class="hidden absolute right-0 mt-2 w-52 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl py-2 z-[150] backdrop-blur-xl">
                     <div class="px-4 py-2 border-b border-slate-800 md:hidden">
                       <p class="text-xs text-slate-400">Benvenuto</p>
@@ -84,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         </header>
 
-        <!-- MODALE CALENDARIO DINAMICO, CLASSIFICAZIONE SETTORE & SCADENZE -->
+        <!-- MODALE CALENDARIO E REPIALOGO GIORNALIERO -->
         <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-auto space-y-5" onclick="event.stopPropagation()">
             
@@ -92,13 +84,12 @@ document.addEventListener("DOMContentLoaded", function () {
               <i class="fa-solid fa-xmark"></i>
             </button>
             
-            <!-- TITOLO MODALE -->
             <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
               <i class="fa-solid fa-calendar-days text-sky-400 text-lg"></i>
               <h3 class="text-base font-black text-white uppercase tracking-wider">Calendario Mensile & Scadenze di Cantiere</h3>
             </div>
 
-            <!-- WIDGET GRIGLIA CALENDARIO MESE CON CAMBIO MESE -->
+            <!-- GRIGLIA CALENDARIO MESE -->
             <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -110,19 +101,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     <i class="fa-solid fa-chevron-right"></i>
                   </button>
                 </div>
-                <div class="text-[10px] text-slate-400 italic hidden sm:block">Clicca su un giorno per selezionarlo nel form</div>
+                <div class="text-[10px] text-sky-400 font-semibold italic hidden sm:block">💡 Clicca su un giorno per vedere il recap sotto</div>
               </div>
               
               <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 border-b border-slate-800 pb-1">
                 <div class="text-sky-500">W</div>
                 <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
               </div>
-              <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs">
-                <!-- Generato via JS -->
+              <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs"></div>
+            </div>
+
+            <!-- BOX RECAP APPUNTAMENTI DEL GIORNO SELEZIONATO -->
+            <div id="box-recap-giorno" class="bg-sky-950/20 border border-sky-500/30 rounded-xl p-4 space-y-2 hidden">
+              <div class="flex items-center justify-between border-b border-sky-900/50 pb-2">
+                <h4 id="recap-data-titolo" class="text-xs font-black text-sky-400 uppercase tracking-wider flex items-center gap-2">
+                  <i class="fa-solid fa-clipboard-list"></i> Appuntamenti del Giorno
+                </h4>
+                <span class="text-[10px] bg-sky-900/50 text-sky-300 px-2 py-0.5 rounded font-bold">RECAP</span>
+              </div>
+              <div id="recap-lista-appuntamenti" class="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                <!-- Popolato via JS al click sul giorno -->
               </div>
             </div>
 
-            <!-- FORM AGGIUNGI PROMEMORIA / ATTIVITÀ CON SETTORE Q/HS/E -->
+            <!-- FORM AGGIUNGI PROMEMORIA -->
             <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3">
               <h4 class="text-xs font-black uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
                 <i class="fa-solid fa-circle-plus"></i> AGGIUNGI PROMEMORIA / ATTIVITÀ
@@ -167,11 +169,11 @@ document.addEventListener("DOMContentLoaded", function () {
     inizializzaHeaderCalendario();
 });
 
-/* INIZIALIZZAZIONE DATI CALENDARIO & FIREBASE NELL'HEADER */
 let dataCalendarioAttuale = new Date();
 const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
 const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
 let scadenzeCloudHeader = {};
+let dataSelezionataRecap = null;
 
 function inizializzaHeaderCalendario() {
     const oggi = new Date();
@@ -189,6 +191,7 @@ function inizializzaHeaderCalendario() {
         const mese = String(oggi.getMonth() + 1).padStart(2, '0');
         const giorno = String(oggi.getDate()).padStart(2, '0');
         elInputData.value = `${anno}-${mese}-${giorno}`;
+        dataSelezionataRecap = `${anno}-${mese}-${giorno}`;
     }
 
     if (typeof firebase !== 'undefined') {
@@ -199,6 +202,7 @@ function inizializzaHeaderCalendario() {
                 renderizzaCalendarioMese();
                 renderizzaListaScadenze();
                 aggiornaBoxAvvisiHeader();
+                if (dataSelezionataRecap) mostraRecapGiorno(dataSelezionataRecap);
             });
         } catch (e) {
             console.log("Firebase non inizializzato nel modulo header.");
@@ -221,8 +225,61 @@ function cambiaMeseCalendario(delta) {
 function selezionaGiornoForm(anno, mese, giorno) {
     const mStr = String(mese + 1).padStart(2, '0');
     const gStr = String(giorno).padStart(2, '0');
+    const dataIso = `${anno}-${mStr}-${gStr}`;
+    
     const inputData = document.getElementById('input-data-attivita');
-    if (inputData) inputData.value = `${anno}-${mStr}-${gStr}`;
+    if (inputData) inputData.value = dataIso;
+
+    dataSelezionataRecap = dataIso;
+    mostraRecapGiorno(dataIso);
+}
+
+function mostraRecapGiorno(dataIso) {
+    const boxRecap = document.getElementById('box-recap-giorno');
+    const titoloRecap = document.getElementById('recap-data-titolo');
+    const listaRecap = document.getElementById('recap-lista-appuntamenti');
+    if (!boxRecap || !listaRecap) return;
+
+    boxRecap.classList.remove('hidden');
+    titoloRecap.innerHTML = `<i class="fa-solid fa-clipboard-list text-sky-400"></i> Appuntamenti del giorno: ${dataIso.split('-').reverse().join('/')}`;
+
+    const scadenzeDelGiorno = Object.values(scadenzeCloudHeader).filter(s => s.data === dataIso);
+
+    if (scadenzeDelGiorno.length === 0) {
+        listaRecap.innerHTML = `<p class="text-xs text-slate-500 italic py-1">Nessun appuntamento o scadenza fissata per questa data.</p>`;
+        return;
+    }
+
+    listaRecap.innerHTML = scadenzeDelGiorno.map(item => {
+        let badgeColor = 'bg-sky-950 text-sky-300 border-sky-800';
+        let dotColor = 'bg-sky-400';
+        let ambitoNome = 'ENVIRONMENT (E)';
+
+        if (item.settore === 'Q') {
+            badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+            dotColor = 'bg-emerald-500';
+            ambitoNome = 'QUALITY (Q)';
+        } else if (item.settore === 'HS') {
+            badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
+            dotColor = 'bg-amber-500';
+            ambitoNome = 'HEALTH & SAFETY (HS)';
+        }
+
+        const autoreIniziali = item.utente || "[L]"; // Default [L] per Leone
+
+        return `
+            <div class="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+                    <span class="font-bold text-white">${item.titolo}</span>
+                    <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColor}">${ambitoNome}</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-400 font-bold">
+                    <span class="bg-slate-800 text-sky-400 px-2 py-0.5 rounded border border-slate-700" title="Account Responsabile">Autore: ${autoreIniziali}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 function renderizzaCalendarioMese() {
@@ -259,21 +316,18 @@ function renderizzaCalendarioMese() {
                 const gStr = String(giornoCorrente).padStart(2, '0');
                 const dataIsoKey = `${year}-${mStr}-${gStr}`;
                 
-                // Filtra tutte le scadenze del giorno specifico
                 const scadenzeGiorno = Object.values(scadenzeCloudHeader).filter(s => s.data === dataIsoKey);
                 const quanti = scadenzeGiorno.length;
 
                 let indicatoriHtml = '';
                 if (quanti > 0) {
-                    // Crea un pallino colorato per ogni scadenza del giorno (max 3 mostrati visivamente per spazio)
                     const pallini = scadenzeGiorno.slice(0, 3).map(s => {
-                        let colorClass = 'bg-sky-500'; // E
+                        let colorClass = 'bg-sky-500';
                         if (s.settore === 'Q') colorClass = 'bg-emerald-500';
                         else if (s.settore === 'HS') colorClass = 'bg-amber-500';
                         return `<span class="w-1.5 h-1.5 rounded-full ${colorClass}"></span>`;
                     }).join('');
 
-                    // Se ci sono più di 1 appuntamento, mostra un piccolo badge contatore
                     const counterBadge = quanti > 1 ? `<span class="text-[8px] font-black text-white px-1 bg-slate-800 rounded-full leading-none">${quanti}</span>` : '';
 
                     indicatoriHtml = `
@@ -287,6 +341,10 @@ function renderizzaCalendarioMese() {
                 let isOggi = (giornoCorrente === oggi.getDate() && month === oggi.getMonth() && year === oggi.getFullYear()) 
                     ? 'border-2 border-sky-400 font-black text-sky-300' 
                     : 'border border-slate-800 text-slate-300';
+
+                if (dataSelezionataRecap === dataIsoKey) {
+                    isOggi += ' ring-2 ring-sky-500 bg-sky-950/40';
+                }
 
                 htmlRighe += `
                     <div onclick="selezionaGiornoForm(${year}, ${month}, ${giornoCorrente})" class="p-1 rounded-lg transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-800 flex flex-col items-center justify-between min-h-[40px] cursor-pointer relative ${isOggi}">
@@ -322,7 +380,8 @@ function salvaNuovaAttivita() {
         id: id,
         titolo: titolo,
         data: data,
-        settore: settore, // Q, HS oppure E
+        settore: settore,
+        utente: "Leone", // Registra automaticamente il nome dell'account attivo
         timestamp: Date.now()
     };
 
@@ -332,6 +391,8 @@ function salvaNuovaAttivita() {
         } else {
             document.getElementById('input-titolo-attivita').value = '';
             alert("📅 Promemoria salvato con successo nel Cloud!");
+            dataSelezionataRecap = data;
+            mostraRecapGiorno(data);
         }
     });
 }
@@ -387,6 +448,8 @@ function renderizzaListaScadenze() {
             nomeSettore = 'HEALTH & SAFETY (HS)';
         }
 
+        const autoreIniziali = item.utente || "Leone";
+
         const div = document.createElement('div');
         div.className = "flex items-center justify-between bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm text-xs";
         div.innerHTML = `
@@ -397,11 +460,12 @@ function renderizzaListaScadenze() {
                     <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-2">
                         <span><i class="fa-regular fa-calendar"></i> ${item.data}</span>
                         <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColore}">${nomeSettore}</span>
+                        <span class="text-sky-400 font-semibold">• Autore: ${autoreIniziali}</span>
                     </div>
                 </div>
             </div>
             <div class="flex items-center gap-1.5">
-                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('Promemoria Cantiere Terzo Valico [' + item.settore + ']: ' + item.titolo + ' in data ' + item.data)}" target="_blank" class="w-7 h-7 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition" title="Condividi su WhatsApp">
+                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('Promemoria Cantiere Terzo Valico [' + item.settore + ']: ' + item.titolo + ' in data ' + item.data + ' (Autore: ' + autoreIniziali + ')')}" target="_blank" class="w-7 h-7 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition" title="Condividi su WhatsApp">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
                 <button onclick="eliminaScadenza('${key}')" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg flex items-center justify-center transition" title="Elimina">
@@ -413,12 +477,12 @@ function renderizzaListaScadenze() {
     });
 }
 
-/* GESTIONE MODALE E MENU UTENTE (LOGOUT) */
 function apriGestoreScadenze() {
     const modal = document.getElementById('modal-scadenze');
     if (modal) {
         modal.classList.remove('hidden');
         renderizzaCalendarioMese();
+        if (dataSelezionataRecap) mostraRecapGiorno(dataSelezionataRecap);
     }
 }
 
