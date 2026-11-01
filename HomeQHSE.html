@@ -41,9 +41,10 @@
     }
   </style>
   <link rel="apple-touch-icon" href="assets/img/QHSElogo2.png">
-    <!-- Firebase SDK Compat -->
+  <!-- Firebase SDK Compat -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white" onclick="closeUserMenu(event)">
@@ -59,7 +60,22 @@
 
 <!-- Header Dinamico Comune -->
 <div id="app-header"></div>
-
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBNUrPHSTQovJRBMWVQDI-IH0M1YIGkv_U",
+      authDomain: "qhseleo.firebaseapp.com",
+      projectId: "qhseleo",
+      storageBucket: "qhseleo.firebasestorage.app",
+      messagingSenderId: "401651146088",
+      appId: "1:401651146088:web:eb341842059744d9974add",
+      measurementId: "G-YK2XHZTDSP",
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+    
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
   <!-- Main Content -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center justify-center">
     
