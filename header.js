@@ -259,16 +259,29 @@ function renderizzaCalendarioMese() {
                 const gStr = String(giornoCorrente).padStart(2, '0');
                 const dataIsoKey = `${year}-${mStr}-${gStr}`;
                 
+                // Filtra tutte le scadenze del giorno specifico
                 const scadenzeGiorno = Object.values(scadenzeCloudHeader).filter(s => s.data === dataIsoKey);
-                const haScadenze = scadenzeGiorno.length > 0;
+                const quanti = scadenzeGiorno.length;
 
-                // Determina il colore del pallino in base al settore prevalente del giorno
-                let puntoColore = 'bg-sky-400';
-                if (haScadenze) {
-                    const settore = scadenzeGiorno[0].settore;
-                    if (settore === 'Q') puntoColore = 'bg-emerald-500';
-                    else if (settore === 'HS') puntoColore = 'bg-amber-500';
-                    else if (settore === 'E') puntoColore = 'bg-sky-500';
+                let indicatoriHtml = '';
+                if (quanti > 0) {
+                    // Crea un pallino colorato per ogni scadenza del giorno (max 3 mostrati visivamente per spazio)
+                    const pallini = scadenzeGiorno.slice(0, 3).map(s => {
+                        let colorClass = 'bg-sky-500'; // E
+                        if (s.settore === 'Q') colorClass = 'bg-emerald-500';
+                        else if (s.settore === 'HS') colorClass = 'bg-amber-500';
+                        return `<span class="w-1.5 h-1.5 rounded-full ${colorClass}"></span>`;
+                    }).join('');
+
+                    // Se ci sono più di 1 appuntamento, mostra un piccolo badge contatore
+                    const counterBadge = quanti > 1 ? `<span class="text-[8px] font-black text-white px-1 bg-slate-800 rounded-full leading-none">${quanti}</span>` : '';
+
+                    indicatoriHtml = `
+                        <div class="absolute bottom-1 flex items-center gap-0.5">
+                            ${pallini}
+                            ${counterBadge}
+                        </div>
+                    `;
                 }
 
                 let isOggi = (giornoCorrente === oggi.getDate() && month === oggi.getMonth() && year === oggi.getFullYear()) 
@@ -276,9 +289,9 @@ function renderizzaCalendarioMese() {
                     : 'border border-slate-800 text-slate-300';
 
                 htmlRighe += `
-                    <div onclick="selezionaGiornoForm(${year}, ${month}, ${giornoCorrente})" class="p-1 rounded-lg transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-800 flex flex-col items-center justify-center min-h-[36px] cursor-pointer relative ${isOggi}">
+                    <div onclick="selezionaGiornoForm(${year}, ${month}, ${giornoCorrente})" class="p-1 rounded-lg transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-800 flex flex-col items-center justify-between min-h-[40px] cursor-pointer relative ${isOggi}">
                         <span>${giornoCorrente}</span>
-                        ${haScadenze ? `<span class="w-1.5 h-1.5 rounded-full ${puntoColore} absolute bottom-1"></span>` : ''}
+                        ${indicatoriHtml}
                     </div>`;
                 giornoCorrente++;
             }
@@ -360,9 +373,8 @@ function renderizzaListaScadenze() {
     keys.forEach(key => {
         const item = scadenzeCloudHeader[key];
         
-        // Assegnazione colori in base al settore Q / HS / E
         let badgeColore = 'bg-sky-950 text-sky-300 border-sky-800';
-        let puntoColore = 'bg-sky-400';
+        let puntoColore = 'bg-sky-500';
         let nomeSettore = 'ENVIRONMENT (E)';
 
         if (item.settore === 'Q') {
