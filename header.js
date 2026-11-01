@@ -48,22 +48,23 @@ document.addEventListener("DOMContentLoaded", function () {
                   </div>
                 </div>
 
+                <!-- PROFILO UTENTE (LEONE BASTIANCICH) -->
                 <div class="relative">
                   <button onclick="toggleUserMenu(event)" class="flex items-center gap-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 px-3.5 py-1.5 rounded-xl transition text-left focus:outline-none">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-500 to-emerald-500 flex items-center justify-center text-white font-black text-xs shadow">
-                      L
+                      LB
                     </div>
                     <div class="hidden md:block">
                       <p class="text-[10px] text-slate-400 leading-tight">Benvenuto</p>
-                      <p class="text-xs font-bold text-slate-100">Ciao Leone</p>
+                      <p class="text-xs font-bold text-slate-100">Ciao Leone Bastiancich</p>
                     </div>
                     <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
                   </button>
 
-                  <div id="userMenu" class="hidden absolute right-0 mt-2 w-52 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl py-2 z-[150] backdrop-blur-xl">
+                  <div id="userMenu" class="hidden absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl py-2 z-[150] backdrop-blur-xl">
                     <div class="px-4 py-2 border-b border-slate-800 md:hidden">
                       <p class="text-xs text-slate-400">Benvenuto</p>
-                      <p class="text-sm font-bold text-slate-100">Ciao Leone</p>
+                      <p class="text-sm font-bold text-slate-100">Ciao Leone Bastiancich</p>
                     </div>
                     <a href="${logoutPath}" onclick="handleLogout(event)" class="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition">
                       <i class="fa-solid fa-right-from-bracket text-sm"></i> Cambia Account / Logout
@@ -76,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         </header>
 
-        <!-- MODALE CALENDARIO E REPIALOGO GIORNALIERO -->
+        <!-- MODALE CALENDARIO E RECAP GIORNALIERO -->
         <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-auto space-y-5" onclick="event.stopPropagation()">
             
@@ -119,9 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </h4>
                 <span class="text-[10px] bg-sky-900/50 text-sky-300 px-2 py-0.5 rounded font-bold">RECAP</span>
               </div>
-              <div id="recap-lista-appuntamenti" class="space-y-1.5 max-h-32 overflow-y-auto pr-1">
-                <!-- Popolato via JS al click sul giorno -->
-              </div>
+              <div id="recap-lista-appuntamenti" class="space-y-1.5 max-h-32 overflow-y-auto pr-1"></div>
             </div>
 
             <!-- FORM AGGIUNGI PROMEMORIA -->
@@ -265,7 +264,7 @@ function mostraRecapGiorno(dataIso) {
             ambitoNome = 'HEALTH & SAFETY (HS)';
         }
 
-        const autoreIniziali = item.utente || "[L]"; // Default [L] per Leone
+        const autoreSigla = item.autoreSigla || "LB"; // Sigla con le iniziali (Leone Bastiancich -> LB)
 
         return `
             <div class="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs">
@@ -275,7 +274,7 @@ function mostraRecapGiorno(dataIso) {
                     <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColor}">${ambitoNome}</span>
                 </div>
                 <div class="flex items-center gap-2 text-[11px] text-slate-400 font-bold">
-                    <span class="bg-slate-800 text-sky-400 px-2 py-0.5 rounded border border-slate-700" title="Account Responsabile">Autore: ${autoreIniziali}</span>
+                    <span class="bg-slate-800 text-sky-400 px-2 py-0.5 rounded border border-slate-700" title="Account Responsabile">Autore: [${autoreSigla}]</span>
                 </div>
             </div>
         `;
@@ -381,7 +380,7 @@ function salvaNuovaAttivita() {
         titolo: titolo,
         data: data,
         settore: settore,
-        utente: "Leone", // Registra automaticamente il nome dell'account attivo
+        autoreSigla: "LB", // Salva la sigla LB (Leone Bastiancich)
         timestamp: Date.now()
     };
 
@@ -448,7 +447,7 @@ function renderizzaListaScadenze() {
             nomeSettore = 'HEALTH & SAFETY (HS)';
         }
 
-        const autoreIniziali = item.utente || "Leone";
+        const autoreSigla = item.autoreSigla || "LB";
 
         const div = document.createElement('div');
         div.className = "flex items-center justify-between bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm text-xs";
@@ -460,12 +459,12 @@ function renderizzaListaScadenze() {
                     <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-2">
                         <span><i class="fa-regular fa-calendar"></i> ${item.data}</span>
                         <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColore}">${nomeSettore}</span>
-                        <span class="text-sky-400 font-semibold">• Autore: ${autoreIniziali}</span>
+                        <span class="text-sky-400 font-semibold">• Autore: [${autoreSigla}]</span>
                     </div>
                 </div>
             </div>
             <div class="flex items-center gap-1.5">
-                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('Promemoria Cantiere Terzo Valico [' + item.settore + ']: ' + item.titolo + ' in data ' + item.data + ' (Autore: ' + autoreIniziali + ')')}" target="_blank" class="w-7 h-7 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition" title="Condividi su WhatsApp">
+                <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('Promemoria Cantiere Terzo Valico [' + item.settore + ']: ' + item.titolo + ' in data ' + item.data + ' (Autore: [' + autoreSigla + '])')}" target="_blank" class="w-7 h-7 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition" title="Condividi su WhatsApp">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
                 <button onclick="eliminaScadenza('${key}')" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg flex items-center justify-center transition" title="Elimina">
