@@ -41,8 +41,21 @@
     }
   </style>
   <link rel="apple-touch-icon" href="assets/img/QHSElogo2.png">
+    <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white" onclick="closeUserMenu(event)">
+  
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
 
 <!-- Header Dinamico Comune -->
 <div id="app-header"></div>
