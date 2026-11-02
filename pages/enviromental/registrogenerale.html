@@ -39,7 +39,7 @@
 
     <!-- Filtri di ricerca rapida -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-      <input type="text" id="filtroTesto" oninput="filtraTabella()" placeholder="Cerca per ID, Cantiere o Località..." class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-emerald-500">
+      <input type="text" id="filtroTesto" oninput="filtraTabella()" placeholder="Cerca per ID, Cantiere o Autore..." class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-emerald-500">
       <select id="filtroTipo" onchange="filtraTabella()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-emerald-500">
         <option value="">Tutte le tipologie di documento</option>
         <option value="Verbale Ambientale">Verbali di Sopralluogo</option>
@@ -85,12 +85,16 @@
     let archivioGlobale = [];
 
     document.addEventListener("DOMContentLoaded", () => {
+      // Imposta un utente di default se non presente (es. Leone Bastiancich)
+      if (!localStorage.getItem('utente_loggato')) {
+        localStorage.setItem('utente_loggato', 'Leone Bastiancich');
+      }
       caricaDatiUnificati();
     });
 
     // Funzione per calcolare le iniziali (es. "Leone Bastiancich" -> "LB")
     function calcolaIniziali(nomeCompleto) {
-      if (!nomeCompleto) return "N.D.";
+      if (!nomeCompleto || nomeCompleto.length < 2) return "LB";
       const parti = nomeCompleto.trim().split(" ");
       if (parti.length >= 2) {
         return (parti[0][0] + parti[parti.length - 1][0]).toUpperCase();
@@ -117,7 +121,7 @@
             data: item.datetime || "",
             cantiere: item.cantiere || "N.D.",
             dettaglio: item.oggetto || item.area || "Sopralluogo IG51",
-            autore: item.autore || item.nomeRedattore || "Non specificato",
+            autore: item.autore || localStorage.getItem('utente_loggato'),
             link: `verbale (1).html?load=${encodeURIComponent(key)}`
           });
         });
@@ -131,7 +135,7 @@
             data: item.datetime || "",
             cantiere: item.cantiere || "N.D.",
             dettaglio: `Matrice: ${item.matrice || 'N.D.'}`,
-            autore: item.autore || item.esecutore || "Non specificato",
+            autore: item.autore || localStorage.getItem('utente_loggato'),
             link: `campionamentoform (1).html?load=${encodeURIComponent(key)}`
           });
         });
@@ -169,7 +173,7 @@
           <td class="p-3">${item.cantiere}</td>
           <td class="p-3">${item.dettaglio}</td>
           <td class="p-3 text-center">
-            <span class="bg-slate-800 text-amber-400 border border-slate-700 px-2 py-0.5 rounded-md font-black text-[11px]" title="${item.autore}">
+            <span class="bg-slate-800 text-amber-400 border border-slate-700 px-2.5 py-1 rounded-md font-black text-[11px] shadow-inner" title="${item.autore}">
               ${iniziali}
             </span>
           </td>
@@ -188,7 +192,7 @@
       const tipo = document.getElementById('filtroTipo').value;
 
       const filtrati = archivioGlobale.filter(item => {
-        const matchTesto = item.id.toLowerCase().includes(testo) || item.cantiere.toLowerCase().includes(testo) || item.dettaglio.toLowerCase().includes(testo);
+        const matchTesto = item.id.toLowerCase().includes(testo) || item.cantiere.toLowerCase().includes(testo) || item.autore.toLowerCase().includes(testo);
         const matchTipo = tipo === "" || item.tipoDoc === tipo;
         return matchTesto && matchTipo;
       });
@@ -236,7 +240,7 @@
         XLSX.utils.book_append_sheet(workbook, wsCampioni, "Catene di Custodia");
       }
 
-      // 3. Foglio Riepilogo Generale di tutti i documenti
+      // 3. Foglio Riepilogo Generale
       const generaleData = archivioGlobale.map(item => ({
         "Tipologia Documento": item.tipoDoc,
         "Identificativo / ID": item.id,
