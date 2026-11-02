@@ -176,25 +176,61 @@
       mostraTabella(filtrati);
     }
 
-    function esportaTuttoInExcel() {
+function esportaTuttoInExcel() {
       if (archivioGlobale.length === 0) {
         alert("Nessun dato da esportare.");
         return;
       }
 
-      const datiExcel = archivioGlobale.map(item => ({
-        "Tipologia": item.tipoDoc,
+      // 1. Creazione del Workbook principale di Excel
+      const workbook = XLSX.utils.book_new();
+
+      // 2. Filtriamo e formattiamo i dati per i Verbali di Sopralluogo
+      const verbaliData = archivioGlobale
+        .filter(item => item.tipoDoc === "Verbale Ambientale")
+        .map(item => ({
+          "Protocollo / ID": item.id,
+          "Data e Ora": item.data ? item.data.replace('T', ' ') : "",
+          "Cantiere": item.cantiere,
+          "Oggetto / Area": item.dettaglio,
+          "Stato": "Convalidato"
+        }));
+
+      if (verbaliData.length > 0) {
+        const wsVerbali = XLSX.utils.json_to_sheet(verbaliData);
+        XLSX.utils.book_append_sheet(workbook, wsVerbali, "Verbali di Sopralluogo");
+      }
+
+      // 3. Filtriamo e formattiamo i dati per le Catene di Custodia / Campionamenti
+      const campioniData = archivioGlobale
+        .filter(item => item.tipoDoc === "Catena di Custodia")
+        .map(item => ({
+          "Codice CDC": item.id,
+          "Data Prelievo": item.data ? item.data.replace('T', ' ') : "",
+          "Ubicazione / Cantiere": item.cantiere,
+          "Matrice": item.dettaglio.replace("Matrice: ", ""),
+          "Note / Dettagli": "Registrato in Cloud"
+        }));
+
+      if (campioniData.length > 0) {
+        const wsCampioni = XLSX.utils.json_to_sheet(campioniData);
+        XLSX.utils.book_append_sheet(workbook, wsCampioni, "Catene di Custodia");
+      }
+
+      // 4. Creazione di un foglio di riepilogo generale (opzionale ma utile)
+      const generaleData = archivioGlobale.map(item => ({
+        "Tipologia Documento": item.tipoDoc,
         "Identificativo / ID": item.id,
-        "Data e Ora": item.data,
+        "Data e Ora": item.data ? item.data.replace('T', ' ') : "",
         "Cantiere / Località": item.cantiere,
-        "Dettaglio / Matrice": item.dettaglio
+        "Informazioni di Sintesi": item.dettaglio
       }));
 
-      const worksheet = XLSX.utils.json_to_sheet(datiExcel);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Registro Generale QHSE");
+      const wsGenerale = XLSX.utils.json_to_sheet(generaleData);
+      XLSX.utils.book_append_sheet(workbook, wsGenerale, "Tutti i Documenti");
 
-      XLSX.writeFile(workbook, "Registro_Generale_Documenti_QHSE.xlsx");
+      // Salvataggio e download del file Excel multipagina
+      XLSX.writeFile(workbook, "Registro_Generale_Cantiere_Suddiviso.xlsx");
     }
   </script>
 </body>
