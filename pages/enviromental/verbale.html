@@ -550,6 +550,9 @@
         }
       });
 
+      // Integrazione Autore da login
+      const utenteLoggato = localStorage.getItem('utente_loggato') || 'Leone Bastiancich';
+
       const formData = {
         cantiere: document.getElementById('cantiere').value,
         area: document.getElementById('area').value,
@@ -561,6 +564,7 @@
         conclusioni: document.getElementById('conclusioni').value,
         nomeRedattore: document.getElementById('nome-redattore').value,
         nomeDirezione: document.getElementById('nome-direzione').value,
+        autore: utenteLoggato, // <-- Registra l'utente loggato ufficiale
         timestamp: Date.now()
       };
 
@@ -573,7 +577,7 @@
         }
       });
     }
-
+    
     function loadFromCloud() {
       const docId = prompt("Inserisci l'ID del verbale salvato da caricare:");
       if (!docId) return;
