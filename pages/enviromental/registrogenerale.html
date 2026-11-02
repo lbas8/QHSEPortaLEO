@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro Generale Documenti Cantiere / SGA — Terzo Valico</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Libreria SheetJS per l'esportazione in Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-6">
+
+  <div class="max-w-7xl mx-auto w-full">
+    <!-- Intestazione -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+      <div>
+        <h1 class="text-2xl font-black uppercase tracking-wide text-white flex items-center gap-3">
+          <i class="fa-solid fa-folder-tree text-emerald-400"></i> Registro Generale Documenti & Moduli
+        </h1>
+        <p class="text-xs text-slate-400 mt-1">Archivio unificato di Verbali, Campionamenti e Registrazioni di Cantiere (SGA)</p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="esportaTuttoInExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition">
+          <i class="fa-solid fa-file-excel"></i> Esporta Registro Generale (.xlsx)
+        </button>
+        <button onclick="history.back()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition">
+          Indietro
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtri di ricerca rapida -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <input type="text" id="filtroTesto" oninput="filtraTabella()" placeholder="Cerca per ID, Cantiere o Località..." class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-emerald-500">
+      <select id="filtroTipo" onchange="filtraTabella()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-emerald-500">
+        <option value="">Tutte le tipologie di documento</option>
+        <option value="Verbale Ambientale">Verbali di Sopralluogo</option>
+        <option value="Catena di Custodia">Catene di Custodia / Campionamenti</option>
+      </select>
+      <div class="flex items-center justify-end text-xs text-slate-400">
+        Totale documenti archiviati: <span id="totaleDocumenti" class="font-bold text-emerald-400 ml-1">0</span>
+      </div>
+    </div>
+
+    <!-- Tabella Unificata -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-800 text-slate-300 border-b border-slate-700">
+              <th class="p-3">Tipologia Modulo</th>
+              <th class="p-3">Protocollo / ID</th>
+              <th class="p-3">Data e Ora</th>
+              <th class="p-3">Cantiere / Ubicazione</th>
+              <th class="p-3">Dettaglio / Matrice</th>
+              <th class="p-3 text-center">Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="registro-generale-tbody" class="divide-y divide-slate-800 text-slate-300">
+            <tr>
+              <td colspan="6" class="p-8 text-center text-slate-500">Sincronizzazione dati da Firebase in corso...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let archivioGlobale = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      caricaDatiUnificati();
+    });
+
+    function caricaDatiUnificati() {
+      const tbody = document.getElementById('registro-generale-tbody');
+      
+      // Sincronizzazione contemporanea da verbali e campionamenti
+      Promise.all([
+        db.ref('verbali').once('value'),
+        db.ref('campionamenti').once('value')
+      ]).then(([snapVerbali, snapCampionamenti]) => {
+        archivioGlobale = [];
+
+        const datiVerbali = snapVerbali.val() || {};
+        const datiCampionamenti = snapCampionamenti.val() || {};
+
+        // 1. Elabora i verbali
+        Object.keys(datiVerbali).forEach(key => {
+          const item = datiVerbali[key];
+          archivioGlobale.push({
+            tipoDoc: "Verbale Ambientale",
+            id: key,
+            data: item.datetime || "",
+            cantiere: item.cantiere || "N.D.",
+            dettaglio: item.oggetto || item.area || "Sopralluogo IG51",
+            link: `verbale (1).html?load=${encodeURIComponent(key)}`
+          });
+        });
+
+        // 2. Elabora i campionamenti / catene di custodia
+        Object.keys(datiCampionamenti).forEach(key => {
+          const item = datiCampionamenti[key];
+          archivioGlobale.push({
+            tipoDoc: "Catena di Custodia",
+            id: item.identificativo || key,
+            data: item.datetime || "",
+            cantiere: item.cantiere || "N.D.",
+            dettaglio: `Matrice: ${item.matrice || 'N.D.'}`,
+            link: `campionamentoform (1).html?load=${encodeURIComponent(key)}`
+          });
+        });
+
+        // Ordinamento per data decrescente (più recente in alto)
+        archivioGlobale.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        mostraTabella(archivioGlobale);
+      });
+    }
+
+    function mostraTabella(dati) {
+      const tbody = document.getElementById('registro-generale-tbody');
+      tbody.innerHTML = '';
+      document.getElementById('totaleDocumenti').innerText = dati.length;
+
+      if (dati.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Nessun documento trovato nel registro generale.</td></tr>`;
+        return;
+      }
+
+      dati.forEach(item => {
+        const badgeColor = item.tipoDoc === "Verbale Ambientale" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+        
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/50 transition";
+        tr.innerHTML = `
+          <td class="p-3"><span class="px-2.5 py-1 rounded-full border text-[10px] font-bold ${badgeColor}">${item.tipoDoc}</span></td>
+          <td class="p-3 font-bold text-white">${item.id}</td>
+          <td class="p-3">${item.data ? item.data.replace('T', ' ' ) : 'N.D.'}</td>
+          <td class="p-3">${item.cantiere}</td>
+          <td class="p-3">${item.dettaglio}</td>
+          <td class="p-3 text-center">
+            <a href="${item.link}" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1 rounded-lg font-bold transition inline-flex items-center gap-1.5">
+              <i class="fa-solid fa-eye text-emerald-400">}</i> Apri
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filtraTabella() {
+      const testo = document.getElementById('filtroTesto').value.toLowerCase();
+      const tipo = document.getElementById('filtroTipo').value;
+
+      const filtrati = archivioGlobale.filter(item => {
+        const matchTesto = item.id.toLowerCase().includes(testo) || item.cantiere.toLowerCase().includes(testo) || item.dettaglio.toLowerCase().includes(testo);
+        const matchTipo = tipo === "" || item.tipoDoc === tipo;
+        return matchTesto && matchTipo;
+      });
+
+      mostraTabella(filtrati);
+    }
+
+    function esportaTuttoInExcel() {
+      if (archivioGlobale.length === 0) {
+        alert("Nessun dato da esportare.");
+        return;
+      }
+
+      const datiExcel = archivioGlobale.map(item => ({
+        "Tipologia": item.tipoDoc,
+        "Identificativo / ID": item.id,
+        "Data e Ora": item.data,
+        "Cantiere / Località": item.cantiere,
+        "Dettaglio / Matrice": item.dettaglio
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(datiExcel);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Registro Generale QHSE");
+
+      XLSX.writeFile(workbook, "Registro_Generale_Documenti_QHSE.xlsx");
+    }
+  </script>
+</body>
+</html>
