@@ -724,7 +724,7 @@
       }, 1000);
     }
 
-    function saveCampionamentoToCloud() {
+function saveCampionamentoToCloud() {
       const identificativo = document.getElementById('identificativo').value.trim() || "Campionamento_" + Date.now();
       const cantiere = document.getElementById('localita').value.trim() || "Localita_N.D.";
       const matrice = document.getElementById('matrice_selezionata').value;
@@ -774,6 +774,9 @@
         }
       }
 
+      // Integrazione Autore da login
+      const utenteLoggato = localStorage.getItem('utente_loggato') || 'Leone Bastiancich';
+
       const formData = {
         identificativo: identificativo,
         matrice: matrice,
@@ -788,6 +791,7 @@
         campioni: campioniData,
         analisi: analisiData,
         firma_campionatore: document.getElementById('signature-pad').toDataURL(),
+        autore: utenteLoggato, // <-- Registra l'utente loggato ufficiale
         timestamp: Date.now()
       };
 
