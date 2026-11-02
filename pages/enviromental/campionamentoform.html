@@ -669,10 +669,19 @@
         `;
       }
 
+      // --- GESTIONE PARAMETRO MATRICE DA URL ---
+      const urlParams = new URLSearchParams(window.location.search);
+      const matriceParam = urlParams.get('matrice');
+      if (matriceParam) {
+        const matriceSelect = document.getElementById('matrice_selezionata');
+        if (matriceSelect) {
+          matriceSelect.value = matriceParam;
+        }
+      }
+
       onMatriceChange();
       updateIdentificativo();
 
-      const urlParams = new URLSearchParams(window.location.search);
       const loadKey = urlParams.get('load');
       if (loadKey) {
         setTimeout(() => loadFromCloud(loadKey), 400);
