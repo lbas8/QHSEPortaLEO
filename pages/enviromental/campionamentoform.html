@@ -12,14 +12,25 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
     .glass-card { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+
+    /* FORZA IL TESTO SCURO E BEN LEGGIBILE A SCHERMO SU TUTTI GLI INPUT DEL MODULO */
+    main input, 
+    main select, 
+    main textarea {
+      color: #0f172a !important;            /* Scritta scura (slate-900) */
+      background-color: #ffffff !important; /* Sfondo sempre bianco */
+    }
+
+    /* Rendiamo leggibile anche il testo dei placeholder (es. "Nome / Società") */
+    main input::placeholder, 
+    main textarea::placeholder {
+      color: #64748b !important;            /* Grigio visibile (slate-500) */
+      opacity: 1 !important;
+    }
+
     @media print {
       .no-print { display: none !important; }
       body { background-color: #fff !important; color: #000 !important; }
-      /* Forza il testo scuro dentro i campi di input del modulo stampabile */
-main input, main select, main textarea {
-  color: #0f172a !important; /* Testo scuro */
-  background-color: #ffffff !important; /* Sfondo bianco */
-}
     }
   </style>
 </head>
