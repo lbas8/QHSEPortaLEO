@@ -225,27 +225,39 @@
         </div>
       </div>
 
-      <!-- 3. CAMPIONAMENTI ACQUE & RdP (IN PREPARAZIONE) -->
-      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-600 flex flex-col justify-between group cursor-pointer opacity-80 hover:opacity-100"
-           onclick="alert('Sezione Archivio Campionamenti Acque in preparazione')">
+<!-- 3. CAMPIONAMENTI ACQUE & RdP (AGGIORNATO CON DOPPIO PULSANTE) -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group bg-cyan-950/10">
         <div>
           <div class="flex items-center justify-between mb-5">
-            <div class="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 text-2xl group-hover:scale-110 transition">
+            <div class="w-12 h-12 rounded-xl bg-cyan-950/70 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition shadow-inner">
               <i class="fa-solid fa-vials"></i>
             </div>
-            <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 uppercase tracking-wider">
+            <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wider">
               ANALISI LABORATORIO
             </span>
           </div>
-          <h3 class="text-xl font-black text-white group-hover:text-slate-300 transition mb-3">
+          <h3 class="text-xl font-black text-white group-hover:text-cyan-400 transition mb-3">
             CAMPIONAMENTI ACQUE
           </h3>
           <p class="text-xs text-slate-400 leading-relaxed mb-6">
             Archivio dei Rapporti di Prova (RdP) per acque reflue e di dilavamento delle aree di cantiere con tracciabilità catene di custodia.
           </p>
         </div>
-        <div class="flex items-center gap-2 text-xs font-bold text-slate-400 group-hover:translate-x-1.5 transition">
-          <span>Apri Registro RdP Acque</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+
+        <!-- DOPPIO PULSANTE IN BASSO -->
+        <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-800/80">
+          <a href="verbale (2).html" 
+             class="flex items-center gap-2 px-3.5 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 hover:border-cyan-400 rounded-xl text-xs font-bold text-cyan-400 transition shadow-sm">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>Nuova CDC</span>
+            <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+          </a>
+
+          <a href="verbaliarchivio.html" 
+             class="flex items-center gap-2 px-3.5 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm">
+            <i class="fa-solid fa-folder-open text-amber-400"></i>
+            <span>Apri Registro RdP Acque</span>
+          </a>
         </div>
       </div>
 
