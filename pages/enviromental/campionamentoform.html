@@ -15,6 +15,11 @@
     @media print {
       .no-print { display: none !important; }
       body { background-color: #fff !important; color: #000 !important; }
+      /* Forza il testo scuro dentro i campi di input del modulo stampabile */
+main input, main select, main textarea {
+  color: #0f172a !important; /* Testo scuro */
+  background-color: #ffffff !important; /* Sfondo bianco */
+}
     }
   </style>
 </head>
