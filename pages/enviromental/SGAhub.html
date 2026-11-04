@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCUMENTI DI CANTIERE / SGA - Environmental Office</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#0B0F17',
+                        cardBg: '#111827',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome per Icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs (richiesti dal widget header per le scadenze) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body class="bg-[#0B0F17] text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- HEADER DINAMICO (INIETTATO DA HEADER.JS) -->
+    <div id="app-header"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- Intestazione Pagina -->
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <h2 class="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight text-white mb-3">
+                DOCUMENTI DI CANTIERE / SGA
+            </h2>
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                Seleziona l'area di interesse per accedere alla cartellonistica operativa, ai registri ufficiali, alla documentazione di sistema ISO 14001 e ai contratti ambientali.
+            </p>
+        </div>
+
+        <!-- GRIGLIA A BLOCCHI (2x2) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- BLOCCO 1: CARTELLONISTICA DI CANTIERE -->
+            <div class="bg-[#111827]/80 rounded-2xl border border-cyan-500/40 p-6 flex flex-col justify-between hover:border-cyan-400 transition-all duration-200 shadow-lg shadow-cyan-950/10">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                        </div>
+                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                            SEGNALETICA & LAYOUT
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
+                        CARTELLONISTICA DI CANTIERE
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Cartelli ambientali di cantiere, layout delle aree di stoccaggio, avvisi operativi, prescrizioni di sicurezza per i depositi e pannelli infografici normativi.
+                    </p>
+                </div>
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
+                    <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/40 text-cyan-400 text-xs font-bold hover:bg-cyan-500 hover:text-slate-950 transition-all">
+                        <i class="fa-solid fa-print"></i>
+                        Stampa Cartelli <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                    <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold hover:bg-slate-700 transition-all">
+                        <i class="fa-solid fa-folder"></i>
+                        Archivio Layout
+                    </a>
+                </div>
+            </div>
+
+            <!-- BLOCCO 2: REGISTRI -->
+            <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+                            <i class="fa-solid fa-book-bookmark text-xl"></i>
+                        </div>
+                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
+                            REGISTRAZIONE DATI
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
+                        REGISTRI
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Registro delle prescrizioni ambientali, verbale dei controlli periodici, registro non conformità e verbali di ispezione di cantiere.
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-slate-800">
+                    <a href="#" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
+                        Consulta Registri <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- BLOCCO 3: DOCUMENTI DI SISTEMA -->
+            <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+                            <i class="fa-solid fa-file-contract text-xl"></i>
+                        </div>
+                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
+                            ISO 14001 & PGA
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
+                        DOCUMENTI DI SISTEMA
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Piano di Gestione Ambientale (PGA), Procedure Operative (SGA), Politica Ambientale, Autorizzazioni Uniche e piani di emergenza.
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-slate-800">
+                    <a href="#" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
+                        Accedi alla Documentazione <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- BLOCCO 4: CONTRATTI -->
+            <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+                            <i class="fa-solid fa-file-signature text-xl"></i>
+                        </div>
+                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
+                            FORNITORI & CONVENZIONI
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
+                        CONTRATTI
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Contratti di smaltimento/recupero rifiuti, convenzioni con laboratori di analisi accreditati, incarichi tecnici e noli apparecchiature.
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-slate-800">
+                    <a href="#" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
+                        Gestisci Contratti <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- INIZIALIZZAZIONE FIREBASE (se utilizzata nel progetto) -->
+    <script>
+        // Sostituisci con la configurazione del tuo progetto Firebase se non presente globalmente
+        const firebaseConfig = {
+            databaseURL: "https://qhseleo-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
+
+    <!-- SCRIPT HEADER DINAMICO -->
+    <script src="header.js"></script>
+
+</body>
+</html>
