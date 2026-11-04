@@ -1,172 +1,370 @@
 <!DOCTYPE html>
 <html lang="it" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOCUMENTI DI CANTIERE / SGA - Environmental Office</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brandDark: '#0B0F17',
-                        cardBg: '#111827',
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Font Awesome per Icone -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOCUMENTI DI CANTIERE / SGA — Environmental Office</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
     
-    <!-- Firebase SDKs (necessari per il calendario e le scadenze dinamiche) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f17;
+      color: #f8fafc;
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+  </style>
 </head>
-<body class="bg-[#0B0F17] text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
 
-    <!-- CONTAINER HEADER DINAMICO (Gestito da header.js con tasto indietro, calendario interattivo e profilo) -->
-    <div id="app-header"></div>
+<!-- HEADER UNIFICATO UNIVERSALE -->
+<header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
+  <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+    
+    <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro -->
+    <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
+      <div class="flex items-center gap-3">
+        <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
+          <i class="fa-solid fa-arrow-left text-cyan-400"></i>
+          <span class="hidden sm:inline">Indietro</span>
+        </button>
 
-    <!-- MAIN CONTENT -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
+          <i class="fa-solid fa-shield-halved text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Environmental Office</h1>
+          <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LATO DESTRA: Widget Calendario Interattivo, Avvisi & Home -->
+    <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+      
+      <!-- WIDGET CALENDARIO CLICCABILE -->
+      <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile">
+        <div class="bg-cyan-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
+          <span id="calMonth">OTT</span> <span id="calDay">30</span>
+        </div>
+        <div class="text-left text-xs leading-tight">
+          <div class="font-bold text-white flex items-center gap-1.5">
+            <span id="calFullDate">Venerdì, 30 OTT</span>
+            <span class="w-4 h-4 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-400 flex items-center justify-center text-[10px] font-black group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
+              <i class="fa-solid fa-plus"></i>
+            </span>
+          </div>
+          <div class="text-[10px] text-slate-400 font-medium">Calendario & Scadenze</div>
+        </div>
+      </div>
+
+      <!-- PORTALE AVVISI -->
+      <div onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-cyan-500/40 hover:border-cyan-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
+        <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+        <div class="text-left text-xs leading-tight">
+          <div class="font-extrabold text-cyan-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
+          <div class="text-[11px] text-slate-300 truncate max-w-[180px] sm:max-w-[220px]">
+            Attività SGA in corso
+          </div>
+        </div>
+      </div>
+
+      <!-- HOME QHSE -->
+      <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400/60 rounded-full text-xs font-bold text-white hover:text-cyan-400 transition shadow-sm" title="Home Principale QHSE">
+        <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
+          <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+          <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+          <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+          <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+          <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+        </svg>
+        <span class="hidden sm:inline">Home</span>
+      </a>
+
+    </div>
+
+  </div>
+</header>
+
+  <!-- MODALE CALENDARIO E SCADENZE UNIVERSALE -->
+  <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+      <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="flex items-center justify-between mb-4 flex-shrink-0">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
+          <i class="fa-solid fa-calendar-days text-cyan-400"></i> Calendario Mensile & Scadenze SGA
+        </h3>
+      </div>
+
+      <!-- WIDGET GRIGLIA CALENDARIO CON FRECCE CAMBIO MESE -->
+      <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-4 mb-4 flex-shrink-0">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <button onclick="cambiaMeseCalendario(-1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese precedente">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <span id="label-mese-corrente" class="text-xs font-black text-cyan-400 uppercase tracking-widest min-w-[140px] text-center">OTTOBRE 2026</span>
+            <button onclick="cambiaMeseCalendario(1)" class="w-7 h-7 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese successivo">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+          <div class="text-[10px] text-slate-400">Seleziona una data</div>
+        </div>
         
-        <!-- Intestazione e Indicazione Sezione -->
-        <div class="text-center max-w-3xl mx-auto mb-12">
-            <h2 class="text-3xl sm:text-4xl font-extrabold uppercase tracking-tight text-white mb-3">
-                DOCUMENTI DI CANTIERE / SGA
-            </h2>
-            <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
-                Seleziona l'area di interesse per accedere alla cartellonistica operativa, ai registri ufficiali, alla documentazione di sistema ISO 14001 e ai contratti ambientali.
-            </p>
+        <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 mb-1 border-b border-slate-700 pb-1">
+          <div class="text-cyan-500">W</div>
+          <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
         </div>
-
-        <!-- GRIGLIA A BLOCCHI (2x2) - Colorazione Grigia Standard -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <!-- BLOCCO 1: CARTELLONISTICA DI CANTIERE -->
-            <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-cyan-400">
-                            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-                        </div>
-                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
-                            SEGNALETICA & LAYOUT
-                        </span>
-                    </div>
-                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
-                        CARTELLONISTICA DI CANTIERE
-                    </h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
-                        Cartelli ambientali di cantiere, layout delle aree di stoccaggio, avvisi operativi, prescrizioni di sicurezza per i depositi e pannelli infografici normativi.
-                    </p>
-                </div>
-                <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
-                    <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/40 text-cyan-400 text-xs font-bold hover:bg-cyan-500 hover:text-slate-950 transition-all">
-                        <i class="fa-solid fa-print"></i>
-                        Stampa Cartelli <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                    </a>
-                    <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold hover:bg-slate-700 transition-all">
-                        <i class="fa-solid fa-folder"></i>
-                        Archivio Layout
-                    </a>
-                </div>
-            </div>
-
-            <!-- BLOCCO 2: REGISTRI (Collega a registrogenerale.html) -->
-            <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
-                            <i class="fa-solid fa-book-bookmark text-xl"></i>
-                        </div>
-                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
-                            REGISTRAZIONE DATI
-                        </span>
-                    </div>
-                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
-                        REGISTRI
-                    </h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
-                        Registro delle prescrizioni ambientali, verbale dei controlli periodici, registro non conformità e verbali di ispezione di cantiere.
-                    </p>
-                </div>
-                <div class="pt-4 border-t border-slate-800">
-                    <a href="registrogenerale.html" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
-                        Consulta Registri <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- BLOCCO 3: DOCUMENTI DI SISTEMA -->
-            <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
-                            <i class="fa-solid fa-file-contract text-xl"></i>
-                        </div>
-                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
-                            ISO 14001 & PGA
-                        </span>
-                    </div>
-                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
-                        DOCUMENTI DI SISTEMA
-                    </h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
-                        Piano di Gestione Ambientale (PGA), Procedure Operative (SGA), Politica Ambientale, Autorizzazioni Uniche e piani di emergenza.
-                    </p>
-                </div>
-                <div class="pt-4 border-t border-slate-800">
-                    <a href="#" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
-                        Accedi alla Documentazione <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- BLOCCO 4: CONTRATTI -->
-            <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
-                            <i class="fa-solid fa-file-signature text-xl"></i>
-                        </div>
-                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
-                            FORNITORI & CONVENZIONI
-                        </span>
-                    </div>
-                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
-                        CONTRATTI
-                    </h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
-                        Contratti di smaltimento/recupero rifiuti, convenzioni con laboratori di accreditamento, incarichi tecnici e noli apparecchiature.
-                    </p>
-                </div>
-                <div class="pt-4 border-t border-slate-800">
-                    <a href="#" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
-                        Gestisci Contratti <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                    </a>
-                </div>
-            </div>
-
+        <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs">
+          <!-- Popolato via JS -->
         </div>
-    </main>
+      </div>
+    </div>
+  </div>
 
-    <!-- CONFIGURAZIONE FIREBASE -->
-    <script>
-        const firebaseConfig = {
-            databaseURL: "https://qhseleo-default-rtdb.europe-west1.firebasedatabase.app"
-        };
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+  <!-- MAIN CONTENT: DOCUMENTI DI CANTIERE / SGA -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col justify-center">
+    
+    <!-- TITOLO E SOTTOTITOLO SEZIONE -->
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase mb-3">
+        DOCUMENTI DI CANTIERE / SGA
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+        Seleziona l'area di interesse per accedere alla cartellonistica operativa, ai registri ufficiali, alla documentazione di sistema ISO 14001 e ai contratti ambientali.
+      </p>
+    </div>
+
+    <!-- GRIGLIA A SCHEDE (4 CARD) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto w-full">
+      
+      <!-- 1. CARTELLONISTICA DI CANTIERE -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-600 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 uppercase tracking-wider">
+              SEGNALETICA & LAYOUT
+            </span>
+          </div>
+          <h3 class="text-xl font-black text-white group-hover:text-cyan-400 transition mb-3">
+            CARTELLONISTICA DI CANTIERE
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-6">
+            Cartelli ambientali di cantiere, layout delle aree di stoccaggio, avvisi operativi, prescrizioni di sicurezza per i depositi e pannelli infografici normativi.
+          </p>
+        </div>
+        <div class="flex items-center gap-3 pt-4 border-t border-slate-800/80">
+          <a href="#" class="flex items-center gap-2 px-3.5 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 hover:border-cyan-400 rounded-xl text-xs font-bold text-cyan-400 transition shadow-sm">
+            <i class="fa-solid fa-print"></i>
+            <span>Stampa Cartelli</span>
+            <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+          </a>
+          <a href="#" class="flex items-center gap-2 px-3.5 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm">
+            <i class="fa-solid fa-folder text-amber-400"></i>
+            <span>Archivio Layout</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 2. REGISTRI (Collega a registrogenerale.html) -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-600 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-300 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-book-bookmark"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 uppercase tracking-wider">
+              REGISTRAZIONE DATI
+            </span>
+          </div>
+          <h3 class="text-xl font-black text-white group-hover:text-cyan-400 transition mb-3">
+            REGISTRI
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-6">
+            Registro delle prescrizioni ambientali, verbale dei controlli periodici, registro non conformità e verbali di ispezione di cantiere.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-slate-800/80">
+          <a href="registrogenerale.html" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
+            <span>Consulta Registri</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 3. DOCUMENTI DI SISTEMA -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-600 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-300 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-file-contract"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 uppercase tracking-wider">
+              ISO 14001 & PGA
+            </span>
+          </div>
+          <h3 class="text-xl font-black text-white group-hover:text-cyan-400 transition mb-3">
+            DOCUMENTI DI SISTEMA
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-6">
+            Piano di Gestione Ambientale (PGA), Procedure Operative (SGA), Politica Ambientale, Autorizzazioni Uniche e piani di emergenza.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-slate-800/80">
+          <a href="#" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
+            <span>Accedi alla Documentazione</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 4. CONTRATTI -->
+      <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-600 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-300 text-2xl group-hover:scale-110 transition">
+              <i class="fa-solid fa-file-signature"></i>
+            </div>
+            <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 uppercase tracking-wider">
+              FORNITORI & CONVENZIONI
+            </span>
+          </div>
+          <h3 class="text-xl font-black text-white group-hover:text-cyan-400 transition mb-3">
+            CONTRATTI
+          </h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-6">
+            Contratti di smaltimento/recupero rifiuti, convenzioni con laboratori di accreditamento, incarichi tecnici e noli apparecchiature.
+          </p>
+        </div>
+        <div class="pt-4 border-t border-slate-800/80">
+          <a href="#" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
+            <span>Gestisci Contratti</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER UNIFICATO -->
+  <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+      <p class="flex items-center gap-2">
+        <i class="fa-solid fa-folder-open text-cyan-400"></i> Sezione Documenti di Cantiere / SGA
+      </p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGICA CALENDARIO HEADER E DINAMISMO MESI -->
+  <script>
+    let dataCalendarioAttuale = new Date();
+    const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
+    const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const oggi = new Date();
+      const elMonth = document.getElementById('calMonth');
+      const elDay = document.getElementById('calDay');
+      const elFull = document.getElementById('calFullDate');
+      
+      if (elMonth) elMonth.innerText = mesi[oggi.getMonth()];
+      if (elDay) elDay.innerText = oggi.getDate();
+      if (elFull) elFull.innerText = `${giorniSettimana[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
+      
+      renderizzaCalendarioMese();
+    });
+
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+      var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    }
+
+    function cambiaMeseCalendario(delta) {
+      dataCalendarioAttuale.setMonth(dataCalendarioAttuale.getMonth() + delta);
+      renderizzaCalendarioMese();
+    }
+
+    function renderizzaCalendarioMese() {
+      const container = document.getElementById('griglia-calendario-mese');
+      const labelMese = document.getElementById('label-mese-corrente');
+      if (!container || !labelMese) return;
+
+      container.innerHTML = '';
+      const year = dataCalendarioAttuale.getFullYear();
+      const month = dataCalendarioAttuale.getMonth();
+
+      labelMese.innerText = `${mesi[month]} ${year}`;
+
+      const primoGiornoMese = new Date(year, month, 1);
+      const ultimoGiornoMese = new Date(year, month + 1, 0);
+      const totaleGiorni = ultimoGiornoMese.getDate();
+
+      let giornoInizio = primoGiornoMese.getDay() - 1;
+      if (giornoInizio === -1) giornoInizio = 6;
+
+      let giornoCorrente = 1;
+      let htmlRighe = '';
+      let numSettimana = getWeekNumber(primoGiornoMese);
+      const oggi = new Date();
+
+      while (giornoCorrente <= totaleGiorni) {
+        htmlRighe += `<div class="flex items-center justify-center font-bold text-cyan-500/80 bg-slate-900/50 rounded text-[10px]">W${numSettimana}</div>`;
+        
+        for (let i = 0; i < 7; i++) {
+          if ((giornoCorrente === 1 && i < giornoInizio) || giornoCorrente > totaleGiorni) {
+            htmlRighe += `<div class="p-1"></div>`;
+          } else {
+            let isOggi = (giornoCorrente === oggi.getDate() && month === oggi.getMonth() && year === oggi.getFullYear()) 
+              ? 'border-2 border-cyan-400 font-black text-cyan-300' 
+              : 'border border-transparent text-slate-300';
+
+            htmlRighe += `
+              <div class="p-1 rounded-lg transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-700 flex items-center justify-center min-h-[32px] ${isOggi}">
+                <span>${giornoCorrente}</span>
+              </div>`;
+            giornoCorrente++;
+          }
         }
-    </script>
+        numSettimana++;
+      }
+      container.innerHTML = htmlRighe;
+    }
 
-    <!-- SCRIPT HEADER DINAMICO (Abilita il calendario interattivo e il tasto indietro) -->
-    <script src="header.js"></script>
+    function apriGestoreScadenze() {
+      const modal = document.getElementById('modal-scadenze');
+      if (modal) {
+        modal.classList.remove('hidden');
+        renderizzaCalendarioMese();
+      }
+    }
 
+    function chiudiGestoreScadenze() {
+      const modal = document.getElementById('modal-scadenze');
+      if (modal) modal.classList.add('hidden');
+    }
+  </script>
+  
 </body>
 </html>
