@@ -21,61 +21,15 @@
     </script>
     <!-- Font Awesome per Icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs (necessari per il calendario e le scadenze dinamiche) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body class="bg-[#0B0F17] text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-white">
 
-    <!-- HEADER SUPERIORE -->
-    <header class="border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
-            <!-- Lato Sinistro: Indietro e Brand -->
-            <div class="flex items-center space-x-4">
-                <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition-all cursor-pointer">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Indietro
-                </a>
-                
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                        <i class="fa-solid fa-shield-halved text-lg"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-base sm:text-lg font-black tracking-wide uppercase leading-none text-white">ENVIRONMENTAL OFFICE</h1>
-                        <p class="text-[11px] text-amber-400/90 font-medium tracking-wider mt-1">Quarto Valico dei Giovi — VICO C</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lato Destro: Widget Calendario, Avvisi, Home -->
-            <div class="flex items-center space-x-3">
-                <!-- Widget Calendario -->
-                <div class="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900/80 text-xs shadow-inner">
-                    <span class="bg-amber-500 text-slate-950 font-black px-2 py-0.5 rounded text-[10px] uppercase">NOV 4</span>
-                    <div class="leading-tight text-left">
-                        <div class="font-bold text-slate-200 flex items-center gap-1">
-                            Mercoledì, 4 NOV <i class="fa-solid fa-circle-plus text-amber-400 text-[10px]"></i>
-                        </div>
-                        <div class="text-[10px] text-slate-400">Calendario & Settimane</div>
-                    </div>
-                </div>
-
-                <!-- Avvisi & Scadenze -->
-                <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-slate-900/80 text-xs">
-                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                    <div class="leading-tight text-left">
-                        <div class="font-extrabold text-amber-400 uppercase text-[10px] tracking-wide">AVVISI & SCADENZE</div>
-                        <div class="text-[10px] text-slate-300">Attività SGA in corso</div>
-                    </div>
-                </div>
-
-                <!-- Home -->
-                <a href="index.html" class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all cursor-pointer">
-                    <i class="fa-solid fa-house text-sm text-cyan-400"></i>
-                    <span class="hidden sm:inline">Home</span>
-                </a>
-            </div>
-        </div>
-    </header>
+    <!-- CONTAINER HEADER DINAMICO (Gestito da header.js con tasto indietro, calendario interattivo e profilo) -->
+    <div id="app-header"></div>
 
     <!-- MAIN CONTENT -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -123,30 +77,30 @@
                 </div>
             </div>
 
-<!-- BLOCCO 2: REGISTRI -->
-<div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
-    <div>
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
-                <i class="fa-solid fa-book-bookmark text-xl"></i>
+            <!-- BLOCCO 2: REGISTRI (Collega a registrogenerale.html) -->
+            <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+                            <i class="fa-solid fa-book-bookmark text-xl"></i>
+                        </div>
+                        <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
+                            REGISTRAZIONE DATI
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
+                        REGISTRI
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Registro delle prescrizioni ambientali, verbale dei controlli periodici, registro non conformità e verbali di ispezione di cantiere.
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-slate-800">
+                    <a href="registrogenerale.html" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
+                        Consulta Registri <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
             </div>
-            <span class="text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700">
-                REGISTRAZIONE DATI
-            </span>
-        </div>
-        <h3 class="text-xl font-bold uppercase text-white mb-2 tracking-wide">
-            REGISTRI
-        </h3>
-        <p class="text-slate-400 text-sm leading-relaxed mb-6">
-            Registro delle prescrizioni ambientali, verbale dei controlli periodici, registro non conformità e verbali di ispezione di cantiere.
-        </p>
-    </div>
-    <div class="pt-4 border-t border-slate-800">
-        <a href="registrogenerale.html" class="inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
-            Consulta Registri <i class="fa-solid fa-arrow-right text-[10px]"></i>
-        </a>
-    </div>
-</div>
 
             <!-- BLOCCO 3: DOCUMENTI DI SISTEMA -->
             <div class="bg-[#111827]/80 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition-all duration-200">
@@ -200,6 +154,19 @@
 
         </div>
     </main>
+
+    <!-- CONFIGURAZIONE FIREBASE -->
+    <script>
+        const firebaseConfig = {
+            databaseURL: "https://qhseleo-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
+
+    <!-- SCRIPT HEADER DINAMICO (Abilita il calendario interattivo e il tasto indietro) -->
+    <script src="header.js"></script>
 
 </body>
 </html>
