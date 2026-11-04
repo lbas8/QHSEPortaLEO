@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartello Rifiuti Pericolosi — Environmental Office</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDKs per il widget calendario e le scadenze -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+    
+    :root {
+      --bg-dark: #0b0f17;
+      --primary: #2563eb;
+      --text-main: #0f172a;
+      --text-light: #f8fafc;
+      --border-color: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-h: 100vh;
+    }
+
+    /* App Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 2rem;
+      max-width: 1600px;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      height: fit-content;
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .panel-section { margin-bottom: 1.25rem; }
+    .panel-section h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      color: #334155;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .form-group { margin-bottom: 0.85rem; position: relative; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; color: #475569; }
+    .form-control {
+      width: 100%;
+      padding: 0.55rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .form-control:focus { outline: none; border-color: var(--primary); }
+    
+    /* Dropdown Suggerimenti EER */
+    .eer-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none;
+    }
+    .eer-item {
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .eer-item:hover { background-color: #f0f9ff; color: #0284c7; }
+    .eer-item strong { color: #0f172a; }
+
+    .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+    .checkbox-item { font-size: 0.78rem; display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #334155; }
+
+    /* Preview Area */
+    .preview-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .print-actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      width: 100%;
+      max-width: 1050px;
+      justify-content: flex-end;
+    }
+    .btn-print {
+      background-color: #059669;
+      color: white;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .btn-print:hover { background-color: #047857; }
+    .btn-print.btn-a3 { background-color: #0284c7; }
+    .btn-print.btn-a3:hover { background-color: #0369a1; }
+
+    /* CARTELLO SHEET BASE */
+    .cartello-sheet {
+      background: white;
+      width: 1050px;
+      height: 700px;
+      padding: 20px;
+      border: 3px solid #000;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      grid-template-rows: 65px 1fr;
+      gap: 12px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .c-header-left { display: flex; align-items: center; }
+    .c-logo-webuild { max-width: 160px; max-height: 50px; object-fit: contain; }
+
+    .c-header-right {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-left: 15px;
+    }
+    .c-main-title { text-align: center; font-size: 1.15rem; font-weight: bold; line-height: 1.2; }
+    .c-logo-esecutrice {
+      width: 160px;
+      height: 55px;
+      border: 1px dashed #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+    .c-logo-esecutrice img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+    /* Colonna Sinistra */
+    .col-sinistra {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      height: 100%;
+    }
+
+    .c-box-evidenza {
+      border: 2px solid #0f172a;
+      border-radius: 6px;
+      padding: 6px 8px;
+      text-align: center;
+      background-color: #ffffff;
+      flex-shrink: 0;
+    }
+    .c-box-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 2px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 1px;
+    }
+    .c-box-value {
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: #0f172a;
+      text-transform: uppercase;
+    }
+
+    /* Tabella HP */
+    .c-hp-table-border {
+      border: 2px solid #000;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+      background: #fff;
+    }
+    .hp-title {
+      font-weight: bold;
+      font-size: 0.78rem;
+      text-align: center;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      color: #000;
+      border-bottom: 1.5px solid #000;
+      padding-bottom: 3px;
+    }
+    .hp-list-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+    .hp-row {
+      display: flex;
+      align-items: center;
+      font-size: 0.82rem;
+      opacity: 0.22;
+      color: #000;
+      padding: 1px 0;
+    }
+    .hp-row.active {
+      opacity: 1;
+      font-weight: bold;
+    }
+    .hp-code { width: 55px; flex-shrink: 0; font-weight: 900; }
+
+    /* Colonna Destra */
+    .col-destra {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .c-eer-box-container {
+      border: 3px solid #000;
+      border-radius: 6px;
+      padding: 10px 14px;
+      text-align: center;
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+    .c-eer-desc { font-size: 1.15rem; font-weight: bold; margin-bottom: 4px; line-height: 1.2; color: #000; }
+    .c-eer-code { font-size: 3.2rem; font-weight: 900; letter-spacing: 2px; color: #000; line-height: 1; }
+
+    .c-operativa-box {
+      border: 2px dashed #0284c7;
+      border-radius: 6px;
+      padding: 8px 12px;
+      background: #f0f9ff;
+      flex-shrink: 0;
+    }
+    .c-operativa-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #0369a1;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .c-operativa-text {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #0f172a;
+      line-height: 1.25;
+    }
+
+    /* Griglia Pittogrammi */
+    .c-pittogrammi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 10px;
+      align-items: center;
+      justify-items: center;
+      flex-grow: 1;
+      width: 100%;
+    }
+    .pit-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      opacity: 0.18;
+      transition: opacity 0.2s;
+      width: 100%;
+      height: 100%;
+    }
+    .pit-item.active {
+      opacity: 1;
+    }
+    .pit-img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+    }
+    .pit-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      margin-top: 3px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    /* REGOLAZIONI SPECIFICHE PER LA STAMPA A3 */
+    body.format-a3 .cartello-sheet {
+      width: 100vw !important;
+      height: 100vh !important;
+      grid-template-columns: 420px 1fr !important;
+      grid-template-rows: 90px 1fr !important;
+      padding: 30px !important;
+      gap: 20px !important;
+    }
+    body.format-a3 .c-logo-webuild { max-width: 230px !important; max-height: 75px !important; }
+    body.format-a3 .c-main-title { font-size: 1.7rem !important; }
+    body.format-a3 .c-logo-esecutrice { width: 230px !important; height: 80px !important; font-size: 0.9rem !important; }
+    body.format-a3 .c-box-label { font-size: 0.9rem !important; }
+    body.format-a3 .c-box-value { font-size: 1.35rem !important; }
+    body.format-a3 .hp-title { font-size: 1.05rem !important; padding-bottom: 6px !important; }
+    body.format-a3 .hp-row { font-size: 1.15rem !important; }
+    body.format-a3 .hp-code { width: 70px !important; }
+    body.format-a3 .c-eer-desc { font-size: 1.6rem !important; }
+    body.format-a3 .c-eer-code { font-size: 4.8rem !important; }
+    body.format-a3 .c-operativa-label { font-size: 1rem !important; }
+    body.format-a3 .c-operativa-text { font-size: 1.25rem !important; }
+    body.format-a3 .pit-img { width: 135px !important; height: 135px !important; }
+    body.format-a3 .pit-label { font-size: 1rem !important; margin-top: 6px !important; }
+
+    /* STAMPA GENERALE */
+    @media print {
+      body { background: white; margin: 0; padding: 0; }
+      header, .controls-panel, .print-actions { display: none !important; }
+      .app-container { display: block; margin: 0; padding: 0; width: 100vw; height: 100vh; }
+      .preview-area { width: 100vw; height: 100vh; }
+      .cartello-sheet {
+        border: none !important;
+        box-shadow: none !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        page-break-after: always;
+      }
+      .pit-item:not(.active) { visibility: hidden !important; }
+      .hp-row:not(.active) { opacity: 0.12 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER UNIFICATO UNIVERSALE -->
+  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+      
+      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro Dinamico -->
+      <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
+        <div class="flex items-center gap-3">
+          <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
+            <i class="fa-solid fa-arrow-left text-cyan-400"></i>
+            <span class="hidden sm:inline">Indietro</span>
+          </button>
+
+          <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
+            <i class="fa-solid fa-shield-halved text-xl"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Environmental Office</h1>
+            <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- LATO DESTRA: Widget Calendario Interattivo, Avvisi & Home -->
+      <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+        
+        <!-- WIDGET CALENDARIO CLICCABILE -->
+        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile">
+          <div class="bg-cyan-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
+            <span id="calMonth">OTT</span> <span id="calDay">30</span>
+          </div>
+          <div class="text-left text-xs leading-tight">
+            <div class="font-bold text-white flex items-center gap-1.5">
+              <span id="calFullDate">Venerdì, 30 OTT</span>
+              <span class="w-4 h-4 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-400 flex items-center justify-center text-[10px] font-black group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
+                <i class="fa-solid fa-plus"></i>
+              </span>
+            </div>
+            <div class="text-[10px] text-slate-400 font-medium">Calendario & Scadenze</div>
+          </div>
+        </div>
+
+        <!-- PORTALE AVVISI -->
+        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-cyan-500/40 hover:border-cyan-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
+          <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+          <div class="text-left text-xs leading-tight">
+            <div class="font-extrabold text-cyan-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
+            <div id="testo-prossima-scadenza" class="text-[11px] text-slate-300 truncate max-w-[160px] sm:max-w-[200px]">
+              Caricamento promemoria...
+            </div>
+          </div>
+        </div>
+
+        <!-- HOME QHSE -->
+        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400/60 rounded-full text-xs font-bold text-white hover:text-cyan-400 transition shadow-sm" title="Home Principale QHSE">
+          <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
+            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+          </svg>
+          <span class="hidden sm:inline">Home</span>
+        </a>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MODALE CALENDARIO, RECAP E CREAZIONE EVENTI -->
+  <div id="modal-scadenze" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-auto space-y-5 text-slate-100" onclick="event.stopPropagation()">
+      
+      <button onclick="chiudiGestoreScadenze()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+        <i class="fa-solid fa-calendar-days text-cyan-400 text-lg"></i>
+        <h3 class="text-base font-black text-white uppercase tracking-wider">Calendario Mensile & Scadenze di Cantiere</h3>
+      </div>
+
+      <!-- GRIGLIA CALENDARIO MESE -->
+      <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button onclick="cambiaMeseCalendario(-1)" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese precedente">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <span id="label-mese-corrente" class="text-sm font-black text-cyan-400 uppercase tracking-widest min-w-[160px] text-center">OTTOBRE 2026</span>
+            <button onclick="cambiaMeseCalendario(1)" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 rounded-lg flex items-center justify-center text-xs transition cursor-pointer" title="Mese successivo">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+          <div class="text-[10px] text-cyan-400 font-semibold italic hidden sm:block">💡 Clicca su un giorno per vedere il recap sotto</div>
+        </div>
+        
+        <div class="grid grid-cols-8 gap-1 text-center text-[11px] font-bold text-slate-400 border-b border-slate-800 pb-1">
+          <div class="text-cyan-500">W</div>
+          <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
+        </div>
+        <div id="griglia-calendario-mese" class="grid grid-cols-8 gap-1 text-center text-xs"></div>
+      </div>
+
+      <!-- BOX RECAP APPUNTAMENTI DEL GIORNO SELEZIONATO -->
+      <div id="box-recap-giorno" class="bg-cyan-950/20 border border-cyan-500/30 rounded-xl p-4 space-y-2 hidden">
+        <div class="flex items-center justify-between border-b border-cyan-900/50 pb-2">
+          <h4 id="recap-data-titolo" class="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-list"></i> Appuntamenti del Giorno
+          </h4>
+          <span class="text-[10px] bg-cyan-900/50 text-cyan-300 px-2 py-0.5 rounded font-bold">RECAP</span>
+        </div>
+        <div id="recap-lista-appuntamenti" class="space-y-1.5 max-h-32 overflow-y-auto pr-1"></div>
+      </div>
+
+      <!-- FORM AGGIUNGI PROMEMORIA / EVENTO -->
+      <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3">
+        <h4 class="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-plus"></i> AGGIUNGI PROMEMORIA / ATTIVITÀ
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Titolo Attività</label>
+            <input type="text" id="input-titolo-attivita" placeholder="Es. Audit ISO / Scadenza Verbali" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Data</label>
+            <input type="date" id="input-data-attivita" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-cyan-400 cursor-pointer">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs items-end">
+          <div>
+            <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Settore Competenza (Q / HS / E)</label>
+            <select id="input-settore-attivita" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-cyan-400 font-bold">
+              <option value="E">Environment (E - Blu)</option>
+              <option value="HS">Health & Safety (HS - Arancione)</option>
+              <option value="Q">Quality (Q - Verde)</option>
+            </select>
+          </div>
+          <button onclick="salvaNuovaAttivita()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-2.5 rounded-xl transition shadow-lg cursor-pointer flex items-center justify-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Salva in Calendario
+          </button>
+        </div>
+      </div>
+
+      <!-- SCADENZE IN ARCHIVIO -->
+      <div class="space-y-2">
+        <h4 class="text-xs font-black uppercase tracking-wider text-slate-400">SCADENZE IN ARCHIVIO</h4>
+        <div id="lista-scadenze-archivio" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+          <p class="text-xs text-slate-500 italic">Caricamento scadenze dal Cloud...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Pannello di Controllo -->
+    <div class="controls-panel">
+      
+      <div class="panel-section">
+        <h3><i class="fas fa-building"></i> Intestazione e Luogo</h3>
+        <div class="form-group">
+          <label>Logo Impresa Esecutrice</label>
+          <input type="file" id="inputLogo" accept="image/*" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>WBS / Luogo di Produzione</label>
+          <input type="text" id="inputWBS" class="form-control" value="CRAVASCO">
+        </div>
+        <div class="form-group">
+          <label>Produttore del Rifiuto</label>
+          <input type="text" id="inputProduttore" class="form-control" value="Consorzio Tunnel Giovi">
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3><i class="fas fa-barcode"></i> Codice EER & Descrizione</h3>
+        <div class="form-group">
+          <label>Cerca Codice EER</label>
+          <input type="text" id="searchEER" class="form-control" placeholder="Es. 17 05 03*, 17 09 04..." autocomplete="off">
+          <div class="eer-suggestions" id="eerSuggestions"></div>
+        </div>
+        <div class="form-group">
+          <label>Descrizione Ufficiale EER</label>
+          <textarea id="customDesc" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-info-circle text-sky-600"></i> Descrizione Operativa (Cantiere)</label>
+          <input type="text" id="inputOperativa" class="form-control" value="Depositare esclusivamente nei cassoni dedicati coperti da telo impermeabile." placeholder="Istruzioni sbrigative per operai...">
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3><i class="fas fa-exclamation-triangle"></i> Caratteristiche HP</h3>
+        <div class="checkbox-grid" id="hpContainer"></div>
+      </div>
+
+      <div class="panel-section">
+        <h3><i class="fas fa-radiation"></i> Pittogrammi CLP (ADR)</h3>
+        <div class="checkbox-grid" id="pitContainer"></div>
+      </div>
+
+    </div>
+
+    <!-- Anteprima e Stampa -->
+    <div class="preview-area">
+      <div class="print-actions">
+        <button class="btn-print" onclick="stampaFormato('A4')">
+          <i class="fas fa-print"></i> Stampa A4 Orizzontale
+        </button>
+        <button class="btn-print btn-a3" onclick="stampaFormato('A3')">
+          <i class="fas fa-expand"></i> Stampa A3 Orizzontale (Ingrandito)
+        </button>
+      </div>
+
+      <div class="cartello-sheet" id="cartelloSheet">
+        
+        <!-- RIGA 1: Header Logos -->
+        <div class="c-header-left">
+          <img src="logo_webuild.jpg" class="c-logo-webuild" alt="Logo Webuild" onerror="this.src='https://via.placeholder.com/160?text=Logo+Webuild'">
+        </div>
+        <div class="c-header-right">
+          <div class="c-main-title">
+            Linea Ferroviaria AV/AC<br>Terzo Valico Di Giovi
+          </div>
+          <div class="c-logo-esecutrice" id="logoPreview">
+            caricare logo impresa esecutrice
+          </div>
+        </div>
+
+        <!-- COLONNA SINISTRA -->
+        <div class="col-sinistra">
+          <div class="c-box-evidenza">
+            <div class="c-box-label">WBS / Luogo di Produzione</div>
+            <div class="c-box-value" id="viewWBS">CRAVASCO</div>
+          </div>
+
+          <div class="c-box-evidenza">
+            <div class="c-box-label">Produttore</div>
+            <div class="c-box-value" id="viewProduttore">Consorzio Tunnel Giovi</div>
+          </div>
+
+          <div class="c-hp-table-border">
+            <div class="hp-title">Caratteristiche di Pericolo (HP)</div>
+            <div class="hp-list-container" id="viewHPList"></div>
+          </div>
+        </div>
+
+        <!-- COLONNA DESTRA -->
+        <div class="col-destra">
+          
+          <!-- Box EER e Descrizione Ufficiale -->
+          <div class="c-eer-box-container">
+            <div class="c-eer-desc" id="viewEERDesc">Terra e rocce, contenenti sostanze pericolose</div>
+            <div class="c-eer-code" id="viewEERCode">17 05 03 *</div>
+          </div>
+
+          <!-- Box Descrizione Operativa -->
+          <div class="c-operativa-box">
+            <div class="c-operativa-label"><i class="fas fa-hard-hat"></i> Indicazioni Operative per il Cantiere</div>
+            <div class="c-operativa-text" id="viewOperativa">Depositare esclusivamente nei cassoni dedicati coperti da telo impermeabile.</div>
+          </div>
+
+          <!-- Griglia Pittogrammi Piena -->
+          <div class="c-pittogrammi-grid" id="viewPitGrid"></div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const eerDatabase = [
+       { code: "01 03 04 *", desc: "Sterili che possono generare acido prodotti dalla lavorazione di minerale solforoso" },
+       { code: "01 03 05 *", desc: "Altri sterili contenenti sostanze pericolose" },
+       { code: "01 03 07 *", desc: "Altri rifiuti contenenti sostanze pericolose prodotti da trattamenti chimici e fisici di minerali metalliferi" },
+       { code: "01 04 07 *", desc: "Rifiuti contenenti sostanze pericolose, prodotti da trattamenti chimici e fisici di minerali non metalliferi" },
+       { code: "01 05 05 *", desc: "Fanghi e rifiuti di perforazione contenenti oli" },
+       { code: "01 05 06 *", desc: "Fanghi di perforazione ed altri rifiuti di perforazione contenenti sostanze pericolose" },
+       { code: "02 01 08 *", desc: "Rifiuti agrochimici contenenti sostanze pericolose" },
+       { code: "03 01 04 *", desc: "Segatura, trucioli, residui di taglio, legno, pannelli di truciolare e piallacci contenenti sostanze pericolose" },
+       { code: "03 02 01 *", desc: "Prodotti per i trattamenti conservativi del legno contenenti composti organici non alogenati" },
+       { code: "03 02 02 *", desc: "Prodotti per i trattamenti conservativi del legno contenenti composti organici clorurati" },
+       { code: "03 02 03 *", desc: "Prodotti per i trattamenti conservativi del legno contenenti composti organometallici" },
+       { code: "03 02 04 *", desc: "Prodotti per i trattamenti conservativi del legno contenenti composti inorganici" },
+       { code: "03 02 05 *", desc: "Altri prodotti per i trattamenti conservativi del legno contenenti sostanze pericolose" },
+       { code: "04 01 03 *", desc: "Bagni di sgrassatura esauriti contenenti solventi senza fase liquida" },
+       { code: "04 02 14 *", desc: "Rifiuti provenienti da operazioni di finitura, contenenti solventi organici" },
+       { code: "04 02 16 *", desc: "Tinture e pigmenti, contenenti sostanze pericolose" },
+       { code: "04 02 19 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "05 01 02 *", desc: "Fanghi da processi di dissalazione" },
+       { code: "05 01 03 *", desc: "Morchie depositate sul fondo dei serbatoi" },
+       { code: "05 01 04 *", desc: "Fanghi acidi prodotti da processi di alchilazione" },
+       { code: "05 01 05 *", desc: "Perdite di olio" },
+       { code: "05 01 06 *", desc: "Fanghi oleosi prodotti dalla manutenzione di impianti e apparecchiature" },
+       { code: "05 01 07 *", desc: "Catrami acidi" },
+       { code: "05 01 08 *", desc: "Altri catrami" },
+       { code: "05 01 09 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "05 01 11 *", desc: "Rifiuti prodotti dalla purificazione di carburanti tramite basi" },
+       { code: "05 01 12 *", desc: "Acidi contenenti oli" },
+       { code: "05 01 15 *", desc: "Filtri di argilla esauriti" },
+       { code: "05 06 01 *", desc: "Catrami acidi" },
+       { code: "05 06 03 *", desc: "Altri catrami" },
+       { code: "05 07 01 *", desc: "Rifiuti contenenti mercurio" },
+       { code: "06 01 01 *", desc: "Acido solforico ed acido solforoso" },
+       { code: "06 01 02 *", desc: "Acido cloridrico" },
+       { code: "06 01 03 *", desc: "Acido fluoridrico" },
+       { code: "06 01 04 *", desc: "Acido fosforico e fosforoso" },
+       { code: "06 01 05 *", desc: "Acido nitrico e acido nitroso" },
+       { code: "06 01 06 *", desc: "Altri acidi" },
+       { code: "06 02 01 *", desc: "Idrossido di calcio" },
+       { code: "06 02 03 *", desc: "Idrossido di ammonio" },
+       { code: "06 02 04 *", desc: "Idrossido di sodio e di potassio" },
+       { code: "06 02 05 *", desc: "Altre basi" },
+       { code: "06 03 11 *", desc: "Sali e loro soluzioni, contenenti cianuri" },
+       { code: "06 03 13 *", desc: "Sali e loro soluzioni, contenenti metalli pesanti" },
+       { code: "06 03 15 *", desc: "Ossidi metallici contenenti metalli pesanti" },
+       { code: "06 04 03 *", desc: "Rifiuti contenenti arsenico" },
+       { code: "06 04 04 *", desc: "Rifiuti contenenti mercurio" },
+       { code: "06 04 05 *", desc: "Rifiuti contenenti altri metalli pesanti" },
+       { code: "06 05 02 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "06 06 02 *", desc: "Rifiuti contenenti solfuri pericolosi" },
+       { code: "06 07 01 *", desc: "Rifiuti dei processi elettrolitici, contenenti amianto" },
+       { code: "06 07 02 *", desc: "Carbone attivato dalla produzione di cloro" },
+       { code: "06 07 03 *", desc: "Fanghi di solfati di bario, contenenti mercurio" },
+       { code: "06 07 04 *", desc: "Soluzioni ed acidi, ad es. Acido di contatto" },
+       { code: "06 08 02 *", desc: "Rifiuti contenenti clorosilano pericoloso" },
+       { code: "06 09 03 *", desc: "Rifiuti prodotti da reazioni a base di calcio contenenti o contaminati da sostanze pericolose" },
+       { code: "06 10 02 *", desc: "Rifiuti contenenti sostanze pericolose" },
+       { code: "06 13 01 *", desc: "Prodotti fitosanitari, agenti conservativi del legno ed altri biocidi inorganici" },
+       { code: "06 13 02 *", desc: "Carbone attivato esaurito (tranne 06 07 02)" },
+       { code: "06 13 04 *", desc: "Rifiuti della lavorazione dell'amianto" },
+       { code: "06 13 05 *", desc: "Fuliggine" },
+       { code: "07 01 01 *", desc: "Soluzioni acquose di lavaggio ed acque madri" },
+       { code: "07 01 03 *", desc: "Solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 01 04 *", desc: "Altri solventi organici, soluzioni di lavaggio ed acque madri" },
+       { code: "07 01 07 *", desc: "Fondi e residui di reazione, alogenati" },
+       { code: "07 01 08 *", desc: "Altri fondi e residui di reazione" },
+       { code: "07 01 09 *", desc: "Residui di filtrazione e assorbenti esauriti, alogenati" },
+       { code: "07 01 10 *", desc: "Altri residui di filtrazione e assorbenti esauriti" },
+       { code: "07 01 11 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "07 02 01 *", desc: "Soluzioni acquose di lavaggio ed acque madri" },
+       { code: "07 02 03 *", desc: "Solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 02 04 *", desc: "Altri solventi organici, soluzioni di lavaggio ed acque madri" },
+       { code: "07 02 07 *", desc: "Fondi e residui di reazione, alogenati" },
+       { code: "07 02 08 *", desc: "Altri fondi e residui di reazione" },
+       { code: "07 02 09 *", desc: "Residui di filtrazione e assorbenti esauriti, alogenati" },
+       { code: "07 02 10 *", desc: "Altri residui di filtrazione e assorbenti esauriti" },
+       { code: "07 02 11 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "07 02 14 *", desc: "Rifiuti prodotti da additivi, contenenti sostanze pericolose" },
+       { code: "07 02 16 *", desc: "Rifiuti contenenti silicone pericoloso" },
+       { code: "07 03 01 *", desc: "Soluzioni acquose di lavaggio ed acque madri" },
+       { code: "07 03 03 *", desc: "Solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 03 04 *", desc: "Altri solventi organici, soluzioni di lavaggio ed acque madri" },
+       { code: "07 03 07 *", desc: "Fondi e residui di reazione alogenati" },
+       { code: "07 03 08 *", desc: "Altri fondi e residui di reazione" },
+       { code: "07 03 09 *", desc: "Residui di filtrazione e assorbenti esauriti alogenati" },
+       { code: "07 03 10 *", desc: "Altri residui di filtrazione e assorbenti esauriti" },
+       { code: "07 03 11 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "07 04 01 *", desc: "Soluzioni acquose di lavaggio ed acque madri" },
+       { code: "07 04 03 *", desc: "Solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 04 04 *", desc: "Altri solventi organici, soluzioni di lavaggio ed acque madri" },
+       { code: "07 04 07 *", desc: "Fondi e residui di reazione alogenati" },
+       { code: "07 04 08 *", desc: "Altri fondi e residui di reazione" },
+       { code: "07 04 09 *", desc: "Residui di filtrazione e assorbenti esauriti alogenati" },
+       { code: "07 04 10 *", desc: "Altri residui di filtrazione e assorbenti esauriti" },
+       { code: "07 04 11 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "07 04 13 *", desc: "Rifiuti solidi contenenti sostanze pericolose" },
+       { code: "07 05 01 *", desc: "Soluzioni acquose di lavaggio ed acque madri" },
+       { code: "07 05 03 *", desc: "Solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 05 04 *", desc: "Altri solventi organici, soluzioni di lavaggio ed acque madri" },
+       { code: "07 05 07 *", desc: "Fondi e residui di reazione, alogenati" },
+       { code: "07 05 08 *", desc: "Altri fondi e residui di reazione" },
+       { code: "07 05 09 *", desc: "Residui di filtrazione e assorbenti esauriti, alogenati" },
+       { code: "07 05 10 *", desc: "Altri residui di filtrazione e assorbenti esauriti" },
+       { code: "07 05 11 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "07 05 13 *", desc: "Rifiuti solidi contenenti sostanze pericolose" },
+       { code: "07 06 01 *", desc: "Soluzioni acquose di lavaggio ed acque madri" },
+       { code: "07 06 03 *", desc: "Solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 06 04 *", desc: "Altri solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 06 07 *", desc: "Fondi e residui di reazione, alogenati" },
+       { code: "07 06 08 *", desc: "Altri fondi e residui di reazione" },
+       { code: "07 06 09 *", desc: "Residui di filtrazione e assorbenti esauriti, alogenati" },
+       { code: "07 06 10 *", desc: "Altri residui di filtrazione e assorbenti esauriti" },
+       { code: "07 06 11 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "07 07 01 *", desc: "Soluzioni acquose di lavaggio ed acque madri" },
+       { code: "07 07 03 *", desc: "Solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 07 04 *", desc: "Altri solventi organici alogenati, soluzioni di lavaggio ed acque madri" },
+       { code: "07 07 07 *", desc: "Fondi e residui di reazione, alogenati" },
+       { code: "07 07 08 *", desc: "Altri fondi e residui di reazione" },
+       { code: "07 07 09 *", desc: "Residui di filtrazione e assorbenti esauriti, alogenati" },
+       { code: "07 07 10 *", desc: "Altri residui di filtrazione e assorbenti esauriti" },
+       { code: "07 07 11 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "08 01 11 *", desc: "Pitture e vernici di scarto, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 01 13 *", desc: "Fanghi prodotti da pitture e vernici, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 01 15 *", desc: "Fanghi acquosi contenenti pitture e vernici, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 01 17 *", desc: "Fanghi prodotti dalla rimozione di pitture e vernici, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 01 19 *", desc: "Sospensioni acquose contenenti pitture e vernici, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 01 21 *", desc: "Residui di vernici o di sverniciatori" },
+       { code: "08 03 12 *", desc: "Scarti di inchiostro, contenenti sostanze pericolose" },
+       { code: "08 03 14 *", desc: "Fanghi di inchiostro, contenenti sostanze pericolose" },
+       { code: "08 03 16 *", desc: "Residui di soluzioni chimiche per incisione" },
+       { code: "08 03 17 *", desc: "Toner per stampa esauriti, contenenti sostanze pericolose" },
+       { code: "08 03 19 *", desc: "Oli dispersi" },
+       { code: "08 04 09 *", desc: "Adesivi e sigillanti di scarto, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 04 11 *", desc: "Fanghi di adesivi e sigillanti, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 04 13 *", desc: "Fanghi acquosi contenenti adesivi e sigillanti, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 04 15 *", desc: "Rifiuti liquidi acquosi contenenti adesivi e sigillanti, contenenti solventi organici o altre sostanze pericolose" },
+       { code: "08 04 17 *", desc: "Olio di resina" },
+       { code: "08 05 01 *", desc: "Isocianati di scarto" },
+       { code: "09 01 01 *", desc: "Soluzioni di sviluppo e attivanti a base acquosa" },
+       { code: "09 01 02 *", desc: "Soluzioni di sviluppo per lastre offset a base acquosa" },
+       { code: "09 01 03 *", desc: "Soluzioni di sviluppo a base di solventi" },
+       { code: "09 01 04 *", desc: "Soluzioni fissative" },
+       { code: "09 01 05 *", desc: "Soluzioni di sbianca e soluzioni di sbianca-fissaggio" },
+       { code: "09 01 06 *", desc: "Rifiuti contenenti argento prodotti dal trattamento in loco di rifiuti fotografici" },
+       { code: "09 01 11 *", desc: "Macchine fotografiche monouso contenenti batterie incluse nelle voci 16 06 01, 16 06 02 o 16 06 03" },
+       { code: "09 01 13 *", desc: "Rifiuti liquidi acquosi prodotti dal recupero in loco dell'argento, diversi da quelli di cui alla voce 09 01 06" },
+       { code: "10 01 04 *", desc: "Ceneri leggere di olio combustibile e polveri di caldaia" },
+       { code: "10 01 09 *", desc: "Acido solforico" },
+       { code: "10 01 13 *", desc: "Ceneri leggere prodotte da idrocarburi emulsionati usati come carburante" },
+       { code: "10 01 14 *", desc: "Ceneri pesanti, scorie e polveri di caldaia prodotte dal coincenerimento, contenenti sostanze pericolose" },
+       { code: "10 01 16 *", desc: "Ceneri leggere prodotte dal coincenerimento, contenenti sostanze pericolose" },
+       { code: "10 01 18 *", desc: "Rifiuti prodotti dalla depurazione dei fumi, contenenti sostanze pericolose" },
+       { code: "10 01 20 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "10 01 22 *", desc: "Fanghi acquosi da operazioni di pulizia caldaie, contenenti sostanze pericolose" },
+       { code: "10 02 07 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 02 11 *", desc: "Rifiuti prodotti dal trattamento delle acque di raffreddamento, contenti oli" },
+       { code: "10 02 13 *", desc: "Fanghi e residui di filtrazione prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 03 04 *", desc: "Scorie della produzione primaria" },
+       { code: "10 03 08 *", desc: "Scorie saline della produzione secondaria" },
+       { code: "10 03 09 *", desc: "Scorie nere della produzione secondaria" },
+       { code: "10 03 15 *", desc: "Schiumature infiammabili o che rilasciano, al contatto con l'acqua, gas infiammabili in quantità pericolose" },
+       { code: "10 03 17 *", desc: "Rifiuti contenenti catrame della produzione degli anodi" },
+       { code: "10 03 19 *", desc: "Polveri dei gas di combustione, contenenti sostanze pericolose" },
+       { code: "10 03 21 *", desc: "Altre polveri e particolati (comprese quelle prodotte da mulini a palle), contenenti sostanze pericolose" },
+       { code: "10 03 23 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 03 25 *", desc: "Fanghi e residui di filtrazione prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 03 27 *", desc: "Rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli" },
+       { code: "10 03 29 *", desc: "Rifiuti prodotti dal trattamento di scorie saline e scorie nere, contenenti sostanze pericolose" },
+       { code: "10 04 01 *", desc: "Scorie della produzione primaria e secondaria" },
+       { code: "10 04 02 *", desc: "Impurità e schiumature della produzione primaria e secondaria" },
+       { code: "10 04 03 *", desc: "Arsenato di calcio" },
+       { code: "10 04 04 *", desc: "Polveri dei gas di combustione" },
+       { code: "10 04 05 *", desc: "Altre polveri e particolato" },
+       { code: "10 04 06 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi" },
+       { code: "10 04 07 *", desc: "Fanghi e residui di filtrazione prodotti dal trattamento dei fumi" },
+       { code: "10 04 09 *", desc: "Rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli" },
+       { code: "10 05 03 *", desc: "Polveri dei gas di combustione" },
+       { code: "10 05 05 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi" },
+       { code: "10 05 06 *", desc: "Fanghi e residui di filtrazione prodotti dal trattamento dei fumi" },
+       { code: "10 05 08 *", desc: "Rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli" },
+       { code: "10 05 10 *", desc: "Scorie e schiumature infiammabili o che rilasciano, al contatto con l'acqua, gas infiammabili in quantità pericolose" },
+       { code: "10 06 03 *", desc: "Polveri dei gas di combustione" },
+       { code: "10 06 06 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi" },
+       { code: "10 06 07 *", desc: "Fanghi e residui di filtrazione prodotti dal trattamento dei fumi" },
+       { code: "10 06 09 *", desc: "Rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli" },
+       { code: "10 07 07 *", desc: "Rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli" },
+       { code: "10 08 08 *", desc: "Scorie salate della produzione primaria e secondaria" },
+       { code: "10 08 10 *", desc: "Impurità e schiumature infiammabili o che rilasciano, al contatto con l'acqua, gas infiammabili in quantità pericolose" },
+       { code: "10 08 12 *", desc: "Rifiuti contenenti catrame derivante dalla produzione degli anodi" },
+       { code: "10 08 15 *", desc: "Polveri dei gas di combustione, contenenti sostanze pericolose" },
+       { code: "10 08 17 *", desc: "Fanghi e residui di filtrazione prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 08 19 *", desc: "Rifiuti prodotti dal trattamento delle acque di raffreddamento, contenenti oli" },
+       { code: "10 09 05 *", desc: "Forme e anime da fonderia non utilizzate, contenenti sostanze pericolose" },
+       { code: "10 09 07 *", desc: "Forme e anime da fonderia utilizzate, contenenti sostanze pericolose" },
+       { code: "10 09 09 *", desc: "Polveri dei gas di combustione contenenti sostanze pericolose" },
+       { code: "10 09 11 *", desc: "Altri particolati contenenti sostanze pericolose" },
+       { code: "10 09 13 *", desc: "Leganti per rifiuti contenenti sostanze pericolose" },
+       { code: "10 09 15 *", desc: "Scarti di prodotti rilevatori di crepe, contenenti sostanze pericolose" },
+       { code: "10 10 05 *", desc: "Forme e anime da fonderia non utilizzate, contenenti sostanze pericolose" },
+       { code: "10 10 07 *", desc: "Forme e anime da fonderia utilizzate, contenenti sostanze pericolose" },
+       { code: "10 10 09 *", desc: "Polveri dei gas di combustione, contenenti sostanze pericolose" },
+       { code: "10 10 11 *", desc: "Altri particolati contenenti sostanze pericolose" },
+       { code: "10 10 13 *", desc: "Leganti per rifiuti contenenti sostanze pericolose" },
+       { code: "10 10 15 *", desc: "Scarti di prodotti rilevatori di crepe, contenenti sostanze pericolose" },
+       { code: "10 11 09 *", desc: "Scarti di mescole non sottoposte a trattamento termico, contenenti sostanze pericolose" },
+       { code: "10 11 11 *", desc: "Rifiuti di vetro in forma di particolato e polveri di vetro contenenti metalli pesanti (provenienti ad es. Da tubi a raggi catodici)" },
+       { code: "10 11 13 *", desc: "Lucidature di vetro e fanghi di macinazione, contenenti sostanze pericolose" },
+       { code: "10 11 15 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 11 17 *", desc: "Fanghi e residui di filtrazione prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 11 19 *", desc: "Rifiuti solidi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "10 12 09 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 12 11 *", desc: "Rifiuti delle operazioni di smaltatura, contenenti metalli pesanti" },
+       { code: "10 13 09 *", desc: "Rifiuti della fabbricazione di amianto cemento, contenenti amianto" },
+       { code: "10 13 12 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi, contenenti sostanze pericolose" },
+       { code: "10 14 01 *", desc: "Rifiuti prodotti dalla depurazione dei fumi, contenenti mercurio" },
+       { code: "11 01 05 *", desc: "Acidi di decappaggio" },
+       { code: "11 01 06 *", desc: "Acidi non specificati altrimenti" },
+       { code: "11 01 07 *", desc: "Basi di decappaggio" },
+       { code: "11 01 08 *", desc: "Fanghi di fosfatazione" },
+       { code: "11 01 09 *", desc: "Fanghi e residui di filtrazione, contenenti sostanze pericolose" },
+       { code: "11 01 11 *", desc: "Soluzioni acquose di lavaggio, contenenti sostanze pericolose" },
+       { code: "11 01 13 *", desc: "Rifiuti di sgrassaggio contenenti sostanze pericolose" },
+       { code: "11 01 15 *", desc: "Eluati e fanghi di sistemi a membrana e sistemi a scambio ionico, contenenti sostanze pericolose" },
+       { code: "11 01 16 *", desc: "Resine a scambio ionico saturate o esaurite" },
+       { code: "11 01 98 *", desc: "Altri rifiuti contenenti sostanze pericolose" },
+       { code: "11 02 02 *", desc: "Rifiuti della lavorazione idrometallurgica dello zinco (compresi jarosite, goethite)" },
+       { code: "11 02 05 *", desc: "Rifiuti della lavorazione idrometallurgica del rame, contenenti sostanze pericolose" },
+       { code: "11 02 07 *", desc: "Altri rifiuti contenenti sostanze pericolose" },
+       { code: "11 03 01 *", desc: "Rifiuti contenenti cianuro" },
+       { code: "11 03 02 *", desc: "Altri rifiuti" },
+       { code: "11 05 03 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi" },
+       { code: "11 05 04 *", desc: "Fondente esaurito" },
+       { code: "12 01 06 *", desc: "Oli minerali per macchinari, contenenti alogeni (eccetto emulsioni e soluzioni)" },
+       { code: "12 01 07 *", desc: "Oli minerali per macchinari, non contenenti alogeni (eccetto emulsioni e soluzioni)" },
+       { code: "12 01 08 *", desc: "Emulsioni e soluzioni per macchinari, contenenti alogeni" },
+       { code: "12 01 09 *", desc: "Emulsioni e soluzioni per macchinari, non contenenti alogeni" },
+       { code: "12 01 10 *", desc: "Oli sintetici per macchinari" },
+       { code: "12 01 12 *", desc: "Cere e grassi esauriti" },
+       { code: "12 01 14 *", desc: "Fanghi di lavorazione, contenenti sostanze pericolose" },
+       { code: "12 01 16 *", desc: "Materiale abrasivo di scarto, contenente sostanze pericolose" },
+       { code: "12 01 18 *", desc: "Fanghi metallici (fanghi di rettifica, affilatura e lappatura) contenenti olio" },
+       { code: "12 01 19 *", desc: "Oli per macchinari, facilmente biodegradabili" },
+       { code: "12 01 20 *", desc: "Corpi d'utensile e materiali di rettifica esauriti, contenenti sostanze pericolose" },
+       { code: "12 03 01 *", desc: "Soluzioni acquose di lavaggio" },
+       { code: "12 03 02 *", desc: "Rifiuti prodotti da processi di sgrassatura a vapore" },
+       { code: "13 01 01 *", desc: "Oli per circuiti idraulici contenenti PCB" },
+       { code: "13 01 04 *", desc: "Emulsioni clorurate" },
+       { code: "13 01 05 *", desc: "Emulsioni non clorurate" },
+       { code: "13 01 09 *", desc: "Oli minerali per circuiti idraulici, clorurati" },
+       { code: "13 01 10 *", desc: "Oli minerali per circuiti idraulici, non clorurati" },
+       { code: "13 01 11 *", desc: "Oli sintetici per circuiti idraulici" },
+       { code: "13 01 12 *", desc: "Oli per circuiti idraulici, facilmente biodegradabili" },
+       { code: "13 01 13 *", desc: "Altri oli per circuiti idraulici" },
+       { code: "13 02 04 *", desc: "Scarti di olio minerale per motori, ingranaggi e lubrificazione, clorurati" },
+       { code: "13 02 05 *", desc: "Scarti di olio minerale per motori, ingranaggi e lubrificazione, non clorurati" },
+       { code: "13 02 06 *", desc: "Scarti di olio sintetico per motori, ingranaggi e lubrificazione" },
+       { code: "13 02 07 *", desc: "Olio per motori, ingranaggi e lubrificazione, facilmente biodegradabile" },
+       { code: "13 02 08 *", desc: "Altri oli per motori, ingranaggi e lubrificazione" },
+       { code: "13 03 01 *", desc: "Oli isolanti e termoconduttori, contenenti PCB" },
+       { code: "13 03 06 *", desc: "Oli minerali isolanti e termoconduttori clorurati, diversi da quelli di cui alla voce 13 03 01" },
+       { code: "13 03 07 *", desc: "Oli minerali isolanti e termoconduttori non clorurati" },
+       { code: "13 03 08 *", desc: "Oli sintetici isolanti e termoconduttori" },
+       { code: "13 03 09 *", desc: "Oli isolanti e termoconduttori, facilmente biodegradabili" },
+       { code: "13 03 10 *", desc: "Altri oli isolanti e termoconduttori" },
+       { code: "13 04 01 *", desc: "Oli di sentina della navigazione interna" },
+       { code: "13 04 02 *", desc: "Oli di sentina delle fognature dei moli" },
+       { code: "13 04 03 *", desc: "Altri oli di sentina della navigazione" },
+       { code: "13 05 01 *", desc: "Rifiuti solidi delle camere a sabbia e di prodotti di separazione olio/acqua" },
+       { code: "13 05 02 *", desc: "Fanghi di prodotti di separazione olio/acqua" },
+       { code: "13 05 03 *", desc: "Fanghi da collettori" },
+       { code: "13 05 06 *", desc: "Oli prodotti dalla separazione olio/acqua" },
+       { code: "13 05 07 *", desc: "Acque oleose prodotte dalla separazione olio/acqua" },
+       { code: "13 05 08 *", desc: "Miscugli di rifiuti delle camere a sabbia e dei prodotti di separazione olio/acqua" },
+       { code: "13 07 01 *", desc: "Olio combustibile e carburante diesel" },
+       { code: "13 07 02 *", desc: "Petrolio" },
+       { code: "13 07 03 *", desc: "Altri carburanti (comprese le miscele)" },
+       { code: "13 08 01 *", desc: "Fanghi ed emulsioni prodotti dai processi di dissalazione" },
+       { code: "13 08 02 *", desc: "Altre emulsioni" },
+       { code: "13 08 99 *", desc: "Rifiuti non specificati altrimenti" },
+       { code: "14 06 01 *", desc: "Clorofluorocarburi, HCFC, HFC" },
+       { code: "14 06 02 *", desc: "Altri solventi e miscele di solventi, alogenati" },
+       { code: "14 06 03 *", desc: "Altri solventi e miscele di solventi" },
+       { code: "14 06 04 *", desc: "Fanghi o rifiuti solidi, contenenti solventi alogenati" },
+       { code: "14 06 05 *", desc: "Fanghi o rifiuti solidi, contenenti altri solventi" },
+       { code: "15 01 10 *", desc: "Imballaggi contenenti residui di sostanze pericolose o contaminati da tali sostanze" },
+       { code: "15 01 11 *", desc: "Imballaggi metallici contenenti matrici solide porose pericolose (ad esempio amianto), compresi i contenitori a pressione vuoti" },
+       { code: "15 02 02 *", desc: "Assorbenti, materiali filtranti (inclusi filtri dell'olio non specificati altrimenti), stracci e indumenti protettivi, contaminati da sostanze pericolose" },
+       { code: "16 01 04 *", desc: "Veicoli fuori uso" },
+       { code: "16 01 07 *", desc: "Filtri dell'olio" },
+       { code: "16 01 08 *", desc: "Componenti contenenti mercurio" },
+       { code: "16 01 09 *", desc: "Componenti contenenti PCB" },
+       { code: "16 01 10 *", desc: "Componenti esplosivi (ad esempio air bag)" },
+       { code: "16 01 11 *", desc: "Pastiglie per freni, contenenti amianto" },
+       { code: "16 01 13 *", desc: "Liquidi per freni" },
+       { code: "16 01 14 *", desc: "Liquidi antigelo contenenti sostanze pericolose" },
+       { code: "16 01 21 *", desc: "Componenti pericolosi diversi da quelli di cui alle voci da 16 01 07 a 16 01 11, 16 01 13 e 16 01 14" },
+       { code: "16 02 09 *", desc: "Trasformatori e condensatori contenenti PCB" },
+       { code: "16 02 10 *", desc: "Apparecchiature fuori uso contenenti PCB o da essi contaminate, diverse da quelle di cui alla voce 16 02 09" },
+       { code: "16 02 11 *", desc: "Apparecchiature fuori uso, contenenti clorofluorocarburi, HCFC, HFC" },
+       { code: "16 02 12 *", desc: "Apparecchiature fuori uso, contenenti amianto in fibre libere" },
+       { code: "16 02 13 *", desc: "Apparecchiature fuori uso, contenenti componenti pericolosi diversi da quelli di cui alle voci 16 02 09 e 16 02 12" },
+       { code: "16 02 15 *", desc: "Componenti pericolosi rimossi da apparecchiature fuori uso" },
+       { code: "16 03 03 *", desc: "Rifiuti inorganici, contenenti sostanze pericolose" },
+       { code: "16 03 05 *", desc: "Rifiuti organici, contenenti sostanze pericolose" },
+       { code: "16 04 01 *", desc: "Munizioni di scarto" },
+       { code: "16 04 02 *", desc: "Fuochi artificiali di scarto" },
+       { code: "16 04 03 *", desc: "Altri esplosivi di scarto" },
+       { code: "16 05 04 *", desc: "Gas in contenitori a pressione (compresi gli halon), contenenti sostanze pericolose" },
+       { code: "16 05 06 *", desc: "Sostanze chimiche di laboratorio contenenti o costituite da sostanze pericolose, comprese le miscele di sostanze chimiche di laboratorio" },
+       { code: "16 05 07 *", desc: "Sostanze chimiche inorganiche di scarto contenenti o costituite da sostanze pericolose" },
+       { code: "16 05 08 *", desc: "Sostanze chimiche organiche di scarto contenenti o costituite da sostanze pericolose" },
+       { code: "16 06 01 *", desc: "Batterie al piombo" },
+       { code: "16 06 02 *", desc: "Batterie al nichel-cadmio" },
+       { code: "16 06 03 *", desc: "Batterie contenenti mercurio" },
+       { code: "16 06 06 *", desc: "Elettroliti di batterie ed accumulatori, oggetto di raccolta differenziata" },
+       { code: "16 07 08 *", desc: "Rifiuti contenenti olio" },
+       { code: "16 07 09 *", desc: "Rifiuti contenenti altre sostanze pericolose" },
+       { code: "16 08 02 *", desc: "Catalizzatori esauriti contenenti metalli di transizione pericolosi o composti di metalli di transizione pericolosi" },
+       { code: "16 08 05 *", desc: "Catalizzatori esauriti contenenti acido fosforico" },
+       { code: "16 08 06 *", desc: "Liquidi esauriti usati come catalizzatori" },
+       { code: "16 08 07 *", desc: "Catalizzatori esauriti contaminati da sostanze pericolose" },
+       { code: "16 09 01 *", desc: "Permanganati, ad esempio permanganato di potassio" },
+       { code: "16 09 02 *", desc: "Cromati, ad esempio cromato di potassio, dicromato di potassio o di sodio" },
+       { code: "16 09 03 *", desc: "Perossidi, ad esempio perossido d'idrogeno" },
+       { code: "16 09 04 *", desc: "Sostanze ossidanti non specificate altrimenti" },
+       { code: "16 10 01 *", desc: "Soluzioni acquose di scarto, contenenti sostanze pericolose" },
+       { code: "16 10 03 *", desc: "Concentrati acquosi, contenenti sostanze pericolose" },
+       { code: "16 11 01 *", desc: "Rivestimenti e materiali refrattari a base di carbone provenienti dalle lavorazioni metallurgiche, contenenti sostanze pericolose" },
+       { code: "16 11 03 *", desc: "Altri rivestimenti e materiali refrattari provenienti dalle lavorazioni metallurgiche, contenenti sostanze pericolose" },
+       { code: "16 11 05 *", desc: "Rivestimenti e materiali refrattari provenienti da lavorazioni non metallurgiche, contenenti sostanze pericolose" },
+       { code: "17 01 06 *", desc: "Miscugli o scorie di cemento, mattoni, mattonelle e ceramiche, contenenti sostanze pericolose" },
+       { code: "17 02 04 *", desc: "Vetro, plastica e legno contenenti sostanze pericolose o da esse contaminati" },
+       { code: "17 03 01 *", desc: "Miscele bituminose contenenti catrame di carbone" },
+       { code: "17 03 03 *", desc: "Catrame di carbone e prodotti contenenti catrame" },
+       { code: "17 04 09 *", desc: "Rifiuti metallici contaminati da sostanze pericolose" },
+       { code: "17 04 10 *", desc: "Cavi, impregnati di olio, di catrame di carbone o di altre sostanze pericolose" },
+       { code: "17 05 03 *", desc: "Terra e rocce, contenenti sostanze pericolose" },
+       { code: "17 05 05 *", desc: "Fanghi di dragaggio, contenente sostanze pericolose" },
+       { code: "17 05 07 *", desc: "Pietrisco per massicciate ferroviarie, contenente sostanze pericolose" },
+       { code: "17 06 01 *", desc: "Materiali isolanti contenenti amianto" },
+       { code: "17 06 03 *", desc: "Altri materiali isolanti contenenti o costituiti da sostanze pericolose" },
+       { code: "17 06 05 *", desc: "Materiali da costruzione contenenti amianto" },
+       { code: "17 08 01 *", desc: "Materiali da costruzione a base di gesso contaminati da sostanze pericolose" },
+       { code: "17 09 01 *", desc: "Rifiuti dell'attività di costruzione e demolizione, contenenti mercurio" },
+       { code: "17 09 02 *", desc: "Rifiuti dell'attività di costruzione e demolizione, contenenti PCB (ad esempio sigillanti contenenti PCB, pavimentazioni a base di resina contenenti PCB, elementi stagni in vetro contenenti PCB, condensatori contenenti PCB)" },
+       { code: "17 09 03 *", desc: "Altri rifiuti dell'attività di costruzione e demolizione (compresi rifiuti misti) contenenti sostanze pericolose" },
+       { code: "18 01 03 *", desc: "Rifiuti che devono essere raccolti e smaltiti applicando precauzioni particolari per evitare infezioni" },
+       { code: "18 01 06 *", desc: "Sostanze chimiche pericolose o contenenti sostanze pericolose" },
+       { code: "18 01 08 *", desc: "Medicinali citotossici e citostatici" },
+       { code: "18 01 10 *", desc: "Rifiuti di amalgama prodotti da interventi odontoiatrici" },
+       { code: "18 02 02 *", desc: "Rifiuti che devono essere raccolti e smaltiti applicando precauzioni particolari per evitare infezioni" },
+       { code: "18 02 05 *", desc: "Sostanze chimiche pericolose o contenenti sostanze pericolose" },
+       { code: "18 02 07 *", desc: "Medicinali citotossici e citostatici" },
+       { code: "19 01 05 *", desc: "Residui di filtrazione prodotti dal trattamento dei fumi" },
+       { code: "19 01 06 *", desc: "Rifiuti liquidi acquosi prodotti dal trattamento dei fumi e di altri rifiuti liquidi acquosi" },
+       { code: "19 01 07 *", desc: "Rifiuti solidi prodotti dal trattamento dei fumi" },
+       { code: "19 01 10 *", desc: "Carbone attivo esaurito, impiegato per il trattamento dei fumi" },
+       { code: "19 01 11 *", desc: "Ceneri pesanti e scorie, contenenti sostanze pericolose" },
+       { code: "19 01 13 *", desc: "Ceneri leggere, contenenti sostanze pericolose" },
+       { code: "19 01 15 *", desc: "Ceneri di caldaia, contenenti sostanze pericolose" },
+       { code: "19 01 17 *", desc: "Rifiuti della pirolisi, contenenti sostanze pericolose" },
+       { code: "19 02 04 *", desc: "Miscugli di rifiuti contenenti almeno un rifiuto pericoloso" },
+       { code: "19 02 05 *", desc: "Fanghi prodotti da trattamenti chimico-fisici, contenenti sostanze pericolose" },
+       { code: "19 02 07 *", desc: "Oli e concentrati prodotti da processi di separazione" },
+       { code: "19 02 08 *", desc: "Rifiuti combustibili liquidi, contenenti sostanze pericolose" },
+       { code: "19 02 09 *", desc: "Rifiuti combustibili solidi, contenenti sostanze pericolose" },
+       { code: "19 02 11 *", desc: "Altri rifiuti contenenti sostanze pericolose" },
+       { code: "19 03 04 *", desc: "Rifiuti contrassegnati come pericolosi, parzialmente stabilizzati" },
+       { code: "19 03 06 *", desc: "Rifiuti contrassegnati come pericolosi, solidificati" },
+       { code: "19 04 02 *", desc: "Ceneri leggere ed altri rifiuti dal trattamento dei fumi" },
+       { code: "19 04 03 *", desc: "Fase solida non vetrificata" },
+       { code: "19 07 02 *", desc: "Percolato di discarica, contenente sostanze pericolose" },
+       { code: "19 08 06 *", desc: "Resine a scambio ionico saturate o esaurite" },
+       { code: "19 08 07 *", desc: "Soluzioni e fanghi di rigenerazione delle resine a scambio ionico" },
+       { code: "19 08 08 *", desc: "Rifiuti prodotti da sistemi a membrana, contenenti sostanze pericolose" },
+       { code: "19 08 10 *", desc: "Miscele di oli e grassi prodotte dalla separazione olio/acqua, diverse da quelle di cui alla voce 19 08 09" },
+       { code: "19 08 11 *", desc: "Fanghi prodotti dal trattamento biologico delle acque reflue industriali, contenenti sostanze pericolose" },
+       { code: "19 08 13 *", desc: "Fanghi contenenti sostanze pericolose prodotti da altri trattamenti delle acque reflue industriali" },
+       { code: "19 10 03 *", desc: "Fluff - frazione leggera e polveri, contenenti sostanze pericolose" },
+       { code: "19 10 05 *", desc: "Altre frazioni, contenenti sostanze pericolose" },
+       { code: "19 11 01 *", desc: "Filtri di argilla esauriti" },
+       { code: "19 11 02 *", desc: "Catrami acidi" },
+       { code: "19 11 03 *", desc: "Rifiuti liquidi acquosi" },
+       { code: "19 11 04 *", desc: "Rifiuti prodotti dalla purificazione di carburanti tramite basi" },
+       { code: "19 11 05 *", desc: "Fanghi prodotti dal trattamento in loco degli effluenti, contenenti sostanze pericolose" },
+       { code: "19 11 07 *", desc: "Rifiuti prodotti dalla purificazione dei fumi" },
+       { code: "19 12 06 *", desc: "Legno contenente sostanze pericolose" },
+       { code: "19 12 11 *", desc: "Altri rifiuti (compresi materiali misti) prodotti dal trattamento meccanico dei rifiuti, contenenti sostanze pericolose" },
+       { code: "19 13 01 *", desc: "Rifiuti solidi prodotti dalle operazioni di bonifica dei terreni, contenenti sostanze pericolose" },
+       { code: "19 13 03 *", desc: "Fanghi prodotti dalle operazioni di bonifica dei terreni, contenenti sostanze pericolose" },
+       { code: "19 13 05 *", desc: "Fanghi prodotti dalle operazioni di risanamento delle acque di falda, contenenti sostanze pericolose" },
+       { code: "19 13 07 *", desc: "Rifiuti liquidi acquosi e concentrati acquosi prodotti dalle operazioni di risanamento delle acque di falda, contenenti sostanze pericolose" },
+       { code: "20 01 13 *", desc: "Solventi" },
+       { code: "20 01 14 *", desc: "Acidi" },
+       { code: "20 01 15 *", desc: "Sostanze alcaline" },
+       { code: "20 01 17 *", desc: "Prodotti fotochimici" },
+       { code: "20 01 19 *", desc: "Pesticidi" },
+       { code: "20 01 21 *", desc: "Tubi fluorescenti ed altri rifiuti contenenti mercurio" },
+       { code: "20 01 23 *", desc: "Apparecchiature fuori uso contenenti clorofluorocarburi" },
+       { code: "20 01 26 *", desc: "Oli e grassi diversi da quelli di cui alla voce 20 01 25" },
+       { code: "20 01 27 *", desc: "Vernici, inchiostri, adesivi e resine contenenti sostanze pericolose" },
+       { code: "20 01 29 *", desc: "Detergenti contenenti sostanze pericolose" },
+       { code: "20 01 31 *", desc: "Medicinali citotossici e citostatici" },
+       { code: "20 01 33 *", desc: "Batterie e accumulatori di cui alle voci 16 06 01, 16 06 02 e 16 06 03 nonché batterie e accumulatori non suddivisi contenenti tali batterie" },
+       { code: "20 01 35 *", desc: "Apparecchiature elettriche ed elettroniche fuori uso, diverse da quelle di cui alla voce 20 01 21 e 20 01 23, contenenti componenti pericolosi" },
+       { code: "20 01 37 *", desc: "Legno, contenente sostanze pericolose" },
+    ];
+
+    const hpData = [
+      { code: 'HP1', name: 'Esplosivo' },
+      { code: 'HP2', name: 'Comburente' },
+      { code: 'HP3', name: 'Infiammabile' },
+      { code: 'HP4', name: 'Irritante' },
+      { code: 'HP5', name: 'Nocivo' },
+      { code: 'HP6', name: 'Tossicità acuta' },
+      { code: 'HP7', name: 'Cancerogeno' },
+      { code: 'HP8', name: 'Corrosivo' },
+      { code: 'HP9', name: 'Infettivo' },
+      { code: 'HP10', name: 'Tossico riproduzione' },
+      { code: 'HP11', name: 'Mutageno' },
+      { code: 'HP12', name: 'Gas a tossicità acuta' },
+      { code: 'HP13', name: 'Sensibilizzante' },
+      { code: 'HP14', name: 'Ecotossico' },
+      { code: 'HP15', name: 'Altre caratteristiche' }
+    ];
+
+    const pitImageMap = {
+      ghs01: "ghs01.jpg",
+      ghs02: "ghs02.jpg",
+      ghs03: "ghs03.jpg",
+      ghs04: "ghs04.jpg",
+      ghs05: "ghs05.jpg",
+      ghs06: "ghs06.jpg",
+      ghs07: "ghs07.jpg",
+      ghs08: "ghs08.jpg",
+      ghs09: "ghs09.jpg"
+    };
+
+    const pitData = [
+      { id: 'ghs01', label: 'ESPLOSIVO' },
+      { id: 'ghs02', label: 'INFIAMMABILE' },
+      { id: 'ghs03', label: 'OSSIDANTE' },
+      { id: 'ghs05', label: 'CORROSIVO' },
+      { id: 'ghs04', label: 'GAS SOTTO PRESSIONE' },
+      { id: 'ghs06', label: 'TOSSICO ACUTO' },
+      { id: 'ghs07', label: 'NOCIVO' },
+      { id: 'ghs09', label: 'PERICOLOSO AMBIENTE' },
+      { id: 'ghs08', label: 'GRAVI EFFETTI' }
+    ];
+
+    function initControls() {
+      const hpContainer = document.getElementById('hpContainer');
+      const viewHPList = document.getElementById('viewHPList');
+      
+      hpData.forEach(hp => {
+        const item = document.createElement('label');
+        item.className = 'checkbox-item';
+        item.innerHTML = `<input type="checkbox" data-hp="${hp.code}" onchange="updateHP()"> ${hp.code} - ${hp.name}`;
+        hpContainer.appendChild(item);
+
+        const row = document.createElement('div');
+        row.className = 'hp-row';
+        row.id = `view_hp_${hp.code}`;
+        row.innerHTML = `<span class="hp-code">${hp.code}</span> <span>${hp.name}</span>`;
+        viewHPList.appendChild(row);
+      });
+
+      const pitContainer = document.getElementById('pitContainer');
+      const viewPitGrid = document.getElementById('viewPitGrid');
+
+      pitData.forEach(pit => {
+        const item = document.createElement('label');
+        item.className = 'checkbox-item';
+        item.innerHTML = `<input type="checkbox" data-pit="${pit.id}" onchange="updatePit()"> ${pit.label}`;
+        pitContainer.appendChild(item);
+
+        const pitBox = document.createElement('div');
+        pitBox.className = 'pit-item';
+        pitBox.id = `view_pit_${pit.id}`;
+        pitBox.innerHTML = `
+          <img src="${pitImageMap[pit.id]}" class="pit-img" alt="${pit.label}" onerror="this.src='https://via.placeholder.com/90?text=${pit.id.toUpperCase()}'">
+          <div class="pit-label">${pit.label}</div>
+        `;
+        viewPitGrid.appendChild(pitBox);
+      });
+    }
+
+    const searchEERInput = document.getElementById('searchEER');
+    const eerSuggestions = document.getElementById('eerSuggestions');
+
+    searchEERInput.addEventListener('input', function() {
+      const query = this.value.trim().toLowerCase().replace(/\s+/g, '');
+      eerSuggestions.innerHTML = '';
+
+      if (query.length < 2) {
+        eerSuggestions.style.display = 'none';
+        return;
+      }
+
+      const matches = eerDatabase.filter(item => {
+        const cleanCode = item.code.toLowerCase().replace(/\s+/g, '');
+        const cleanDesc = item.desc.toLowerCase();
+        return cleanCode.includes(query) || cleanDesc.includes(query);
+      });
+
+      if (matches.length > 0) {
+        matches.forEach(match => {
+          const div = document.createElement('div');
+          div.className = 'eer-item';
+          div.innerHTML = `<strong>${match.code}</strong> - ${match.desc}`;
+          div.addEventListener('click', () => selectEER(match));
+          eerSuggestions.appendChild(div);
+        });
+        eerSuggestions.style.display = 'block';
+      } else {
+        eerSuggestions.style.display = 'none';
+      }
+    });
+
+    function selectEER(item) {
+      searchEERInput.value = item.code;
+      document.getElementById('customDesc').value = item.desc;
+      document.getElementById('viewEERCode').innerText = item.code;
+      document.getElementById('viewEERDesc').innerText = item.desc;
+      eerSuggestions.style.display = 'none';
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!searchEERInput.contains(e.target) && !eerSuggestions.contains(e.target)) {
+        eerSuggestions.style.display = 'none';
+      }
+    });
+
+    document.getElementById('customDesc').addEventListener('input', e => {
+      document.getElementById('viewEERDesc').innerText = e.target.value || "Selezionare un codice EER";
+    });
+
+    document.getElementById('inputOperativa').addEventListener('input', e => {
+      document.getElementById('viewOperativa').innerText = e.target.value || 'Nessuna indicazione specifica.';
+    });
+
+    function updateHP() {
+      hpData.forEach(hp => {
+        const cb = document.querySelector(`input[data-hp="${hp.code}"]`);
+        const viewRow = document.getElementById(`view_hp_${hp.code}`);
+        if (cb && cb.checked) {
+          viewRow.classList.add('active');
+        } else {
+          viewRow.classList.remove('active');
+        }
+      });
+    }
+
+    function updatePit() {
+      pitData.forEach(pit => {
+        const cb = document.querySelector(`input[data-pit="${pit.id}"]`);
+        const viewPit = document.getElementById(`view_pit_${pit.id}`);
+        if (cb && cb.checked) {
+          viewPit.classList.add('active');
+        } else {
+          viewPit.classList.remove('active');
+        }
+      });
+    }
+
+    document.getElementById('inputLogo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          document.getElementById('logoPreview').innerHTML = `<img src="${evt.target.result}" alt="Logo">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('inputWBS').addEventListener('input', e => {
+      document.getElementById('viewWBS').innerText = e.target.value || '—';
+    });
+    document.getElementById('inputProduttore').addEventListener('input', e => {
+      document.getElementById('viewProduttore').innerText = e.target.value || '—';
+    });
+
+    function stampaFormato(formato) {
+      if (formato === 'A3') {
+        document.body.classList.add('format-a3');
+      } else {
+        document.body.classList.remove('format-a3');
+      }
+
+      let printStyle = document.getElementById('print-style-dynamic');
+      if (!printStyle) {
+        printStyle = document.createElement('style');
+        printStyle.id = 'print-style-dynamic';
+        document.head.appendChild(printStyle);
+      }
+      
+      printStyle.innerHTML = `
+        @media print {
+          @page {
+            size: ${formato === 'A3' ? 'A3' : 'A4'} landscape;
+            margin: 0mm;
+          }
+        }
+      `;
+      
+      setTimeout(() => {
+        window.print();
+      }, 100);
+    }
+
+    /* Logica Firebase & Calendario Header */
+    const firebaseConfig = {
+      databaseURL: "https://qhseleo-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    let dataCalendarioAttuale = new Date();
+    const mesi = ["GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"];
+    const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"];
+    let scadenzeCloudHeader = {};
+    let dataSelezionataRecap = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initControls();
+      selectEER(eerDatabase[0]);
+
+      const oggi = new Date();
+      const elMonth = document.getElementById('calMonth');
+      const elDay = document.getElementById('calDay');
+      const elFull = document.getElementById('calFullDate');
+      const elInputData = document.getElementById('input-data-attivita');
+      
+      if (elMonth) elMonth.innerText = mesi[oggi.getMonth()];
+      if (elDay) elDay.innerText = oggi.getDate();
+      if (elFull) elFull.innerText = `${giorniSettimana[oggi.getDay()]}, ${oggi.getDate()} ${mesi[oggi.getMonth()]}`;
+      
+      if (elInputData) {
+        const anno = oggi.getFullYear();
+        const mese = String(oggi.getMonth() + 1).padStart(2, '0');
+        const giorno = String(oggi.getDate()).padStart(2, '0');
+        elInputData.value = `${anno}-${mese}-${giorno}`;
+        dataSelezionataRecap = `${anno}-${mese}-${giorno}`;
+      }
+
+      if (typeof firebase !== 'undefined') {
+        try {
+          const db = firebase.database();
+          db.ref('scadenze_cantiere').on('value', (snapshot) => {
+            scadenzeCloudHeader = snapshot.val() || {};
+            renderizzaCalendarioMese();
+            renderizzaListaScadenze();
+            aggiornaBoxAvvisiHeader();
+            if (dataSelezionataRecap) mostraRecapGiorno(dataSelezionataRecap);
+          });
+        } catch (e) {
+          console.log("Firebase non inizializzato.");
+        }
+      }
+    });
+
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+      var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    }
+
+    function cambiaMeseCalendario(delta) {
+      dataCalendarioAttuale.setMonth(dataCalendarioAttuale.getMonth() + delta);
+      renderizzaCalendarioMese();
+    }
+
+    function selezionaGiornoForm(anno, mese, giorno) {
+      const mStr = String(mese + 1).padStart(2, '0');
+      const gStr = String(giorno).padStart(2, '0');
+      const dataIso = `${anno}-${mStr}-${gStr}`;
+      
+      const inputData = document.getElementById('input-data-attivita');
+      if (inputData) inputData.value = dataIso;
+
+      dataSelezionataRecap = dataIso;
+      mostraRecapGiorno(dataIso);
+      renderizzaCalendarioMese();
+    }
+
+    function mostraRecapGiorno(dataIso) {
+      const boxRecap = document.getElementById('box-recap-giorno');
+      const titoloRecap = document.getElementById('recap-data-titolo');
+      const listaRecap = document.getElementById('recap-lista-appuntamenti');
+      if (!boxRecap || !listaRecap) return;
+
+      boxRecap.classList.remove('hidden');
+      titoloRecap.innerHTML = `<i class="fa-solid fa-clipboard-list text-cyan-400"></i> Appuntamenti del giorno: ${dataIso.split('-').reverse().join('/')}`;
+
+      const scadenzeDelGiorno = Object.values(scadenzeCloudHeader).filter(s => s.data === dataIso);
+
+      if (scadenzeDelGiorno.length === 0) {
+        listaRecap.innerHTML = `<p class="text-xs text-slate-500 italic py-1">Nessun appuntamento o scadenza fissata per questa data.</p>`;
+        return;
+      }
+
+      listaRecap.innerHTML = scadenzeDelGiorno.map(item => {
+        let badgeColor = 'bg-cyan-950 text-cyan-300 border-cyan-800';
+        let dotColor = 'bg-cyan-400';
+        let ambitoNome = 'ENVIRONMENT (E)';
+
+        if (item.settore === 'Q') {
+          badgeColor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+          dotColor = 'bg-emerald-500';
+          ambitoNome = 'QUALITY (Q)';
+        } else if (item.settore === 'HS') {
+          badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
+          dotColor = 'bg-amber-500';
+          ambitoNome = 'HEALTH & SAFETY (HS)';
+        }
+
+        const autoreSigla = item.autoreSigla || "LB";
+
+        return `
+          <div class="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+              <span class="font-bold text-white">${item.titolo}</span>
+              <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColor}">${ambitoNome}</span>
+            </div>
+            <div class="flex items-center gap-2 text-[11px] text-slate-400 font-bold">
+              <span class="bg-slate-800 text-cyan-400 px-2 py-0.5 rounded border border-slate-700">Autore: [${autoreSigla}]</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderizzaCalendarioMese() {
+      const container = document.getElementById('griglia-calendario-mese');
+      const labelMese = document.getElementById('label-mese-corrente');
+      if (!container || !labelMese) return;
+
+      container.innerHTML = '';
+      const year = dataCalendarioAttuale.getFullYear();
+      const month = dataCalendarioAttuale.getMonth();
+
+      labelMese.innerText = `${mesi[month]} ${year}`;
+
+      const primoGiornoMese = new Date(year, month, 1);
+      const ultimoGiornoMese = new Date(year, month + 1, 0);
+      const totaleGiorni = ultimoGiornoMese.getDate();
+
+      let giornoInizio = primoGiornoMese.getDay() - 1;
+      if (giornoInizio === -1) giornoInizio = 6;
+
+      let giornoCorrente = 1;
+      let htmlRighe = '';
+      let numSettimana = getWeekNumber(primoGiornoMese);
+      const oggi = new Date();
+
+      while (giornoCorrente <= totaleGiorni) {
+        htmlRighe += `<div class="flex items-center justify-center font-bold text-cyan-500/80 bg-slate-900/50 rounded text-[10px]">W${numSettimana}</div>`;
+        
+        for (let i = 0; i < 7; i++) {
+          if ((giornoCorrente === 1 && i < giornoInizio) || giornoCorrente > totaleGiorni) {
+            htmlRighe += `<div class="p-1"></div>`;
+          } else {
+            const mStr = String(month + 1).padStart(2, '0');
+            const gStr = String(giornoCorrente).padStart(2, '0');
+            const dataIsoKey = `${year}-${mStr}-${gStr}`;
+            
+            const scadenzeGiorno = Object.values(scadenzeCloudHeader).filter(s => s.data === dataIsoKey);
+            const quanti = scadenzeGiorno.length;
+
+            let indicatoriHtml = '';
+            if (quanti > 0) {
+              const pallini = scadenzeGiorno.slice(0, 3).map(s => {
+                let colorClass = 'bg-cyan-500';
+                if (s.settore === 'Q') colorClass = 'bg-emerald-500';
+                else if (s.settore === 'HS') colorClass = 'bg-amber-500';
+                return `<span class="w-1.5 h-1.5 rounded-full ${colorClass}"></span>`;
+              }).join('');
+
+              const counterBadge = quanti > 1 ? `<span class="text-[8px] font-black text-white px-1 bg-slate-800 rounded-full leading-none">${quanti}</span>` : '';
+
+              indicatoriHtml = `
+                <div class="absolute bottom-1 flex items-center gap-0.5">
+                  ${pallini}
+                  ${counterBadge}
+                </div>
+              `;
+            }
+
+            let isOggi = (giornoCorrente === oggi.getDate() && month === oggi.getMonth() && year === oggi.getFullYear()) 
+              ? 'border-2 border-cyan-400 font-black text-cyan-300' 
+              : 'border border-slate-800 text-slate-300';
+
+            if (dataSelezionataRecap === dataIsoKey) {
+              isOggi += ' ring-2 ring-cyan-500 bg-cyan-950/40';
+            }
+
+            htmlRighe += `
+              <div onclick="selezionaGiornoForm(${year}, ${month}, ${giornoCorrente})" class="p-1 rounded-lg transition text-xs font-semibold bg-slate-900/80 hover:bg-slate-800 flex flex-col items-center justify-between min-h-[40px] cursor-pointer relative ${isOggi}">
+                <span>${giornoCorrente}</span>
+                ${indicatoriHtml}
+              </div>`;
+            giornoCorrente++;
+          }
+        }
+        numSettimana++;
+      }
+      container.innerHTML = htmlRighe;
+    }
+
+    function salvaNuovaAttivita() {
+      const titolo = document.getElementById('input-titolo-attivita').value.trim();
+      const data = document.getElementById('input-data-attivita').value;
+      const settore = document.getElementById('input-settore-attivita').value;
+
+      if (!titolo || !data) {
+        alert("Inserisci un titolo e seleziona una data valida.");
+        return;
+      }
+
+      if (typeof firebase === 'undefined') {
+        alert("Errore: Firebase non connesso.");
+        return;
+      }
+
+      const db = firebase.database();
+      const id = "scad_" + Date.now();
+      const payload = {
+        id: id,
+        titolo: titolo,
+        data: data,
+        settore: settore,
+        autoreSigla: "LB",
+        timestamp: Date.now()
+      };
+
+      db.ref('scadenze_cantiere/' + id).set(payload, (err) => {
+        if (err) {
+          alert("Errore salvataggio: " + err.message);
+        } else {
+          document.getElementById('input-titolo-attivita').value = '';
+          alert("📅 Promemoria salvato con successo nel Cloud!");
+          dataSelezionataRecap = data;
+          mostraRecapGiorno(data);
+        }
+      });
+    }
+
+    function eliminaScadenza(id) {
+      if (confirm("Vuoi eliminare questa scadenza dall'archivio?")) {
+        if (typeof firebase !== 'undefined') {
+          firebase.database().ref('scadenze_cantiere/' + id).remove();
+        }
+      }
+    }
+
+    function aggiornaBoxAvvisiHeader() {
+      const boxAvviso = document.getElementById('testo-prossima-scadenza');
+      if (!boxAvviso) return;
+      const keys = Object.keys(scadenzeCloudHeader);
+      if (keys.length === 0) {
+        boxAvviso.innerText = "Nessun promemoria attivo";
+        return;
+      }
+      keys.sort((a,b) => new Date(scadenzeCloudHeader[a].data) - new Date(scadenzeCloudHeader[b].data));
+      boxAvviso.innerText = scadenzeCloudHeader[keys[0]].titolo;
+    }
+
+    function renderizzaListaScadenze() {
+      const container = document.getElementById('lista-scadenze-archivio');
+      if (!container) return;
+
+      container.innerHTML = '';
+      const keys = Object.keys(scadenzeCloudHeader);
+
+      if (keys.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 italic">Nessuna scadenza in archivio.</p>';
+        return;
+      }
+
+      keys.sort((a,b) => new Date(scadenzeCloudHeader[a].data) - new Date(scadenzeCloudHeader[b].data));
+
+      keys.forEach(key => {
+        const item = scadenzeCloudHeader[key];
+        
+        let badgeColore = 'bg-cyan-950 text-cyan-300 border-cyan-800';
+        let puntoColore = 'bg-cyan-500';
+        let nomeSettore = 'ENVIRONMENT (E)';
+
+        if (item.settore === 'Q') {
+          badgeColore = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+          puntoColore = 'bg-emerald-500';
+          nomeSettore = 'QUALITY (Q)';
+        } else if (item.settore === 'HS') {
+          badgeColore = 'bg-amber-950 text-amber-300 border-amber-800';
+          puntoColore = 'bg-amber-500';
+          nomeSettore = 'HEALTH & SAFETY (HS)';
+        }
+
+        const autoreSigla = item.autoreSigla || "LB";
+
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-sm text-xs text-slate-100";
+        div.innerHTML = `
+          <div class="flex items-start gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full ${puntoColore} mt-1 flex-shrink-0"></span>
+            <div>
+              <div class="font-bold text-white">${item.titolo}</div>
+              <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-2">
+                <span><i class="fa-regular fa-calendar"></i> ${item.data}</span>
+                <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColore}">${nomeSettore}</span>
+                <span class="text-cyan-400 font-semibold">• Autore: [${autoreSigla}]</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('Promemoria Cantiere Terzo Valico [' + item.settore + ']: ' + item.titolo + ' in data ' + item.data + ' (Autore: [' + autoreSigla + '])')}" target="_blank" class="w-7 h-7 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition" title="Condividi su WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <button onclick="eliminaScadenza('${key}')" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg flex items-center justify-center transition" title="Elimina">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function apriGestoreScadenze() {
+      const modal = document.getElementById('modal-scadenze');
+      if (modal) {
+        modal.classList.remove('hidden');
+        renderizzaCalendarioMese();
+        if (dataSelezionataRecap) mostraRecapGiorno(dataSelezionataRecap);
+      }
+    }
+
+    function chiudiGestoreScadenze() {
+      const modal = document.getElementById('modal-scadenze');
+      if (modal) modal.classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
