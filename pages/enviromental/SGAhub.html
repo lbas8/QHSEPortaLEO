@@ -8,8 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Firebase SDKs per la sincronizzazione del calendario -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
@@ -200,214 +200,17 @@
           </p>
         </div>
         <div class="flex items-center gap-3 pt-4 border-t border-slate-800/80">
-          <button onclick="apriModuloNCA()" class="flex items-center gap-2 px-3.5 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 hover:border-rose-400 rounded-xl text-xs font-bold text-rose-300 transition shadow-sm cursor-pointer">
+          <a href="ncaform.html" class="flex items-center gap-2 px-3.5 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 hover:border-rose-400 rounded-xl text-xs font-bold text-rose-300 transition shadow-sm">
             <i class="fa-solid fa-pen-to-square"></i>
             <span>Compila Rapporto NCA</span>
             <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
-          </button>
+          </a>
         </div>
       </div>
 
     </div>
 
   </main>
-
-  <!-- MODALE COMPILAZIONE MODULO NCA (3 FASI) -->
-  <div id="modal-nca" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl relative my-auto space-y-6 text-slate-100 max-h-[90vh] overflow-y-auto">
-      
-      <button onclick="chiudiModuloNCA()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-xl font-bold cursor-pointer">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <!-- INTESTAZIONE MODULO -->
-      <div class="border-b border-slate-800 pb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
-            <i class="fa-solid fa-file-circle-exclamation text-xl"></i>
-          </div>
-          <div>
-            <h3 class="text-lg font-black text-white uppercase tracking-wide">RAPPORTO DI NON CONFORMITÀ / OSSERVAZIONE AMBIENTALE</h3>
-            <p class="text-xs text-rose-400 font-semibold">Sistema di Gestione Ambientale — Modulo Ufficiale NCA</p>
-          </div>
-        </div>
-      </div>
-
-      <form id="form-nca" onsubmit="salvaRapportoNCA(event)" class="space-y-6 text-xs">
-        
-        <!-- FASE 1: RILEVAZIONE NCA -->
-        <div class="bg-slate-950/80 border border-rose-500/30 rounded-xl p-5 space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h4 class="font-black text-rose-400 uppercase tracking-wider flex items-center gap-2 text-xs">
-              <span class="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-[10px]">1</span>
-              FASE 1 — RILEVAZIONE NCA
-            </h4>
-            <span class="text-[10px] text-slate-400 italic">Compilato da RA / CGSA</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">1.1 WBS</label>
-              <input type="text" id="nca_wbs" placeholder="Es. WBS 1.2.3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">1.2 LOTTO</label>
-              <input type="text" id="nca_lotto" placeholder="Es. Lotto Cantiere" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">1.3 DATA RILEVAMENTO</label>
-              <input type="date" id="nca_data_rileva" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400 cursor-pointer">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">NCA RILEVATA DA</label>
-              <input type="text" id="nca_rilevata_da" placeholder="Es. Direzione Lavori / CSGA / F/S/A" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">1.4 DESTINATARIO NCA</label>
-              <input type="text" id="nca_destinatario" placeholder="Es. Impresa / Subappaltatore" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
-            </div>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-300 mb-1">1.5 ASPETTO AMBIENTALE</label>
-            <input type="text" id="nca_aspetto_ambientale" placeholder="Es. Gestione Acque / Rifiuti / Emissioni / Rumore" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-300 mb-1">1.6 DESCRIZIONE DELLA NCA</label>
-            <textarea id="nca_descrizione" rows="3" placeholder="Descrivi nel dettaglio l'evento o l'inadempienza rilevata..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400"></textarea>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-900/60 p-3 rounded-lg border border-slate-800">
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">1.7 TIPOLOGIA</label>
-              <div class="flex gap-4 items-center mt-1">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="nca_tipo" value="Puntuale" checked class="accent-rose-500"> Puntuale
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="nca_tipo" value="Di Sistema" class="accent-rose-500"> Di Sistema
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">GRAVITÀ</label>
-              <select id="nca_gravita" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none focus:border-rose-400 font-bold">
-                <option value="A">Classe A (Lieve / Osservazione)</option>
-                <option value="B">Classe B (Media)</option>
-                <option value="C">Classe C (Grave)</option>
-                <option value="D">Classe D (Critica / Blocco)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">1.8 DOCUMENTI DI RIFERIMENTO</label>
-              <input type="text" id="nca_doc_riferimento" placeholder="Contratto, Norma, PGA/POS, Procedura SGA..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">1.9 ALLEGATI FASE 1</label>
-              <input type="text" id="nca_allegati_fase1" placeholder="Foto, Verbali, Schede tecniche..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
-            </div>
-          </div>
-        </div>
-
-        <!-- FASE 2: ANALISI DELLA CAUSA E TRATTAMENTO -->
-        <div class="bg-slate-950/80 border border-amber-500/30 rounded-xl p-5 space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h4 class="font-black text-amber-400 uppercase tracking-wider flex items-center gap-2 text-xs">
-              <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px]">2</span>
-              FASE 2 — ANALISI DELLA CAUSA E TRATTAMENTO
-            </h4>
-            <span class="text-[10px] text-slate-400 italic">Compilato dal Responsabile Attuazione</span>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-300 mb-1">2.1 ANALISI DELLE CAUSE</label>
-            <textarea id="nca_analisi_cause" rows="2" placeholder="Indicare la causa radice dell'evento..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-amber-400"></textarea>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">2.2 AZIONE CORRETTIVA N.</label>
-              <input type="text" id="nca_azione_correttiva" placeholder="Es. AC-01/2026" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-amber-400">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">2.3 TRATTAMENTO PROPOSTO</label>
-              <input type="text" id="nca_trattamento" placeholder="Descrizione delle azioni immediate di messa in sicurezza..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-amber-400">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">2.4 RESPONSABILE ATTUAZIONE</label>
-              <select id="nca_resp_attuazione" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-amber-400 font-bold">
-                <option value="RA">RA (Responsabile Ambientale)</option>
-                <option value="CSGA">CSGA</option>
-                <option value="DC">DC (Direttore Cantiere)</option>
-                <option value="RSGA">RSGA</option>
-              </select>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">TRATTAMENTO ENTRO IL</label>
-              <input type="date" id="nca_trattamento_entro" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-amber-400 cursor-pointer">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">2.5 RISORSE NECESSARIE</label>
-              <input type="text" id="nca_risorse" placeholder="Personale, Mezzi, Materiali..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-amber-400">
-            </div>
-          </div>
-        </div>
-
-        <!-- FASE 3: CHIUSURA NCA -->
-        <div class="bg-slate-950/80 border border-emerald-500/30 rounded-xl p-5 space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h4 class="font-black text-emerald-400 uppercase tracking-wider flex items-center gap-2 text-xs">
-              <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">3</span>
-              FASE 3 — CHIUSURA NCA & ESITO VERIFICA
-            </h4>
-            <span class="text-[10px] text-slate-400 italic">Verifica Efficacia</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">3.1 DATA VERIFICA CHIUSURA</label>
-              <input type="date" id="nca_data_verifica" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-emerald-400 cursor-pointer">
-            </div>
-
-            <div>
-              <label class="block font-bold text-slate-300 mb-1">3.2 ESITO TRATTAMENTO</label>
-              <div class="flex gap-4 items-center mt-2">
-                <label class="flex items-center gap-2 cursor-pointer font-bold text-emerald-400">
-                  <input type="radio" name="nca_esito" value="Efficace" checked class="accent-emerald-500"> TRATTAMENTO EFFICACE
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer font-bold text-rose-400">
-                  <input type="radio" name="nca_esito" value="Non Efficace" class="accent-rose-500"> NON EFFICACE
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- BOTTONI AZIONE -->
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-          <button type="button" onclick="chiudiModuloNCA()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer">
-            Annulla
-          </button>
-          <button type="submit" class="px-6 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer flex items-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i> Salva Rapporto NCA
-          </button>
-        </div>
-
-      </form>
-
-    </div>
-  </div>
 
   <!-- FOOTER UNIFICATO -->
   <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500">
@@ -419,81 +222,8 @@
     </div>
   </footer>
 
-  <!-- CARICAMENTO HEADER CENTRALIZZATO (INJECTS HEADER & CALENDARIO) -->
+  <!-- SCRIPT HEADER CENTRALIZZATO (INJECTS HEADER & CALENDARIO CLOUD) -->
   <script src="../../header.js"></script>
-
-  <!-- LOGICA MODALE E SALVATAGGIO NCA -->
-  <script>
-    function apriModuloNCA() {
-      const modal = document.getElementById('modal-nca');
-      if (modal) {
-        modal.classList.remove('hidden');
-        const oggi = new Date().toISOString().split('T')[0];
-        document.getElementById('nca_data_rileva').value = oggi;
-      }
-    }
-
-    function chiudiModuloNCA() {
-      const modal = document.getElementById('modal-nca');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function salvaRapportoNCA(e) {
-      e.preventDefault();
-
-      if (typeof firebase === 'undefined') {
-        alert("Errore: Firebase non connesso.");
-        return;
-      }
-
-      if (!firebase.apps.length) {
-        try {
-          firebase.initializeApp({
-            databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
-          });
-        } catch (err) {
-          console.error("Errore init firebase:", err);
-        }
-      }
-
-      const id = "NCA_" + Date.now();
-      const payload = {
-        id: id,
-        wbs: document.getElementById('nca_wbs').value,
-        lotto: document.getElementById('nca_lotto').value,
-        dataRilevamento: document.getElementById('nca_data_rileva').value,
-        rilevataDa: document.getElementById('nca_rilevata_da').value,
-        destinatario: document.getElementById('nca_destinatario').value,
-        aspettoAmbientale: document.getElementById('nca_aspetto_ambientale').value,
-        descrizione: document.getElementById('nca_descrizione').value,
-        tipo: document.querySelector('input[name="nca_tipo"]:checked').value,
-        gravita: document.getElementById('nca_gravita').value,
-        docRiferimento: document.getElementById('nca_doc_riferimento').value,
-        allegatiFase1: document.getElementById('nca_allegati_fase1').value,
-        
-        analisiCause: document.getElementById('nca_analisi_cause').value,
-        azioneCorrettiva: document.getElementById('nca_azione_correttiva').value,
-        trattamento: document.getElementById('nca_trattamento').value,
-        respAttuazione: document.getElementById('nca_resp_attuazione').value,
-        trattamentoEntro: document.getElementById('nca_trattamento_entro').value,
-        risorse: document.getElementById('nca_risorse').value,
-
-        dataVerifica: document.getElementById('nca_data_verifica').value,
-        esito: document.querySelector('input[name="nca_esito"]:checked').value,
-        timestamp: Date.now()
-      };
-
-      firebase.database().ref('nca_ambientali/' + id).set(payload, (err) => {
-        if, err {
-          alert("Errore durante il salvataggio della NCA: " + err.message);
-        } else {
-          alert("🚨 Rapporto di Non Conformità (NCA) salvato correttamente nel Cloud!");
-          chiudiModuloNCA();
-          document.getElementById('form-nca').reset();
-        }
-      });
-    }
-  </script>
 
 </body>
 </html>
