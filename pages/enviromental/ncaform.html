@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro Non Conformità (NCA) & Esportazione Excel — Portale QHSE</title>
+  <title>Registro Non Conformità & Osservazioni Ambientali — Portale QHSE</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -11,7 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   
-  <!-- SheetJS per la generazione automatica dei file Excel (.xlsx) -->
+  <!-- SheetJS per esportazione Excel (.xlsx) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
@@ -38,8 +38,8 @@
   <!-- MAIN CONTENT -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col space-y-8">
     
-    <!-- INTESTAZIONE SEZIONE -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+    <!-- INTESTAZIONE SEZIONE CON NUOVI PULSANTI -->
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-b border-slate-800 pb-6">
       <div>
         <div class="flex items-center gap-3 mb-1">
           <span class="px-3 py-1 rounded-full bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-extrabold uppercase tracking-wider">
@@ -48,18 +48,30 @@
           <span class="text-xs text-slate-400 font-semibold">Registro & Tabella Excel</span>
         </div>
         <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
-          Gestione Non Conformità & Esportazione Tabellare
+          Gestione Non Conformità & Osservazioni Ambientali
         </h2>
       </div>
 
-      <div class="flex items-center gap-3 flex-wrap">
-        <button onclick="esportaTabellaExcel()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl transition shadow-lg shadow-emerald-600/20 cursor-pointer text-xs">
+      <!-- BLOCCO PULSANTI DI AZIONE RAPIDA -->
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <button onclick="esportaTabellaExcel()" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-600/20 cursor-pointer text-xs">
           <i class="fa-solid fa-file-excel text-sm"></i>
-          <span>Esporta Registro Excel (.xlsx)</span>
+          <span>Esporta Excel (.xlsx)</span>
         </button>
-        <button onclick="apriModuloNCA()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer text-xs">
+
+        <button onclick="apriModuloNCA()" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer text-xs">
           <i class="fa-solid fa-plus text-sm"></i>
           <span>Nuovo Rapporto NCA</span>
+        </button>
+
+        <button onclick="apriModuloOA()" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-amber-500/20 cursor-pointer text-xs">
+          <i class="fa-solid fa-eye text-sm"></i>
+          <span>Osservazioni Ambientali</span>
+        </button>
+
+        <button onclick="apriArchivioGenerale()" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-cyan-400 font-bold rounded-xl transition shadow-sm cursor-pointer text-xs">
+          <i class="fa-solid fa-folder-open text-sm"></i>
+          <span>Archivio NCA & OA</span>
         </button>
       </div>
     </div>
@@ -393,6 +405,17 @@
       }
     }
 
+    function apriModuloOA() {
+      // Funzione dedicata per le Osservazioni Ambientali o apertura rapida
+      alert("💡 Apertura modulo Osservazioni Ambientali (OA) collegate al sistema SGA.");
+      apriModuloNCA();
+    }
+
+    function apriArchivioGenerale() {
+      // Funzione di accesso rapido all'archivio combinato
+      window.scrollTo({ top: 400, behavior: 'smooth' });
+    }
+
     function chiudiModuloNCA() {
       const modal = document.getElementById('modal-nca');
       if (modal) modal.classList.add('hidden');
@@ -555,7 +578,6 @@
         return;
       }
 
-      // Mappatura pulita dei dati in formato array di oggetti per SheetJS
       const datiExcel = keys.map(key => {
         const item = ncaCacheData[key];
         return {
@@ -591,13 +613,10 @@
         };
       });
 
-      // Creazione del foglio di lavoro e del file Excel
       const worksheet = XLSX.utils.json_to_sheet(datiExcel);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Registro NCA");
-
-      // Download automatico del file .xlsx
-      XLSX.writeFile(workbook, "Registro_NCA_Cantiere_Terzo_Valico.xlsx");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Registro NCA & OA");
+      XLSX.writeFile(workbook, "Registro_NCA_OA_Cantiere_Terzo_Valico.xlsx");
     }
 
     function eliminaNCA(id) {
