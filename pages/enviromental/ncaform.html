@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Non Conformità Ambientali (NCA) — Portale QHSE</title>
+  <title>Registro Non Conformità (NCA) & Esportazione Excel — Portale QHSE</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Firebase SDKs per sincronizzazione Cloud -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  <!-- SheetJS per la generazione automatica dei file Excel (.xlsx) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -22,7 +25,7 @@
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .glass-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
     }
   </style>
@@ -33,38 +36,78 @@
   <div id="app-header"></div>
 
   <!-- MAIN CONTENT -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col">
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col space-y-8">
     
     <!-- INTESTAZIONE SEZIONE -->
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 border-b border-slate-800 pb-6">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
       <div>
         <div class="flex items-center gap-3 mb-1">
           <span class="px-3 py-1 rounded-full bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-extrabold uppercase tracking-wider">
-            SGA ISO 14001
+            SGA ISO 14001 — DOPPIA ARCHIVIAZIONE
           </span>
-          <span class="text-xs text-slate-400 font-semibold">Registro Ufficiale</span>
+          <span class="text-xs text-slate-400 font-semibold">Registro & Tabella Excel</span>
         </div>
         <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
-          Gestione Non Conformità / Osservazioni Ambientali (NCA)
+          Gestione Non Conformità & Esportazione Tabellare
         </h2>
       </div>
 
-      <button onclick="apriModuloNCA()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer text-xs">
-        <i class="fa-solid fa-plus text-sm"></i>
-        <span>Nuovo Rapporto NCA</span>
-      </button>
+      <div class="flex items-center gap-3 flex-wrap">
+        <button onclick="esportaTabellaExcel()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl transition shadow-lg shadow-emerald-600/20 cursor-pointer text-xs">
+          <i class="fa-solid fa-file-excel text-sm"></i>
+          <span>Esporta Registro Excel (.xlsx)</span>
+        </button>
+        <button onclick="apriModuloNCA()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer text-xs">
+          <i class="fa-solid fa-plus text-sm"></i>
+          <span>Nuovo Rapporto NCA</span>
+        </button>
+      </div>
     </div>
 
-    <!-- LISTA RAPPORTI NCA REGISTRATI -->
-    <div class="space-y-4">
+    <!-- TABELLA DI RIEPILOGO EXCEL (ANTEPRIMA LIVE) -->
+    <div class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Rapporti NCA in Archivio Cloud</h3>
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Tabella Sincronizzata (Ogni campo in colonna dedicata)</h3>
         <span id="nca-counter" class="text-xs text-slate-500">Caricamento in corso...</span>
       </div>
 
-      <div id="lista-nca-container" class="grid grid-cols-1 gap-4">
-        <div class="glass-card rounded-2xl p-8 text-center text-slate-500 text-xs italic">
-          Connessione al database in corso...
+      <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+        <div class="overflow-x-auto max-h-[500px]">
+          <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
+            <thead class="bg-slate-950 text-slate-400 font-black uppercase text-[10px] border-b border-slate-800 sticky top-0 z-10">
+              <tr>
+                <th class="p-3">ID / Codice</th>
+                <th class="p-3">WBS</th>
+                <th class="p-3">Lotto</th>
+                <th class="p-3">Data Ril.</th>
+                <th class="p-3">Rilevata Da</th>
+                <th class="p-3">Destinatario</th>
+                <th class="p-3">Aspetto Ambientale</th>
+                <th class="p-3">Descrizione NCA</th>
+                <th class="p-3">Tipologia</th>
+                <th class="p-3">Gravità</th>
+                <th class="p-3">Doc. Riferimento</th>
+                <th class="p-3">Allegati Fase 1</th>
+                <th class="p-3">Firma 1 (Nome/Data/Sigla)</th>
+                <th class="p-3">Analisi Cause</th>
+                <th class="p-3">Azione Correttiva N.</th>
+                <th class="p-3">Trattamento Proposto</th>
+                <th class="p-3">Resp. Attuazione</th>
+                <th class="p-3">Trattamento Entro</th>
+                <th class="p-3">Risorse Necessarie</th>
+                <th class="p-3">Firma 2 (Nome/Data/Sigla)</th>
+                <th class="p-3">Data Verifica Chiusura</th>
+                <th class="p-3">Esito Trattamento</th>
+                <th class="p-3">Firma 3 (Nome/Data/Sigla)</th>
+                <th class="p-3 text-center">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="tabella-nca-body" class="divide-y divide-slate-800/60">
+              <tr>
+                <td colspan="24" class="p-6 text-center text-slate-500 italic">Caricamento dati dal Cloud...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -329,17 +372,17 @@
   <!-- SCRIPT HEADER CENTRALIZZATO -->
   <script src="../../header.js"></script>
 
-  <!-- LOGICA GESTIONE E SALVATAGGIO CLOUD NCA -->
+  <!-- LOGICA GESTIONE TABELLARE E SALVATAGGIO CLOUD / EXCEL -->
   <script>
+    let ncaCacheData = {};
+
     document.addEventListener("DOMContentLoaded", () => {
-      caricaListaNCA();
+      caricaTabellaNCA();
       const oggi = new Date().toISOString().split('T')[0];
-      const f1Data = document.getElementById('nca_firma1_data');
-      const f2Data = document.getElementById('nca_firma2_data');
-      const f3Data = document.getElementById('nca_firma3_data');
-      if (f1Data) f1Data.value = oggi;
-      if (f2Data) f2Data.value = oggi;
-      if (f3Data) f3Data.value = oggi;
+      ['nca_firma1_data', 'nca_firma2_data', 'nca_firma3_data'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = oggi;
+      });
     });
 
     function apriModuloNCA() {
@@ -368,18 +411,14 @@
       const corpo = encodeURIComponent(
         `RAPPORTO DI NON CONFORMITÀ / OSSERVAZIONE AMBIENTALE (SGA)\n\n` +
         `--- FASE 1: RILEVAZIONE ---\n` +
-        `- WBS: ${wbs}\n` +
-        `- Lotto: ${lotto}\n` +
-        `- Aspetto Ambientale: ${aspetto}\n` +
-        `- Descrizione: ${descrizione}\n` +
-        `- Gravità: Classe ${gravita}\n` +
-        `- Firma Fase 1: ${document.getElementById('nca_firma1_nome').value} (${document.getElementById('nca_firma1_firma').value}) in data ${document.getElementById('nca_firma1_data').value}\n\n` +
+        `- WBS: ${wbs}\n- Lotto: ${lotto}\n- Aspetto: ${aspetto}\n- Descrizione: ${descrizione}\n- Gravità: Classe ${gravita}\n` +
+        `- Firma 1: ${document.getElementById('nca_firma1_nome').value} (${document.getElementById('nca_firma1_firma').value}) in data ${document.getElementById('nca_firma1_data').value}\n\n` +
         `--- FASE 2: TRATTAMENTO ---\n` +
         `- Trattamento: ${trattamento}\n` +
-        `- Firma Fase 2: ${document.getElementById('nca_firma2_nome').value} (${document.getElementById('nca_firma2_firma').value}) in data ${document.getElementById('nca_firma2_data').value}\n\n` +
+        `- Firma 2: ${document.getElementById('nca_firma2_nome').value} (${document.getElementById('nca_firma2_firma').value}) in data ${document.getElementById('nca_firma2_data').value}\n\n` +
         `--- FASE 3: CHIUSURA ---\n` +
-        `- Esito Verifica: ${esito}\n` +
-        `- Firma Fase 3: ${document.getElementById('nca_firma3_nome').value} (${document.getElementById('nca_firma3_firma').value}) in data ${document.getElementById('nca_firma3_data').value}\n`
+        `- Esito: ${esito}\n` +
+        `- Firma 3: ${document.getElementById('nca_firma3_nome').value} (${document.getElementById('nca_firma3_firma').value}) in data ${document.getElementById('nca_firma3_data').value}\n`
       );
 
       window.location.href = `mailto:?subject=${oggetto}&body=${corpo}`;
@@ -435,75 +474,134 @@
         if (err) {
           alert("Errore salvataggio NCA: " + err.message);
         } else {
-          alert("🚨 Rapporto NCA salvato correttamente nel Cloud!");
+          alert("🚨 Rapporto NCA salvato e sincronizzato in tabella!");
           chiudiModuloNCA();
           document.getElementById('form-nca').reset();
-          caricaListaNCA();
+          caricaTabellaNCA();
         }
       });
     }
 
-    function caricaListaNCA() {
-      const container = document.getElementById('lista-nca-container');
+    function caricaTabellaNCA() {
+      const tbody = document.getElementById('tabella-nca-body');
       const counter = document.getElementById('nca-counter');
-      if (!container) return;
+      if (!tbody) return;
 
       if (typeof firebase === 'undefined') {
-        container.innerHTML = '<p class="text-xs text-rose-400 italic">Firebase non disponibile.</p>';
+        tbody.innerHTML = '<tr><td colspan="24" class="p-6 text-center text-rose-400 italic">Firebase non disponibile.</td></tr>';
         return;
       }
 
       firebase.database().ref('nca_ambientali').on('value', (snapshot) => {
-        const data = snapshot.val() || {};
-        const keys = Object.keys(data);
+        ncaCacheData = snapshot.val() || {};
+        const keys = Object.keys(ncaCacheData);
 
         if (keys.length === 0) {
           counter.innerText = "0 rapporti registrati";
-          container.innerHTML = `
-            <div class="glass-card rounded-2xl p-8 text-center text-slate-400 text-xs">
-              <i class="fa-solid fa-folder-open text-2xl text-slate-600 mb-2"></i>
-              <p>Nessun rapporto di Non Conformità registrato nell'archivio.</p>
-            </div>`;
+          tbody.innerHTML = '<tr><td colspan="24" class="p-6 text-center text-slate-500 italic">Nessun rapporto registrato nel registro tabellare.</td></tr>';
           return;
         }
 
-        counter.innerText = `${keys.length} ${keys.length === 1 ? 'rapporto registrato' : 'rapporti registrati'}`;
-        container.innerHTML = '';
+        counter.innerText = `${keys.length} ${keys.length === 1 ? 'rapporto in tabella' : 'rapporti in tabella'}`;
+        tbody.innerHTML = '';
 
-        keys.sort((a, b) => data[b].timestamp - data[a].timestamp).forEach(key => {
-          const item = data[key];
-          const gravitaBadge = item.gravita === 'D' ? 'bg-rose-950 text-rose-300 border-rose-800' : 'bg-amber-950 text-amber-300 border-amber-800';
-          const esitoColor = item.esito === 'Efficace' ? 'text-emerald-400' : 'text-rose-400';
+        keys.sort((a, b) => ncaCacheData[b].timestamp - ncaCacheData[a].timestamp).forEach(key => {
+          const item = ncaCacheData[key];
+          const f1 = item.firma1 || {};
+          const f2 = item.firma2 || {};
+          const f3 = item.firma3 || {};
 
-          const div = document.createElement('div');
-          div.className = "glass-card rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs";
-          div.innerHTML = `
-            <div class="space-y-1.5 flex-grow">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-black text-white text-sm">${item.aspettoAmbientale || 'Non Conformità Ambientale'}</span>
-                <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${gravitaBadge}">Classe Gravità: ${item.gravita}</span>
-                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[9px] font-bold">WBS: ${item.wbs || 'N.D.'}</span>
-              </div>
-              <p class="text-slate-300 line-clamp-2">${item.descrizione || 'Nessuna descrizione specificata.'}</p>
-              <div class="flex items-center gap-4 text-[11px] text-slate-400 pt-1">
-                <span><i class="fa-regular fa-calendar"></i> Rilevamento: ${item.dataRilevamento || 'N.D.'}</span>
-                <span><i class="fa-solid fa-user-shield"></i> Resp: ${item.respAttuazione || 'N.D.'}</span>
-                <span class="font-bold ${esitoColor}"><i class="fa-solid fa-circle-check"></i> Esito: ${item.esito || 'In verifica'}</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-              <button onclick="eliminaNCA('${item.id}')" class="w-8 h-8 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-xl flex items-center justify-center transition cursor-pointer" title="Elimina Rapporto">
-                <i class="fa-solid fa-trash"></i>
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-900/80 transition";
+          tr.innerHTML = `
+            <td class="p-3 font-bold text-rose-400">${item.id}</td>
+            <td class="p-3">${item.wbs || '-'}</td>
+            <td class="p-3">${item.lotto || '-'}</td>
+            <td class="p-3">${item.dataRilevamento || '-'}</td>
+            <td class="p-3">${item.rilevataDa || '-'}</td>
+            <td class="p-3">${item.destinatario || '-'}</td>
+            <td class="p-3 font-semibold text-white">${item.aspettoAmbientale || '-'}</td>
+            <td class="p-3 max-w-xs truncate" title="${item.descrizione || ''}">${item.descrizione || '-'}</td>
+            <td class="p-3">${item.tipo || '-'}</td>
+            <td class="p-3 font-bold">${item.gravita || '-'}</td>
+            <td class="p-3">${item.docRiferimento || '-'}</td>
+            <td class="p-3">${item.allegatiFase1 || '-'}</td>
+            <td class="p-3 text-[11px] text-slate-400">${f1.nome || '-'} (${f1.data || '-'}) [${f1.firma || '-'}]</td>
+            <td class="p-3 max-w-xs truncate" title="${item.analisiCause || ''}">${item.analisiCause || '-'}</td>
+            <td class="p-3">${item.azioneCorrettiva || '-'}</td>
+            <td class="p-3 max-w-xs truncate" title="${item.trattamento || ''}">${item.trattamento || '-'}</td>
+            <td class="p-3 font-bold text-amber-400">${item.respAttuazione || '-'}</td>
+            <td class="p-3">${item.trattamentoEntro || '-'}</td>
+            <td class="p-3">${item.risorse || '-'}</td>
+            <td class="p-3 text-[11px] text-slate-400">${f2.nome || '-'} (${f2.data || '-'}) [${f2.firma || '-'}]</td>
+            <td class="p-3">${item.dataVerifica || '-'}</td>
+            <td class="p-3 font-bold ${item.esito === 'Efficace' ? 'text-emerald-400' : 'text-rose-400'}">${item.esito || '-'}</td>
+            <td class="p-3 text-[11px] text-slate-400">${f3.nome || '-'} (${f3.data || '-'}) [${f3.firma || '-'}]</td>
+            <td class="p-3 text-center">
+              <button onclick="eliminaNCA('${item.id}')" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg inline-flex items-center justify-center transition cursor-pointer" title="Elimina Riga">
+                <i class="fa-solid fa-trash text-[10px]"></i>
               </button>
-            </div>
+            </td>
           `;
-          container.appendChild(div);
+          tbody.appendChild(tr);
         });
       });
     }
 
+    function esportaTabellaExcel() {
+      const keys = Object.keys(ncaCacheData);
+      if (keys.length === 0) {
+        alert("Nessun dato disponibile da esportare.");
+        return;
+      }
+
+      // Mappatura pulita dei dati in formato array di oggetti per SheetJS
+      const datiExcel = keys.map(key => {
+        const item = ncaCacheData[key];
+        return {
+          "ID Rapporto": item.id,
+          "WBS": item.wbs,
+          "Lotto": item.lotto,
+          "Data Rilevamento": item.dataRilevamento,
+          "NCA Rilevata Da": item.rilevataDa,
+          "Destinatario NCA": item.destinatario,
+          "Aspetto Ambientale": item.aspettoAmbientale,
+          "Descrizione NCA": item.descrizione,
+          "Tipologia": item.tipo,
+          "Gravità": item.gravita,
+          "Documenti Riferimento": item.docRiferimento,
+          "Allegati Fase 1": item.allegatiFase1,
+          "Fase 1 - Compilatore": item.firma1?.nome,
+          "Fase 1 - Data Firma": item.firma1?.data,
+          "Fase 1 - Firma/Sigla": item.firma1?.firma,
+          "Analisi Cause": item.analisiCause,
+          "Azione Correttiva N.": item.azioneCorrettiva,
+          "Trattamento Proposto": item.trattamento,
+          "Responsabile Attuazione": item.respAttuazione,
+          "Trattamento Entro": item.trattamentoEntro,
+          "Risorse Necessarie": item.risorse,
+          "Fase 2 - Responsabile": item.firma2?.nome,
+          "Fase 2 - Data Firma": item.firma2?.data,
+          "Fase 2 - Firma/Sigla": item.firma2?.firma,
+          "Data Verifica Chiusura": item.dataVerifica,
+          "Esito Trattamento": item.esito,
+          "Fase 3 - Verificatore": item.firma3?.nome,
+          "Fase 3 - Data Firma": item.firma3?.data,
+          "Fase 3 - Firma/Sigla": item.firma3?.firma
+        };
+      });
+
+      // Creazione del foglio di lavoro e del file Excel
+      const worksheet = XLSX.utils.json_to_sheet(datiExcel);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Registro NCA");
+
+      // Download automatico del file .xlsx
+      XLSX.writeFile(workbook, "Registro_NCA_Cantiere_Terzo_Valico.xlsx");
+    }
+
     function eliminaNCA(id) {
-      if (confirm("Vuoi eliminare definitivamente questo rapporto di Non Conformità dall'archivio Cloud?")) {
+      if (confirm("Vuoi eliminare questa riga dal registro tabellare e dal Cloud?")) {
         firebase.database().ref('nca_ambientali/' + id).remove();
       }
     }
