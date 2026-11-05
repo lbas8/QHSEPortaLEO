@@ -567,14 +567,15 @@
       const keys = Object.keys(ncaCacheData);
       if (keys.length === 0) return "NCA-01/2026";
       
-      // Estrae i numeri esistenti o calcola il progressivo
       let maxNum = 0;
       keys.forEach(k => {
         const item = ncaCacheData[k];
-        const match = item.id.match(/(\d+)/);
-        if (match) {
-          const num = parseInt(match[0], 10);
-          if (num > maxNum) maxNum = num;
+        if (item && item.id) {
+          const match = item.id.match(/(\d+)/);
+          if (match) {
+            const num = parseInt(match[0], 10);
+            if (num > maxNum) maxNum = num;
+          }
         }
       });
       const prossimo = maxNum + 1;
@@ -598,7 +599,7 @@
       if (idEdit && ncaCacheData[idEdit]) {
         document.getElementById('modal-titolo-form').innerText = "MODIFICA / INTEGRA RAPPORTO NCA: " + idEdit;
         document.getElementById('nca_custom_id').value = idEdit;
-        document.getElementById('nca_custom_id').readOnly = true; // Impedisce di modificare l'ID primario in modifica
+        document.getElementById('nca_custom_id').readOnly = true;
         
         const item = ncaCacheData[idEdit];
         document.getElementById('nca_wbs').value = item.wbs || '';
@@ -747,7 +748,7 @@
           rsga: { data: document.getElementById('f3_data_rsga').value || '', firmaPresente: !!firmeRegistrate['f3_rsga'] }
         },
 
-        timestamp: ncaCacheData[id] ? ncaCacheData[id].timestamp : Date.now()
+        timestamp: (ncaCacheData[id] && ncaCacheData[id].timestamp) ? ncaCacheData[id].timestamp : Date.now()
       };
 
       firebase.database().ref('nca_ambientali/' + id).set(payload, (err) => {
@@ -790,8 +791,10 @@
         tbody.innerHTML = '';
         archivioGrid.innerHTML = '';
 
-        keys.sort((a, b) => ncaCacheData[b].timestamp - ncaCacheData[a].timestamp).forEach(key => {
+        keys.sort((a, b) => (ncaCacheData[b].timestamp || 0) - (ncaCacheData[a].timestamp || 0)).forEach(key => {
           const item = ncaCacheData[key];
+          if (!item) return;
+          const displayId = item.id || key;
           const f2 = item.fasi2_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
           const f3 = item.fasi3_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
 
@@ -799,7 +802,7 @@
           const tr = document.createElement('tr');
           tr.className = "hover:bg-slate-900/80 transition";
           tr.innerHTML = `
-            <td class="p-3 font-bold text-rose-400">${item.id}</td>
+            <td class="p-3 font-bold text-rose-400">${displayId}</td>
             <td class="p-3">${item.wbs || '-'}</td>
             <td class="p-3">${item.lotto || '-'}</td>
             <td class="p-3">${item.dataRilevamento || '-'}</td>
@@ -820,10 +823,10 @@
             <td class="p-3 bg-slate-900/50 text-[11px]">RA:${f3.ra?.data||'-'} | CSGA:${f3.csga?.data||'-'}</td>
             <td class="p-3 font-bold ${item.esito === 'Efficace' ? 'text-emerald-400' : (item.esito === 'Non Efficace' ? 'text-rose-400' : 'text-slate-400')}">${item.esito || '-'}</td>
             <td class="p-3 text-center space-x-1">
-              <button onclick="apriModuloNCA('${item.id}')" class="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600/35 text-amber-400 border border-amber-500/40 rounded-lg inline-flex items-center gap-1 transition cursor-pointer text-[10px] font-bold" title="Modifica / Integra">
+              <button onclick="apriModuloNCA('${displayId}')" class="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600/35 text-amber-400 border border-amber-500/40 rounded-lg inline-flex items-center gap-1 transition cursor-pointer text-[10px] font-bold" title="Modifica / Integra">
                 <i class="fa-solid fa-pen-to-square"></i> Modifica
               </button>
-              <button onclick="eliminaNCA('${item.id}')" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600/35 text-rose-400 border border-rose-500/40 rounded-lg inline-flex items-center gap-1 transition cursor-pointer text-[10px] font-bold" title="Elimina">
+              <button onclick="eliminaNCA('${displayId}')" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600/35 text-rose-400 border border-rose-500/40 rounded-lg inline-flex items-center gap-1 transition cursor-pointer text-[10px] font-bold" title="Elimina">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </td>
@@ -836,7 +839,7 @@
           card.innerHTML = `
             <div>
               <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">${item.id}</span>
+                <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">${displayId}</span>
                 <span class="text-[10px] font-bold text-slate-400"><i class="fa-regular fa-calendar"></i> ${item.dataRilevamento || '-'}</span>
               </div>
               <h4 class="font-black text-white text-sm mb-1">${item.aspettoAmbientale || 'Non Conformità'}</h4>
@@ -848,7 +851,7 @@
             </div>
             <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
               <span class="text-[10px] text-cyan-400 font-bold"><i class="fa-solid fa-paperclip"></i> ${item.totaleAllegati || 0} allegati</span>
-              <button onclick="apriModuloNCA('${item.id}')" class="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/35 text-cyan-300 border border-cyan-500/40 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer">
+              <button onclick="apriModuloNCA('${displayId}')" class="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/35 text-cyan-300 border border-cyan-500/40 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer">
                 <i class="fa-solid fa-folder-open"></i> Apri / Integra
               </button>
             </div>
@@ -866,10 +869,11 @@
       }
       const datiExcel = keys.map(key => {
         const item = ncaCacheData[key];
+        const displayId = item.id || key;
         const f2 = item.fasi2_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
         const f3 = item.fasi3_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
         return {
-          "ID / Numero NCA": item.id, "WBS": item.wbs || '-', "Lotto": item.lotto || '-', "Data Ril.": item.dataRilevamento || '-',
+          "ID / Numero NCA": displayId, "WBS": item.wbs || '-', "Lotto": item.lotto || '-', "Data Ril.": item.dataRilevamento || '-',
           "Rilevata Da": item.rilevataDa || '-', "Destinatario": item.destinatario || '-', "Aspetto Ambientale": item.aspettoAmbientale || '-',
           "Descrizione": item.descrizione || '-', "Tipologia": item.tipo || '-', "Gravità": item.gravita || '-', "Doc. Riferimento": item.docRiferimento || '-',
           "Allegati": item.nomiAllegati || '-', "Analisi Cause": item.analisiCause || '-', "Azione Correttiva": item.azioneCorrettiva || '-',
