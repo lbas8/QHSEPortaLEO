@@ -184,8 +184,16 @@ let scadenzeCloudHeader = {};
 let dataSelezionataRecap = null;
 
 function getSettoreCorrente() {
+    // 1. Cerca se la pagina ha un attributo esplicito nel body (es. data-settore="E" o "ALL")
+    const bodySector = document.body.getAttribute('data-settore');
+    if (bodySector) {
+        return bodySector.toUpperCase();
+    }
+
+    // 2. Fallback automatico basato sul nome della pagina o del percorso
     const path = window.location.pathname.toLowerCase();
-    if (path.endsWith('homeqhse.html') || path === '/' || (!path.includes('/pages/') && !path.includes('hub'))) {
+    
+    if (path.endsWith('homeqhse.html') || path === '/' || path.endsWith('/')) {
         return 'ALL';
     }
     if (path.includes('safety') || path.includes('sicurezza') || path.includes('hs')) {
@@ -194,6 +202,8 @@ function getSettoreCorrente() {
     if (path.includes('quality') || path.includes('qualita') || path.includes('q_')) {
         return 'Q';
     }
+    
+    // Default per tutte le altre pagine di cantiere
     return 'E';
 }
 
