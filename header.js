@@ -6,13 +6,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const logoPath = isInsideSubfolder ? "../../logowb.jpeg" : "logowb.jpeg";
     const logoutPath = isInsideSubfolder ? "../../index.html" : "index.html";
 
-    // Mostra il tasto Indietro solo se siamo dentro una sottocartella (es. /pages/)
-    const backButtonHTML = isInsideSubfolder ? `
-        <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
-          <i class="fa-solid fa-arrow-left text-sky-400"></i>
-          <span class="hidden sm:inline">Indietro</span>
-        </button>
-    ` : '';
+// Mostra il tasto Indietro solo se siamo dentro una sottocartella (es. /pages/)
+const backButtonHTML = isInsideSubfolder ? `
+    <button onclick="tornaIndietroSicuro()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
+      <i class="fa-solid fa-arrow-left text-sky-400"></i>
+      <span class="hidden sm:inline">Indietro</span>
+    </button>
+` : '';
 
     headerContainer.innerHTML = `
         <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
@@ -550,7 +550,7 @@ window.addEventListener('click', function() {
     if (menu && !menu.classList.contains('hidden')) {
         menu.classList.add('hidden');
     }
-});
+}
 
 function handleLogout(event) {
     event.preventDefault();
@@ -558,3 +558,14 @@ function handleLogout(event) {
     const logoutTarget = isInsideSubfolder ? "../../index.html" : "index.html";
     window.location.href = logoutTarget;
 }
+
+function tornaIndietroSicuro() {
+    // Se c'è una cronologia precedente nella sessione, torna indietro
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        // Altrimenti rimanda alla Home principale della sottocartella o root
+        const isInsideSubfolder = window.location.pathname.includes('/pages/');
+        window.location.href = isInsideSubfolder ? "../HomeQHSE.html" : "HomeQHSE.html";
+    }
+});
