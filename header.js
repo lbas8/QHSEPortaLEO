@@ -183,28 +183,28 @@ const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giove
 let scadenzeCloudHeader = {};
 let dataSelezionataRecap = null;
 
-// Funzione che rileva in quale settore ci troviamo in base al nome della pagina o del percorso
 function getSettoreCorrente() {
     const path = window.location.pathname.toLowerCase();
-    if (path.includes('enviromental') || path.includes('rifiuti') || path.includes('sottoprodotto') || path.includes('ita') || path.includes('sga')) {
-        return 'E';
-    } else if (path.includes('safety') || path.includes('sicurezza')) {
+    if (path.endsWith('homeqhse.html') || path === '/' || (!path.includes('/pages/') && !path.includes('hub'))) {
+        return 'ALL';
+    }
+    if (path.includes('safety') || path.includes('sicurezza') || path.includes('hs')) {
         return 'HS';
-    } else if (path.includes('quality') || path.includes('qualita')) {
+    }
+    if (path.includes('quality') || path.includes('qualita') || path.includes('q_')) {
         return 'Q';
     }
-    return 'ALL'; // Se siamo nella Home o in una pagina generale, mostra tutto
+    return 'E';
 }
 
-// Restituisce la lista filtrata in base alla schermata in cui ci si trova
 function getScadenzeFiltrate() {
     const settoreCorrente = getSettoreCorrente();
     const tutte = Object.values(scadenzeCloudHeader);
     
     if (settoreCorrente === 'ALL') {
-        return tutte; // Nella Home mostra tutto (Q, HS, E)
+        return tutte;
     } else {
-        return tutte.filter(s => s.settore === settoreCorrente); // Nelle pagine specifiche filtra per settore
+        return tutte.filter(s => s.settore === settoreCorrente);
     }
 }
 
@@ -236,6 +236,10 @@ function inizializzaHeaderCalendario() {
                 renderizzaListaScadenze();
                 aggiornaBoxAvvisiHeader();
                 if (dataSelezionataRecap) mostraRecapGiorno(dataSelezionataRecap);
+            }, (error) => {
+                console.error("Errore lettura Firebase:", error);
+                const container = document.getElementById('lista-scadenze-archivio');
+                if (container) container.innerHTML = '<p class="text-xs text-rose-400 italic">Errore di connessione al Cloud.</p>';
             });
         } catch (e) {
             console.log("Firebase non inizializzato nel modulo header.");
