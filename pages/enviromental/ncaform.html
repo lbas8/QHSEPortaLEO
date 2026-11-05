@@ -100,6 +100,7 @@
                 <th class="p-3">Tipologia</th>
                 <th class="p-3">Gravità</th>
                 <th class="p-3">Doc. Riferimento</th>
+                <th class="p-3">Allegati (Foto/File)</th>
                 <th class="p-3">Analisi Cause</th>
                 <th class="p-3">Azione Correttiva N.</th>
                 <th class="p-3">Trattamento</th>
@@ -121,7 +122,7 @@
             </thead>
             <tbody id="tabella-nca-body" class="divide-y divide-slate-800/60">
               <tr>
-                <td colspan="26" class="p-6 text-center text-slate-500 italic">Caricamento dati dal Cloud...</td>
+                <td colspan="27" class="p-6 text-center text-slate-500 italic">Caricamento dati dal Cloud...</td>
               </tr>
             </tbody>
           </table>
@@ -131,7 +132,7 @@
 
   </main>
 
-  <!-- MODALE COMPILAZIONE MODULO NCA (3 FASI CON GRIGLIE RA/CSGA/DC/RSGA & SIGNATURE PAD) -->
+  <!-- MODALE COMPILAZIONE MODULO NCA (3 FASI CON FOTOCAMERA / ALLEGATI & FIRME) -->
   <div id="modal-nca" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl relative my-auto space-y-6 text-slate-100 max-h-[90vh] overflow-y-auto">
       
@@ -229,8 +230,23 @@
               <input type="text" id="nca_doc_riferimento" placeholder="Contratto, Norma, PGA/POS, Procedura SGA..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
             </div>
             <div>
-              <label class="block font-bold text-slate-300 mb-1">1.9 ALLEGATI FASE 1</label>
-              <input type="text" id="nca_allegati_fase1" placeholder="Foto, Verbali, Schede tecniche..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
+              <label class="block font-bold text-slate-300 mb-1">1.9 ALLEGATI (FOTO / IMMAGINI / DOCUMENTI)</label>
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- Tasto per scattare foto da cellulare -->
+                <label class="flex-1 min-w-[130px] flex items-center justify-center gap-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 rounded-lg px-3 py-2 font-bold cursor-pointer transition text-[11px]">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>Scatta Foto</span>
+                  <input type="file" id="nca_scatta_foto" accept="image/*" capture="environment" onchange="gestisciAllegati(event)" class="hidden">
+                </label>
+                <!-- Tasto per caricare file o galleria -->
+                <label class="flex-1 min-w-[130px] flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg px-3 py-2 font-bold cursor-pointer transition text-[11px]">
+                  <i class="fa-solid fa-upload"></i>
+                  <span>Carica File</span>
+                  <input type="file" id="nca_carica_file" accept="image/*,application/pdf,.doc,.docx" multiple onchange="gestisciAllegati(event)" class="hidden">
+                </label>
+              </div>
+              <!-- Contenitore anteprima allegati caricati -->
+              <div id="anteprima-allegati" class="flex flex-wrap gap-2 mt-2"></div>
             </div>
           </div>
         </div>
@@ -439,11 +455,12 @@
   <!-- SCRIPT HEADER CENTRALIZZATO -->
   <script src="../../header.js"></script>
 
-  <!-- LOGICA GESTIONE FIRME, TABELLA E CLOUD -->
+  <!-- LOGICA GESTIONE ALLEGATI, FOTOCAMERA, FIRME E CLOUD -->
   <script>
     let ncaCacheData = {};
     let campoFirmaAttivo = null;
-    let firmeRegistrate = {}; // Memorizza le firme (base64 o percorsi) per ciascun campo
+    let firmeRegistrate = {};
+    let allegatiCaricati = [];
     let canvas, ctx, isDrawing = false;
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -472,6 +489,53 @@
         canvas.addEventListener('touchend', (e) => { const mouseEvent = new MouseEvent('mouseup', {}); canvas.dispatchEvent(mouseEvent); });
       }
     });
+
+    function gestisciAllegati(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          allegatiCaricati.push({
+            nome: file.name || "Foto_Cantiere_" + Date.now() + ".jpg",
+            tipo: file.type,
+            dataUrl: e.target.result
+          });
+          renderizzaAnteprimaAllegati();
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function renderizzaAnteprimaAllegati() {
+      const container = document.getElementById('anteprima-allegati');
+      if (!container) return;
+      container.innerHTML = '';
+
+      allegatiCaricati.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = "relative group bg-slate-900 border border-slate-700 rounded-lg p-1.5 flex items-center gap-2 text-[10px]";
+        
+        let iconaPreview = '<i class="fa-solid fa-file text-cyan-400 text-sm"></i>';
+        if (item.tipo.startsWith('image/')) {
+          iconaPreview = `<img src="${item.dataUrl}" class="w-8 h-8 object-cover rounded">`;
+        }
+
+        div.innerHTML = `
+          ${iconaPreview}
+          <span class="truncate max-w-[120px] text-slate-300">${item.nome}</span>
+          <button type="button" onclick="rimuoviAllegato(${index})" class="text-rose-400 hover:text-rose-300 ml-1 font-bold"><i class="fa-solid fa-xmark"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function rimuoviAllegato(index) {
+      allegatiCaricati.splice(index, 1);
+      renderizzaAnteprimaAllegati();
+    }
 
     function startDrawing(e) { isDrawing = true; ctx.beginPath(); const rect = canvas.getBoundingClientRect(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top); }
     function draw(e) { if (!isDrawing) return; const rect = canvas.getBoundingClientRect(); ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); ctx.stroke(); }
@@ -518,6 +582,8 @@
         modal.classList.remove('hidden');
         document.getElementById('nca_data_rileva').value = new Date().toISOString().split('T')[0];
         firmeRegistrate = {};
+        allegatiCaricati = [];
+        renderizzaAnteprimaAllegati();
       }
     }
 
@@ -548,7 +614,8 @@
       const corpo = encodeURIComponent(
         `RAPPORTO DI NON CONFORMITÀ / OSSERVAZIONE AMBIENTALE (SGA)\n\n` +
         `--- FASE 1: RILEVAZIONE ---\n` +
-        `- WBS: ${wbs}\n- Lotto: ${lotto}\n- Aspetto: ${aspetto}\n- Descrizione: ${descrizione}\n- Gravità: Classe ${gravita}\n\n` +
+        `- WBS: ${wbs}\n- Lotto: ${lotto}\n- Aspetto: ${aspetto}\n- Descrizione: ${descrizione}\n- Gravità: Classe ${gravita}\n` +
+        `- Allegati allegati: ${allegatiCaricati.length} file\n\n` +
         `--- FASE 2 & 3: FIRME RUOLI (RA, CSGA, DC, RSGA) ---\n` +
         `- Trattamento: ${trattamento}\n` +
         `- Esito Verifica: ${esito}\n`
@@ -584,8 +651,11 @@
         tipo: document.querySelector('input[name="nca_tipo"]:checked').value,
         gravita: document.getElementById('nca_gravita').value,
         docRiferimento: document.getElementById('nca_doc_riferimento').value,
-        allegatiFase1: document.getElementById('nca_allegati_fase1').value,
         
+        // Salvataggio riepilogo allegati
+        totaleAllegati: allegatiCaricati.length,
+        nomiAllegati: allegatiCaricati.map(a => a.nome).join(', '),
+
         analisiCause: document.getElementById('nca_analisi_cause').value,
         azioneCorrettiva: document.getElementById('nca_azione_correttiva').value,
         trattamento: document.getElementById('nca_trattamento').value,
@@ -619,6 +689,8 @@
           alert("🚨 Rapporto NCA salvato con successo e sincronizzato in tabella!");
           chiudiModuloNCA();
           document.getElementById('form-nca').reset();
+          allegatiCaricati = [];
+          renderizzaAnteprimaAllegati();
           caricaTabellaNCA();
         }
       });
@@ -630,7 +702,7 @@
       if (!tbody) return;
 
       if (typeof firebase === 'undefined') {
-        tbody.innerHTML = '<tr><td colspan="26" class="p-6 text-center text-rose-400 italic">Firebase non disponibile.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="27" class="p-6 text-center text-rose-400 italic">Firebase non disponibile.</td></tr>';
         return;
       }
 
@@ -640,7 +712,7 @@
 
         if (keys.length === 0) {
           counter.innerText = "0 rapporti registrati";
-          tbody.innerHTML = '<tr><td colspan="26" class="p-6 text-center text-slate-500 italic">Nessun rapporto registrato nel registro tabellare.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="27" class="p-6 text-center text-slate-500 italic">Nessun rapporto registrato nel registro tabellare.</td></tr>';
           return;
         }
 
@@ -666,6 +738,7 @@
             <td class="p-3">${item.tipo || '-'}</td>
             <td class="p-3 font-bold">${item.gravita || '-'}</td>
             <td class="p-3">${item.docRiferimento || '-'}</td>
+            <td class="p-3 text-cyan-400 font-semibold">${item.totaleAllegati ? item.totaleAllegati + ' file (📎)' : '-'}</td>
             <td class="p-3 max-w-xs truncate" title="${item.analisiCause || ''}">${item.analisiCause || '-'}</td>
             <td class="p-3">${item.azioneCorrettiva || '-'}</td>
             <td class="p-3 max-w-xs truncate" title="${item.trattamento || ''}">${item.trattamento || '-'}</td>
@@ -717,6 +790,7 @@
           "Tipologia": item.tipo,
           "Gravità": item.gravita,
           "Doc. Riferimento": item.docRiferimento,
+          "Allegati": item.nomiAllegati || 'Nessuno',
           "Analisi Cause": item.analisiCause,
           "Azione Correttiva N.": item.azioneCorrettiva,
           "Trattamento Proposto": item.trattamento,
