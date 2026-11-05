@@ -46,7 +46,7 @@
           <span class="px-3 py-1 rounded-full bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-extrabold uppercase tracking-wider">
             SGA ISO 14001 — DOPPIA ARCHIVIAZIONE
           </span>
-          <span class="text-xs text-slate-400 font-semibold">Registro & Tabella Excel</span>
+          <span class="text-xs text-slate-400 font-semibold">Registro, Modifica & Tabella Excel</span>
         </div>
         <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
           Gestione Non Conformità & Osservazioni Ambientali
@@ -80,7 +80,7 @@
     <!-- TABELLA DI RIEPILOGO EXCEL (ANTEPRIMA LIVE) -->
     <div class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Tabella Sincronizzata (Ogni campo in colonna dedicata)</h3>
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Tabella Sincronizzata (Consultazione & Modifica Rapida)</h3>
         <span id="nca-counter" class="text-xs text-slate-500">Caricamento in corso...</span>
       </div>
 
@@ -100,29 +100,21 @@
                 <th class="p-3">Tipologia</th>
                 <th class="p-3">Gravità</th>
                 <th class="p-3">Doc. Riferimento</th>
-                <th class="p-3">Allegati (Foto/File)</th>
+                <th class="p-3">Allegati</th>
                 <th class="p-3">Analisi Cause</th>
-                <th class="p-3">Azione Correttiva N.</th>
+                <th class="p-3">Azione Correttiva</th>
                 <th class="p-3">Trattamento</th>
                 <th class="p-3">Resp. Attuazione</th>
                 <th class="p-3">Trattamento Entro</th>
-                <!-- Colonne FASE 2 - 4 Ruoli -->
-                <th class="p-3 bg-slate-900">F2 - Data RA</th>
-                <th class="p-3 bg-slate-900">F2 - Data CSGA</th>
-                <th class="p-3 bg-slate-900">F2 - Data DC</th>
-                <th class="p-3 bg-slate-900">F2 - Data RSGA</th>
-                <!-- Colonne FASE 3 - 4 Ruoli -->
-                <th class="p-3 bg-slate-900">F3 - Data Verifica RA</th>
-                <th class="p-3 bg-slate-900">F3 - Data Verifica CSGA</th>
-                <th class="p-3 bg-slate-900">F3 - Data Verifica DC</th>
-                <th class="p-3 bg-slate-900">F3 - Data Verifica RSGA</th>
-                <th class="p-3">Esito Trattamento</th>
-                <th class="p-3 text-center">Azioni</th>
+                <th class="p-3 bg-slate-900">F2 - Date / Firme</th>
+                <th class="p-3 bg-slate-900">F3 - Date / Firme</th>
+                <th class="p-3">Esito</th>
+                <th class="p-3 text-center">Azioni (Modifica / Elimina)</th>
               </tr>
             </thead>
             <tbody id="tabella-nca-body" class="divide-y divide-slate-800/60">
               <tr>
-                <td colspan="27" class="p-6 text-center text-slate-500 italic">Caricamento dati dal Cloud...</td>
+                <td colspan="21" class="p-6 text-center text-slate-500 italic">Caricamento dati dal Cloud...</td>
               </tr>
             </tbody>
           </table>
@@ -130,9 +122,24 @@
       </div>
     </div>
 
+    <!-- SEZIONE ARCHIVIO VISUALE NCA & OA (COLLEGATA AL TASTO AZZURRO) -->
+    <div id="sezione-archivio-visuale" class="space-y-4 pt-6 border-t border-slate-800">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+          <i class="fa-solid fa-folder-open"></i> Archivio Schede NCA & OA (Consultazione & Integrazione)
+        </h3>
+        <span class="text-xs text-slate-400">Clicca su "Modifica Scheda" per integrare o aggiornare le fasi</span>
+      </div>
+      <div id="archivio-schede-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic">
+          Caricamento archivio schede...
+        </div>
+      </div>
+    </div>
+
   </main>
 
-  <!-- MODALE COMPILAZIONE MODULO NCA (3 FASI CON FOTOCAMERA / ALLEGATI & FIRME) -->
+  <!-- MODALE COMPILAZIONE / MODIFICA MODULO NCA -->
   <div id="modal-nca" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl relative my-auto space-y-6 text-slate-100 max-h-[90vh] overflow-y-auto">
       
@@ -147,13 +154,14 @@
             <i class="fa-solid fa-file-circle-exclamation text-xl"></i>
           </div>
           <div>
-            <h3 class="text-lg font-black text-white uppercase tracking-wide">RAPPORTO DI NON CONFORMITÀ / OSSERVAZIONE AMBIENTALE</h3>
+            <h3 id="modal-titolo-form" class="text-lg font-black text-white uppercase tracking-wide">NUOVO RAPPORTO DI NON CONFORMITÀ</h3>
             <p class="text-xs text-rose-400 font-semibold">Sistema di Gestione Ambientale — Modulo Ufficiale NCA</p>
           </div>
         </div>
       </div>
 
       <form id="form-nca" onsubmit="salvaRapportoNCA(event)" class="space-y-6 text-xs">
+        <input type="hidden" id="nca_id_edit" value="">
         
         <!-- FASE 1: RILEVAZIONE NCA -->
         <div class="bg-slate-950/80 border border-rose-500/30 rounded-xl p-5 space-y-4">
@@ -232,20 +240,17 @@
             <div>
               <label class="block font-bold text-slate-300 mb-1">1.9 ALLEGATI (FOTO / IMMAGINI / DOCUMENTI)</label>
               <div class="flex items-center gap-2 flex-wrap">
-                <!-- Tasto per scattare foto da cellulare -->
                 <label class="flex-1 min-w-[130px] flex items-center justify-center gap-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 rounded-lg px-3 py-2 font-bold cursor-pointer transition text-[11px]">
                   <i class="fa-solid fa-camera"></i>
                   <span>Scatta Foto</span>
                   <input type="file" id="nca_scatta_foto" accept="image/*" capture="environment" onchange="gestisciAllegati(event)" class="hidden">
                 </label>
-                <!-- Tasto per caricare file o galleria -->
                 <label class="flex-1 min-w-[130px] flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg px-3 py-2 font-bold cursor-pointer transition text-[11px]">
                   <i class="fa-solid fa-upload"></i>
                   <span>Carica File</span>
                   <input type="file" id="nca_carica_file" accept="image/*,application/pdf,.doc,.docx" multiple onchange="gestisciAllegati(event)" class="hidden">
                 </label>
               </div>
-              <!-- Contenitore anteprima allegati caricati -->
               <div id="anteprima-allegati" class="flex flex-wrap gap-2 mt-2"></div>
             </div>
           </div>
@@ -296,7 +301,7 @@
             </div>
           </div>
 
-          <!-- TABELLA FIRME FASE 2: RA, CSGA, DC, RSGA -->
+          <!-- TABELLA FIRME FASE 2 -->
           <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3 mt-4">
             <span class="text-[11px] font-bold uppercase text-amber-400 tracking-wider block">Fase 2 — Date e Firme (RA, CSGA, DC, RSGA)</span>
             <div class="overflow-x-auto">
@@ -319,7 +324,7 @@
                     <td class="p-2"><input type="date" id="f2_data_rsga" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white text-[10px]"></td>
                   </tr>
                   <tr>
-                    <td class="p-2 font-bold text-left border-r border-slate-800">Firma (Pad / Immagine)</td>
+                    <td class="p-2 font-bold text-left border-r border-slate-800">Firma</td>
                     <td class="p-2 border-r border-slate-800"><button type="button" onclick="apriModalFirma('f2_ra')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded text-[10px] font-bold cursor-pointer">Firma RA</button></td>
                     <td class="p-2 border-r border-slate-800"><button type="button" onclick="apriModalFirma('f2_csga')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded text-[10px] font-bold cursor-pointer">Firma CSGA</button></td>
                     <td class="p-2 border-r border-slate-800"><button type="button" onclick="apriModalFirma('f2_dc')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded text-[10px] font-bold cursor-pointer">Firma DC</button></td>
@@ -359,7 +364,7 @@
             </div>
           </div>
 
-          <!-- TABELLA FIRME FASE 3: RA, CSGA, DC, RSGA -->
+          <!-- TABELLA FIRME FASE 3 -->
           <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3 mt-4">
             <span class="text-[11px] font-bold uppercase text-emerald-400 tracking-wider block">Fase 3 — Chiusura, Date e Firme (RA, CSGA, DC, RSGA)</span>
             <div class="overflow-x-auto">
@@ -382,7 +387,7 @@
                     <td class="p-2"><input type="date" id="f3_data_rsga" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white text-[10px]"></td>
                   </tr>
                   <tr>
-                    <td class="p-2 font-bold text-left border-r border-slate-800">Firma (Pad / Immagine)</td>
+                    <td class="p-2 font-bold text-left border-r border-slate-800">Firma</td>
                     <td class="p-2 border-r border-slate-800"><button type="button" onclick="apriModalFirma('f3_ra')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded text-[10px] font-bold cursor-pointer">Firma RA</button></td>
                     <td class="p-2 border-r border-slate-800"><button type="button" onclick="apriModalFirma('f3_csga')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded text-[10px] font-bold cursor-pointer">Firma CSGA</button></td>
                     <td class="p-2 border-r border-slate-800"><button type="button" onclick="apriModalFirma('f3_dc')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded text-[10px] font-bold cursor-pointer">Firma DC</button></td>
@@ -394,7 +399,7 @@
           </div>
         </div>
 
-        <!-- BOTTONI AZIONE & INVIO EMAIL -->
+        <!-- BOTTONI AZIONE & SALVATAGGIO -->
         <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800">
           <button type="button" onclick="inviaModuloEmail()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition shadow-md cursor-pointer flex items-center gap-2">
             <i class="fa-solid fa-envelope"></i> Invia Modulo per Email
@@ -405,7 +410,7 @@
               Annulla
             </button>
             <button type="submit" class="px-6 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer flex items-center gap-2">
-              <i class="fa-solid fa-floppy-disk"></i> Salva Rapporto NCA
+              <i class="fa-solid fa-floppy-disk"></i> Salva / Aggiorna Rapporto NCA
             </button>
           </div>
         </div>
@@ -415,7 +420,7 @@
     </div>
   </div>
 
-  <!-- MODALE FIRMA DIGITALE (SIGNATURE PAD & UPLOAD .JPG/.PNG) -->
+  <!-- MODALE FIRMA DIGITALE -->
   <div id="modal-firma" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[300] hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 text-slate-100">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -430,11 +435,6 @@
           <div class="flex justify-end mt-1">
             <button type="button" onclick="pulisciCanvas()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-rose-400 rounded text-[10px] font-bold cursor-pointer"><i class="fa-solid fa-eraser"></i> Pulisci</button>
           </div>
-        </div>
-
-        <div class="border-t border-slate-800 pt-3">
-          <label class="block text-slate-400 font-bold mb-1">Oppure carica file immagine (.jpg / .png):</label>
-          <input type="file" id="input-carica-firma" accept="image/png, image/jpeg" onchange="caricaImmagineFirma(event)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-300 text-xs cursor-pointer">
         </div>
       </div>
 
@@ -455,7 +455,7 @@
   <!-- SCRIPT HEADER CENTRALIZZATO -->
   <script src="../../header.js"></script>
 
-  <!-- LOGICA GESTIONE ALLEGATI, FOTOCAMERA, FIRME E CLOUD -->
+  <!-- LOGICA GESTIONE TABELLA, ARCHIVIO E MODIFICA SCHEDE -->
   <script>
     let ncaCacheData = {};
     let campoFirmaAttivo = null;
@@ -464,14 +464,13 @@
     let canvas, ctx, isDrawing = false;
 
     document.addEventListener("DOMContentLoaded", () => {
-      caricaTabellaNCA();
+      caricaTabellaEArchivioNCA();
       const oggi = new Date().toISOString().split('T')[0];
       ['nca_firma1_data', 'f2_data_ra', 'f2_data_csga', 'f2_data_dc', 'f2_data_rsga', 'f3_data_ra', 'f3_data_csga', 'f3_data_dc', 'f3_data_rsga'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = oggi;
       });
 
-      // Inizializzazione Canvas Signature Pad
       canvas = document.getElementById('signature-canvas');
       if (canvas) {
         ctx = canvas.getContext('2d');
@@ -517,12 +516,10 @@
       allegatiCaricati.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = "relative group bg-slate-900 border border-slate-700 rounded-lg p-1.5 flex items-center gap-2 text-[10px]";
-        
         let iconaPreview = '<i class="fa-solid fa-file text-cyan-400 text-sm"></i>';
-        if (item.tipo.startsWith('image/')) {
+        if (item.tipo && item.tipo.startsWith('image/')) {
           iconaPreview = `<img src="${item.dataUrl}" class="w-8 h-8 object-cover rounded">`;
         }
-
         div.innerHTML = `
           ${iconaPreview}
           <span class="truncate max-w-[120px] text-slate-300">${item.nome}</span>
@@ -554,21 +551,6 @@
       campoFirmaAttivo = null;
     }
 
-    function caricaImmagineFirma(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const img = new Image();
-        img.onload = function() {
-          pulisciCanvas();
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        }
-        img.src = event.target.result;
-      }
-      reader.readAsDataURL(file);
-    }
-
     function salvaFirmaPad() {
       if (!campoFirmaAttivo) return;
       firmeRegistrate[campoFirmaAttivo] = canvas.toDataURL('image/png');
@@ -576,14 +558,57 @@
       chiudiModalFirma();
     }
 
-    function apriModuloNCA() {
+    function apriModuloNCA(idEdit = null) {
       const modal = document.getElementById('modal-nca');
-      if (modal) {
-        modal.classList.remove('hidden');
+      if (!modal) return;
+
+      modal.classList.remove('hidden');
+      document.getElementById('form-nca').reset();
+      firmeRegistrate = {};
+      allegatiCaricati = [];
+      renderizzaAnteprimaAllegati();
+
+      if (idEdit && ncaCacheData[idEdit]) {
+        // Modalità Modifica / Integrazione
+        document.getElementById('modal-titolo-form').innerText = "MODIFICA / INTEGRA RAPPORTO NCA: " + idEdit;
+        document.getElementById('nca_id_edit').value = idEdit;
+        
+        const item = ncaCacheData[idEdit];
+        document.getElementById('nca_wbs').value = item.wbs || '';
+        document.getElementById('nca_lotto').value = item.lotto || '';
+        document.getElementById('nca_data_rileva').value = item.dataRilevamento || '';
+        document.getElementById('nca_rilevata_da').value = item.rilevataDa || '';
+        document.getElementById('nca_destinatario').value = item.destinatario || '';
+        document.getElementById('nca_aspetto_ambientale').value = item.aspettoAmbientale || '';
+        document.getElementById('nca_descrizione').value = item.descrizione || '';
+        document.getElementById('nca_gravita').value = item.gravita || 'A';
+        document.getElementById('nca_doc_riferimento').value = item.docRiferimento || '';
+        
+        document.getElementById('nca_analisi_cause').value = item.analisiCause || '';
+        document.getElementById('nca_azione_correttiva').value = item.azioneCorrettiva || '';
+        document.getElementById('nca_trattamento').value = item.trattamento || '';
+        document.getElementById('nca_resp_attuazione').value = item.respAttuazione || 'RA';
+        document.getElementById('nca_trattamento_entro').value = item.trattamentoEntro || '';
+        document.getElementById('nca_risorse').value = item.risorse || '';
+        document.getElementById('nca_data_verifica').value = item.dataVerifica || '';
+
+        if (item.fasi2_firme) {
+          if(item.fasi2_firme.ra?.data) document.getElementById('f2_data_ra').value = item.fasi2_firme.ra.data;
+          if(item.fasi2_firme.csga?.data) document.getElementById('f2_data_csga').value = item.fasi2_firme.csga.data;
+          if(item.fasi2_firme.dc?.data) document.getElementById('f2_data_dc').value = item.fasi2_firme.dc.data;
+          if(item.fasi2_firme.rsga?.data) document.getElementById('f2_data_rsga').value = item.fasi2_firme.rsga.data;
+        }
+        if (item.fasi3_firme) {
+          if(item.fasi3_firme.ra?.data) document.getElementById('f3_data_ra').value = item.fasi3_firme.ra.data;
+          if(item.fasi3_firme.csga?.data) document.getElementById('f3_data_csga').value = item.fasi3_firme.csga.data;
+          if(item.fasi3_firme.dc?.data) document.getElementById('f3_data_dc').value = item.fasi3_firme.dc.data;
+          if(item.fasi3_firme.rsga?.data) document.getElementById('f3_data_rsga').value = item.fasi3_firme.rsga.data;
+        }
+      } else {
+        // Modalità Nuovo Inserimento
+        document.getElementById('modal-titolo-form').innerText = "NUOVO RAPPORTO DI NON CONFORMITÀ";
+        document.getElementById('nca_id_edit').value = '';
         document.getElementById('nca_data_rileva').value = new Date().toISOString().split('T')[0];
-        firmeRegistrate = {};
-        allegatiCaricati = [];
-        renderizzaAnteprimaAllegati();
       }
     }
 
@@ -593,7 +618,8 @@
     }
 
     function apriArchivioGenerale() {
-      window.scrollTo({ top: 400, behavior: 'smooth' });
+      const el = document.getElementById('sezione-archivio-visuale');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
 
     function chiudiModuloNCA() {
@@ -608,19 +634,15 @@
       const descrizione = document.getElementById('nca_descrizione').value || 'N.D.';
       const gravita = document.getElementById('nca_gravita').value;
       const trattamento = document.getElementById('nca_trattamento').value || 'N.D.';
-      const esito = document.querySelector('input[name="nca_esito"]:checked').value;
 
       const oggetto = encodeURIComponent(`Rapporto NCA - WBS: ${wbs} - Lotto: ${lotto}`);
       const corpo = encodeURIComponent(
         `RAPPORTO DI NON CONFORMITÀ / OSSERVAZIONE AMBIENTALE (SGA)\n\n` +
         `--- FASE 1: RILEVAZIONE ---\n` +
-        `- WBS: ${wbs}\n- Lotto: ${lotto}\n- Aspetto: ${aspetto}\n- Descrizione: ${descrizione}\n- Gravità: Classe ${gravita}\n` +
-        `- Allegati allegati: ${allegatiCaricati.length} file\n\n` +
-        `--- FASE 2 & 3: FIRME RUOLI (RA, CSGA, DC, RSGA) ---\n` +
-        `- Trattamento: ${trattamento}\n` +
-        `- Esito Verifica: ${esito}\n`
+        `- WBS: ${wbs}\n- Lotto: ${lotto}\n- Aspetto: ${aspetto}\n- Descrizione: ${descrizione}\n- Gravità: Classe ${gravita}\n\n` +
+        `--- FASE 2 & 3: TRATTAMENTO ---\n` +
+        `- Trattamento: ${trattamento}\n`
       );
-
       window.location.href = `mailto:?subject=${oggetto}&body=${corpo}`;
     }
 
@@ -638,7 +660,9 @@
         });
       }
 
-      const id = "NCA_" + Date.now();
+      const idEsistente = document.getElementById('nca_id_edit').value;
+      const id = idEsistente ? idEsistente : "NCA_" + Date.now();
+
       const payload = {
         id: id,
         wbs: document.getElementById('nca_wbs').value,
@@ -652,7 +676,6 @@
         gravita: document.getElementById('nca_gravita').value,
         docRiferimento: document.getElementById('nca_doc_riferimento').value,
         
-        // Salvataggio riepilogo allegati
         totaleAllegati: allegatiCaricati.length,
         nomiAllegati: allegatiCaricati.map(a => a.nome).join(', '),
 
@@ -679,30 +702,31 @@
           rsga: { data: document.getElementById('f3_data_rsga').value, firmaPresente: !!firmeRegistrate['f3_rsga'] }
         },
 
-        timestamp: Date.now()
+        timestamp: idEsistente && ncaCacheData[idEsistente] ? ncaCacheData[idEsistente].timestamp : Date.now()
       };
 
       firebase.database().ref('nca_ambientali/' + id).set(payload, (err) => {
         if (err) {
           alert("Errore salvataggio NCA: " + err.message);
         } else {
-          alert("🚨 Rapporto NCA salvato con successo e sincronizzato in tabella!");
+          alert("🚨 Rapporto NCA salvato e aggiornato con successo nel Cloud!");
           chiudiModuloNCA();
           document.getElementById('form-nca').reset();
           allegatiCaricati = [];
           renderizzaAnteprimaAllegati();
-          caricaTabellaNCA();
+          caricaTabellaEArchivioNCA();
         }
       });
     }
 
-    function caricaTabellaNCA() {
+    function caricaTabellaEArchivioNCA() {
       const tbody = document.getElementById('tabella-nca-body');
+      const archivioGrid = document.getElementById('archivio-schede-grid');
       const counter = document.getElementById('nca-counter');
-      if (!tbody) return;
+      if (!tbody || !archivioGrid) return;
 
       if (typeof firebase === 'undefined') {
-        tbody.innerHTML = '<tr><td colspan="27" class="p-6 text-center text-rose-400 italic">Firebase non disponibile.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="21" class="p-6 text-center text-rose-400 italic">Firebase non disponibile.</td></tr>';
         return;
       }
 
@@ -712,18 +736,21 @@
 
         if (keys.length === 0) {
           counter.innerText = "0 rapporti registrati";
-          tbody.innerHTML = '<tr><td colspan="27" class="p-6 text-center text-slate-500 italic">Nessun rapporto registrato nel registro tabellare.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="21" class="p-6 text-center text-slate-500 italic">Nessun rapporto registrato.</td></tr>';
+          archivioGrid.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs col-span-full">Nessuna scheda presente in archivio.</div>';
           return;
         }
 
         counter.innerText = `${keys.length} ${keys.length === 1 ? 'rapporto in tabella' : 'rapporti in tabella'}`;
         tbody.innerHTML = '';
+        archivioGrid.innerHTML = '';
 
         keys.sort((a, b) => ncaCacheData[b].timestamp - ncaCacheData[a].timestamp).forEach(key => {
           const item = ncaCacheData[key];
           const f2 = item.fasi2_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
           const f3 = item.fasi3_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
 
+          // 1. Popolamento Tabella Excel Sync
           const tr = document.createElement('tr');
           tr.className = "hover:bg-slate-900/80 transition";
           tr.innerHTML = `
@@ -738,30 +765,50 @@
             <td class="p-3">${item.tipo || '-'}</td>
             <td class="p-3 font-bold">${item.gravita || '-'}</td>
             <td class="p-3">${item.docRiferimento || '-'}</td>
-            <td class="p-3 text-cyan-400 font-semibold">${item.totaleAllegati ? item.totaleAllegati + ' file (📎)' : '-'}</td>
+            <td class="p-3 text-cyan-400">${item.totaleAllegati ? item.totaleAllegati + ' file (📎)' : '-'}</td>
             <td class="p-3 max-w-xs truncate" title="${item.analisiCause || ''}">${item.analisiCause || '-'}</td>
             <td class="p-3">${item.azioneCorrettiva || '-'}</td>
             <td class="p-3 max-w-xs truncate" title="${item.trattamento || ''}">${item.trattamento || '-'}</td>
             <td class="p-3 font-bold text-amber-400">${item.respAttuazione || '-'}</td>
             <td class="p-3">${item.trattamentoEntro || '-'}</td>
-            <!-- F2 Date -->
-            <td class="p-3 bg-slate-900/50">${f2.ra?.data || '-'} ${f2.ra?.firmaPresente ? '✍️' : ''}</td>
-            <td class="p-3 bg-slate-900/50">${f2.csga?.data || '-'} ${f2.csga?.firmaPresente ? '✍️' : ''}</td>
-            <td class="p-3 bg-slate-900/50">${f2.dc?.data || '-'} ${f2.dc?.firmaPresente ? '✍️' : ''}</td>
-            <td class="p-3 bg-slate-900/50">${f2.rsga?.data || '-'} ${f2.rsga?.firmaPresente ? '✍️' : ''}</td>
-            <!-- F3 Date -->
-            <td class="p-3 bg-slate-900/50">${f3.ra?.data || '-'} ${f3.ra?.firmaPresente ? '✍️' : ''}</td>
-            <td class="p-3 bg-slate-900/50">${f3.csga?.data || '-'} ${f3.csga?.firmaPresente ? '✍️' : ''}</td>
-            <td class="p-3 bg-slate-900/50">${f3.dc?.data || '-'} ${f3.dc?.firmaPresente ? '✍️' : ''}</td>
-            <td class="p-3 bg-slate-900/50">${f3.rsga?.data || '-'} ${f3.rsga?.firmaPresente ? '✍️' : ''}</td>
+            <td class="p-3 bg-slate-900/50 text-[11px]">RA:${f2.ra?.data||'-'} | CSGA:${f2.csga?.data||'-'}</td>
+            <td class="p-3 bg-slate-900/50 text-[11px]">RA:${f3.ra?.data||'-'} | CSGA:${f3.csga?.data||'-'}</td>
             <td class="p-3 font-bold ${item.esito === 'Efficace' ? 'text-emerald-400' : 'text-rose-400'}">${item.esito || '-'}</td>
-            <td class="p-3 text-center">
-              <button onclick="eliminaNCA('${item.id}')" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg inline-flex items-center justify-center transition cursor-pointer" title="Elimina Riga">
-                <i class="fa-solid fa-trash text-[10px]"></i>
+            <td class="p-3 text-center space-x-1">
+              <button onclick="apriModuloNCA('${item.id}')" class="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600/35 text-amber-400 border border-amber-500/40 rounded-lg inline-flex items-center gap-1 transition cursor-pointer text-[10px] font-bold" title="Modifica / Integra">
+                <i class="fa-solid fa-pen-to-square"></i> Modifica
+              </button>
+              <button onclick="eliminaNCA('${item.id}')" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600/35 text-rose-400 border border-rose-500/40 rounded-lg inline-flex items-center gap-1 transition cursor-pointer text-[10px] font-bold" title="Elimina">
+                <i class="fa-solid fa-trash"></i>
               </button>
             </td>
           `;
           tbody.appendChild(tr);
+
+          // 2. Popolamento Archivio Visivo a Schede (Tasto Azzurro)
+          const card = document.createElement('div');
+          card.className = "glass-card rounded-2xl p-5 flex flex-col justify-between space-y-3";
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">${item.id}</span>
+                <span class="text-[10px] font-bold text-slate-400"><i class="fa-regular fa-calendar"></i> ${item.dataRilevamento || 'N.D.'}</span>
+              </div>
+              <h4 class="font-black text-white text-sm mb-1">${item.aspettoAmbientale || 'Non Conformità'}</h4>
+              <p class="text-xs text-slate-300 line-clamp-2">${item.descrizione || 'Nessuna descrizione.'}</p>
+              <div class="mt-3 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+                <div><strong>WBS:</strong> ${item.wbs || '-'} | <strong>Lotto:</strong> ${item.lotto || '-'}</div>
+                <div><strong>Esito:</strong> <span class="${item.esito === 'Efficace' ? 'text-emerald-400' : 'text-rose-400'} font-bold">${item.esito || 'In verifica'}</span></div>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+              <span class="text-[10px] text-cyan-400 font-bold"><i class="fa-solid fa-paperclip"></i> ${item.totaleAllegati || 0} allegati</span>
+              <button onclick="apriModuloNCA('${item.id}')" class="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/35 text-cyan-300 border border-cyan-500/40 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-folder-open"></i> Apri / Integra
+              </button>
+            </div>
+          `;
+          archivioGrid.appendChild(card);
         });
       });
     }
@@ -772,44 +819,21 @@
         alert("Nessun dato disponibile da esportare.");
         return;
       }
-
       const datiExcel = keys.map(key => {
         const item = ncaCacheData[key];
         const f2 = item.fasi2_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
         const f3 = item.fasi3_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
-
         return {
-          "ID Rapporto": item.id,
-          "WBS": item.wbs,
-          "Lotto": item.lotto,
-          "Data Rilevamento": item.dataRilevamento,
-          "NCA Rilevata Da": item.rilevataDa,
-          "Destinatario": item.destinatario,
-          "Aspetto Ambientale": item.aspettoAmbientale,
-          "Descrizione NCA": item.descrizione,
-          "Tipologia": item.tipo,
-          "Gravità": item.gravita,
-          "Doc. Riferimento": item.docRiferimento,
-          "Allegati": item.nomiAllegati || 'Nessuno',
-          "Analisi Cause": item.analisiCause,
-          "Azione Correttiva N.": item.azioneCorrettiva,
-          "Trattamento Proposto": item.trattamento,
-          "Resp. Attuazione": item.respAttuazione,
-          "Trattamento Entro": item.trattamentoEntro,
-          // F2
-          "F2 - Data RA": f2.ra?.data, "F2 - Firma RA": f2.ra?.firmaPresente ? "Firmato" : "No",
-          "F2 - Data CSGA": f2.csga?.data, "F2 - Firma CSGA": f2.csga?.firmaPresente ? "Firmato" : "No",
-          "F2 - Data DC": f2.dc?.data, "F2 - Firma DC": f2.dc?.firmaPresente ? "Firmato" : "No",
-          "F2 - Data RSGA": f2.rsga?.data, "F2 - Firma RSGA": f2.rsga?.firmaPresente ? "Firmato" : "No",
-          // F3
-          "F3 - Data RA": f3.ra?.data, "F3 - Firma RA": f3.ra?.firmaPresente ? "Firmato" : "No",
-          "F3 - Data CSGA": f3.csga?.data, "F3 - Firma CSGA": f3.csga?.firmaPresente ? "Firmato" : "No",
-          "F3 - Data DC": f3.dc?.data, "F3 - Firma DC": f3.dc?.firmaPresente ? "Firmato" : "No",
-          "F3 - Data RSGA": f3.rsga?.data, "F3 - Firma RSGA": f3.rsga?.firmaPresente ? "Firmato" : "No",
-          "Esito Trattamento": item.esito
+          "ID Rapporto": item.id, "WBS": item.wbs, "Lotto": item.lotto, "Data Ril.": item.dataRilevamento,
+          "Rilevata Da": item.rilevataDa, "Destinatario": item.destinatario, "Aspetto Ambientale": item.aspettoAmbientale,
+          "Descrizione": item.descrizione, "Tipologia": item.tipo, "Gravità": item.gravita, "Doc. Riferimento": item.docRiferimento,
+          "Allegati": item.nomiAllegati || 'Nessuno', "Analisi Cause": item.analisiCause, "Azione Correttiva": item.azioneCorrettiva,
+          "Trattamento": item.trattamento, "Resp. Attuazione": item.respAttuazione, "Trattamento Entro": item.trattamentoEntro,
+          "F2 Data RA": f2.ra?.data, "F2 Data CSGA": f2.csga?.data, "F2 Data DC": f2.dc?.data, "F2 Data RSGA": f2.rsga?.data,
+          "F3 Data RA": f3.ra?.data, "F3 Data CSGA": f3.csga?.data, "F3 Data DC": f3.dc?.data, "F3 Data RSGA": f3.rsga?.data,
+          "Esito": item.esito
         };
       });
-
       const worksheet = XLSX.utils.json_to_sheet(datiExcel);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Registro NCA & OA");
@@ -817,7 +841,7 @@
     }
 
     function eliminaNCA(id) {
-      if (confirm("Vuoi eliminare questa riga dal registro tabellare e dal Cloud?")) {
+      if (confirm("Vuoi eliminare definitivamente questo rapporto dal Cloud e dal registro?")) {
         firebase.database().ref('nca_ambientali/' + id).remove();
       }
     }
