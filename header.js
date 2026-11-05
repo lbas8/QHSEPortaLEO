@@ -416,9 +416,20 @@ function salvaNuovaAttivita() {
         return;
     }
 
+    // Controllo e inizializzazione di sicurezza per Firebase
     if (typeof firebase === 'undefined') {
-        alert("Errore: Firebase non connesso.");
+        alert("Errore critico: SDK Firebase non trovato nella pagina.");
         return;
+    }
+
+    if (!firebase.apps.length) {
+        try {
+            firebase.initializeApp({
+                databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+            });
+        } catch (err) {
+            console.error("Errore init firebase:", err);
+        }
     }
 
     const db = firebase.database();
