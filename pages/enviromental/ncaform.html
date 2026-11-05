@@ -162,13 +162,24 @@
 
       <form id="form-nca" onsubmit="salvaRapportoNCA(event)" class="space-y-6 text-xs">
         
-        <!-- CAMPO NUMERO / CODICE NCA PERSONALIZZATO -->
-        <div class="bg-slate-950/90 border border-rose-500/50 rounded-xl p-4">
-          <label class="block font-bold text-rose-300 mb-1 text-xs uppercase tracking-wider">
-            <i class="fa-solid fa-hashtag"></i> Numero / Codice NCA Univoco <span class="text-rose-400">*</span>
-          </label>
-          <input type="text" id="nca_custom_id" required placeholder="Es. NCA-01/2026" class="w-full sm:w-1/2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm outline-none focus:border-rose-400">
-          <p class="text-[10px] text-slate-400 mt-1">Inserisci un numero progressivo univoco in serie (es. NCA-01/2026, NCA-02/2026).</p>
+        <!-- BLOCCO NUMERO PROGRESSIVO & ANNO FISSO -->
+        <div class="bg-slate-950/90 border border-rose-500/50 rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4">
+          <div class="flex-1 w-full">
+            <label class="block font-bold text-rose-300 mb-1 text-xs uppercase tracking-wider">
+              <i class="fa-solid fa-hashtag"></i> Numero Progressivo NCA <span class="text-rose-400">*</span>
+            </label>
+            <input type="text" id="nca_numero_prog" required placeholder="Es. 01, 02..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-bold text-sm outline-none focus:border-rose-400">
+            <p class="text-[10px] text-slate-400 mt-1">Inserisci il numero progressivo (es. 01, 02).</p>
+          </div>
+
+          <div class="w-full sm:w-40 text-center sm:text-left">
+            <label class="block font-bold text-slate-400 mb-1 text-xs uppercase tracking-wider">
+              Anno
+            </label>
+            <div id="nca_anno_fisso" class="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-cyan-400 font-black text-sm flex items-center justify-center sm:justify-start gap-2">
+              <i class="fa-solid fa-calendar-days text-xs"></i> <span id="span-anno-corrente">2026</span>
+            </div>
+          </div>
         </div>
 
         <!-- FASE 1: RILEVAZIONE NCA -->
@@ -465,15 +476,17 @@
   <!-- SCRIPT HEADER CENTRALIZZATO -->
   <script src="../../header.js"></script>
 
-  <!-- LOGICA GESTIONE TABELLA, ARCHIVIO E NUMERO NCA MANUALE/PROGRESSIVO -->
+  <!-- LOGICA GESTIONE TABELLA, ARCHIVIO E PROGRESSIVO CON ANNO FISSO -->
   <script>
     let ncaCacheData = {};
     let campoFirmaAttivo = null;
     let firmeRegistrate = {};
     let allegatiCaricati = [];
     let canvas, ctx, isDrawing = false;
+    const annoCorrente = new Date().getFullYear();
 
     document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('span-anno-corrente').innerText = annoCorrente;
       caricaTabellaEArchivioNCA();
 
       canvas = document.getElementById('signature-canvas');
@@ -563,24 +576,21 @@
       chiudiModalFirma();
     }
 
-    function generaProssimoNumeroNCA() {
+    function generaProssimoProgressivo() {
       const keys = Object.keys(ncaCacheData);
-      if (keys.length === 0) return "NCA-01/2026";
+      if (keys.length === 0) return "01";
       
       let maxNum = 0;
       keys.forEach(k => {
         const item = ncaCacheData[k];
         if (item && item.id) {
-          const match = item.id.match(/(\d+)/);
-          if (match) {
-            const num = parseInt(match[0], 10);
-            if (num > maxNum) maxNum = num;
-          }
+          const parti = item.id.split('/');
+          const num = parseInt(parti[0], 10);
+          if (!isNaN(num) && num > maxNum) maxNum = num;
         }
       });
       const prossimo = maxNum + 1;
-      const anno = new Date().getFullYear();
-      return `NCA-${String(prossimo).padStart(2, '0')}/${anno}`;
+      return String(prossimo).padStart(2, '0');
     }
 
     function apriModuloNCA(idEdit = null) {
@@ -598,8 +608,9 @@
 
       if (idEdit && ncaCacheData[idEdit]) {
         document.getElementById('modal-titolo-form').innerText = "MODIFICA / INTEGRA RAPPORTO NCA: " + idEdit;
-        document.getElementById('nca_custom_id').value = idEdit;
-        document.getElementById('nca_custom_id').readOnly = true;
+        const progPart = idEdit.split('/')[0] || idEdit;
+        document.getElementById('nca_numero_prog').value = progPart;
+        document.getElementById('nca_numero_prog').readOnly = true;
         
         const item = ncaCacheData[idEdit];
         document.getElementById('nca_wbs').value = item.wbs || '';
@@ -644,8 +655,8 @@
         }
       } else {
         document.getElementById('modal-titolo-form').innerText = "NUOVO RAPPORTO DI NON CONFORMITÀ";
-        document.getElementById('nca_custom_id').value = generaProssimoNumeroNCA();
-        document.getElementById('nca_custom_id').readOnly = false;
+        document.getElementById('nca_numero_prog').value = generaProssimoProgressivo();
+        document.getElementById('nca_numero_prog').readOnly = false;
       }
     }
 
@@ -665,7 +676,8 @@
     }
 
     function inviaModuloEmail() {
-      const customId = document.getElementById('nca_custom_id').value || '-';
+      const prog = document.getElementById('nca_numero_prog').value.trim() || '01';
+      const idCompleto = `${prog}/${annoCorrente}`;
       const wbs = document.getElementById('nca_wbs').value || '-';
       const lotto = document.getElementById('nca_lotto').value || '-';
       const aspetto = document.getElementById('nca_aspetto_ambientale').value || '-';
@@ -673,10 +685,10 @@
       const gravita = document.getElementById('nca_gravita').value || '-';
       const trattamento = document.getElementById('nca_trattamento').value || '-';
 
-      const oggetto = encodeURIComponent(`Rapporto NCA N. ${customId} - WBS: ${wbs}`);
+      const oggetto = encodeURIComponent(`Rapporto NCA N. ${idCompleto} - WBS: ${wbs}`);
       const corpo = encodeURIComponent(
         `RAPPORTO DI NON CONFORMITÀ / OSSERVAZIONE AMBIENTALE (SGA)\n\n` +
-        `- Codice NCA: ${customId}\n` +
+        `- Codice NCA: ${idCompleto}\n` +
         `--- FASE 1: RILEVAZIONE ---\n` +
         `- WBS: ${wbs}\n- Lotto: ${lotto}\n- Aspetto: ${aspetto}\n- Descrizione: ${descrizione}\n- Gravità: Classe ${gravita}\n\n` +
         `--- TRATTAMENTO ---\n` +
@@ -699,13 +711,14 @@
         });
       }
 
-      const customIdInput = document.getElementById('nca_custom_id').value.trim();
-      if (!customIdInput) {
-        alert("Inserisci un numero / codice NCA valido.");
+      const progInput = document.getElementById('nca_numero_prog').value.trim();
+      if (!progInput) {
+        alert("Inserisci un numero progressivo NCA valido.");
         return;
       }
 
-      const id = customIdInput;
+      // Format ID as 01/2026
+      const id = `${progInput}/${annoCorrente}`;
       const tipoEl = document.querySelector('input[name="nca_tipo"]:checked');
       const esitoEl = document.querySelector('input[name="nca_esito"]:checked');
 
@@ -743,7 +756,7 @@
         },
         fasi3_firme: {
           ra: { data: document.getElementById('f3_data_ra').value || '', firmaPresente: !!firmeRegistrate['f3_ra'] },
-          csga: { data: document.getElementById('f3_data_csga').value || '', firmaPresente: !!firmeRegistrate['f3_csga'] },
+          csga: { data: document.getElementById('f3_data_csga').value || '', firmaPresente: !!f3_data_csga }
           dc: { data: document.getElementById('f3_data_dc').value || '', firmaPresente: !!firmeRegistrate['f3_dc'] },
           rsga: { data: document.getElementById('f3_data_rsga').value || '', firmaPresente: !!firmeRegistrate['f3_rsga'] }
         },
@@ -751,7 +764,7 @@
         timestamp: (ncaCacheData[id] && ncaCacheData[id].timestamp) ? ncaCacheData[id].timestamp : Date.now()
       };
 
-      firebase.database().ref('nca_ambientali/' + id).set(payload, (err) => {
+      firebase.database().ref('nca_ambientali/' + id.replace('/', '_')).set(payload, (err) => {
         if (err) {
           alert("Errore salvataggio NCA: " + err.message);
         } else {
@@ -794,7 +807,7 @@
         keys.sort((a, b) => (ncaCacheData[b].timestamp || 0) - (ncaCacheData[a].timestamp || 0)).forEach(key => {
           const item = ncaCacheData[key];
           if (!item) return;
-          const displayId = item.id || key;
+          const displayId = item.id || key.replace('_', '/');
           const f2 = item.fasi2_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
           const f3 = item.fasi3_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
 
@@ -869,7 +882,7 @@
       }
       const datiExcel = keys.map(key => {
         const item = ncaCacheData[key];
-        const displayId = item.id || key;
+        const displayId = item.id || key.replace('_', '/');
         const f2 = item.fasi2_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
         const f3 = item.fasi3_firme || { ra:{}, csga:{}, dc:{}, rsga:{} };
         return {
@@ -891,7 +904,7 @@
 
     function eliminaNCA(id) {
       if (confirm("Vuoi eliminare definitivamente questo rapporto dal Cloud e dal registro?")) {
-        firebase.database().ref('nca_ambientali/' + id).remove();
+        firebase.database().ref('nca_ambientali/' + id.replace('/', '_')).remove();
       }
     }
   </script>
