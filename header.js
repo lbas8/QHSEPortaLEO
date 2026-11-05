@@ -6,12 +6,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const logoPath = isInsideSubfolder ? "../../logowb.jpeg" : "logowb.jpeg";
     const logoutPath = isInsideSubfolder ? "../../index.html" : "index.html";
 
+    // Mostra il tasto Indietro solo se siamo dentro una sottocartella (es. /pages/)
+    const backButtonHTML = isInsideSubfolder ? `
+        <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
+          <i class="fa-solid fa-arrow-left text-sky-400"></i>
+          <span class="hidden sm:inline">Indietro</span>
+        </button>
+    ` : '';
+
     headerContainer.innerHTML = `
         <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
             <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
               
               <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
                 <div class="flex items-center gap-3">
+                  ${backButtonHTML}
                   <img src="${logoPath}" alt="Webuild" class="h-10 object-contain rounded bg-white p-1" onerror="this.src='https://via.placeholder.com/120x40?text=WEBUILD'">
                   <div class="h-8 w-[1px] bg-slate-700 hidden sm:block"></div>
                   <div>
@@ -174,6 +183,31 @@ const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giove
 let scadenzeCloudHeader = {};
 let dataSelezionataRecap = null;
 
+// Funzione che rileva in quale settore ci troviamo in base al nome della pagina o del percorso
+function getSettoreCorrente() {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('enviromental') || path.includes('rifiuti') || path.includes('sottoprodotto') || path.includes('ita') || path.includes('sga')) {
+        return 'E';
+    } else if (path.includes('safety') || path.includes('sicurezza')) {
+        return 'HS';
+    } else if (path.includes('quality') || path.includes('qualita')) {
+        return 'Q';
+    }
+    return 'ALL'; // Se siamo nella Home o in una pagina generale, mostra tutto
+}
+
+// Restituisce la lista filtrata in base alla schermata in cui ci si trova
+function getScadenzeFiltrate() {
+    const settoreCorrente = getSettoreCorrente();
+    const tutte = Object.values(scadenzeCloudHeader);
+    
+    if (settoreCorrente === 'ALL') {
+        return tutte; // Nella Home mostra tutto (Q, HS, E)
+    } else {
+        return tutte.filter(s => s.settore === settoreCorrente); // Nelle pagine specifiche filtra per settore
+    }
+}
+
 function inizializzaHeaderCalendario() {
     const oggi = new Date();
     const elMonth = document.getElementById('calMonth');
@@ -231,6 +265,7 @@ function selezionaGiornoForm(anno, mese, giorno) {
 
     dataSelezionataRecap = dataIso;
     mostraRecapGiorno(dataIso);
+    renderizzaCalendarioMese();
 }
 
 function mostraRecapGiorno(dataIso) {
@@ -242,7 +277,7 @@ function mostraRecapGiorno(dataIso) {
     boxRecap.classList.remove('hidden');
     titoloRecap.innerHTML = `<i class="fa-solid fa-clipboard-list text-sky-400"></i> Appuntamenti del giorno: ${dataIso.split('-').reverse().join('/')}`;
 
-    const scadenzeDelGiorno = Object.values(scadenzeCloudHeader).filter(s => s.data === dataIso);
+    const scadenzeDelGiorno = getScadenzeFiltrate().filter(s => s.data === dataIso);
 
     if (scadenzeDelGiorno.length === 0) {
         listaRecap.innerHTML = `<p class="text-xs text-slate-500 italic py-1">Nessun appuntamento o scadenza fissata per questa data.</p>`;
@@ -264,7 +299,7 @@ function mostraRecapGiorno(dataIso) {
             ambitoNome = 'HEALTH & SAFETY (HS)';
         }
 
-        const autoreSigla = item.autoreSigla || "LB"; // Sigla con le iniziali (Leone Bastiancich -> LB)
+        const autoreSigla = item.autoreSigla || "LB";
 
         return `
             <div class="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs">
@@ -274,7 +309,7 @@ function mostraRecapGiorno(dataIso) {
                     <span class="px-2 py-0.5 rounded border text-[9px] font-extrabold ${badgeColor}">${ambitoNome}</span>
                 </div>
                 <div class="flex items-center gap-2 text-[11px] text-slate-400 font-bold">
-                    <span class="bg-slate-800 text-sky-400 px-2 py-0.5 rounded border border-slate-700" title="Account Responsabile">Autore: [${autoreSigla}]</span>
+                    <span class="bg-slate-800 text-sky-400 px-2 py-0.5 rounded border border-slate-700">Autore: [${autoreSigla}]</span>
                 </div>
             </div>
         `;
@@ -304,6 +339,8 @@ function renderizzaCalendarioMese() {
     let numSettimana = getWeekNumber(primoGiornoMese);
     const oggi = new Date();
 
+    const listaAttive = getScadenzeFiltrate();
+
     while (giornoCorrente <= totaleGiorni) {
         htmlRighe += `<div class="flex items-center justify-center font-bold text-sky-500/80 bg-slate-900/50 rounded text-[10px]">W${numSettimana}</div>`;
         
@@ -315,7 +352,7 @@ function renderizzaCalendarioMese() {
                 const gStr = String(giornoCorrente).padStart(2, '0');
                 const dataIsoKey = `${year}-${mStr}-${gStr}`;
                 
-                const scadenzeGiorno = Object.values(scadenzeCloudHeader).filter(s => s.data === dataIsoKey);
+                const scadenzeGiorno = listaAttive.filter(s => s.data === dataIsoKey);
                 const quanti = scadenzeGiorno.length;
 
                 let indicatoriHtml = '';
@@ -380,7 +417,7 @@ function salvaNuovaAttivita() {
         titolo: titolo,
         data: data,
         settore: settore,
-        autoreSigla: "LB", // Salva la sigla LB (Leone Bastiancich)
+        autoreSigla: "LB",
         timestamp: Date.now()
     };
 
@@ -407,13 +444,13 @@ function eliminaScadenza(id) {
 function aggiornaBoxAvvisiHeader() {
     const boxAvviso = document.getElementById('testo-prossima-scadenza');
     if (!boxAvviso) return;
-    const keys = Object.keys(scadenzeCloudHeader);
-    if (keys.length === 0) {
+    const listaAttive = getScadenzeFiltrate();
+    if (listaAttive.length === 0) {
         boxAvviso.innerText = "Nessun promemoria attivo";
         return;
     }
-    keys.sort((a,b) => new Date(scadenzeCloudHeader[a].data) - new Date(scadenzeCloudHeader[b].data));
-    boxAvviso.innerText = scadenzeCloudHeader[keys[0]].titolo;
+    listaAttive.sort((a,b) => new Date(a.data) - new Date(b.data));
+    boxAvviso.innerText = listaAttive[0].titolo;
 }
 
 function renderizzaListaScadenze() {
@@ -421,18 +458,16 @@ function renderizzaListaScadenze() {
     if (!container) return;
 
     container.innerHTML = '';
-    const keys = Object.keys(scadenzeCloudHeader);
+    const listaAttive = getScadenzeFiltrate();
 
-    if (keys.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-500 italic">Nessuna scadenza in archivio.</p>';
+    if (listaAttive.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-500 italic">Nessuna scadenza in archivio per questo settore.</p>';
         return;
     }
 
-    keys.sort((a,b) => new Date(scadenzeCloudHeader[a].data) - new Date(scadenzeCloudHeader[b].data));
+    listaAttive.sort((a,b) => new Date(a.data) - new Date(b.data));
 
-    keys.forEach(key => {
-        const item = scadenzeCloudHeader[key];
-        
+    listaAttive.forEach(item => {
         let badgeColore = 'bg-sky-950 text-sky-300 border-sky-800';
         let puntoColore = 'bg-sky-500';
         let nomeSettore = 'ENVIRONMENT (E)';
@@ -467,7 +502,7 @@ function renderizzaListaScadenze() {
                 <a href="https://api.whatsapp.com/send?text=${encodeURIComponent('Promemoria Cantiere Terzo Valico [' + item.settore + ']: ' + item.titolo + ' in data ' + item.data + ' (Autore: [' + autoreSigla + '])')}" target="_blank" class="w-7 h-7 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center justify-center transition" title="Condividi su WhatsApp">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
-                <button onclick="eliminaScadenza('${key}')" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg flex items-center justify-center transition" title="Elimina">
+                <button onclick="eliminaScadenza('${item.id}')" class="w-7 h-7 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 rounded-lg flex items-center justify-center transition" title="Elimina">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
