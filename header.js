@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const logoPath = isInsideSubfolder ? "../../logowb.jpeg" : "logowb.jpeg";
     const logoutPath = isInsideSubfolder ? "../../index.html" : "index.html";
 
-    // Mostra il tasto Indietro sicuro solo se siamo dentro una sottocartella (es. /pages/)
+    // Mostra il tasto Indietro solo se siamo dentro una sottocartella (es. /pages/)
     const backButtonHTML = isInsideSubfolder ? `
         <button onclick="tornaIndietroSicuro()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
           <i class="fa-solid fa-arrow-left text-sky-400"></i>
@@ -183,12 +183,15 @@ const giorniSettimana = ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giove
 let scadenzeCloudHeader = {};
 let dataSelezionataRecap = null;
 
+// Riconoscimento del settore attivo
 function getSettoreCorrente() {
+    // 1. Priorità all'attributo esplicito data-settore="E" (o "ALL", "HS", "Q") sul tag <body>
     const bodySector = document.body.getAttribute('data-settore');
     if (bodySector) {
         return bodySector.toUpperCase();
     }
 
+    // 2. Se manca l'attributo, analizza il percorso/URL della pagina
     const path = window.location.pathname.toLowerCase();
     
     if (path.endsWith('homeqhse.html') || path === '/' || path.endsWith('/')) {
@@ -201,6 +204,7 @@ function getSettoreCorrente() {
         return 'Q';
     }
     
+    // Default per tutte le pagine sotto /pages/enviromental/ o pagine operative ambientali
     return 'E';
 }
 
@@ -209,9 +213,10 @@ function getScadenzeFiltrate() {
     const tutte = Object.values(scadenzeCloudHeader);
     
     if (settoreCorrente === 'ALL') {
-        return tutte;
+        return tutte; // Nella HomeQHSE.html mostra tutti gli eventi (Q, HS, E)
     } else {
-        return tutte.filter(s => s.settore === settoreCorrente);
+        // Nelle pagine specifiche mostra sia gli eventi nativi del settore sia quelli creati senza settore specificato
+        return tutte.filter(s => s.settore === settoreCorrente || !s.settore);
     }
 }
 
@@ -236,6 +241,11 @@ function inizializzaHeaderCalendario() {
 
     if (typeof firebase !== 'undefined') {
         try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp({
+                    databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+                });
+            }
             const db = firebase.database();
             db.ref('scadenze_cantiere').on('value', (snapshot) => {
                 scadenzeCloudHeader = snapshot.val() || {};
@@ -249,7 +259,7 @@ function inizializzaHeaderCalendario() {
                 if (container) container.innerHTML = '<p class="text-xs text-rose-400 italic">Errore di connessione al Cloud.</p>';
             });
         } catch (e) {
-            console.log("Firebase non inizializzato nel modulo header.");
+            console.log("Firebase non inizializzato nel modulo header:", e);
         }
     }
 }
@@ -416,9 +426,8 @@ function salvaNuovaAttivita() {
         return;
     }
 
-    // Controllo e inizializzazione di sicurezza per Firebase
     if (typeof firebase === 'undefined') {
-        alert("Errore critico: SDK Firebase non trovato nella pagina.");
+        alert("Errore: Firebase non connesso.");
         return;
     }
 
