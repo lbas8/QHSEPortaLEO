@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs per sincronizzazione Cloud -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -29,7 +29,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-rose-500 selection:text-white" data-settore="E">
 
-  <!-- HEADER UNIFICATO -->
+  <!-- PUNTO DI INIEZIONE HEADER UNIFICATO -->
   <div id="app-header"></div>
 
   <!-- MAIN CONTENT -->
@@ -63,8 +63,7 @@
       </div>
 
       <div id="lista-nca-container" class="grid grid-cols-1 gap-4">
-        <!-- Generato via JavaScript -->
-        <div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic">
+        <div class="glass-card rounded-2xl p-8 text-center text-slate-500 text-xs italic">
           Connessione al database in corso...
         </div>
       </div>
@@ -72,7 +71,7 @@
 
   </main>
 
-  <!-- MODALE COMPILAZIONE MODULO NCA (3 FASI) -->
+  <!-- MODALE COMPILAZIONE MODULO NCA (3 FASI CON FIRME E INVIO EMAIL) -->
   <div id="modal-nca" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl relative my-auto space-y-6 text-slate-100 max-h-[90vh] overflow-y-auto">
       
@@ -80,7 +79,7 @@
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <!-- INTESTAZIONE MODALE -->
+      <!-- INTESTAZIONE MODULO -->
       <div class="border-b border-slate-800 pb-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
@@ -174,6 +173,22 @@
               <input type="text" id="nca_allegati_fase1" placeholder="Foto, Verbali, Schede tecniche..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-rose-400">
             </div>
           </div>
+
+          <!-- RIQUADRO FIRMA FASE 1 -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end mt-3">
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Nominativo / Ruolo Compilatore</label>
+              <input type="text" id="nca_firma1_nome" value="Leone Bastiancich (LB)" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs font-semibold">
+            </div>
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Data Firma Fase 1</label>
+              <input type="date" id="nca_firma1_data" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs cursor-pointer">
+            </div>
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Firma / Sigla Rilevatore</label>
+              <input type="text" id="nca_firma1_firma" placeholder="Firma digitale o sigla" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs italic">
+            </div>
+          </div>
         </div>
 
         <!-- FASE 2: ANALISI DELLA CAUSA E TRATTAMENTO -->
@@ -220,6 +235,22 @@
               <input type="text" id="nca_risorse" placeholder="Personale, Mezzi, Materiali..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-amber-400">
             </div>
           </div>
+
+          <!-- RIQUADRO FIRMA FASE 2 -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end mt-3">
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Nominativo Responsabile Trattamento</label>
+              <input type="text" id="nca_firma2_nome" placeholder="Nome e Cognome / Ruolo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs font-semibold">
+            </div>
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Data Firma Fase 2</label>
+              <input type="date" id="nca_firma2_data" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs cursor-pointer">
+            </div>
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Firma / Sigla Responsabile</label>
+              <input type="text" id="nca_firma2_firma" placeholder="Firma digitale o sigla" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs italic">
+            </div>
+          </div>
         </div>
 
         <!-- FASE 3: CHIUSURA NCA -->
@@ -249,16 +280,38 @@
               </div>
             </div>
           </div>
+
+          <!-- RIQUADRO FIRMA FASE 3 -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-3 gap-3 items-end mt-3">
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Nominativo Verificatore / RA</label>
+              <input type="text" id="nca_firma3_nome" placeholder="Nome e Cognome / Ruolo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs font-semibold">
+            </div>
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Data Firma Fase 3</label>
+              <input type="date" id="nca_firma3_data" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs cursor-pointer">
+            </div>
+            <div>
+              <label class="block font-[10px] text-slate-400 font-bold uppercase mb-1">Firma / Sigla Verifica</label>
+              <input type="text" id="nca_firma3_firma" placeholder="Firma digitale o sigla" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white outline-none text-xs italic">
+            </div>
+          </div>
         </div>
 
-        <!-- BOTTONI AZIONE -->
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
-          <button type="button" onclick="chiudiModuloNCA()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer">
-            Annulla
+        <!-- BOTTONI AZIONE & INVIO EMAIL -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800">
+          <button type="button" onclick="inviaModuloEmail()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition shadow-md cursor-pointer flex items-center gap-2">
+            <i class="fa-solid fa-envelope"></i> Invia Modulo per Email
           </button>
-          <button type="submit" class="px-6 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer flex items-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i> Salva Rapporto NCA
-          </button>
+
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="chiudiModuloNCA()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer">
+              Annulla
+            </button>
+            <button type="submit" class="px-6 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer flex items-center gap-2">
+              <i class="fa-solid fa-floppy-disk"></i> Salva Rapporto NCA
+            </button>
+          </div>
         </div>
 
       </form>
@@ -273,13 +326,20 @@
     </div>
   </footer>
 
-  <!-- HEADER UNIFICATO SCRIPT -->
+  <!-- SCRIPT HEADER CENTRALIZZATO -->
   <script src="../../header.js"></script>
 
-  <!-- LOGICA ARCHIVIO E SALVATAGGIO NCA SU FIREBASE -->
+  <!-- LOGICA GESTIONE E SALVATAGGIO CLOUD NCA -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       caricaListaNCA();
+      const oggi = new Date().toISOString().split('T')[0];
+      const f1Data = document.getElementById('nca_firma1_data');
+      const f2Data = document.getElementById('nca_firma2_data');
+      const f3Data = document.getElementById('nca_firma3_data');
+      if (f1Data) f1Data.value = oggi;
+      if (f2Data) f2Data.value = oggi;
+      if (f3Data) f3Data.value = oggi;
     });
 
     function apriModuloNCA() {
@@ -293,6 +353,36 @@
     function chiudiModuloNCA() {
       const modal = document.getElementById('modal-nca');
       if (modal) modal.classList.add('hidden');
+    }
+
+    function inviaModuloEmail() {
+      const wbs = document.getElementById('nca_wbs').value || 'N.D.';
+      const lotto = document.getElementById('nca_lotto').value || 'N.D.';
+      const aspetto = document.getElementById('nca_aspetto_ambientale').value || 'N.D.';
+      const descrizione = document.getElementById('nca_descrizione').value || 'N.D.';
+      const gravita = document.getElementById('nca_gravita').value;
+      const trattamento = document.getElementById('nca_trattamento').value || 'N.D.';
+      const esito = document.querySelector('input[name="nca_esito"]:checked').value;
+
+      const oggetto = encodeURIComponent(`Rapporto NCA - WBS: ${wbs} - Lotto: ${lotto}`);
+      const corpo = encodeURIComponent(
+        `RAPPORTO DI NON CONFORMITÀ / OSSERVAZIONE AMBIENTALE (SGA)\n\n` +
+        `--- FASE 1: RILEVAZIONE ---\n` +
+        `- WBS: ${wbs}\n` +
+        `- Lotto: ${lotto}\n` +
+        `- Aspetto Ambientale: ${aspetto}\n` +
+        `- Descrizione: ${descrizione}\n` +
+        `- Gravità: Classe ${gravita}\n` +
+        `- Firma Fase 1: ${document.getElementById('nca_firma1_nome').value} (${document.getElementById('nca_firma1_firma').value}) in data ${document.getElementById('nca_firma1_data').value}\n\n` +
+        `--- FASE 2: TRATTAMENTO ---\n` +
+        `- Trattamento: ${trattamento}\n` +
+        `- Firma Fase 2: ${document.getElementById('nca_firma2_nome').value} (${document.getElementById('nca_firma2_firma').value}) in data ${document.getElementById('nca_firma2_data').value}\n\n` +
+        `--- FASE 3: CHIUSURA ---\n` +
+        `- Esito Verifica: ${esito}\n` +
+        `- Firma Fase 3: ${document.getElementById('nca_firma3_nome').value} (${document.getElementById('nca_firma3_firma').value}) in data ${document.getElementById('nca_firma3_data').value}\n`
+      );
+
+      window.location.href = `mailto:?subject=${oggetto}&body=${corpo}`;
     }
 
     function salvaRapportoNCA(e) {
@@ -333,6 +423,11 @@
 
         dataVerifica: document.getElementById('nca_data_verifica').value,
         esito: document.querySelector('input[name="nca_esito"]:checked').value,
+
+        firma1: { nome: document.getElementById('nca_firma1_nome').value, data: document.getElementById('nca_firma1_data').value, firma: document.getElementById('nca_firma1_firma').value },
+        firma2: { nome: document.getElementById('nca_firma2_nome').value, data: document.getElementById('nca_firma2_data').value, firma: document.getElementById('nca_firma2_firma').value },
+        firma3: { nome: document.getElementById('nca_firma3_nome').value, data: document.getElementById('nca_firma3_data').value, firma: document.getElementById('nca_firma3_firma').value },
+
         timestamp: Date.now()
       };
 
