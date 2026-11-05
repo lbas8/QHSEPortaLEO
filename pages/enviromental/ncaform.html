@@ -486,7 +486,8 @@
     const annoCorrente = new Date().getFullYear();
 
     document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById('span-anno-corrente').innerText = annoCorrente;
+      const spanAnno = document.getElementById('span-anno-corrente');
+      if (spanAnno) spanAnno.innerText = annoCorrente;
       caricaTabellaEArchivioNCA();
 
       canvas = document.getElementById('signature-canvas');
@@ -717,7 +718,6 @@
         return;
       }
 
-      // Format ID as 01/2026
       const id = `${progInput}/${annoCorrente}`;
       const tipoEl = document.querySelector('input[name="nca_tipo"]:checked');
       const esitoEl = document.querySelector('input[name="nca_esito"]:checked');
@@ -756,7 +756,7 @@
         },
         fasi3_firme: {
           ra: { data: document.getElementById('f3_data_ra').value || '', firmaPresente: !!firmeRegistrate['f3_ra'] },
-          csga: { data: document.getElementById('f3_data_csga').value || '', firmaPresente: !!f3_data_csga }
+          csga: { data: document.getElementById('f3_data_csga').value || '', firmaPresente: !!firmeRegistrate['f3_csga'] },
           dc: { data: document.getElementById('f3_data_dc').value || '', firmaPresente: !!firmeRegistrate['f3_dc'] },
           rsga: { data: document.getElementById('f3_data_rsga').value || '', firmaPresente: !!firmeRegistrate['f3_rsga'] }
         },
