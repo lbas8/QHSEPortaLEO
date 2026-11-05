@@ -208,15 +208,36 @@ function getSettoreCorrente() {
     return 'E';
 }
 
+// Filtro rigoroso: se sei in una pagina specifica, mostra solo gli eventi di quel settore esatto
 function getScadenzeFiltrate() {
     const settoreCorrente = getSettoreCorrente();
     const tutte = Object.values(scadenzeCloudHeader);
     
     if (settoreCorrente === 'ALL') {
-        return tutte; // Nella HomeQHSE.html mostra tutti gli eventi (Q, HS, E)
+        return tutte; // Nella Home mostra tutto (Q, HS, E)
     } else {
-        // Nelle pagine specifiche mostra sia gli eventi nativi del settore sia quelli creati senza settore specificato
-        return tutte.filter(s => s.settore === settoreCorrente || !s.settore);
+        // Nelle pagine specifiche mostra SOLO gli eventi che appartengono esattamente a quel settore
+        return tutte.filter(s => s.settore === settoreCorrente);
+    }
+}
+
+// Quando apri il modale, imposta automaticamente il select del form in base alla pagina in cui ti trovi
+function apriGestoreScadenze() {
+    const modal = document.getElementById('modal-scadenze');
+    if (modal) {
+        modal.classList.remove('hidden');
+
+        // Imposta il select del settore in base alla pagina corrente per evitare errori di inserimento
+        const selectSettore = document.getElementById('input-settore-attivita');
+        if (selectSettore) {
+            const settoreCorrente = getSettoreCorrente();
+            if (settoreCorrente !== 'ALL') {
+                selectSettore.value = settoreCorrente;
+            }
+        }
+
+        renderizzaCalendarioMese();
+        if (dataSelezionataRecap) mostraRecapGiorno(dataSelezionataRecap);
     }
 }
 
