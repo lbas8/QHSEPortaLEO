@@ -698,7 +698,7 @@
       window.location.href = `mailto:?subject=${oggetto}&body=${corpo}`;
     }
 
-    function salvaRapportoNCA(e) {
+function salvaRapportoNCA(e) {
       e.preventDefault();
 
       if (typeof firebase === 'undefined') {
@@ -754,6 +754,7 @@
           dc: { data: document.getElementById('f2_data_dc').value || '', firmaPresente: !!firmeRegistrate['f2_dc'] },
           rsga: { data: document.getElementById('f2_data_rsga').value || '', firmaPresente: !!firmeRegistrate['f2_rsga'] }
         },
+        
         fasi3_firme: {
           ra: { data: document.getElementById('f3_data_ra').value || '', firmaPresente: !!firmeRegistrate['f3_ra'] },
           csga: { data: document.getElementById('f3_data_csga').value || '', firmaPresente: !!firmeRegistrate['f3_csga'] },
