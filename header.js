@@ -560,7 +560,18 @@ function tornaIndietroSicuro() {
     if (window.history.length > 1) {
         window.history.back();
     } else {
-        const isInsideSubfolder = window.location.pathname.includes('/pages/');
-        window.location.href = isInsideSubfolder ? "../HomeQHSE.html" : "HomeQHSE.html";
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        const indexPages = pathSegments.indexOf('pages');
+        
+        if (indexPages !== -1) {
+            const depth = pathSegments.length - 1 - indexPages;
+            let pathToRoot = '';
+            for (let i = 0; i < depth; i++) {
+                pathToRoot += '../';
+            }
+            window.location.href = pathToRoot + 'HomeQHSE.html';
+        } else {
+            window.location.href = 'HomeQHSE.html';
+        }
     }
 }
