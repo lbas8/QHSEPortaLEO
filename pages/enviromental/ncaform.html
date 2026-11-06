@@ -1128,6 +1128,166 @@
       XLSX.utils.book_append_sheet(workbook, worksheet, "Registro NCA & OA");
       XLSX.writeFile(workbook, "Registro_NCA_OA_Cantiere_Terzo_Valico.xlsx");
     }
+    
+    function inviaEmailFase(faseNome, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      let destinatariA = [];
+      let destinatariCC = [];
+
+      container.querySelectorAll('.riga-email').forEach(riga => {
+        const email = riga.querySelector('.input-email-valore').value.trim();
+        const ruolo = riga.querySelector('.select-email-ruolo').value;
+        if (email) {
+          if (ruolo === 'A') destinatariA.push(email);
+          else destinatariCC.push(email);
+        }
+      });
+
+      if (destinatariA.length === 0) {
+        alert("Inserisci almeno un indirizzo email principale nel campo 'A'.");
+        return;
+      }
+
+      const prog = document.getElementById('nca_numero_prog').value.trim() || '01';
+      const idCompleto = `${prog}/${annoCorrente}`;
+      const wbs = document.getElementById('nca_wbs').value || '-';
+      const lotto = document.getElementById('nca_lotto').value || '-';
+      const dataRil = document.getElementById('nca_data_rileva').value || '-';
+      const rilevataDa = document.getElementById('nca_rilevata_da').value || '-';
+      const destinatario = document.getElementById('nca_destinatario').value || '-';
+      const aspetto = document.getElementById('nca_aspetto_ambientale').value || '-';
+      const descrizione = document.getElementById('nca_descrizione').value || '-';
+      const gravita = document.getElementById('nca_gravita').value || '-';
+      const docRif = document.getElementById('nca_doc_riferimento').value || '-';
+      
+      const analisiCause = document.getElementById('nca_analisi_cause').value || '-';
+      const azioneCorr = document.getElementById('nca_azione_correttiva').value || '-';
+      const trattamento = document.getElementById('nca_trattamento').value || '-';
+      const respAtt = document.getElementById('nca_resp_attuazione').value || '-';
+      const trattamentoEntro = document.getElementById('nca_trattamento_entro').value || '-';
+      const esito = document.querySelector('input[name="nca_esito"]:checked')?.value || '-';
+
+      // 1. Generazione PDF Professionale
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Intestazione con barra colorata
+        doc.setFillColor(15, 23, 42); // Sfondo scuro elegante
+        doc.rect(14, 12, 182, 16, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("SGA ISO 14001 — TERZO VALICO DEI GIOVI", 18, 22);
+
+        // Titolo Modulo
+        doc.setTextColor(15, 23, 42);
+        doc.setFontSize(14);
+        doc.text("RAPPORTO DI NON CONFORMITÀ & OSSERVAZIONI AMBIENTALI", 14, 38);
+        
+        // Box ID & Fase
+        doc.setDrawColor(203, 213, 225);
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(14, 44, 182, 16, 2, 2, 'FD');
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text(`Codice NCA: ${idCompleto}`, 18, 54);
+        doc.text(`Stato: ${faseNome}`, 110, 54);
+
+        let y = 70;
+
+        // Sezione 1: Rilevazione
+        doc.setFontSize(11);
+        doc.setTextColor(225, 29, 72); // Colore accento rosa scuro
+        doc.text("FASE 1 — RILEVAZIONE NCA", 14, y);
+        y += 6;
+
+        doc.setFontSize(9);
+        doc.setTextColor(51, 65, 85);
+        doc.setFont("helvetica", "normal");
+        doc.text(`WBS: ${wbs}`, 14, y);
+        doc.text(`Lotto: ${lotto}`, 110, y);
+        y += 6;
+        doc.text(`Data Rilevamento: ${dataRil}`, 14, y);
+        doc.text(`Rilevata da: ${rilevataDa} | Destinatario: ${destinatario}`, 110, y);
+        y += 6;
+        doc.text(`Aspetto Ambientale: ${aspetto}`, 14, y);
+        doc.text(`Gravità: Classe ${gravita}`, 110, y);
+        y += 6;
+        doc.text(`Documenti di Riferimento: ${docRif}`, 14, y);
+        y += 8;
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Descrizione della Non Conformità:", 14, y);
+        y += 5;
+        doc.setFont("helvetica", "italic");
+        doc.text(descrizione, 14, y, { maxWidth: 182 });
+        y += 18;
+
+        // Sezione 2: Analisi e Trattamento
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(217, 119, 6); // Ambra
+        doc.text("FASE 2 — ANALISI CAUSA E TRATTAMENTO", 14, y);
+        y += 6;
+
+        doc.setFontSize(9);
+        doc.setTextColor(51, 65, 85);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Analisi Cause: ${analisiCause}`, 14, y, { maxWidth: 182 });
+        y += 12;
+        doc.text(`Azione Correttiva: ${azioneCorr} | Trattamento: ${trattamento}`, 14, y);
+        y += 6;
+        doc.text(`Responsabile Attuazione: ${respAtt} | Entro il: ${trattamentoEntro}`, 14, y);
+        y += 14;
+
+        // Sezione 3: Chiusura
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(16, 185, 129); // Verde
+        doc.text("FASE 3 — CHIUSURA ED ESITO VERIFICA", 14, y);
+        y += 6;
+
+        doc.setFontSize(9);
+        doc.setTextColor(51, 65, 85);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Esito Trattamento Verificato: ${esito}`, 14, y);
+        y += 16;
+
+        // Blocco Firme Ruoli (Griglia in basso)
+        doc.setDrawColor(148, 163, 184);
+        doc.rect(14, y, 182, 22);
+        doc.setFont("helvetica", "bold");
+        doc.text("FIRME E VALIDAZIONE RUOLI (RA / CSGA / DC / RSGA)", 18, y + 6);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.text("RA: ___________________    CSGA: ___________________    DC: ___________________    RSGA: ___________________", 18, y + 15);
+
+        // Download automatico PDF
+        doc.save(`Rapporto_NCA_${idCompleto.replace('/', '_')}.pdf`);
+      } catch (err) {
+        console.error("Errore generazione PDF:", err);
+      }
+
+      // 2. Apertura client email
+      const subject = encodeURIComponent(`Trasmissione ${faseNome} - Rapporto NCA N. ${idCompleto}`);
+      const body = encodeURIComponent(
+        `TRASMISSIONE DOCUMENTAZIONE SGA — ${faseNome.toUpperCase()}\n\n` +
+        `- Codice NCA: ${idCompleto}\n` +
+        `- Aspetto Ambientale: ${aspetto}\n` +
+        `- Descrizione: ${descrizione}\n\n` +
+        `Si allega il file PDF ufficiale generato dal portale per la verifica e la compilazione delle parti di competenza.`
+      );
+
+      let mailtoLink = `mailto:${destinatariA.join(',')}?subject=${subject}&body=${body}`;
+      if (destinatariCC.length > 0) {
+        mailtoLink += `&cc=${destinatariCC.join(',')}`;
+      }
+
+      window.location.href = mailtoLink;
+    }
 
     function eliminaNCA(id) {
       if (confirm("Vuoi eliminare definitivamente questo rapporto dal Cloud e dal registro?")) {
