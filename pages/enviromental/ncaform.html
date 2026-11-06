@@ -14,6 +14,8 @@
   <!-- SheetJS per esportazione Excel (.xlsx) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
@@ -1018,6 +1020,87 @@
       });
     }
 
+    function inviaEmailFase(faseNome, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      let destinatariA = [];
+      let destinatariCC = [];
+
+      container.querySelectorAll('.riga-email').forEach(riga => {
+        const email = riga.querySelector('.input-email-valore').value.trim();
+        const ruolo = riga.querySelector('.select-email-ruolo').value;
+        if (email) {
+          if (ruolo === 'A') destinatariA.push(email);
+          else destinatariCC.push(email);
+        }
+      });
+
+      if (destinatariA.length === 0) {
+        alert("Inserisci almeno un indirizzo email principale nel campo 'A'.");
+        return;
+      }
+
+      const prog = document.getElementById('nca_numero_prog').value.trim() || '01';
+      const idCompleto = `${prog}/${annoCorrente}`;
+      const wbs = document.getElementById('nca_wbs').value || '-';
+      const lotto = document.getElementById('nca_lotto').value || '-';
+      const aspetto = document.getElementById('nca_aspetto_ambientale').value || '-';
+      const descrizione = document.getElementById('nca_descrizione').value || '-';
+      const gravita = document.getElementById('nca_gravita').value || '-';
+
+      // 1. Generazione automatica del PDF scaricabile
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("RAPPORTO DI NON CONFORMITA & OSSERVAZIONI AMBIENTALI", 14, 20);
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Sistema di Gestione Ambientale (SGA ISO 14001) - Terzo Valico dei Giovi`, 14, 26);
+        doc.line(14, 30, 196, 30);
+
+        doc.setFont("helvetica", "bold");
+        doc.text(`Codice NCA: ${idCompleto}`, 14, 40);
+        doc.text(`Fase di riferimento: ${faseNome}`, 14, 48);
+
+        doc.setFont("helvetica", "normal");
+        doc.text(`WBS: ${wbs}`, 14, 58);
+        doc.text(`Lotto: ${lotto}`, 100, 58);
+        doc.text(`Aspetto Ambientale: ${aspetto}`, 14, 66);
+        doc.text(`Gravita: Classe ${gravita}`, 100, 66);
+
+        doc.text("Descrizione NCA:", 14, 78);
+        doc.setFont("helvetica", "italic");
+        doc.text(descrizione, 14, 84, { maxWidth: 180 });
+
+        // Salvataggio automatico del PDF sul computer
+        doc.save(`Rapporto_NCA_${idCompleto.replace('/', '_')}.pdf`);
+      } catch (err) {
+        console.error("Errore generazione PDF:", err);
+      }
+
+      // 2. Apertura del client email con i destinatari configurati
+      const subject = encodeURIComponent(`Trasmissione ${faseNome} - Rapporto NCA N. ${idCompleto}`);
+      const body = encodeURIComponent(
+        `TRASMISSIONE DOCUMENTAZIONE SGA — ${faseNome.toUpperCase()}\n\n` +
+        `- Codice NCA: ${idCompleto}\n` +
+        `- Aspetto Ambientale: ${aspetto}\n` +
+        `- Descrizione: ${descrizione}\n\n` +
+        `Si allega il file PDF generato dal portale per la compilazione delle parti di competenza.`
+      );
+
+      let mailtoLink = `mailto:${destinatariA.join(',')}?subject=${subject}&body=${body}`;
+      if (destinatariCC.length > 0) {
+        mailtoLink += `&cc=${destinatariCC.join(',')}`;
+      }
+
+      window.location.href = mailtoLink;
+    }
+    
     function esportaTabellaExcel() {
       const keys = Object.keys(ncaCacheData);
       if (keys.length === 0) {
