@@ -128,7 +128,7 @@
         <h3 class="text-sm font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
           <i class="fa-solid fa-folder-open"></i> Archivio Schede NCA & OA (Consultazione & Integrazione)
         </h3>
-        <span class="text-xs text-slate-400">Clicca su "Modifica Scheda" per integrare o aggiornare le fasi</span>
+        <span class="text-xs text-slate-400">Clicca su "Apri / Integra" per aggiornare le fasi</span>
       </div>
       <div id="archivio-schede-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic">
@@ -274,6 +274,37 @@
               <div id="anteprima-allegati" class="flex flex-wrap gap-2 mt-2"></div>
             </div>
           </div>
+
+          <!-- GESTIONE EMAIL FASE 1 -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3 mt-4">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase text-sky-400 tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-envelope"></i> Trasmissione Email — Fase 1 (Rilevazione)
+              </span>
+              <button type="button" onclick="aggiungiRigaEmail('container-email-fase1')" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-400 border border-emerald-500/40 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-plus"></i> Aggiungi Destinatario
+              </button>
+            </div>
+            
+            <div id="container-email-fase1" class="space-y-2">
+              <div class="flex items-center gap-2 riga-email">
+                <input type="email" placeholder="indirizzo.email@cantiere.it" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-xs outline-none focus:border-sky-400 input-email-valore">
+                <select class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-300 text-xs outline-none focus:border-sky-400 select-email-ruolo font-bold">
+                  <option value="A">A (Principale)</option>
+                  <option value="CC">CC (Copia Conoscenza)</option>
+                </select>
+                <button type="button" onclick="rimuoviRigaEmail(this)" class="px-2.5 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs hover:bg-rose-600/35 transition cursor-pointer">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+              <button type="button" onclick="inviaEmailFase('Fase 1 - Rilevazione', 'container-email-fase1')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-paper-plane"></i> Invia Notifica Fase 1
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- FASE 2: ANALISI DELLA CAUSA E TRATTAMENTO -->
@@ -355,6 +386,37 @@
               </table>
             </div>
           </div>
+
+          <!-- GESTIONE EMAIL FASE 2 -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3 mt-4">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase text-sky-400 tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-envelope"></i> Trasmissione Email — Fase 2 (Analisi e Trattamento)
+              </span>
+              <button type="button" onclick="aggiungiRigaEmail('container-email-fase2')" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-400 border border-emerald-500/40 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-plus"></i> Aggiungi Destinatario
+              </button>
+            </div>
+            
+            <div id="container-email-fase2" class="space-y-2">
+              <div class="flex items-center gap-2 riga-email">
+                <input type="email" placeholder="indirizzo.email@cantiere.it" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-xs outline-none focus:border-sky-400 input-email-valore">
+                <select class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-300 text-xs outline-none focus:border-sky-400 select-email-ruolo font-bold">
+                  <option value="A">A (Principale)</option>
+                  <option value="CC">CC (Copia Conoscenza)</option>
+                </select>
+                <button type="button" onclick="rimuoviRigaEmail(this)" class="px-2.5 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs hover:bg-rose-600/35 transition cursor-pointer">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+              <button type="button" onclick="inviaEmailFase('Fase 2 - Analisi e Trattamento', 'container-email-fase2')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-paper-plane"></i> Invia Notifica Fase 2
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- FASE 3: CHIUSURA NCA -->
@@ -418,22 +480,47 @@
               </table>
             </div>
           </div>
+
+          <!-- GESTIONE EMAIL FASE 3 -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 space-y-3 mt-4">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold uppercase text-sky-400 tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-envelope"></i> Trasmissione Email — Fase 3 (Chiusura ed Esito)
+              </span>
+              <button type="button" onclick="aggiungiRigaEmail('container-email-fase3')" class="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-400 border border-emerald-500/40 rounded-lg text-[10px] font-bold transition flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-plus"></i> Aggiungi Destinatario
+              </button>
+            </div>
+            
+            <div id="container-email-fase3" class="space-y-2">
+              <div class="flex items-center gap-2 riga-email">
+                <input type="email" placeholder="indirizzo.email@cantiere.it" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-xs outline-none focus:border-sky-400 input-email-valore">
+                <select class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-300 text-xs outline-none focus:border-sky-400 select-email-ruolo font-bold">
+                  <option value="A">A (Principale)</option>
+                  <option value="CC">CC (Copia Conoscenza)</option>
+                </select>
+                <button type="button" onclick="rimuoviRigaEmail(this)" class="px-2.5 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs hover:bg-rose-600/35 transition cursor-pointer">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+              <button type="button" onclick="inviaEmailFase('Fase 3 - Chiusura ed Esito', 'container-email-fase3')" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg transition text-xs flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-paper-plane"></i> Invia Notifica Fase 3
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- BOTTONI AZIONE & SALVATAGGIO -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800">
-          <button type="button" onclick="inviaModuloEmail()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition shadow-md cursor-pointer flex items-center gap-2">
-            <i class="fa-solid fa-envelope"></i> Invia Modulo per Email
+        <div class="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-slate-800">
+          <button type="button" onclick="chiudiModuloNCA()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer">
+            Annulla
           </button>
-
-          <div class="flex items-center gap-3">
-            <button type="button" onclick="chiudiModuloNCA()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer">
-              Annulla
-            </button>
-            <button type="submit" class="px-6 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer flex items-center gap-2">
-              <i class="fa-solid fa-floppy-disk"></i> Salva / Aggiorna Rapporto NCA
-            </button>
-          </div>
+          <button type="submit" class="px-6 py-2.5 bg-rose-500 hover:bg-rose-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-rose-500/20 cursor-pointer flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Salva / Aggiorna Rapporto NCA
+          </button>
         </div>
 
       </form>
@@ -476,7 +563,7 @@
   <!-- SCRIPT HEADER CENTRALIZZATO -->
   <script src="../../header.js"></script>
 
-  <!-- LOGICA GESTIONE TABELLA, ARCHIVIO E PROGRESSIVO CON ANNO FISSO -->
+  <!-- LOGICA GESTIONE TABELLA, ARCHIVIO, EMAIL E MODULO NCA -->
   <script>
     let ncaCacheData = {};
     let campoFirmaAttivo = null;
@@ -507,6 +594,79 @@
         canvas.addEventListener('touchend', (e) => { const mouseEvent = new MouseEvent('mouseup', {}); canvas.dispatchEvent(mouseEvent); });
       }
     });
+
+    // LOGICA GESTIONE DESTINATARI EMAIL DINAMICI
+    function aggiungiRigaEmail(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const div = document.createElement('div');
+      div.className = "flex items-center gap-2 riga-email";
+      div.innerHTML = `
+        <input type="email" placeholder="indirizzo.email@cantiere.it" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-xs outline-none focus:border-sky-400 input-email-valore">
+        <select class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-300 text-xs outline-none focus:border-sky-400 select-email-ruolo font-bold">
+          <option value="A">A (Principale)</option>
+          <option value="CC" selected>CC (Copia Conoscenza)</option>
+        </select>
+        <button type="button" onclick="rimuoviRigaEmail(this)" class="px-2.5 py-1.5 bg-rose-600/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs hover:bg-rose-600/35 transition cursor-pointer">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      `;
+      container.appendChild(div);
+    }
+
+    function rimuoviRigaEmail(button) {
+      const riga = button.closest('.riga-email');
+      const container = riga.parentElement;
+      if (container.querySelectorAll('.riga-email').length > 1) {
+        riga.remove();
+      } else {
+        alert("Deve essere presente almeno un campo per il destinatario.");
+      }
+    }
+
+    function inviaEmailFase(faseNome, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      let destinatariA = [];
+      let destinatariCC = [];
+
+      container.querySelectorAll('.riga-email').forEach(riga => {
+        const email = riga.querySelector('.input-email-valore').value.trim();
+        const ruolo = riga.querySelector('.select-email-ruolo').value;
+        if (email) {
+          if (ruolo === 'A') destinatariA.push(email);
+          else destinatariCC.push(email);
+        }
+      });
+
+      if (destinatariA.length === 0) {
+        alert("Inserisci almeno un indirizzo email principale nel campo 'A'.");
+        return;
+      }
+
+      const prog = document.getElementById('nca_numero_prog').value.trim() || '01';
+      const idCompleto = `${prog}/${annoCorrente}`;
+      const aspetto = document.getElementById('nca_aspetto_ambientale').value || '-';
+      const descrizione = document.getElementById('nca_descrizione').value || '-';
+
+      const subject = encodeURIComponent(`Trasmissione ${faseNome} - Rapporto NCA N. ${idCompleto}`);
+      const body = encodeURIComponent(
+        `TRASMISSIONE DOCUMENTAZIONE SGA — ${faseNome.toUpperCase()}\n\n` +
+        `- Codice NCA: ${idCompleto}\n` +
+        `- Aspetto Ambientale: ${aspetto}\n` +
+        `- Descrizione: ${descrizione}\n\n` +
+        `Si trasmette in allegato/riferimento lo stato di avanzamento della scheda NCA per la relativa competenza.`
+      );
+
+      let mailtoLink = `mailto:${destinatariA.join(',')}?subject=${subject}&body=${body}`;
+      if (destinatariCC.length > 0) {
+        mailtoLink += `&cc=${destinatariCC.join(',')}`;
+      }
+
+      window.location.href = mailtoLink;
+    }
 
     function gestisciAllegati(event) {
       const files = event.target.files;
@@ -594,7 +754,7 @@
       return String(prossimo).padStart(2, '0');
     }
 
-function apriModuloNCA(idEdit = null) {
+    function apriModuloNCA(idEdit = null) {
       const modal = document.getElementById('modal-nca');
       if (!modal) return;
 
@@ -607,13 +767,13 @@ function apriModuloNCA(idEdit = null) {
       document.querySelectorAll('input[name="nca_tipo"]').forEach(el => el.checked = false);
       document.querySelectorAll('input[name="nca_esito"]').forEach(el => el.checked = false);
 
-      // Normalizziamo la chiave per la ricerca in cache (sostituiamo '/' con '_')
+      // Normalizzazione chiave di ricerca (ricerca sia con '_' che con '/')
       const keySearch = idEdit ? idEdit.replace('/', '_') : null;
 
       if (keySearch && ncaCacheData[keySearch]) {
         const item = ncaCacheData[keySearch];
         const displayId = item.id || idEdit;
-        
+
         document.getElementById('modal-titolo-form').innerText = "MODIFICA / INTEGRA RAPPORTO NCA: " + displayId;
         const progPart = displayId.split('/')[0] || displayId;
         document.getElementById('nca_numero_prog').value = progPart;
@@ -654,7 +814,7 @@ function apriModuloNCA(idEdit = null) {
           if(item.fasi2_firme.rsga?.data) document.getElementById('f2_data_rsga').value = item.fasi2_firme.rsga.data;
         }
         if (item.fasi3_firme) {
-          if(item.fasi3_firme.ra?.data) document.getElementById('f3_data_ra').value = item.fasi3_firme.ra.data;
+          if(item.fasi3_firme.ra?.data) document.getElementById('f3_data_ra').value = item.f3_data_ra.data;
           if(item.fasi3_firme.csga?.data) document.getElementById('f3_data_csga').value = item.fasi3_firme.csga.data;
           if(item.fasi3_firme.dc?.data) document.getElementById('f3_data_dc').value = item.fasi3_firme.dc.data;
           if(item.fasi3_firme.rsga?.data) document.getElementById('f3_data_rsga').value = item.fasi3_firme.rsga.data;
@@ -665,7 +825,7 @@ function apriModuloNCA(idEdit = null) {
         document.getElementById('nca_numero_prog').readOnly = false;
       }
     }
-    
+
     function apriModuloOA() {
       alert("💡 Apertura modulo Osservazioni Ambientali (OA) collegate al sistema SGA.");
       apriModuloNCA();
@@ -681,29 +841,7 @@ function apriModuloNCA(idEdit = null) {
       if (modal) modal.classList.add('hidden');
     }
 
-    function inviaModuloEmail() {
-      const prog = document.getElementById('nca_numero_prog').value.trim() || '01';
-      const idCompleto = `${prog}/${annoCorrente}`;
-      const wbs = document.getElementById('nca_wbs').value || '-';
-      const lotto = document.getElementById('nca_lotto').value || '-';
-      const aspetto = document.getElementById('nca_aspetto_ambientale').value || '-';
-      const descrizione = document.getElementById('nca_descrizione').value || '-';
-      const gravita = document.getElementById('nca_gravita').value || '-';
-      const trattamento = document.getElementById('nca_trattamento').value || '-';
-
-      const oggetto = encodeURIComponent(`Rapporto NCA N. ${idCompleto} - WBS: ${wbs}`);
-      const corpo = encodeURIComponent(
-        `RAPPORTO DI NON CONFORMITÀ / OSSERVAZIONE AMBIENTALE (SGA)\n\n` +
-        `- Codice NCA: ${idCompleto}\n` +
-        `--- FASE 1: RILEVAZIONE ---\n` +
-        `- WBS: ${wbs}\n- Lotto: ${lotto}\n- Aspetto: ${aspetto}\n- Descrizione: ${descrizione}\n- Gravità: Classe ${gravita}\n\n` +
-        `--- TRATTAMENTO ---\n` +
-        `- Trattamento: ${trattamento}\n`
-      );
-      window.location.href = `mailto:?subject=${oggetto}&body=${corpo}`;
-    }
-
-function salvaRapportoNCA(e) {
+    function salvaRapportoNCA(e) {
       e.preventDefault();
 
       if (typeof firebase === 'undefined') {
@@ -767,7 +905,7 @@ function salvaRapportoNCA(e) {
           rsga: { data: document.getElementById('f3_data_rsga').value || '', firmaPresente: !!firmeRegistrate['f3_rsga'] }
         },
 
-        timestamp: (ncaCacheData[id] && ncaCacheData[id].timestamp) ? ncaCacheData[id].timestamp : Date.now()
+        timestamp: (ncaCacheData[id.replace('/', '_')] && ncaCacheData[id.replace('/', '_')].timestamp) ? ncaCacheData[id.replace('/', '_')].timestamp : Date.now()
       };
 
       firebase.database().ref('nca_ambientali/' + id.replace('/', '_')).set(payload, (err) => {
@@ -917,4 +1055,3 @@ function salvaRapportoNCA(e) {
 
 </body>
 </html>
-
