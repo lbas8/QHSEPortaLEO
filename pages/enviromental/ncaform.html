@@ -594,7 +594,7 @@
       return String(prossimo).padStart(2, '0');
     }
 
-    function apriModuloNCA(idEdit = null) {
+function apriModuloNCA(idEdit = null) {
       const modal = document.getElementById('modal-nca');
       if (!modal) return;
 
@@ -607,13 +607,18 @@
       document.querySelectorAll('input[name="nca_tipo"]').forEach(el => el.checked = false);
       document.querySelectorAll('input[name="nca_esito"]').forEach(el => el.checked = false);
 
-      if (idEdit && ncaCacheData[idEdit]) {
-        document.getElementById('modal-titolo-form').innerText = "MODIFICA / INTEGRA RAPPORTO NCA: " + idEdit;
-        const progPart = idEdit.split('/')[0] || idEdit;
+      // Normalizziamo la chiave per la ricerca in cache (sostituiamo '/' con '_')
+      const keySearch = idEdit ? idEdit.replace('/', '_') : null;
+
+      if (keySearch && ncaCacheData[keySearch]) {
+        const item = ncaCacheData[keySearch];
+        const displayId = item.id || idEdit;
+        
+        document.getElementById('modal-titolo-form').innerText = "MODIFICA / INTEGRA RAPPORTO NCA: " + displayId;
+        const progPart = displayId.split('/')[0] || displayId;
         document.getElementById('nca_numero_prog').value = progPart;
         document.getElementById('nca_numero_prog').readOnly = true;
         
-        const item = ncaCacheData[idEdit];
         document.getElementById('nca_wbs').value = item.wbs || '';
         document.getElementById('nca_lotto').value = item.lotto || '';
         document.getElementById('nca_data_rileva').value = item.dataRilevamento || '';
@@ -660,7 +665,7 @@
         document.getElementById('nca_numero_prog').readOnly = false;
       }
     }
-
+    
     function apriModuloOA() {
       alert("💡 Apertura modulo Osservazioni Ambientali (OA) collegate al sistema SGA.");
       apriModuloNCA();
