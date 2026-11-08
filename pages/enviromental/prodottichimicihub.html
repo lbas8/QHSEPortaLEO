@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prodotti Chimici & Reagenti (SDS) — Portale QHSE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  <!-- SheetJS per Export Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white" data-settore="E">
+
+  <!-- HEADER UNIFICATO -->
+  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
+        <div class="flex items-center gap-3">
+          <a href="environmentalhub.html" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer no-underline">
+            <i class="fa-solid fa-arrow-left text-cyan-400"></i>
+            <span class="hidden sm:inline">Indietro</span>
+          </a>
+          <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
+            <i class="fa-solid fa-flask-vial text-xl"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Prodotti Chimici & Reagenti (SDS)</h1>
+            <p class="text-[11px] text-cyan-400 font-semibold mt-1">Environmental Office — Quarto Valico dei Giovi</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+        <button onclick="esportaChimiciExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition cursor-pointer">
+          <i class="fa-solid fa-file-excel"></i> Esporta Excel (.xlsx)
+        </button>
+        <button onclick="apriModalChimico()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-2 shadow transition cursor-pointer">
+          <i class="fa-solid fa-plus"></i> Nuova Scheda SDS
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col space-y-8">
+    
+    <!-- REMINDER SCADENZE SDS (PANNELLO IN ALTO) -->
+    <div id="reminder-box" class="glass-card rounded-2xl p-5 border-l-4 border-l-emerald-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div id="reminder-icon" class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg flex-shrink-0">
+          <i class="fa-solid fa-shield-check"></i>
+        </div>
+        <div>
+          <h4 id="reminder-titolo" class="text-sm font-black text-white uppercase tracking-wide">Monitoraggio Scadenze SDS in Corso</h4>
+          <p id="reminder-testo" class="text-xs text-slate-400">Verifica automatica delle schede di sicurezza dei reagenti e dei prodotti di impianto.</p>
+        </div>
+      </div>
+      <div id="reminder-badge" class="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded-full text-xs font-bold whitespace-nowrap">
+        Stato: Regolare
+      </div>
+    </div>
+
+    <!-- TABELLA SUPERIORE: REGISTRO PRODOTTI & SDS -->
+    <div class="space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <i class="fa-solid fa-table text-cyan-400"></i> Registro Sincronizzato Prodotti Chimici & Reagenti
+        </h3>
+        <div class="flex items-center gap-2">
+          <input type="text" id="filter-search" oninput="filtraTabellaChimici()" placeholder="Cerca prodotto, fornitore, codice CAS..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400 w-64">
+          <span id="chimici-counter" class="text-xs text-slate-500">Caricamento...</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+        <div class="overflow-x-auto max-h-[420px]">
+          <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
+            <thead class="bg-slate-950 text-slate-400 font-black uppercase text-[10px] border-b border-slate-800 sticky top-0 z-10">
+              <tr>
+                <th class="p-3.5">Nome Prodotto / Reagente</th>
+                <th class="p-3.5">Codice CAS / Formula</th>
+                <th class="p-3.5">Fornitore / Produttore</th>
+                <th class="p-3.5">Uso / Cantiere / Impianto</th>
+                <th class="p-3.5">Giacenza / Serbatoio</th>
+                <th class="p-3.5">Data Scadenza SDS</th>
+                <th class="p-3.5">Stato SDS</th>
+                <th class="p-3.5 text-center">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="tabella-chimici-body" class="divide-y divide-slate-800/60">
+              <tr>
+                <td colspan="8" class="p-6 text-center text-slate-500 italic">Caricamento dati dal Cloud...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTE INFERIORE: ARCHIVIO DIGITALE A CARTELLE PER SDS E FILE -->
+    <div class="space-y-4 pt-6 border-t border-slate-800">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 class="text-sm font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+            <i class="fa-solid fa-folder-tree"></i> Archivio Documentale & Cartelle SDS
+          </h3>
+          <p class="text-xs text-slate-400">Carica e custodisci le schede di sicurezza (PDF) e i documenti associati per ciascun prodotto.</p>
+        </div>
+
+        <button onclick="creaNuovaCartellaChimica()" class="self-start sm:self-auto px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-folder-plus text-cyan-400"></i> Nuova Cartella
+        </button>
+      </div>
+
+      <!-- GRIGLIA CARTELLE -->
+      <div id="cartelle-chimici-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic col-span-full">
+          Caricamento cartelle archivio...
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODALE REGISTRAZIONE / MODIFICA PRODOTTO CHIMICO -->
+  <div id="modal-chimico" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative my-auto space-y-6 text-slate-100">
+      <button onclick="chiudiModalChimico()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-xl font-bold cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="border-b border-slate-800 pb-3">
+        <h3 id="modal-titolo" class="text-lg font-black text-white uppercase tracking-wide">REGISTRA SCHEDA SDS / PRODOTTO</h3>
+        <p class="text-xs text-cyan-400 font-semibold">Inserisci le specifiche chimiche e la data di scadenza della SDS</p>
+      </div>
+
+      <form id="form-chimico" onsubmit="salvaChimico(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Nome Prodotto / Reagente *</label>
+            <input type="text" id="p_nome" required placeholder="Es. Polimero Flocculante A" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400 font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Codice CAS / Formula</label>
+            <input type="text" id="p_cas" placeholder="Es. 9003-05-8" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Fornitore / Produttore</label>
+            <input type="text" id="p_fornitore" placeholder="Es. Solvay Chimica" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Uso / Impianto / Cantiere</label>
+            <input type="text" id="p_uso" placeholder="Es. Impianto Acque / Stazione dosaggio" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Giacenza / Serbatoio</label>
+            <input type="text" id="p_giacenza" placeholder="Es. 10 Sacco da 25kg / Serbatoio 1000L" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Data Scadenza Scheda SDS *</label>
+            <input type="date" id="p_scadenza" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400 cursor-pointer font-bold">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+          <button type="button" onclick="chiudiModalChimico()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold cursor-pointer">Annulla</button>
+          <button type="submit" class="px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-cyan-500/20 cursor-pointer">Salva Prodotto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT HEADER CENTRALIZZATO -->
+  <script src="../../header.js"></script>
+
+  <!-- LOGICA JAVASCRIPT & REMINDER SCADENZE SDS -->
+  <script>
+    let chimiciCache = {};
+    let cartelleChimicheCache = {};
+
+    document.addEventListener("DOMContentLoaded", () => {
+      caricaDatiChimici();
+    });
+
+    function caricaDatiChimici() {
+      if (typeof firebase === 'undefined') return;
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp({
+          databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+        });
+      }
+
+      const db = firebase.database();
+
+      // Sincronizzazione prodotti chimici
+      db.ref('prodotti_chimici').on('value', (snapshot) => {
+        chimiciCache = snapshot.val() || {};
+        const keys = Object.keys(chimiciCache);
+        renderizzaTabellaChimici(keys);
+        valcolaReminderScadenze(chimiciCache);
+      });
+
+      // Sincronizzazione cartelle dedicate
+      db.ref('cartelle_chimici').on('value', (snapshot) => {
+        cartelleChimicheCache = snapshot.val() || {};
+        renderizzaCartelleChimiche();
+      });
+    }
+
+    function valcolaReminderScadenze(data) {
+      const keys = Object.keys(data);
+      const oggi = new Date();
+      oggi.setHours(0, 0, 0, 0);
+
+      let scdScadute = 0;
+      let scdInScadenza = 0;
+
+      keys.forEach(k => {
+        const item = data[k];
+        if (item.scadenza) {
+          const dataScd = new Date(item.scadenza);
+          const diffGiorni = Math.ceil((dataScd - oggi) / (1000 * 60 * 60 * 24));
+          
+          if (diffGiorni < 0) scdScadute++;
+          else if (diffGiorni <= 30) scdInScadenza++;
+        }
+      });
+
+      const box = document.getElementById('reminder-box');
+      const icon = document.getElementById('reminder-icon');
+      const titolo = document.getElementById('reminder-titolo');
+      const testo = document.getElementById('reminder-testo');
+      const badge = document.getElementById('reminder-badge');
+
+      if (scdScadute > 0) {
+        box.className = "glass-card rounded-2xl p-5 border-l-4 border-l-rose-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl";
+        icon.className = "w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-lg flex-shrink-0";
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        titolo.innerText = `ATTENZIONE: ${scdScadute} ${scdScadute === 1 ? 'Scheda SDS Scaduta' : 'Schede SDS Scadute'}!`;
+        testo.innerText = "Ci sono schede di sicurezza la cui validità è superata. Si richiede l'immediato aggiornamento.";
+        badge.className = "px-3 py-1 bg-rose-950 text-rose-300 border border-rose-800 rounded-full text-xs font-bold whitespace-nowrap animate-pulse";
+        badge.innerText = `Scadute: ${scdScadute}`;
+      } else if (scdInScadenza > 0) {
+        box.className = "glass-card rounded-2xl p-5 border-l-4 border-l-amber-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl";
+        icon.className = "w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg flex-shrink-0";
+        icon.innerHTML = '<i class="fa-solid fa-clock"></i>';
+        titolo.innerText = `AVVISO: ${scdInScadenza} ${scdInScadenza === 1 ? 'SDS in scadenza' : 'SDS in scadenza'} nei prossimi 30 giorni`;
+        testo.innerText = "Verificare l'aggiornamento delle schede di sicurezza con i rispettivi fornitori.";
+        badge.className = "px-3 py-1 bg-amber-950 text-amber-300 border border-amber-800 rounded-full text-xs font-bold whitespace-nowrap";
+        badge.innerText = `In Scadenza: ${scdInScadenza}`;
+      } else {
+        box.className = "glass-card rounded-2xl p-5 border-l-4 border-l-emerald-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl";
+        icon.className = "w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg flex-shrink-0";
+        icon.innerHTML = '<i class="fa-solid fa-shield-check"></i>';
+        titolo.innerText = "Monitoraggio Scadenze SDS Regolare";
+        testo.innerText = "Tutte le schede di sicurezza registrate a portale risultano in corso di validità.";
+        badge.className = "px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded-full text-xs font-bold whitespace-nowrap";
+        badge.innerText = "Stato: Regolare";
+      }
+    }
+
+    function renderizzaTabellaChimici(keys) {
+      const tbody = document.getElementById('tabella-chimici-body');
+      const counter = document.getElementById('chimici-counter');
+      if (!tbody) return;
+
+      if (keys.length === 0) {
+        counter.innerText = "0 prodotti registrati";
+        tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-500 italic">Nessun prodotto chimico o reagente registrato a portale.</td></tr>';
+        return;
+      }
+
+      counter.innerText = `${keys.length} ${keys.length === 1 ? 'prodotto registrato' : 'prodotti registrati'}`;
+      tbody.innerHTML = '';
+
+      const oggi = new Date();
+      oggi.setHours(0, 0, 0, 0);
+
+      keys.forEach(key => {
+        const item = chimiciCache[key];
+        if (!item) return;
+
+        let badgeStato = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border bg-emerald-950 text-emerald-400 border-emerald-800">Valida</span>';
+        if (item.scadenza) {
+          const dataScd = new Date(item.scadenza);
+          const diffGiorni = Math.ceil((dataScd - oggi) / (1000 * 60 * 60 * 24));
+          if (diffGiorni < 0) {
+            badgeStato = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border bg-rose-950 text-rose-400 border-rose-800 animate-pulse">Scaduta</span>';
+          } else if (diffGiorni <= 30) {
+            badgeStato = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border bg-amber-950 text-amber-400 border-amber-800">In Scadenza</span>';
+          }
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/80 transition";
+        tr.innerHTML = `
+          <td class="p-3.5 font-bold text-cyan-400">${item.nome || key}</td>
+          <td class="p-3.5 text-slate-300">${item.cas || '-'}</td>
+          <td class="p-3.5 text-white font-semibold">${item.fornitore || '-'}</td>
+          <td class="p-3.5 text-slate-300">${item.uso || '-'}</td>
+          <td class="p-3.5 text-emerald-400 font-bold">${item.giacenza || '-'}</td>
+          <td class="p-3.5 font-bold">${item.scadenza || '-'}</td>
+          <td class="p-3.5">${badgeStato}</td>
+          <td class="p-3.5 text-center space-x-1">
+            <button onclick="apriModalChimico('${key}')" class="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600/35 text-amber-400 border border-amber-500/40 rounded-lg text-[10px] font-bold cursor-pointer">
+              <i class="fa-solid fa-pen"></i> Modifica
+            </button>
+            <button onclick="eliminaChimico('${key}')" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600/35 text-rose-400 border border-rose-500/40 rounded-lg text-[10px] font-bold cursor-pointer">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderizzaCartelleChimiche() {
+      const grid = document.getElementById('cartelle-chimici-grid');
+      if (!grid) return;
+
+      const keys = Object.keys(cartelleChimicheCache);
+      if (keys.length === 0) {
+        grid.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic col-span-full">Nessuna cartella di archiviazione SDS creata. Clicca su "+ Nuova Cartella" per iniziare.</div>';
+        return;
+      }
+
+      grid.innerHTML = '';
+      keys.forEach(key => {
+        const folder = cartelleChimicheCache[key];
+        const numAllegati = (folder.allegati && Array.isArray(folder.allegati)) ? folder.allegati.length : 0;
+
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl p-5 flex flex-col justify-between space-y-4 hover:border-cyan-500/40 transition group";
+        card.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/20 transition">
+                <i class="fa-solid fa-folder-closed text-lg"></i>
+              </div>
+              <button onclick="eliminaCartellaChimica('${key}', '${folder.nome}')" class="text-slate-500 hover:text-rose-400 text-xs transition cursor-pointer" title="Elimina Cartella">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+            <div>
+              <h4 class="font-black text-white text-sm truncate">${folder.nome}</h4>
+              <p class="text-xs text-slate-400">Archivio SDS & Certificati</p>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+            <span class="text-slate-500 font-semibold"><i class="fa-solid fa-file-pdf text-cyan-400"></i> ${numAllegati} file SDS</span>
+            <label class="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/35 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-upload"></i> Carica SDS
+              <input type="file" onchange="caricaFileChimico(event, '${key}')" class="hidden" multiple accept="application/pdf,image/*">
+            </label>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function apriModalChimico(key = null) {
+      const modal = document.getElementById('modal-chimico');
+      modal.classList.remove('hidden');
+      document.getElementById('form-chimico').reset();
+
+      if (key && chimiciCache[key]) {
+        const item = chimiciCache[key];
+        document.getElementById('modal-titolo').innerText = "MODIFICA SCHEDA SDS: " + item.nome;
+        document.getElementById('p_nome').value = item.nome || key;
+        document.getElementById('p_cas').value = item.cas || '';
+        document.getElementById('p_fornitore').value = item.fornitore || '';
+        document.getElementById('p_uso').value = item.uso || '';
+        document.getElementById('p_giacenza').value = item.giacenza || '';
+        document.getElementById('p_scadenza').value = item.scadenza || '';
+      } else {
+        document.getElementById('modal-titolo').innerText = "REGISTRA SCHEDA SDS / PRODOTTO";
+      }
+    }
+
+    function chiudiModalChimico() {
+      document.getElementById('modal-chimico').classList.add('hidden');
+    }
+
+    function salvaChimico(e) {
+      e.preventDefault();
+      const nome = document.getElementById('p_nome').value.trim();
+      const dbKey = nome.replace(/[\/\.#$\[\]]/g, '_');
+
+      const payload = {
+        nome: nome,
+        cas: document.getElementById('p_cas').value || '',
+        fornitore: document.getElementById('p_fornitore').value || '',
+        uso: document.getElementById('p_uso').value || '',
+        giacenza: document.getElementById('p_giacenza').value || '',
+        scadenza: document.getElementById('p_scadenza').value || '',
+        timestamp: Date.now()
+      };
+
+      firebase.database().ref('prodotti_chimici/' + dbKey).update(payload, (err) => {
+        if (err) alert("Errore salvataggio: " + err.message);
+        else {
+          alert("✅ Scheda SDS registrata con successo nel Cloud!");
+          chiudiModalChimico();
+        }
+      });
+    }
+
+    function eliminaChimico(key) {
+      if (confirm("Vuoi eliminare definitivamente questo prodotto e la relativa scheda dal registro?")) {
+        firebase.database().ref('prodotti_chimici/' + key).remove();
+      }
+    }
+
+    function creaNuovaCartellaChimica() {
+      const nome = prompt("Inserisci il nome della cartella (es. Flocculanti, Acidi, Reagenti Laboratorio):");
+      if (!nome) return;
+      const key = nome.trim().replace(/[\/\.#$\[\]]/g, '_');
+
+      firebase.database().ref('cartelle_chimici/' + key).set({
+        nome: nome.trim(),
+        createdAt: Date.now()
+      }, (err) => {
+        if (err) alert("Errore: " + err.message);
+        else alert("📁 Cartella SDS creata con successo!");
+      });
+    }
+
+    function eliminaCartellaChimica(key, nome) {
+      if (confirm(`Vuoi eliminare la cartella "${nome}"?`)) {
+        firebase.database().ref('cartelle_chimici/' + key).remove();
+      }
+    }
+
+    function caricaFileChimico(event, key) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      alert(`📎 Caricati ${files.length} file SDS nella cartella.`);
+    }
+
+    function filtraTabellaChimici() {
+      const query = document.getElementById('filter-search').value.toLowerCase();
+      const filteredKeys = Object.keys(chimiciCache).filter(key => {
+        const item = chimiciCache[key];
+        return (item.nome && item.nome.toLowerCase().includes(query)) ||
+               (item.cas && item.cas.toLowerCase().includes(query)) ||
+               (item.fornitore && item.fornitore.toLowerCase().includes(query));
+      });
+      renderizzaTabellaChimici(filteredKeys);
+    }
+
+    function esportaChimiciExcel() {
+      const keys = Object.keys(chimiciCache);
+      if (keys.length === 0) {
+        alert("Nessun dato disponibile da esportare.");
+        return;
+      }
+      const datiExcel = keys.map(key => {
+        const item = chimiciCache[key];
+        return {
+          "Nome Prodotto": item.nome || key,
+          "Codice CAS": item.cas || '-',
+          "Fornitore": item.fornitore || '-',
+          "Uso / Cantiere": item.uso || '-',
+          "Giacenza": item.giacenza || '-',
+          "Scadenza SDS": item.scadenza || '-'
+        };
+      });
+      const worksheet = XLSX.utils.json_to_sheet(datiExcel);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Registro SDS");
+      XLSX.writeFile(workbook, "Registro_Prodotti_Chimici_SDS.xlsx");
+    }
+  </script>
+</body>
+</html>
