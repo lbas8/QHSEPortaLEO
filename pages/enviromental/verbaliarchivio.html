@@ -3,168 +3,266 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Archivio Verbali di Sopralluogo - Quarto Valico AV/AC</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Archivio Verbali di Sopralluogo — Portale QHSE</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  <!-- SheetJS per esportazione Excel (.xlsx) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
-    .glass-card { background: rgba(18, 24, 38, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white" data-settore="E">
 
-  <!-- HEADER UNIFICATO -->
-  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
-    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
-        <div class="flex items-center gap-3">
-          <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer">
-            <i class="fa-solid fa-arrow-left text-sky-400"></i>
-            <span class="hidden sm:inline">Indietro</span>
-          </button>
-          <div class="relative w-11 h-11 rounded-xl bg-sky-500/10 border-2 border-sky-400/80 flex items-center justify-center text-sky-400 shadow-md">
-            <i class="fa-solid fa-folder-tree text-xl"></i>
-          </div>
-          <div>
-            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Archivio Verbali di Sopralluogo</h1>
-            <p class="text-[11px] text-sky-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
-          </div>
+  <!-- PUNTO DI INIEZIONE HEADER UNIFICATO -->
+  <div id="app-header"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col space-y-10">
+    
+    <!-- INTESTAZIONE SEZIONE -->
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-b border-slate-800 pb-6">
+      <div>
+        <div class="flex items-center gap-3 mb-1">
+          <span class="px-3 py-1 rounded-full bg-sky-950 text-sky-300 border border-sky-800 text-[10px] font-extrabold uppercase tracking-wider">
+            REGISTRI & VERBALI DI SOPRALLUOGO
+          </span>
+          <span class="text-xs text-slate-400 font-semibold">Tabella Excel Dinamica & Archiviazione</span>
         </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
+          Archivio Verbali di Sopralluogo
+        </h2>
       </div>
-      <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
-        <button onclick="createNewFolder()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-folder-plus text-amber-400"></i> Nuova Cartella
+
+      <!-- BLOCCO PULSANTI DI AZIONE RAPIDA -->
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <button onclick="esportaVerbaliExcel()" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-600/20 cursor-pointer text-xs">
+          <i class="fa-solid fa-file-excel text-sm"></i>
+          <span>Esporta Excel (.xlsx)</span>
         </button>
-        <a href="verbale.html" class="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition">
-          <i class="fa-solid fa-plus"></i> Nuovo Verbale
+
+        <a href="verbale.html" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-sky-500/20 cursor-pointer text-xs">
+          <i class="fa-solid fa-plus text-sm"></i>
+          <span>Nuovo Verbale</span>
         </a>
-        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-sky-400 rounded-full text-xs font-bold text-white transition shadow-sm">
-          <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
-            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
-            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
-            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
-            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
-            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
-          </svg>
-          <span class="hidden sm:inline">Home</span>
-        </a>
+
+        <button onclick="createNewFolder()" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold rounded-xl transition text-xs cursor-pointer">
+          <i class="fa-solid fa-folder-plus text-sm"></i>
+          <span>Nuova Cartella</span>
+        </button>
       </div>
     </div>
-  </header>
-    <div class="bg-white rounded-xl shadow-md p-5 border border-slate-200">
-      <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-200">
-        <h2 class="text-md font-bold text-slate-800 flex items-center gap-2">
-          <i class="fa-solid fa-folder-tree text-sky-600"></i> Gestione Cartelle e Verbali
-        </h2>
-        <span class="text-xs text-slate-500">Organizza e sposta i verbali salvati</span>
+
+    <!-- PARTE SUPERIORE: TABELLA EXCEL DINAMICA -->
+    <div class="space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <i class="fa-solid fa-table text-sky-400"></i> Tabella Sincronizzata Verbali (Registro Live)
+        </h3>
+        <div class="flex items-center gap-2">
+          <input type="text" id="filter-search-verbali" oninput="filtraTabellaVerbali()" placeholder="Cerca cantiere, area, ID verbale..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-sky-400 w-64">
+          <span id="verbali-counter" class="text-xs text-slate-500">Caricamento...</span>
+        </div>
       </div>
 
-      <!-- SEZIONE 1: VERBALI NON CLASSIFICATI -->
-      <div class="mb-8 bg-amber-50/50 border border-amber-200 rounded-xl p-4">
-        <h3 class="text-sm font-bold text-amber-900 mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-mobile-screen-button text-amber-600"></i> Da Classificare (Salvati da Cantiere)
-        </h3>
+      <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-xl">
+        <div class="overflow-x-auto max-h-[420px]">
+          <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
+            <thead class="bg-slate-950 text-slate-400 font-black uppercase text-[10px] border-b border-slate-800 sticky top-0 z-10">
+              <tr>
+                <th class="p-3.5">ID / N. Verbale</th>
+                <th class="p-3.5">Data & Ora</th>
+                <th class="p-3.5">Cantiere</th>
+                <th class="p-3.5">Area di Lavoro</th>
+                <th class="p-3.5">Cartella di Archivio</th>
+                <th class="p-3.5 text-center">Azioni Rapide</th>
+              </tr>
+            </thead>
+            <tbody id="tabella-verbali-body" class="divide-y divide-slate-800/60">
+              <tr>
+                <td colspan="6" class="p-6 text-center text-slate-500 italic">Caricamento dati verbali dal Cloud...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTE INFERIORE: ARCHIVIO A CARTELLE -->
+    <div class="space-y-6 pt-6 border-t border-slate-800">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-black uppercase tracking-wider text-sky-400 flex items-center gap-2">
+            <i class="fa-solid fa-folder-tree"></i> Gestione Cartelle e Smistamento Verbali
+          </h3>
+          <p class="text-xs text-slate-400">Organizza i verbali di sopralluogo spostandoli all'interno delle cartelle personalizzate.</p>
+        </div>
+      </div>
+
+      <!-- SEZIONE 1: NON CLASSIFICATI -->
+      <div class="bg-amber-950/20 border border-amber-500/30 rounded-2xl p-5 space-y-3">
+        <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+          <i class="fa-solid fa-circle-exclamation text-amber-500"></i> Verbali da Classificare (Non archiviati in cartelle)
+        </h4>
         <div id="unclassified-list" class="space-y-2">
-          <p class="text-xs text-slate-400 italic">Connessione al Cloud in corso...</p>
+          <p class="text-xs text-slate-500 italic">Sincronizzazione in corso...</p>
         </div>
       </div>
 
       <!-- SEZIONE 2: CARTELLE PERSONALIZZATE -->
-      <div>
-        <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-boxes-stacked text-sky-600"></i> Cartelle Personalizzate
-        </h3>
-        <div id="folders-container" class="space-y-4">
-          <p class="text-xs text-slate-400 italic">Connessione al Cloud in corso...</p>
+      <div class="space-y-3">
+        <h4 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <i class="fa-solid fa-boxes-stacked text-sky-400"></i> Cartelle di Cantiere & Verifiche
+        </h4>
+        <div id="folders-container" class="grid grid-cols-1 gap-4">
+          <p class="text-xs text-slate-500 italic">Caricamento cartelle...</p>
         </div>
       </div>
     </div>
-  </div>
 
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT HEADER CENTRALIZZATO -->
+  <script src="../../header.js"></script>
+
+  <!-- LOGICA GESTIONE FIREBASE, TABELLA EXCEL E CARTELLE -->
   <script>
-    const firebaseConfig = {
-      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
-    };
-
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
-
     let allFolders = {};
     let allVerbali = {};
-    let dataLoaded = false;
 
-    setTimeout(() => {
-      if (!dataLoaded) {
-        renderPortal();
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof firebase === 'undefined') {
+        console.error("Firebase non caricato.");
+        return;
       }
-    }, 2500);
 
-    db.ref('verbali').on('value', (snapshot) => {
-      allVerbali = snapshot.val() || {};
-      dataLoaded = true;
-      renderPortal();
-    }, (error) => {
-      dataLoaded = true;
-      renderPortal();
-    });
+      if (!firebase.apps.length) {
+        firebase.initializeApp({
+          databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+        });
+      }
 
-    db.ref('cartelle').on('value', (snapshot) => {
-      allFolders = snapshot.val() || {};
-      dataLoaded = true;
-      renderPortal();
-    }, (error) => {
-      dataLoaded = true;
-      renderPortal();
+      const db = firebase.database();
+
+      // Sincronizzazione in tempo reale verbali e cartelle
+      db.ref('verbali').on('value', (snapshot) => {
+        allVerbali = snapshot.val() || {};
+        aggiornaInterfaccia();
+      });
+
+      db.ref('cartelle').on('value', (snapshot) => {
+        allFolders = snapshot.val() || {};
+        aggiornaInterfaccia();
+      });
     });
 
     function createNewFolder() {
-      const folderName = prompt("Inserisci il nome della nuova cartella (es. Cantiere Cravasco, Controlli Luglio, ecc.):");
+      const folderName = prompt("Inserisci il nome della nuova cartella (es. Cantiere Cravasco, Verbali Novembre):");
       if (!folderName) return;
       const folderId = folderName.trim().replace(/[.#$/[\]]/g, "_");
       
-      db.ref('cartelle/' + folderId).set({
+      firebase.database().ref('cartelle/' + folderId).set({
         nome: folderName.trim(),
         createdAt: Date.now()
       }, (err) => {
-        if (err) {
-          alert("Errore creazione cartella: " + err.message);
-        } else {
-          alert("📁 Cartella creata con successo!");
-        }
+        if (err) alert("Errore creazione cartella: " + err.message);
+        else alert("📁 Cartella creata con successo!");
       });
     }
 
     function moveVerbale(verbaleKey, targetFolderId) {
       if (targetFolderId === "ROOT") {
-        db.ref('verbali/' + verbaleKey + '/folderId').remove();
+        firebase.database().ref('verbali/' + verbaleKey + '/folderId').remove();
       } else {
-        db.ref('verbali/' + verbaleKey + '/folderId').set(targetFolderId);
+        firebase.database().ref('verbali/' + verbaleKey + '/folderId').set(targetFolderId);
       }
     }
 
     function deleteFolder(folderId, folderName) {
-      if (confirm(`Sei sicuro di voler eliminare la cartella "${folderName}"?\nI verbali contenuti torneranno nella sezione "Da Classificare".`)) {
+      if (confirm(`Vuoi eliminare la cartella "${folderName}"?\nI verbali contenuti torneranno nella sezione "Da Classificare".`)) {
         Object.keys(allVerbali).forEach(vKey => {
           if (allVerbali[vKey].folderId === folderId) {
-            db.ref('verbali/' + vKey + '/folderId').remove();
+            firebase.database().ref('verbali/' + vKey + '/folderId').remove();
           }
         });
-        db.ref('cartelle/' + folderId).remove();
+        firebase.database().ref('cartelle/' + folderId).remove();
       }
     }
 
     function deleteVerbale(vKey) {
-      if (confirm(`Vuoi davvero eliminare il verbale "${vKey}"?`)) {
-        db.ref('verbali/' + vKey).remove();
+      if (confirm(`Vuoi eliminare definitivamente il verbale "${vKey}"?`)) {
+        firebase.database().ref('verbali/' + vKey).remove();
       }
     }
 
-    function renderPortal() {
+    function aggiornaInterfaccia() {
+      renderTabellaExcel();
+      renderArchivioCartelle();
+    }
+
+    function renderTabellaExcel() {
+      const tbody = document.getElementById('tabella-verbali-body');
+      const counter = document.getElementById('verbali-counter');
+      if (!tbody) return;
+
+      const keys = Object.keys(allVerbali);
+      if (keys.length === 0) {
+        counter.innerText = "0 verbali registrati";
+        tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500 italic">Nessun verbale di sopralluogo registrato.</td></tr>';
+        return;
+      }
+
+      counter.innerText = `${keys.length} ${keys.length === 1 ? 'verbale in archivio' : 'verbali in archivio'}`;
+      tbody.innerHTML = '';
+
+      keys.sort((a, b) => (allVerbali[b].datetime || 0) - (allVerbali[a].datetime || 0)).forEach(vKey => {
+        const verbale = allVerbali[vKey];
+        const dateStr = verbale.datetime ? new Date(verbale.datetime).toLocaleString() : 'Data N.D.';
+        const nomeCartella = verbale.folderId && allFolders[verbale.folderId] ? allFolders[verbale.folderId].nome : 'Non Classificato';
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/80 transition";
+        tr.innerHTML = `
+          <td class="p-3.5 font-bold text-sky-400">${vKey}</td>
+          <td class="p-3.5 text-slate-300">${dateStr}</td>
+          <td class="p-3.5 font-semibold text-white">${verbale.cantiere || '-'}</td>
+          <td class="p-3.5 text-slate-300">${verbale.area || '-'}</td>
+          <td class="p-3.5 font-bold text-amber-400">${nomeCartella}</td>
+          <td class="p-3.5 text-center space-x-1">
+            <a href="verbale.html?load=${encodeURIComponent(vKey)}" class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600/35 text-sky-300 border border-sky-500/40 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 transition">
+              <i class="fa-solid fa-eye"></i> Apri
+            </a>
+            <button onclick="deleteVerbale('${vKey}')" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600/35 text-rose-400 border border-rose-500/40 rounded-lg text-[10px] font-bold cursor-pointer">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderArchivioCartelle() {
       const unclassifiedContainer = document.getElementById('unclassified-list');
       const foldersContainer = document.getElementById('folders-container');
       
@@ -173,11 +271,10 @@
 
       const folderKeys = Object.keys(allFolders);
       const verbaleKeys = Object.keys(allVerbali);
-
       const unclassified = verbaleKeys.filter(k => !allVerbali[k].folderId);
 
       if (unclassified.length === 0) {
-        unclassifiedContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Nessun verbale in attesa di classificazione.</p>';
+        unclassifiedContainer.innerHTML = '<p class="text-xs text-slate-500 italic">Nessun verbale in attesa di classificazione.</p>';
       } else {
         unclassified.forEach(vKey => {
           unclassifiedContainer.appendChild(createVerbaleCard(vKey, allVerbali[vKey], folderKeys));
@@ -185,37 +282,37 @@
       }
 
       if (folderKeys.length === 0) {
-        foldersContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Nessuna cartella creata. Clicca su "+ Nuova Cartella" in alto per iniziare.</p>';
+        foldersContainer.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic">Nessuna cartella creata. Clicca su "+ Nuova Cartella" per iniziare l\'archiviazione.</div>';
       } else {
         folderKeys.forEach(fKey => {
           const folder = allFolders[fKey];
           const folderVerbali = verbaleKeys.filter(vKey => allVerbali[vKey].folderId === fKey);
 
           const folderEl = document.createElement('div');
-          folderEl.className = "border border-slate-200 rounded-xl overflow-hidden bg-slate-50/50 shadow-sm";
+          folderEl.className = "glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-xl";
 
           folderEl.innerHTML = `
-            <div class="bg-slate-200/70 px-4 py-3 flex justify-between items-center cursor-pointer border-b border-slate-200" onclick="toggleFolderContent('${fKey}')">
-              <div class="flex items-center gap-2">
-                <i class="fa-solid fa-folder text-amber-500 text-lg"></i>
-                <span class="font-bold text-sm text-slate-800">${folder.nome || 'Cartella'}</span>
-                <span class="text-xs bg-slate-300 text-slate-700 px-2 py-0.5 rounded-full font-semibold">${folderVerbali.length} verbali</span>
+            <div class="bg-slate-950 px-5 py-3.5 flex justify-between items-center cursor-pointer border-b border-slate-800" onclick="toggleFolderContent('${fKey}')">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-folder text-amber-400 text-lg"></i>
+                <span class="font-black text-sm text-white uppercase tracking-wider">${folder.nome || 'Cartella'}</span>
+                <span class="text-[10px] bg-slate-900 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full font-bold">${folderVerbali.length} verbali</span>
               </div>
               <div class="flex items-center gap-2">
-                <button onclick="event.stopPropagation(); deleteFolder('${fKey}', '${folder.nome}')" class="text-slate-400 hover:text-red-600 text-xs px-2 py-1" title="Elimina Cartella">
+                <button onclick="event.stopPropagation(); deleteFolder('${fKey}', '${folder.nome}')" class="text-slate-400 hover:text-rose-400 text-xs px-2.5 py-1 transition cursor-pointer" title="Elimina Cartella">
                   <i class="fa-solid fa-trash"></i>
                 </button>
-                <i id="icon_folder_${fKey}" class="fa-solid fa-chevron-down text-xs text-slate-500 transition-transform"></i>
+                <i id="icon_folder_${fKey}" class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform"></i>
               </div>
             </div>
-            <div id="content_folder_${fKey}" class="p-3 space-y-2 bg-white hidden"></div>
+            <div id="content_folder_${fKey}" class="p-4 space-y-2 hidden bg-slate-900/40"></div>
           `;
 
           foldersContainer.appendChild(folderEl);
 
           const contentBox = folderEl.querySelector(`#content_folder_${fKey}`);
           if (folderVerbali.length === 0) {
-            contentBox.innerHTML = '<p class="text-xs text-slate-400 italic p-3">Cartella vuota. Sposta qui i verbali utilizzando il selettore.</p>';
+            contentBox.innerHTML = '<p class="text-xs text-slate-500 italic p-2">Cartella vuota. Sposta qui i verbali utilizzando il selettore rapido.</p>';
           } else {
             folderVerbali.forEach(vKey => {
               contentBox.appendChild(createVerbaleCard(vKey, allVerbali[vKey], folderKeys));
@@ -230,7 +327,7 @@
       
       let folderOptions = `<option value="">-- Sposta in cartella --</option>`;
       if (verbale.folderId) {
-        folderOptions += `<option value="ROOT">📂 Riporta a "Da Classificare"</option>`;
+        folderOptions += `<option value="ROOT">📂 Riporta in Non Classificati</option>`;
       }
       folderKeys.forEach(fKey => {
         if (fKey !== verbale.folderId) {
@@ -239,27 +336,27 @@
       });
 
       const div = document.createElement('div');
-      div.className = "flex flex-wrap md:flex-nowrap justify-between items-center p-3 bg-white border border-slate-200 rounded-lg hover:border-slate-300 shadow-sm gap-3 transition";
+      div.className = "flex flex-wrap md:flex-nowrap justify-between items-center p-3.5 bg-slate-900/90 border border-slate-800 rounded-xl hover:border-slate-700 gap-3 transition shadow-sm text-xs";
       div.innerHTML = `
         <div class="flex-1 min-w-[200px]">
-          <div class="font-bold text-sm text-slate-800 flex items-center gap-1.5">
-            <i class="fa-regular fa-file-lines text-sky-600"></i> ${vKey}
+          <div class="font-bold text-white flex items-center gap-1.5">
+            <i class="fa-regular fa-file-lines text-sky-400"></i> ${vKey}
           </div>
-          <div class="text-xs text-slate-500 mt-0.5">
-            Cantiere: <strong class="text-slate-700">${verbale.cantiere || 'N.D.'}</strong> | Area: <strong class="text-slate-700">${verbale.area || 'N.D.'}</strong> | <i class="fa-regular fa-clock"></i> ${dateStr}
+          <div class="text-[11px] text-slate-400 mt-0.5">
+            Cantiere: <strong class="text-slate-200">${verbale.cantiere || 'N.D.'}</strong> | Area: <strong class="text-slate-200">${verbale.area || 'N.D.'}</strong> | <i class="fa-regular fa-clock"></i> ${dateStr}
           </div>
         </div>
 
-        <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-          <select onchange="if(this.value) moveVerbale('${vKey}', this.value)" class="text-xs bg-slate-50 border border-slate-300 rounded p-1.5 outline-none focus:ring-1 focus:ring-sky-500">
+        <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
+          <select onchange="if(this.value) moveVerbale('${vKey}', this.value)" class="text-xs bg-slate-950 border border-slate-700 text-slate-300 rounded-lg p-1.5 outline-none focus:border-sky-400 font-semibold cursor-pointer">
             ${folderOptions}
           </select>
           
-          <a href="verbale (1).html?load=${encodeURIComponent(vKey)}" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1 shadow-sm transition whitespace-nowrap">
+          <a href="verbale.html?load=${encodeURIComponent(vKey)}" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap shadow">
             <i class="fa-solid fa-eye"></i> Apri
           </a>
 
-          <button onclick="deleteVerbale('${vKey}')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-2.5 py-1.5 rounded text-xs font-medium flex items-center gap-1 transition" title="Elimina Verbale">
+          <button onclick="deleteVerbale('${vKey}')" class="bg-rose-600/20 hover:bg-rose-600/35 text-rose-400 border border-rose-500/40 px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer" title="Elimina Verbale">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
@@ -277,6 +374,43 @@
         box.classList.add('hidden');
         icon.classList.remove('rotate-180');
       }
+    }
+
+    function filtraTabellaVerbali() {
+      const query = document.getElementById('filter-search-verbali').value.toLowerCase();
+      const tbody = document.getElementById('tabella-verbali-body');
+      const rows = tbody.getElementsByTagName('tr');
+
+      Array.from(rows).forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    function esportaVerbaliExcel() {
+      const keys = Object.keys(allVerbali);
+      if (keys.length === 0) {
+        alert("Nessun verbale disponibile da esportare.");
+        return;
+      }
+      
+      const datiExcel = keys.map(vKey => {
+        const verbale = allVerbali[vKey];
+        const nomeCartella = verbale.folderId && allFolders[verbale.folderId] ? allFolders[verbale.folderId].nome : 'Non Classificato';
+        return {
+          "ID / N. Verbale": vKey,
+          "Data & Ora": verbale.datetime ? new Date(verbale.datetime).toLocaleString() : '-',
+          "Cantiere": verbale.cantiere || '-',
+          "Area di Lavoro": verbale.area || '-',
+          "Cartella Archivio": nomeCartella,
+          "Note / Osservazioni": verbale.note || '-'
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(datiExcel);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Archivio Verbali");
+      XLSX.writeFile(workbook, "Archivio_Verbali_Sopralluogo_Terzo_Valico.xlsx");
     }
   </script>
 </body>
