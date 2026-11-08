@@ -29,76 +29,76 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white" data-settore="E">
 
-<!-- HEADER UNIFICATO UNIVERSALE -->
-<header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
-  <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
-    
-    <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro -->
-    <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
-      <div class="flex items-center gap-3">
-        <button onclick="history.back()" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer" title="Torna alla pagina precedente">
-          <i class="fa-solid fa-arrow-left text-cyan-400"></i>
-          <span class="hidden sm:inline">Indietro</span>
-        </button>
-
-        <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
-          <i class="fa-solid fa-shield-halved text-xl"></i>
-        </div>
-        <div>
-          <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Environmental Office</h1>
-          <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- LATO DESTRA: Widget Calendario Interattivo, Avvisi & Home -->
-    <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+  <!-- HEADER UNIFICATO UNIVERSALE -->
+  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       
-      <!-- WIDGET CALENDARIO CLICCABILE -->
-      <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile">
-        <div class="bg-cyan-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
-          <span id="calMonth">OTT</span> <span id="calDay">30</span>
-        </div>
-        <div class="text-left text-xs leading-tight">
-          <div class="font-bold text-white flex items-center gap-1.5">
-            <span id="calFullDate">Venerdì, 30 OTT</span>
-            <span class="w-4 h-4 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-400 flex items-center justify-center text-[10px] font-black group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
-              <i class="fa-solid fa-plus"></i>
-            </span>
-          </div>
-          <div class="text-[10px] text-slate-400 font-medium">Calendario & Scadenze</div>
-        </div>
-      </div>
+      <!-- LATO SINISTRO: Titolo Sezione & Tasto Indietro a environmentalhub.html -->
+      <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
+        <div class="flex items-center gap-3">
+          <a href="enviromentalhub.html" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer no-underline" title="Torna al modulo Environmental Office">
+            <i class="fa-solid fa-arrow-left text-cyan-400"></i>
+            <span class="hidden sm:inline">Indietro</span>
+          </a>
 
-      <!-- PORTALE AVVISI -->
-      <div onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-cyan-500/40 hover:border-cyan-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
-        <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-        <div class="text-left text-xs leading-tight">
-          <div class="font-extrabold text-cyan-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
-          <div class="text-[11px] text-slate-300 truncate max-w-[180px] sm:max-w-[220px]">
-            Attività di cantiere in corso
+          <div class="relative w-11 h-11 rounded-xl bg-cyan-500/10 border-2 border-cyan-400/80 flex items-center justify-center text-cyan-400 shadow-md">
+            <i class="fa-solid fa-shield-halved text-xl"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">ITA Hub — Impianto Acque</h1>
+            <p class="text-[11px] text-cyan-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
           </div>
         </div>
       </div>
 
-      <!-- HOME QHSE -->
-      <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400/60 rounded-full text-xs font-bold text-white hover:text-cyan-400 transition shadow-sm" title="Home Principale QHSE">
-        <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
-          <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
-          <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
-          <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
-          <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
-          <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
-        </svg>
-        <span class="hidden sm:inline">Home</span>
-      </a>
+      <!-- LATO DESTRA: Widget Calendario Interattivo, Avvisi & Home -->
+      <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+        
+        <!-- WIDGET CALENDARIO CLICCABILE -->
+        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 hover:border-cyan-400 rounded-xl px-3 py-1.5 shadow-inner cursor-pointer transition group" title="Clicca per aprire il calendario mensile">
+          <div class="bg-cyan-500 text-slate-950 font-black text-[10px] px-2 py-1 rounded-lg text-center uppercase tracking-wider group-hover:scale-105 transition">
+            <span id="calMonth">OTT</span> <span id="calDay">30</span>
+          </div>
+          <div class="text-left text-xs leading-tight">
+            <div class="font-bold text-white flex items-center gap-1.5">
+              <span id="calFullDate">Venerdì, 30 OTT</span>
+              <span class="w-4 h-4 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-400 flex items-center justify-center text-[10px] font-black group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
+                <i class="fa-solid fa-plus"></i>
+              </span>
+            </div>
+            <div class="text-[10px] text-slate-400 font-medium">Calendario & Scadenze</div>
+          </div>
+        </div>
+
+        <!-- PORTALE AVVISI -->
+        <div onclick="apriGestoreScadenze()" class="flex items-center gap-2.5 bg-slate-800/90 border border-cyan-500/40 hover:border-cyan-500 transition rounded-xl px-3 py-1.5 shadow-sm cursor-pointer" title="Visualizza scadenze attive">
+          <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+          <div class="text-left text-xs leading-tight">
+            <div class="font-extrabold text-cyan-400 tracking-wide uppercase text-[10px]">Avvisi & Scadenze</div>
+            <div class="text-[11px] text-slate-300 truncate max-w-[180px] sm:max-w-[220px]">
+              Attività di cantiere in corso
+            </div>
+          </div>
+        </div>
+
+        <!-- HOME QHSE -->
+        <a href="../../HomeQHSE.html" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/90 border border-slate-700 hover:border-cyan-400/60 rounded-full text-xs font-bold text-white hover:text-cyan-400 transition shadow-sm" title="Home Principale QHSE">
+          <svg viewBox="0 0 400 400" class="w-6 h-6 rounded-full flex-shrink-0">
+            <path d="M 200 200 L 200 20 A 180 180 0 0 1 355.88 290 Z" fill="#0284c7" />
+            <path d="M 200 200 L 355.88 290 A 180 180 0 0 1 44.12 290 Z" fill="#d97706" />
+            <path d="M 200 200 L 44.12 290 A 180 180 0 0 1 200 20 Z" fill="#059669" />
+            <circle cx="200" cy="200" r="65" fill="#0f172a" stroke="#ffffff" stroke-width="8"/>
+            <text x="200" y="215" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle">QHSE</text>
+          </svg>
+          <span class="hidden sm:inline">Home</span>
+        </a>
+
+      </div>
 
     </div>
-
-  </div>
-</header>
+  </header>
 
   <!-- MAIN CONTENT: MODULI & PORTALI ITA HUB -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col justify-center">
@@ -113,10 +113,10 @@
       </p>
     </div>
 
-    <!-- GRIGLIA A SCHEDE (4 CARD) -->
+    <!-- GRIGLIA A SCHEDE (4 CARD ESATTE) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto w-full">
       
-      <!-- 1. QUADERNO DI MARCIA DELL'IMPIANTO (ATTIVO) -->
+      <!-- 1. QUADERNO DI MARCIA DELL'IMPIANTO -->
       <div class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group bg-cyan-950/10">
         <div>
           <div class="flex items-center justify-between mb-5">
@@ -151,7 +151,7 @@
         </div>
       </div>
 
-      <!-- 2. MONITORAGGIO SCARICHI & pH (IN PREPARAZIONE) -->
+      <!-- 2. MONITORAGGIO SCARICHI & pH -->
       <div class="glass-card rounded-2xl p-6 border-t-4 border-t-slate-600 flex flex-col justify-between group cursor-pointer opacity-80 hover:opacity-100"
            onclick="alert('Sezione Monitoraggio Scarichi & pH in fase di allacciamento sensoristica')">
         <div>
@@ -175,7 +175,7 @@
         </div>
       </div>
 
-      <!-- 3. CAMPIONAMENTI ACQUE & RdP (LINK GENERALE AL HUB + UNICO PULSANTE NUOVA CDC) -->
+      <!-- 3. CAMPIONAMENTI ACQUE & RdP -->
       <a href="campionamentoacquehub.html" class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group cursor-pointer no-underline block transition hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/10 bg-cyan-950/10">
         <div>
           <div class="flex items-center justify-between mb-5">
@@ -194,22 +194,18 @@
           </p>
         </div>
 
-        <!-- UNICO PULSANTE INTERNO PER LA NUOVA CDC -->
-        <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between" onclick="event.stopPropagation()">
+        <!-- PULSANTE NUOVA CDC IN BASSO -->
+        <div class="pt-4 border-t border-slate-800/80 flex items-center" onclick="event.stopPropagation()">
           <a href="campionamentoform.html?matrice=Acque" 
              class="flex items-center gap-2 px-3.5 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 hover:border-cyan-400 rounded-xl text-xs font-bold text-cyan-400 transition shadow-sm">
             <i class="fa-solid fa-file-lines"></i>
             <span>Nuova CDC</span>
             <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
           </a>
-          <span class="text-xs font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors flex items-center gap-1.5">
-            <span>Apri Registro</span>
-            <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
-          </span>
         </div>
       </a>
 
-      <!-- 4. PRODOTTI CHIMICI & REAGENTI (INTERATTIVO) -->
+      <!-- 4. PRODOTTI CHIMICI & REAGENTI -->
       <a href="prodottichimicihub.html" class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-500 flex flex-col justify-between group cursor-pointer no-underline block transition hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/10">
         <div>
           <div class="flex items-center justify-between mb-5">
@@ -246,6 +242,9 @@
       </p>
     </div>
   </footer>
+
+  <!-- SCRIPT HEADER CENTRALIZZATO (SE IN USO) -->
+  <script src="../../header.js"></script>
 
   <!-- SCRIPT LOGICA CALENDARIO HEADER -->
   <script>
