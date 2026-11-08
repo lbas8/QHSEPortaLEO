@@ -57,8 +57,20 @@
     </div>
   </header>
 
+  <!-- SELETTORE MACROCATEGORIE (TAB SWITCHER) -->
+  <div class="max-w-7xl w-full mx-auto px-4 sm:px-8 pt-8">
+    <div class="flex flex-wrap items-center gap-3 border-b border-slate-800 pb-4">
+      <button onclick="cambiaCategoria('ITAR')" id="tab-ITAR" class="px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2.5 bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20">
+        <i class="fa-solid fa-droplet"></i> Prodotti Chimici ITAR
+      </button>
+      <button onclick="cambiaCategoria('Officina')" id="tab-Officina" class="px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2.5 bg-slate-800 text-slate-400 hover:text-white border border-slate-700">
+        <i class="fa-solid fa-gears"></i> Prodotti Chimici Officina Meccanica
+      </button>
+    </div>
+  </div>
+
   <!-- MAIN CONTENT -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col space-y-8">
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col space-y-8">
     
     <!-- REMINDER SCADENZE SDS (PANNELLO IN ALTO) -->
     <div id="reminder-box" class="glass-card rounded-2xl p-5 border-l-4 border-l-emerald-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
@@ -67,8 +79,8 @@
           <i class="fa-solid fa-shield-check"></i>
         </div>
         <div>
-          <h4 id="reminder-titolo" class="text-sm font-black text-white uppercase tracking-wide">Monitoraggio Scadenze SDS in Corso</h4>
-          <p id="reminder-testo" class="text-xs text-slate-400">Verifica automatica delle schede di sicurezza dei reagenti e dei prodotti di impianto.</p>
+          <h4 id="reminder-titolo" class="text-sm font-black text-white uppercase tracking-wide">Monitoraggio Scadenze SDS in Corso — ITAR</h4>
+          <p id="reminder-testo" class="text-xs text-slate-400">Verifica automatica delle schede di sicurezza dei reagenti e dei prodotti della categoria selezionata.</p>
         </div>
       </div>
       <div id="reminder-badge" class="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded-full text-xs font-bold whitespace-nowrap">
@@ -79,8 +91,8 @@
     <!-- TABELLA SUPERIORE: REGISTRO PRODOTTI & SDS -->
     <div class="space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
-          <i class="fa-solid fa-table text-cyan-400"></i> Registro Sincronizzato Prodotti Chimici & Reagenti
+        <h3 id="label-tabella-titolo" class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <i class="fa-solid fa-table text-cyan-400"></i> Registro Sincronizzato Prodotti Chimici & Reagenti — ITAR
         </h3>
         <div class="flex items-center gap-2">
           <input type="text" id="filter-search" oninput="filtraTabellaChimici()" placeholder="Cerca prodotto, fornitore, codice CAS..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400 w-64">
@@ -117,8 +129,8 @@
     <div class="space-y-4 pt-6 border-t border-slate-800">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 class="text-sm font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
-            <i class="fa-solid fa-folder-tree"></i> Archivio Documentale & Cartelle SDS
+          <h3 id="label-cartelle-titolo" class="text-sm font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+            <i class="fa-solid fa-folder-tree"></i> Archivio Documentale & Cartelle SDS — ITAR
           </h3>
           <p class="text-xs text-slate-400">Carica e custodisci le schede di sicurezza (PDF) e i documenti associati per ciascun prodotto.</p>
         </div>
@@ -147,7 +159,7 @@
 
       <div class="border-b border-slate-800 pb-3">
         <h3 id="modal-titolo" class="text-lg font-black text-white uppercase tracking-wide">REGISTRA SCHEDA SDS / PRODOTTO</h3>
-        <p class="text-xs text-cyan-400 font-semibold">Inserisci le specifiche chimiche e la data di scadenza della SDS</p>
+        <p id="modal-subtitolo" class="text-xs text-cyan-400 font-semibold">Inserisci le specifiche chimiche e la data di scadenza della SDS per la categoria attiva</p>
       </div>
 
       <form id="form-chimico" onsubmit="salvaChimico(event)" class="space-y-4 text-xs">
@@ -202,14 +214,40 @@
   <!-- SCRIPT HEADER CENTRALIZZATO -->
   <script src="../../header.js"></script>
 
-  <!-- LOGICA JAVASCRIPT & REMINDER SCADENZE SDS -->
+  <!-- LOGICA JAVASCRIPT, FIREBASE & REMINDER SCADENZE SDS -->
   <script>
     let chimiciCache = {};
     let cartelleChimicheCache = {};
+    let categoriaAttuale = 'ITAR'; // Default: 'ITAR' oppure 'Officina'
+    let chiaveModificaInCorso = null;
 
     document.addEventListener("DOMContentLoaded", () => {
       caricaDatiChimici();
     });
+
+    function cambiaCategoria(cat) {
+      categoriaAttuale = cat;
+      const btnItar = document.getElementById('tab-ITAR');
+      const btnOff = document.getElementById('tab-Officina');
+      
+      if (cat === 'ITAR') {
+        btnItar.className = "px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2.5 bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20";
+        btnOff.className = "px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2.5 bg-slate-800 text-slate-400 hover:text-white border border-slate-700";
+        
+        document.getElementById('reminder-titolo').innerText = "Monitoraggio Scadenze SDS in Corso — ITAR";
+        document.getElementById('label-tabella-titolo').innerHTML = `<i class="fa-solid fa-table text-cyan-400"></i> Registro Sincronizzato Prodotti Chimici & Reagenti — ITAR`;
+        document.getElementById('label-cartelle-titolo').innerHTML = `<i class="fa-solid fa-folder-tree"></i> Archivio Documentale & Cartelle SDS — ITAR`;
+      } else {
+        btnOff.className = "px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2.5 bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20";
+        btnItar.className = "px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2.5 bg-slate-800 text-slate-400 hover:text-white border border-slate-700";
+        
+        document.getElementById('reminder-titolo').innerText = "Monitoraggio Scadenze SDS in Corso — Officina Meccanica";
+        document.getElementById('label-tabella-titolo').innerHTML = `<i class="fa-solid fa-table text-cyan-400"></i> Registro Sincronizzato Prodotti Chimici & Reagenti — Officina Meccanica`;
+        document.getElementById('label-cartelle-titolo').innerHTML = `<i class="fa-solid fa-folder-tree"></i> Archivio Documentale & Cartelle SDS — Officina Meccanica`;
+      }
+
+      aggiornaVistaCompleta();
+    }
 
     function caricaDatiChimici() {
       if (typeof firebase === 'undefined') return;
@@ -225,9 +263,7 @@
       // Sincronizzazione prodotti chimici
       db.ref('prodotti_chimici').on('value', (snapshot) => {
         chimiciCache = snapshot.val() || {};
-        const keys = Object.keys(chimiciCache);
-        renderizzaTabellaChimici(keys);
-        valcolaReminderScadenze(chimiciCache);
+        aggiornaVistaCompleta();
       });
 
       // Sincronizzazione cartelle dedicate
@@ -237,8 +273,23 @@
       });
     }
 
-    function valcolaReminderScadenze(data) {
-      const keys = Object.keys(data);
+    function ottieniChiaviFiltratePerCategoria() {
+      return Object.keys(chimiciCache).filter(k => {
+        const item = chimiciCache[k];
+        const catItem = item.categoria || 'ITAR';
+        return catItem === categoriaAttuale;
+      });
+    }
+
+    function aggiornaVistaCompleta() {
+      const keys = ottieniChiaviFiltratePerCategoria();
+      renderizzaTabellaChimici(keys);
+      valcolaReminderScadenze();
+      renderizzaCartelleChimiche();
+    }
+
+    function valcolaReminderScadenze() {
+      const keys = ottieniChiaviFiltratePerCategoria();
       const oggi = new Date();
       oggi.setHours(0, 0, 0, 0);
 
@@ -246,8 +297,8 @@
       let scdInScadenza = 0;
 
       keys.forEach(k => {
-        const item = data[k];
-        if (item.scadenza) {
+        const item = chimiciCache[k];
+        if (item && item.scadenza) {
           const dataScd = new Date(item.scadenza);
           const diffGiorni = Math.ceil((dataScd - oggi) / (1000 * 60 * 60 * 24));
           
@@ -262,11 +313,13 @@
       const testo = document.getElementById('reminder-testo');
       const badge = document.getElementById('reminder-badge');
 
+      const etichettaCat = categoriaAttuale === 'ITAR' ? 'ITAR' : 'Officina Meccanica';
+
       if (scdScadute > 0) {
         box.className = "glass-card rounded-2xl p-5 border-l-4 border-l-rose-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl";
         icon.className = "w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-lg flex-shrink-0";
         icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-        titolo.innerText = `ATTENZIONE: ${scdScadute} ${scdScadute === 1 ? 'Scheda SDS Scaduta' : 'Schede SDS Scadute'}!`;
+        titolo.innerText = `ATTENZIONE: ${scdScadute} ${scdScadute === 1 ? 'Scheda SDS Scaduta' : 'Schede SDS Scadute'} (${etichettaCat})!`;
         testo.innerText = "Ci sono schede di sicurezza la cui validità è superata. Si richiede l'immediato aggiornamento.";
         badge.className = "px-3 py-1 bg-rose-950 text-rose-300 border border-rose-800 rounded-full text-xs font-bold whitespace-nowrap animate-pulse";
         badge.innerText = `Scadute: ${scdScadute}`;
@@ -274,7 +327,7 @@
         box.className = "glass-card rounded-2xl p-5 border-l-4 border-l-amber-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl";
         icon.className = "w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg flex-shrink-0";
         icon.innerHTML = '<i class="fa-solid fa-clock"></i>';
-        titolo.innerText = `AVVISO: ${scdInScadenza} ${scdInScadenza === 1 ? 'SDS in scadenza' : 'SDS in scadenza'} nei prossimi 30 giorni`;
+        titolo.innerText = `AVVISO: ${scdInScadenza} ${scdInScadenza === 1 ? 'SDS in scadenza' : 'SDS in scadenza'} nei prossimi 30 giorni (${etichettaCat})`;
         testo.innerText = "Verificare l'aggiornamento delle schede di sicurezza con i rispettivi fornitori.";
         badge.className = "px-3 py-1 bg-amber-950 text-amber-300 border border-amber-800 rounded-full text-xs font-bold whitespace-nowrap";
         badge.innerText = `In Scadenza: ${scdInScadenza}`;
@@ -282,8 +335,8 @@
         box.className = "glass-card rounded-2xl p-5 border-l-4 border-l-emerald-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl";
         icon.className = "w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg flex-shrink-0";
         icon.innerHTML = '<i class="fa-solid fa-shield-check"></i>';
-        titolo.innerText = "Monitoraggio Scadenze SDS Regolare";
-        testo.innerText = "Tutte le schede di sicurezza registrate a portale risultano in corso di validità.";
+        titolo.innerText = `Monitoraggio Scadenze SDS Regolare — ${etichettaCat}`;
+        testo.innerText = "Tutte le schede di sicurezza registrate in questa categoria risultano in corso di validità.";
         badge.className = "px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-800 rounded-full text-xs font-bold whitespace-nowrap";
         badge.innerText = "Stato: Regolare";
       }
@@ -296,7 +349,7 @@
 
       if (keys.length === 0) {
         counter.innerText = "0 prodotti registrati";
-        tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-500 italic">Nessun prodotto chimico o reagente registrato a portale.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-500 italic">Nessun prodotto chimico o reagente registrato in questa categoria.</td></tr>';
         return;
       }
 
@@ -325,7 +378,7 @@
         tr.className = "hover:bg-slate-900/80 transition";
         tr.innerHTML = `
           <td class="p-3.5 font-bold text-cyan-400">${item.nome || key}</td>
-          <td class="p-3.5 text-slate-300">${item.cas || '-'}</td>
+          <td class="p-3.5 text-slate-300 font-mono">${item.cas || '-'}</td>
           <td class="p-3.5 text-white font-semibold">${item.fornitore || '-'}</td>
           <td class="p-3.5 text-slate-300">${item.uso || '-'}</td>
           <td class="p-3.5 text-emerald-400 font-bold">${item.giacenza || '-'}</td>
@@ -348,9 +401,14 @@
       const grid = document.getElementById('cartelle-chimici-grid');
       if (!grid) return;
 
-      const keys = Object.keys(cartelleChimicheCache);
+      const keys = Object.keys(cartelleChimicheCache).filter(k => {
+        const item = cartelleChimicheCache[k];
+        const catItem = item.categoria || 'ITAR';
+        return catItem === categoriaAttuale;
+      });
+
       if (keys.length === 0) {
-        grid.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic col-span-full">Nessuna cartella di archiviazione SDS creata. Clicca su "+ Nuova Cartella" per iniziare.</div>';
+        grid.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic col-span-full">Nessuna cartella di archiviazione SDS creata in questa categoria. Clicca su "+ Nuova Cartella" per iniziare.</div>';
         return;
       }
 
@@ -390,6 +448,7 @@
     }
 
     function apriModalChimico(key = null) {
+      chiaveModificaInCorso = key;
       const modal = document.getElementById('modal-chimico');
       modal.classList.remove('hidden');
       document.getElementById('form-chimico').reset();
@@ -409,13 +468,14 @@
     }
 
     function chiudiModalChimico() {
+      chiaveModificaInCorso = null;
       document.getElementById('modal-chimico').classList.add('hidden');
     }
 
     function salvaChimico(e) {
       e.preventDefault();
       const nome = document.getElementById('p_nome').value.trim();
-      const dbKey = nome.replace(/[\/\.#$\[\]]/g, '_');
+      const dbKey = chiaveModificaInCorso || nome.replace(/[\/\.#$\[\]]/g, '_');
 
       const payload = {
         nome: nome,
@@ -424,6 +484,7 @@
         uso: document.getElementById('p_uso').value || '',
         giacenza: document.getElementById('p_giacenza').value || '',
         scadenza: document.getElementById('p_scadenza').value || '',
+        categoria: categoriaAttuale,
         timestamp: Date.now()
       };
 
@@ -443,12 +504,13 @@
     }
 
     function creaNuovaCartellaChimica() {
-      const nome = prompt("Inserisci il nome della cartella (es. Flocculanti, Acidi, Reagenti Laboratorio):");
+      const nome = prompt("Inserisci il nome della cartella (es. Flocculanti, Olio Motore, Reagenti):");
       if (!nome) return;
-      const key = nome.trim().replace(/[\/\.#$\[\]]/g, '_');
+      const key = (nome.trim() + '_' + categoriaAttuale).replace(/[\/\.#$\[\]]/g, '_');
 
       firebase.database().ref('cartelle_chimici/' + key).set({
         nome: nome.trim(),
+        categoria: categoriaAttuale,
         createdAt: Date.now()
       }, (err) => {
         if (err) alert("Errore: " + err.message);
@@ -470,7 +532,8 @@
 
     function filtraTabellaChimici() {
       const query = document.getElementById('filter-search').value.toLowerCase();
-      const filteredKeys = Object.keys(chimiciCache).filter(key => {
+      const catKeys = ottieniChiaviFiltratePerCategoria();
+      const filteredKeys = catKeys.filter(key => {
         const item = chimiciCache[key];
         return (item.nome && item.nome.toLowerCase().includes(query)) ||
                (item.cas && item.cas.toLowerCase().includes(query)) ||
@@ -480,14 +543,15 @@
     }
 
     function esportaChimiciExcel() {
-      const keys = Object.keys(chimiciCache);
-      if (keys.length === 0) {
-        alert("Nessun dato disponibile da esportare.");
+      const catKeys = ottieniChiaviFiltratePerCategoria();
+      if (catKeys.length === 0) {
+        alert("Nessun dato disponibile da esportare per la categoria " + categoriaAttuale + ".");
         return;
       }
-      const datiExcel = keys.map(key => {
+      const datiExcel = catKeys.map(key => {
         const item = chimiciCache[key];
         return {
+          "Categoria": item.categoria || 'ITAR',
           "Nome Prodotto": item.nome || key,
           "Codice CAS": item.cas || '-',
           "Fornitore": item.fornitore || '-',
@@ -498,8 +562,8 @@
       });
       const worksheet = XLSX.utils.json_to_sheet(datiExcel);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Registro SDS");
-      XLSX.writeFile(workbook, "Registro_Prodotti_Chimici_SDS.xlsx");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Registro SDS " + categoriaAttuale);
+      XLSX.writeFile(workbook, `Registro_Prodotti_Chimici_${categoriaAttuale}.xlsx`);
     }
   </script>
 </body>
