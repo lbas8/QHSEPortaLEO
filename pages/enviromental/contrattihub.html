@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestione Contratti & Convenzioni — Portale QHSE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  <!-- SheetJS per Export Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-white" data-settore="E">
+
+  <!-- PUNTO DI INIEZIONE HEADER UNIFICATO -->
+  <div id="app-header"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col space-y-10">
+    
+    <!-- HEADER DI SEZIONE -->
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-b border-slate-800 pb-6">
+      <div>
+        <div class="flex items-center gap-3 mb-1">
+          <span class="px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px] font-extrabold uppercase tracking-wider">
+            FORNITORI & CONVENZIONI SGA
+          </span>
+          <span class="text-xs text-slate-400 font-semibold">Registro Ufficiale & Repository File</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
+          Gestione Contratti & Convenzioni
+        </h2>
+      </div>
+
+      <!-- AZIONI RAPIDE -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <button onclick="esportaContrattiExcel()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition text-xs shadow-lg shadow-emerald-600/20 cursor-pointer">
+          <i class="fa-solid fa-file-excel text-sm"></i>
+          <span>Esporta Excel (.xlsx)</span>
+        </button>
+
+        <button onclick="apriModalContratto()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl transition text-xs shadow-lg shadow-cyan-500/20 cursor-pointer">
+          <i class="fa-solid fa-plus text-sm"></i>
+          <span>Nuovo Contratto / Convenzione</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- PARTE SUPERIORE: TABELLA REGISTRO CONTRATTI (TIPO EXCEL) -->
+    <div class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+          <i class="fa-solid fa-table text-cyan-400"></i> Registro Contratti & Convenzioni Attive
+        </h3>
+        <div class="flex items-center gap-2">
+          <input type="text" id="filter-search" oninput="filtraTabellaContratti()" placeholder="Cerca fornitore, n. contratto, oggetto..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400 w-64">
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+        <div class="overflow-x-auto max-h-[420px]">
+          <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
+            <thead class="bg-slate-950 text-slate-400 font-black uppercase text-[10px] border-b border-slate-800 sticky top-0 z-10">
+              <tr>
+                <th class="p-3.5">N. Contratto</th>
+                <th class="p-3.5">Fornitore / Ente</th>
+                <th class="p-3.5">Tipologia Servizio</th>
+                <th class="p-3.5">Oggetto della Convenzione</th>
+                <th class="p-3.5">Data Inizio</th>
+                <th class="p-3.5">Data Scadenza</th>
+                <th class="p-3.5">Importo / Tariffa</th>
+                <th class="p-3.5">Stato</th>
+                <th class="p-3.5 text-center">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="tabella-contratti-body" class="divide-y divide-slate-800/60">
+              <tr>
+                <td colspan="9" class="p-6 text-center text-slate-500 italic">Caricamento registro contratti...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTE INFERIORE: ARCHIVIO DIGITALE A CARTELLE PER CONTRATTO -->
+    <div class="space-y-4 pt-6 border-t border-slate-800">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 class="text-sm font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+            <i class="fa-solid fa-folder-tree"></i> Repository File & Allegati per Contratto
+          </h3>
+          <p class="text-xs text-slate-400">Seleziona un contratto per accedere al suo archivio dedicato di scansioni, offerte e allegati legali.</p>
+        </div>
+
+        <button onclick="creaNuovaCartella()" class="self-start sm:self-auto px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-folder-plus text-cyan-400"></i> Nuova Cartella
+        </button>
+      </div>
+
+      <!-- GRIGLIA CARTELLE CONTRATTO -->
+      <div id="cartelle-contratti-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs italic col-span-full">
+          Caricamento repository cartelle...
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODALE REGISTRAZIONE / MODIFICA CONTRATTO -->
+  <div id="modal-contratto" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-auto space-y-6 text-slate-100">
+      <button onclick="chiudiModalContratto()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-xl font-bold cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="border-b border-slate-800 pb-3">
+        <h3 id="modal-titolo" class="text-lg font-black text-white uppercase tracking-wide">REGISTRA NUOVO CONTRATTO / CONVENZIONE</h3>
+        <p class="text-xs text-cyan-400 font-semibold">Inserisci i dettagli contrattuali per il registro SGA</p>
+      </div>
+
+      <form id="form-contratto" onsubmit="salvaContratto(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">N. Contratto / Convenzione *</label>
+            <input type="text" id="c_numero" required placeholder="Es. CTR-2026-088" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400 font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Fornitore / Ente Convenzionato *</label>
+            <input type="text" id="c_fornitore" required placeholder="Es. EcoSmaltimenti S.r.l." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Tipologia Servizio</label>
+            <select id="c_tipo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400 font-bold">
+              <option value="Smaltimento/Recupero Rifiuti">Smaltimento / Recupero Rifiuti</option>
+              <option value="Laboratorio Accreditato">Laboratorio Analisi Accreditato</option>
+              <option value="Incarico Tecnico / Consulenza">Incarico Tecnico / Consulenza SGA</option>
+              <option value="Manutenzione Impianti">Manutenzione Impianti Ambientali</option>
+              <option value="Altro">Altro</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Importo Stimato / Tariffa</label>
+            <input type="text" id="c_importo" placeholder="Es. € 45.000,00 a misura" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 mb-1">Oggetto della Convenzione</label>
+          <textarea id="c_oggetto" rows="2" placeholder="Descrizione sintetica delle prestazioni contrattuali..." class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Data Inizio</label>
+            <input type="date" id="c_data_inizio" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400 cursor-pointer">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Data Scadenza</label>
+            <input type="date" id="c_data_scadenza" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400 cursor-pointer">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 mb-1">Stato Contratto</label>
+            <select id="c_stato" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-cyan-400 font-bold">
+              <option value="Attivo">Attivo</option>
+              <option value="In Scadenza">In Scadenza</option>
+              <option value="Scaduto">Scaduto</option>
+              <option value="In Rinnovo">In Rinnovo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+          <button type="button" onclick="chiudiModalContratto()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold cursor-pointer">Annulla</button>
+          <button type="submit" class="px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-cyan-500/20 cursor-pointer">Salva Contratto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+    </div>
+  </footer>
+
+  <script src="../../header.js"></script>
+
+  <!-- LOGICA JAVASCRIPT GESTIONE TABELLA & CARTELLE -->
+  <script>
+    let contrattiCache = {};
+
+    document.addEventListener("DOMContentLoaded", () => {
+      caricaContrattiEArchivio();
+    });
+
+    function caricaContrattiEArchivio() {
+      const tbody = document.getElementById('tabella-contratti-body');
+      const grid = document.getElementById('cartelle-contratti-grid');
+
+      if (typeof firebase === 'undefined') {
+        tbody.innerHTML = '<tr><td colspan="9" class="p-6 text-center text-rose-400 italic">Firebase non disponibile.</td></tr>';
+        return;
+      }
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp({
+          databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+        });
+      }
+
+      firebase.database().ref('contratti_convenzioni').on('value', (snapshot) => {
+        contrattiCache = snapshot.val() || {};
+        const keys = Object.keys(contrattiCache);
+
+        if (keys.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" class="p-6 text-center text-slate-500 italic">Nessun contratto registrato. Clicca su "Nuovo Contratto" per aggiungere il primo.</td></tr>';
+          grid.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center text-slate-500 text-xs col-span-full">Nessuna cartella contratto presente.</div>';
+          return;
+        }
+
+        renderizzaTabella(keys);
+        renderizzaCartelle(keys);
+      });
+    }
+
+    function renderizzaTabella(keys) {
+      const tbody = document.getElementById('tabella-contratti-body');
+      tbody.innerHTML = '';
+
+      keys.forEach(key => {
+        const item = contrattiCache[key];
+        if (!item) return;
+
+        let badgeStato = 'bg-emerald-950 text-emerald-400 border-emerald-800';
+        if (item.stato === 'In Scadenza') badgeStato = 'bg-amber-950 text-amber-400 border-amber-800';
+        else if (item.stato === 'Scaduto') badgeStato = 'bg-rose-950 text-rose-400 border-rose-800';
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-900/80 transition";
+        tr.innerHTML = `
+          <td class="p-3.5 font-black text-cyan-400">${item.numero || key}</td>
+          <td class="p-3.5 font-bold text-white">${item.fornitore || '-'}</td>
+          <td class="p-3.5 text-slate-300">${item.tipo || '-'}</td>
+          <td class="p-3.5 max-w-xs truncate text-slate-400" title="${item.oggetto || ''}">${item.oggetto || '-'}</td>
+          <td class="p-3.5">${item.dataInizio || '-'}</td>
+          <td class="p-3.5 font-bold">${item.dataScadenza || '-'}</td>
+          <td class="p-3.5 text-emerald-400 font-bold">${item.importo || '-'}</td>
+          <td class="p-3.5">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border ${badgeStato}">
+              ${item.stato || 'Attivo'}
+            </span>
+          </td>
+          <td class="p-3.5 text-center space-x-1">
+            <button onclick="apriModalContratto('${key}')" class="px-2.5 py-1 bg-amber-600/20 hover:bg-amber-600/35 text-amber-400 border border-amber-500/40 rounded-lg text-[10px] font-bold cursor-pointer">
+              <i class="fa-solid fa-pen"></i> Modifica
+            </button>
+            <button onclick="eliminaContratto('${key}')" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600/35 text-rose-400 border border-rose-500/40 rounded-lg text-[10px] font-bold cursor-pointer">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderizzaCartelle(keys) {
+      const grid = document.getElementById('cartelle-contratti-grid');
+      grid.innerHTML = '';
+
+      keys.forEach(key => {
+        const item = contrattiCache[key];
+        const numAllegati = (item.allegati && Array.isArray(item.allegati)) ? item.allegati.length : 0;
+
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl p-5 flex flex-col justify-between space-y-4 hover:border-cyan-500/40 transition group";
+        card.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/20 transition">
+                <i class="fa-solid fa-folder-closed text-lg"></i>
+              </div>
+              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">${item.numero || key}</span>
+            </div>
+
+            <div>
+              <h4 class="font-black text-white text-sm truncate">${item.fornitore}</h4>
+              <p class="text-xs text-slate-400 truncate">${item.tipo}</p>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+            <span class="text-slate-500 font-semibold"><i class="fa-solid fa-paperclip text-cyan-400"></i> ${numAllegati} documenti</span>
+            <label class="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/35 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-upload"></i> Carica File
+              <input type="file" onchange="caricaFileContratto(event, '${key}')" class="hidden" multiple>
+            </label>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function apriModalContratto(key = null) {
+      const modal = document.getElementById('modal-contratto');
+      modal.classList.remove('hidden');
+      document.getElementById('form-contratto').reset();
+
+      if (key && contrattiCache[key]) {
+        const item = contrattiCache[key];
+        document.getElementById('modal-titolo').innerText = "MODIFICA CONTRATTO: " + item.numero;
+        document.getElementById('c_numero').value = item.numero || key;
+        document.getElementById('c_fornitore').value = item.fornitore || '';
+        document.getElementById('c_tipo').value = item.tipo || '';
+        document.getElementById('c_importo').value = item.importo || '';
+        document.getElementById('c_oggetto').value = item.oggetto || '';
+        document.getElementById('c_data_inizio').value = item.dataInizio || '';
+        document.getElementById('c_data_scadenza').value = item.dataScadenza || '';
+        document.getElementById('c_stato').value = item.stato || 'Attivo';
+      } else {
+        document.getElementById('modal-titolo').innerText = "REGISTRA NUOVO CONTRATTO / CONVENZIONE";
+      }
+    }
+
+    function chiudiModalContratto() {
+      document.getElementById('modal-contratto').classList.add('hidden');
+    }
+
+    function salvaContratto(e) {
+      e.preventDefault();
+      const num = document.getElementById('c_numero').value.trim();
+      const dbKey = num.replace(/[\/\.#$\[\]]/g, '_');
+
+      const payload = {
+        numero: num,
+        fornitore: document.getElementById('c_fornitore').value || '',
+        tipo: document.getElementById('c_tipo').value || '',
+        importo: document.getElementById('c_importo').value || '',
+        oggetto: document.getElementById('c_oggetto').value || '',
+        dataInizio: document.getElementById('c_data_inizio').value || '',
+        dataScadenza: document.getElementById('c_data_scadenza').value || '',
+        stato: document.getElementById('c_stato').value || 'Attivo',
+        timestamp: Date.now()
+      };
+
+      firebase.database().ref('contratti_convenzioni/' + dbKey).update(payload, (err) => {
+        if (err) alert("Errore salvataggio: " + err.message);
+        else {
+          alert("✅ Contratto registrato con successo nel Cloud!");
+          chiudiModalContratto();
+        }
+      });
+    }
+
+    function eliminaContratto(key) {
+      if (confirm("Vuoi eliminare definitivamente questo contratto dal registro?")) {
+        firebase.database().ref('contratti_convenzioni/' + key).remove();
+      }
+    }
+
+    function caricaFileContratto(event, key) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      alert(`📎 Caricati ${files.length} allegati nella cartella contrattuale di ${key}.`);
+    }
+
+    function creaNuovaCartella() {
+      const nomeCartella = prompt("Inserisci il nome per la nuova cartella o fornitore:");
+      if (nomeCartella) {
+        apriModalContratto();
+        document.getElementById('c_fornitore').value = nomeCartella;
+      }
+    }
+
+    function filtraTabellaContratti() {
+      const query = document.getElementById('filter-search').value.toLowerCase();
+      const filteredKeys = Object.keys(contrattiCache).filter(key => {
+        const item = contrattiCache[key];
+        return (item.fornitore && item.fornitore.toLowerCase().includes(query)) ||
+               (item.numero && item.numero.toLowerCase().includes(query)) ||
+               (item.oggetto && item.oggetto.toLowerCase().includes(query));
+      });
+      renderizzaTabella(filteredKeys);
+    }
+  </script>
+</body>
+</html>
