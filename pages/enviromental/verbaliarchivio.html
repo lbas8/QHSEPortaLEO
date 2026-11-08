@@ -28,44 +28,40 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white" data-settore="E">
 
-  <!-- PUNTO DI INIEZIONE HEADER UNIFICATO -->
-  <div id="app-header"></div>
+  <!-- HEADER UNIFICATO -->
+  <header class="w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start">
+        <div class="flex items-center gap-3">
+          <a href="environmentalhub.html" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer no-underline">
+            <i class="fa-solid fa-arrow-left text-sky-400"></i>
+            <span class="hidden sm:inline">Indietro</span>
+          </a>
+          <div class="relative w-11 h-11 rounded-xl bg-sky-500/10 border-2 border-sky-400/80 flex items-center justify-center text-sky-400 shadow-md">
+            <i class="fa-solid fa-folder-tree text-xl"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Archivio Verbali di Sopralluogo</h1>
+            <p class="text-[11px] text-sky-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+        <button onclick="esportaVerbaliExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition cursor-pointer">
+          <i class="fa-solid fa-file-excel"></i> Esporta Excel (.xlsx)
+        </button>
+        <button onclick="createNewFolder()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+          <i class="fa-solid fa-folder-plus text-amber-400"></i> Nuova Cartella
+        </button>
+        <a href="verbale.html" class="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition">
+          <i class="fa-solid fa-plus"></i> Nuovo Verbale
+        </a>
+      </div>
+    </div>
+  </header>
 
   <!-- MAIN CONTENT -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-10 flex flex-col space-y-10">
-    
-    <!-- INTESTAZIONE SEZIONE -->
-    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-b border-slate-800 pb-6">
-      <div>
-        <div class="flex items-center gap-3 mb-1">
-          <span class="px-3 py-1 rounded-full bg-sky-950 text-sky-300 border border-sky-800 text-[10px] font-extrabold uppercase tracking-wider">
-            REGISTRI & VERBALI DI SOPRALLUOGO
-          </span>
-          <span class="text-xs text-slate-400 font-semibold">Tabella Excel Dinamica & Archiviazione</span>
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
-          Archivio Verbali di Sopralluogo
-        </h2>
-      </div>
-
-      <!-- BLOCCO PULSANTI DI AZIONE RAPIDA -->
-      <div class="flex items-center gap-2.5 flex-wrap">
-        <button onclick="esportaVerbaliExcel()" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-600/20 cursor-pointer text-xs">
-          <i class="fa-solid fa-file-excel text-sm"></i>
-          <span>Esporta Excel (.xlsx)</span>
-        </button>
-
-        <a href="verbale.html" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-xl transition shadow-lg shadow-sky-500/20 cursor-pointer text-xs">
-          <i class="fa-solid fa-plus text-sm"></i>
-          <span>Nuovo Verbale</span>
-        </a>
-
-        <button onclick="createNewFolder()" class="inline-flex items-center gap-2 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold rounded-xl transition text-xs cursor-pointer">
-          <i class="fa-solid fa-folder-plus text-sm"></i>
-          <span>Nuova Cartella</span>
-        </button>
-      </div>
-    </div>
 
     <!-- PARTE SUPERIORE: TABELLA EXCEL DINAMICA -->
     <div class="space-y-3">
