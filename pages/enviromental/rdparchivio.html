@@ -53,7 +53,7 @@
         </div>
         <div>
           <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Lettura puntuale della colonna "Risultato e incertezza" per qualsiasi revisione di certificato</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Estrazione automatica con campi completamente modificabili in anteprima</p>
         </div>
         <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
       </div>
@@ -62,7 +62,7 @@
       <div id="form-estratto-container" class="hidden mt-6 border border-sky-500/30 bg-sky-950/10 rounded-xl p-5 space-y-5">
         <div class="flex items-center justify-between border-b border-sky-900/50 pb-2">
           <h4 class="text-xs font-black text-sky-400 uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-check-to-slot"></i> Verifica e Conferma Dati Estratti dal PDF
+            <i class="fa-solid fa-check-to-slot"></i> Verifica, Modifica e Conferma Dati Estratti dal PDF
           </h4>
           <button onclick="chiudiAnteprimaPDF()" class="text-slate-400 hover:text-white text-xs font-bold cursor-pointer">Annulla</button>
         </div>
@@ -103,9 +103,9 @@
         <div id="preview-analiti-box" class="border-t border-slate-800 pt-4">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-2">
-              <i class="fa-solid fa-flask"></i> Valori Secchi Estratti — Tab. 1 All. 5 Parte IV D.Lgs. 152/06
+              <i class="fa-solid fa-flask"></i> Valori Secchi Estratti — Tab. 1 All. 5 Parte IV D.Lgs. 152/06 (Modificabili)
             </span>
-            <span class="text-[11px] text-slate-400">Valori ripuliti da incertezze/LOD</span>
+            <span class="text-[11px] text-slate-400">Puoi correggere qualsiasi valore direttamente nelle caselle sottostanti</span>
           </div>
           <div class="overflow-x-auto bg-slate-900/90 border border-slate-800 rounded-xl">
             <table class="w-full text-left border-collapse text-xs">
@@ -231,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT LOGICA ARCHIVIO RDP + PARSING ROBUSTO MULTI-REVISIONE -->
+  <!-- SCRIPT LOGICA ARCHIVIO RDP + CORREZIONE MANUALE IN ANTEPRIMA -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -242,22 +242,21 @@
     let archivioRdPGlobal = [];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    // Lista dei 14 parametri con etichetta e unità di misura
     const PARAMETRI_SOTTOPRODOTTO = [
-      { key: "residuo_secco", label: "Residuo secco", um: "%", colA: "-", colB: "-" },
+      { key: "residuo_secco", label: "Residuo secco a 105° C", um: "%", colA: "-", colB: "-" },
       { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-" },
       { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15" },
-      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250" },
-      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/kg ss", colA: "50", colB: "750" },
+      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/Kg ss", colA: "10", colB: "250" },
+      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/Kg ss", colA: "50", colB: "750" },
       { key: "arsenico", label: "Arsenico", um: "mg/Kg ss", colA: "20", colB: "50" },
       { key: "cadmio", label: "Cadmio", um: "mg/Kg ss", colA: "2", colB: "15" },
       { key: "cobalto", label: "Cobalto", um: "mg/Kg ss", colA: "20", colB: "250" },
-      { key: "cromo_totale", label: "Cromo totale", um: "mg/kg ss", colA: "150", colB: "800" },
+      { key: "cromo_totale", label: "Cromo totale", um: "mg/Kg ss", colA: "150", colB: "800" },
       { key: "rame", label: "Rame", um: "mg/Kg ss", colA: "120", colB: "600" },
       { key: "mercurio", label: "Mercurio", um: "mg/Kg ss", colA: "1", colB: "5" },
-      { key: "nichel", label: "Nichel", um: "mg/kg ss", colA: "120", colB: "500" },
-      { key: "piombo", label: "Piombo", um: "mg/kg ss", colA: "100", colB: "1000" },
-      { key: "zinco", label: "Zinco", um: "mg/kg ss", colA: "150", colB: "1500" }
+      { key: "nichel", label: "Nichel", um: "mg/Kg ss", colA: "120", colB: "500" },
+      { key: "piombo", label: "Piombo", um: "mg/Kg ss", colA: "100", colB: "1000" },
+      { key: "zinco", label: "Zinco", um: "mg/Kg ss", colA: "150", colB: "1500" }
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -325,24 +324,27 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // Motore di parsing deterministico e robusto per qualsiasi revisione di RdP Arcadia
     function estraiValoreAnalita(testo, nomeParametro, unitaMisura) {
-      // Normalizzazione per gestire variazioni di spazi o caratteri speciali
-      const escapedName = nomeParametro.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-      const escapedUm = unitaMisura.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const idx = testo.indexOf(nomeParametro);
+      if (idx === -1) {
+        // Fallimento ricerca esatta: prova a cercare senza accenti o spazi multipli
+        return "n.r.";
+      }
       
-      // Crea una regex flessibile che individua il nome, l'unità di misura e cattura il primo risultato
-      const regex = new RegExp(escapedName + '[\\s\\S]{0,100}?' + escapedUm + '[\\s\\S]{0,25}?([nN]\\.[rR]\\.|<\\s*\\d+(?:[.,]\\d+)?|\\d+(?:[.,]\\d+)?)', 'i');
+      const sottostringa = testo.substring(idx, idx + 180);
+      const idxUm = sottostringa.indexOf(unitaMisura);
+      if (idxUm === -1) return "n.r.";
       
-      const match = testo.match(regex);
-      if (match && match[1]) {
+      const dopoUm = sottostringa.substring(idxUm + unitaMisura.length).trim();
+      const match = dopoUm.match(/^([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
+      if (match) {
         return match[1].replace(',', '.');
       }
       return "n.r.";
     }
 
     function estraiDatiDaTestoPDF(testo, nomeFile) {
-      const matchProt = testo.match(/Rapporto\s+di\s+[Pp]rova\s+n[°º]?\s*([A-Z0-9\-\/]+)/i) || testo.match(/(25LA\d+|26LA\d+)/i);
+      const matchProt = testo.match(/Rapporto\s+di\s+[Pp]rova\s+n[°º]?\s*([A-Z0-9\-\/]+)/i) || testo.match(/(\d{2}LA\d+)/i);
       const protocolloEstratto = matchProt ? matchProt[1].trim() : nomeFile.replace('.pdf', '');
 
       const matchDataCamp = testo.match(/Data\s+prelievo:\s*(\d{2}\/\d{2}\/\d{4})/i) || testo.match(/Data:\s*(\d{2}\/\d{2}\/\d{4})/i);
@@ -356,7 +358,7 @@
         matriceRilevata = "Acque";
       }
 
-      const matchDesc = testo.match(/Descrizione:\s*([^\n\r§\(]{4,70})/i);
+      const matchDesc = testo.match(/Descrizione:\s*([^\n\r§\(]{4,70})/i) || testo.match(/(Fronte\s+scavo[^-\n\r]{3,40})/i);
       const matchRif = testo.match(/Riferimento\s+cliente:\s*([A-Z0-9\_\-\s]{4,40})/i);
       let cantiereEstratto = matchDesc ? matchDesc[1].trim() : "Terzo Valico";
       if (matchRif) {
@@ -367,17 +369,9 @@
 
       let esitoRilevato = "Conforme / Verificato";
       if (matriceRilevata === "Sottoprodotto") {
-        if (/rispetta\s+i\s+limiti\s+riportati\s+in\s+colonna\s+A/i.test(testo)) {
+        if (/rispetta\s+i\s+limiti/i.test(testo) || /rispetta\s+i\s+requisiti/i.test(testo)) {
           esitoRilevato = "Conforme (Col. A - Verde/Residenziale)";
-        } else if (/colonna\s+B/i.test(testo)) {
-          esitoRilevato = "Conforme (Col. B - Industriale)";
         }
-      } else if (matriceRilevata === "Rifiuto") {
-        const matchEER = testo.match(/EER\s*(?:\(1\))?\s*:?\s*(\d{2}\s*\d{2}\s*\d{2}\*?)/i);
-        const matchHP = testo.match(/(HP\d+\s*-\s*[A-Za-zàèéìòù]+)/i);
-        const eerStr = matchEER ? `EER ${matchEER[1].trim()}` : "Rifiuto";
-        const hpStr = matchHP ? ` - Pericoloso (${matchHP[1].trim()})` : "";
-        esitoRilevato = `${eerStr}${hpStr}`;
       }
 
       document.getElementById('estratto_id').value = protocolloEstratto;
@@ -391,7 +385,11 @@
       tbodyPreview.innerHTML = '';
 
       PARAMETRI_SOTTOPRODOTTO.forEach(param => {
-        const valSecco = estraiValoreAnalita(testo, param.label, param.um);
+        let valSecco = estraiValoreAnalita(testo, param.label, param.um);
+        // Fallizzazioni specifiche per varianti di etichette nei vecchi RdP
+        if (valSecco === "n.r." && param.key === "residuo_secco") {
+          valSecco = estraiValoreAnalita(testo, "Residuo secco", "%");
+        }
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/50";
@@ -399,7 +397,7 @@
           <td class="p-2 font-semibold text-white">${param.label}</td>
           <td class="p-2 text-center text-slate-400">${param.um}</td>
           <td class="p-2 text-center">
-            <input type="text" id="prev_val_${param.key}" value="${valSecco}" class="w-20 text-center bg-slate-950 border border-slate-700 rounded px-1.5 py-0.5 text-sky-400 font-bold focus:border-sky-400 outline-none">
+            <input type="text" id="prev_val_${param.key}" value="${valSecco}" class="w-24 text-center bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sky-400 font-bold focus:border-sky-400 outline-none">
           </td>
           <td class="p-2 text-center border-l border-slate-800 text-slate-400">${param.colA}</td>
           <td class="p-2 text-center border-l border-slate-800 text-slate-400">${param.colB}</td>
@@ -762,7 +760,7 @@
       const rifiutiData = archivioRdPGlobal
         .filter(item => item.matrice === "Rifiuto")
         .map(item => ({
-          "Protocollo RdP": item.id,
+          "Protocollo RdP": item.id,5
           "Data Prelievo": item.data ? item.data.replace('T', ' ') : "",
           "Cantiere / Riferimento": item.cantiere,
           "Laboratorio": item.laboratorio,
