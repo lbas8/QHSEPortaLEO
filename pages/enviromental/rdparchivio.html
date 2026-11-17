@@ -53,7 +53,7 @@
         </div>
         <div>
           <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Estrazione automatica con campi completamente modificabili in anteprima</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Motore di parsing sequenziale ottimizzato per certificati Arcadia</p>
         </div>
         <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
       </div>
@@ -62,7 +62,7 @@
       <div id="form-estratto-container" class="hidden mt-6 border border-sky-500/30 bg-sky-950/10 rounded-xl p-5 space-y-5">
         <div class="flex items-center justify-between border-b border-sky-900/50 pb-2">
           <h4 class="text-xs font-black text-sky-400 uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-check-to-slot"></i> Verifica, Modifica e Conferma Dati Estratti dal PDF
+            <i class="fa-solid fa-check-to-slot"></i> Verifica e Conferma Dati Estratti dal PDF
           </h4>
           <button onclick="chiudiAnteprimaPDF()" class="text-slate-400 hover:text-white text-xs font-bold cursor-pointer">Annulla</button>
         </div>
@@ -103,9 +103,9 @@
         <div id="preview-analiti-box" class="border-t border-slate-800 pt-4">
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-2">
-              <i class="fa-solid fa-flask"></i> Valori Secchi Estratti — Tab. 1 All. 5 Parte IV D.Lgs. 152/06 (Modificabili)
+              <i class="fa-solid fa-flask"></i> Valori Secchi Estratti — Tab. 1 All. 5 Parte IV D.Lgs. 152/06
             </span>
-            <span class="text-[11px] text-slate-400">Puoi correggere qualsiasi valore direttamente nelle caselle sottostanti</span>
+            <span class="text-[11px] text-slate-400">Verifica i dati estratti</span>
           </div>
           <div class="overflow-x-auto bg-slate-900/90 border border-slate-800 rounded-xl">
             <table class="w-full text-left border-collapse text-xs">
@@ -231,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT LOGICA ARCHIVIO RDP + DOWNLOAD EXCEL FORZATO BLOB -->
+  <!-- SCRIPT LOGICA ARCHIVIO RDP + PARSING SEQUENZIALE ROBUSTO -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -242,21 +242,22 @@
     let archivioRdPGlobal = [];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
+    // Elenco ordinato dei 14 parametri esattamente come compaiono nella tabella dei certificati Arcadia
     const PARAMETRI_SOTTOPRODOTTO = [
-      { key: "residuo_secco", label: "Residuo secco a 105° C", um: "%", colA: "-", colB: "-" },
-      { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-" },
-      { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15" },
-      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/Kg ss", colA: "10", colB: "250" },
-      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/Kg ss", colA: "50", colB: "750" },
-      { key: "arsenico", label: "Arsenico", um: "mg/Kg ss", colA: "20", colB: "50" },
-      { key: "cadmio", label: "Cadmio", um: "mg/Kg ss", colA: "2", colB: "15" },
-      { key: "cobalto", label: "Cobalto", um: "mg/Kg ss", colA: "20", colB: "250" },
-      { key: "cromo_totale", label: "Cromo totale", um: "mg/Kg ss", colA: "150", colB: "800" },
-      { key: "rame", label: "Rame", um: "mg/Kg ss", colA: "120", colB: "600" },
-      { key: "mercurio", label: "Mercurio", um: "mg/Kg ss", colA: "1", colB: "5" },
-      { key: "nichel", label: "Nichel", um: "mg/Kg ss", colA: "120", colB: "500" },
-      { key: "piombo", label: "Piombo", um: "mg/Kg ss", colA: "100", colB: "1000" },
-      { key: "zinco", label: "Zinco", um: "mg/Kg ss", colA: "150", colB: "1500" }
+      { key: "residuo_secco", label: "Residuo secco a 105° C", altLabels: ["Residuo secco a 105°C", "Residuo secco"], colA: "-", colB: "-" },
+      { key: "scheletro", label: "Scheletro", altLabels: [], colA: "-", colB: "-" },
+      { key: "cromo_vi", label: "Cromo (VI)", altLabels: ["Cromo(VI)"], colA: "2", colB: "15" },
+      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", altLabels: ["Idrocarburi leggeri"], colA: "10", colB: "250" },
+      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", altLabels: ["Idrocarburi pesanti"], colA: "50", colB: "750" },
+      { key: "arsenico", label: "Arsenico", altLabels: [], colA: "20", colB: "50" },
+      { key: "cadmio", label: "Cadmio", altLabels: [], colA: "2", colB: "15" },
+      { key: "cobalto", label: "Cobalto", altLabels: [], colA: "20", colB: "250" },
+      { key: "cromo_totale", label: "Cromo totale", altLabels: [], colA: "150", colB: "800" },
+      { key: "rame", label: "Rame", altLabels: [], colA: "120", colB: "600" },
+      { key: "mercurio", label: "Mercurio", altLabels: [], colA: "1", colB: "5" },
+      { key: "nichel", label: "Nichel", altLabels: [], colA: "120", colB: "500" },
+      { key: "piombo", label: "Piombo", altLabels: [], colA: "100", colB: "1000" },
+      { key: "zinco", label: "Zinco", altLabels: [], colA: "150", colB: "1500" }
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -324,19 +325,36 @@
       reader.readAsArrayBuffer(file);
     }
 
-    function estraiValoreAnalita(testo, nomeParametro, unitaMisura) {
-      const idx = testo.indexOf(nomeParametro);
-      if (idx === -1) return "n.r.";
+    // Motore sequenziale intelligente per isolare ciascun analita nella tabella dei risultati
+    function estraiValoreAnalitaSequenziale(testo, paramConfig) {
+      const allCercati = [paramConfig.label, ...paramConfig.altLabels];
+      let primoIndiceTrovato = -1;
+
+      for (let lbl of allCercati) {
+        let idx = testo.indexOf(lbl);
+        while (idx !== -1) {
+          // Scartiamo le occorrenze che si trovano nelle note finali o nelle premesse (es. dopo "Giudizio" o "Note")
+          const porzioneTesto = testo.substring(0, idx).toLowerCase();
+          if (!porzioneTesto.includes("giudizio") && !porzioneTesto.includes("note") && !porzioneTesto.includes("ordine dei chimici")) {
+            primoIndiceTrovato = idx;
+            break;
+          }
+          idx = testo.indexOf(lbl, idx + lbl.length);
+        }
+        if (primoIndiceTrovato !== -1) break;
+      }
+
+      if (primoIndiceTrovato === -1) return "n.r.";
+
+      // Isola i caratteri successivi al nome del parametro (finestra di 120 caratteri)
+      const finestra = testo.substring(primoIndiceTrovato, primoIndiceTrovato + 120);
       
-      const sottostringa = testo.substring(idx, idx + 180);
-      const idxUm = sottostringa.indexOf(unitaMisura);
-      if (idxUm === -1) return "n.r.";
-      
-      const dopoUm = sottostringa.substring(idxUm + unitaMisura.length).trim();
-      const match = dopoUm.match(/^([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
+      // Estrae il primo token utile (n.r., <X, oppure un numero decimale)
+      const match = finestra.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
       if (match) {
         return match[1].replace(',', '.');
       }
+
       return "n.r.";
     }
 
@@ -363,7 +381,6 @@
       }
 
       let laboratorioRilevato = "Arcadia S.r.l.";
-
       let esitoRilevato = "Conforme / Verificato";
       if (matriceRilevata === "Sottoprodotto") {
         if (/rispetta\s+i\s+limiti/i.test(testo) || /rispetta\s+i\s+requisiti/i.test(testo)) {
@@ -382,16 +399,13 @@
       tbodyPreview.innerHTML = '';
 
       PARAMETRI_SOTTOPRODOTTO.forEach(param => {
-        let valSecco = estraiValoreAnalita(testo, param.label, param.um);
-        if (valSecco === "n.r." && param.key === "residuo_secco") {
-          valSecco = estraiValoreAnalita(testo, "Residuo secco", "%");
-        }
+        let valSecco = estraiValoreAnalitaSequenziale(testo, param);
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/50";
         tr.innerHTML = `
           <td class="p-2 font-semibold text-white">${param.label}</td>
-          <td class="p-2 text-center text-slate-400">${param.um}</td>
+          <td class="p-2 text-center text-slate-400">mg/Kg ss</td>
           <td class="p-2 text-center">
             <input type="text" id="prev_val_${param.key}" value="${valSecco}" class="w-24 text-center bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sky-400 font-bold focus:border-sky-400 outline-none">
           </td>
@@ -525,7 +539,7 @@
       `;
 
       PARAMETRI_SOTTOPRODOTTO.forEach(p => {
-        riga1 += `<th class="p-2 text-center border-r border-slate-700 whitespace-nowrap" colspan="2">${p.label}<br><span class="text-[9px] text-sky-400 font-normal">(${p.um})</span></th>`;
+        riga1 += `<th class="p-2 text-center border-r border-slate-700 whitespace-nowrap" colspan="2">${p.label}<br><span class="text-[9px] text-sky-400 font-normal">(mg/Kg ss)</span></th>`;
         riga2 += `
           <th class="p-1 text-center border-r border-slate-700/60 text-emerald-400" title="Limite Colonna A">Col. A: ${p.colA}</th>
           <th class="p-1 text-center border-r border-slate-700 text-amber-400" title="Limite Colonna B">Col. B: ${p.colB}</th>
@@ -697,7 +711,6 @@
       mostraTabellaRdP(filtrati);
     }
 
-    // Funzione di esportazione Excel blindata tramite Blob (forza il download diretto)
     function esportaRdPInExcel() {
       if (archivioRdPGlobal.length === 0) {
         alert("Nessun dato RdP da esportare.");
@@ -720,7 +733,7 @@
 
         let colIdx = 5;
         PARAMETRI_SOTTOPRODOTTO.forEach(p => {
-          headerRow1.push(`${p.label} (${p.um})`, "");
+          headerRow1.push(`${p.label} (mg/Kg ss)`, "");
           headerRow2.push(`Col. A (${p.colA})`, `Col. B (${p.colB})`);
           merges.push({ s: { r: 0, c: colIdx }, e: { r: 0, c: colIdx + 1 } });
           colIdx += 2;
@@ -783,9 +796,8 @@
       const wsGenerale = XLSX.utils.json_to_sheet(generaleData);
       XLSX.utils.book_append_sheet(workbook, wsGenerale, "Tutti i RdP");
 
-      // Genera il file in formato binario ed forza il download diretto senza aprire nuove schede
       const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([wbout], { type: 'application/octet-stream' });
+      const blob = new Blob([wbout], { type: 'application/octet-stream'}}]
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
