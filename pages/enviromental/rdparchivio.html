@@ -231,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT LOGICA ARCHIVIO RDP + CORREZIONE MANUALE IN ANTEPRIMA -->
+  <!-- SCRIPT LOGICA ARCHIVIO RDP + DOWNLOAD EXCEL FORZATO BLOB -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -326,10 +326,7 @@
 
     function estraiValoreAnalita(testo, nomeParametro, unitaMisura) {
       const idx = testo.indexOf(nomeParametro);
-      if (idx === -1) {
-        // Fallimento ricerca esatta: prova a cercare senza accenti o spazi multipli
-        return "n.r.";
-      }
+      if (idx === -1) return "n.r.";
       
       const sottostringa = testo.substring(idx, idx + 180);
       const idxUm = sottostringa.indexOf(unitaMisura);
@@ -386,7 +383,6 @@
 
       PARAMETRI_SOTTOPRODOTTO.forEach(param => {
         let valSecco = estraiValoreAnalita(testo, param.label, param.um);
-        // Fallizzazioni specifiche per varianti di etichette nei vecchi RdP
         if (valSecco === "n.r." && param.key === "residuo_secco") {
           valSecco = estraiValoreAnalita(testo, "Residuo secco", "%");
         }
@@ -701,6 +697,7 @@
       mostraTabellaRdP(filtrati);
     }
 
+    // Funzione di esportazione Excel blindata tramite Blob (forza il download diretto)
     function esportaRdPInExcel() {
       if (archivioRdPGlobal.length === 0) {
         alert("Nessun dato RdP da esportare.");
@@ -760,7 +757,7 @@
       const rifiutiData = archivioRdPGlobal
         .filter(item => item.matrice === "Rifiuto")
         .map(item => ({
-          "Protocollo RdP": item.id,5
+          "Protocollo RdP": item.id,
           "Data Prelievo": item.data ? item.data.replace('T', ' ') : "",
           "Cantiere / Riferimento": item.cantiere,
           "Laboratorio": item.laboratorio,
@@ -786,7 +783,19 @@
       const wsGenerale = XLSX.utils.json_to_sheet(generaleData);
       XLSX.utils.book_append_sheet(workbook, wsGenerale, "Tutti i RdP");
 
-      XLSX.writeFile(workbook, "Registro_Rapporti_di_Prova_QHSE.xlsx");
+      // Genera il file in formato binario ed forza il download diretto senza aprire nuove schede
+      const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/octet-stream' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "Registro_Rapporti_di_Prova_QHSE.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 100);
     }
   </script>
 
