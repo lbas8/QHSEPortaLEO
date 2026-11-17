@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archivio Rapporti di Prova (RdP) — Terzo Valico</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Libreria SheetJS per l'esportazione in Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between pb-10">
+
+  <!-- HEADER STANDARD DINAMICO DA HEADER.JS -->
+  <div id="app-header"></div>
+
+  <main class="max-w-7xl mx-auto w-full px-4 sm:px-8 pt-8 flex-grow">
+
+    <!-- INTESTAZIONE E PULSANTI AZIONE -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+      <div>
+        <h2 class="text-2xl font-black uppercase tracking-wide text-white flex items-center gap-3">
+          <i class="fa-solid fa-file-invoice text-sky-400"></i> Archivio Rapporti di Prova (RdP)
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">Certificati analitici Laboratorio (Rifiuti & Terre/Rocce da Scavo - Sottoprodotti)</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="esportaRdPInExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition cursor-pointer">
+          <i class="fa-solid fa-file-excel text-sm"></i> Esporta Registro RdP (.xlsx)
+        </button>
+      </div>
+    </div>
+
+    <!-- SELETTORE A SCHEDE (TAB) -->
+    <div class="flex border-b border-slate-800 mb-6 gap-6 text-sm font-bold">
+      <button onclick="cambiaVista('tabella')" id="btn-tabella" class="pb-3 border-b-2 border-sky-400 text-sky-400 flex items-center gap-2 transition cursor-pointer">
+        <i class="fa-solid fa-table-list"></i> Registro Tabellare Dinamico
+      </button>
+      <button onclick="cambiaVista('cartelle')" id="btn-cartelle" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer">
+        <i class="fa-solid fa-folder-tree"></i> Suddivisione per Cartelle (Cantiere / WBS / Giorno)
+      </button>
+    </div>
+
+    <!-- VISTA 1: REGISTRO TABELLARE DINAMICO -->
+    <div id="vista-tabella" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+        <input type="text" id="filtroTesto" oninput="filtraTabellaRdP()" placeholder="Cerca per Protocollo RdP, Cantiere o Laboratorio..." class="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-sky-500">
+        <select id="filtroMatrice" onchange="filtraTabellaRdP()" class="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-sky-500">
+          <option value="">Tutte le matrici (Rifiuti & Sottoprodotti)</option>
+          <option value="Rifiuto">Rifiuto</option>
+          <option value="Sottoprodotto">Sottoprodotto (MdS)</option>
+        </select>
+        <div class="flex items-center justify-end text-xs text-slate-400">
+          Totale RdP archiviati: <span id="totaleRdP" class="font-bold text-sky-400 ml-1.5 text-sm">0</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-800/90 text-slate-300 border-b border-slate-700">
+                <th class="p-3.5">Matrice</th>
+                <th class="p-3.5">N. Protocollo / ID RdP</th>
+                <th class="p-3.5">Data Emissione / Prelievo</th>
+                <th class="p-3.5">Cantiere / WBS</th>
+                <th class="p-3.5">Laboratorio Incaricato</th>
+                <th class="p-3.5 text-center">Esito / Giudizio</th>
+                <th class="p-3.5 text-center">Autore</th>
+                <th class="p-3.5 text-center">Azioni</th>
+              </tr>
+            </thead>
+            <tbody id="rdp-table-tbody" class="divide-y divide-slate-800 text-slate-300">
+              <tr>
+                <td colspan="8" class="p-8 text-center text-slate-500">Sincronizzazione dati RdP da Firebase in corso...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA 2: SUDDIVISIONE PER CARTELLE (Cantiere / WBS / Giorno) -->
+    <div id="vista-cartelle" class="space-y-6 hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-sitemap text-amber-400"></i> Albero Gerarchico di Cantiere
+          </h3>
+          <span class="text-xs text-slate-400">Navigazione per Cantiere ➔ WBS ➔ Data Campionamento</span>
+        </div>
+        <div id="albero-cartelle-container" class="space-y-3">
+          <p class="text-xs text-slate-500 italic">Generazione struttura cartelle in corso...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SCRIPT LOGICA ARCHIVIO RDP -->
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let archivioRdPGlobal = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!localStorage.getItem('utente_loggato')) {
+        localStorage.setItem('utente_loggato', 'Leone Bastiancich');
+      }
+      caricaRdPaaS();
+    });
+
+    function calcolaIniziali(nomeCompleto) {
+      if (!nomeCompleto || nomeCompleto.length < 2) return "LB";
+      const parti = nomeCompleto.trim().split(" ");
+      if (parti.length >= 2) {
+        return (parti[0][0] + parti[parti.length - 1][0]).toUpperCase();
+      }
+      return nomeCompleto.substring(0, 2).toUpperCase();
+    }
+
+    function caricaRdPaaS() {
+      // Legge sia dai campionamenti che da eventuali nodi dedicati ai rapporti di prova
+      Promise.all([
+        db.ref('campionamenti').once('value'),
+        db.ref('rapporti_prova').once('value')
+      ]).then(([snapCamp, snapRdP]) => {
+        archivioRdPGlobal = [];
+
+        const datiCamp = snapCamp.val() || {};
+        const datiRdP = snapRdP.val() || {};
+
+        // 1. Estrae i dati dai campionamenti e catene di custodia
+        Object.keys(datiCamp).forEach(key => {
+          const item = datiCamp[key];
+          archivioRdPGlobal.push({
+            id: item.identificativo || key,
+            matrice: item.matrice || "Rifiuto",
+            cantiere: item.cantiere || "Cantiere Generale",
+            wbs: item.wbs || "WBS non specificata",
+            data: item.datetime || "",
+            laboratorio: item.laboratorio || "Laboratorio Accreditato",
+            esito: item.esitoRdP || "Conforme / Verificato",
+            autore: item.autore || localStorage.getItem('utente_loggato'),
+            link: `campionamentoform.html?load=${encodeURIComponent(key)}`
+          });
+        });
+
+        // 2. Estrae eventuali RdP caricati direttamente
+        Object.keys(datiRdP).forEach(key => {
+          const item = datiRdP[key];
+          archivioRdPGlobal.push({
+            id: item.protocollo || key,
+            matrice: item.matrice || "Sottoprodotto",
+            cantiere: item.cantiere || "Cantiere Generale",
+            wbs: item.wbs || "WBS non specificata",
+            data: item.dataEmissione || "",
+            laboratorio: item.laboratorio || "Laboratorio Incaricato",
+            esito: item.esito || "Conforme",
+            autore: item.autore || localStorage.getItem('utente_loggato'),
+            link: `#`
+          });
+        });
+
+        archivioRdPGlobal.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        mostraTabellaRdP(archivioRdPGlobal);
+        costruisciAlberoCartelle(archivioRdPGlobal);
+      });
+    }
+
+    function mostraTabellaRdP(dati) {
+      const tbody = document.getElementById('rdp-table-tbody');
+      tbody.innerHTML = '';
+      document.getElementById('totaleRdP').innerText = dati.length;
+
+      if (dati.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-500">Nessun Rapporto di Prova trovato nell'archivio.</td></tr>`;
+        return;
+      }
+
+      dati.forEach(item => {
+        const badgeMatrice = item.matrice === "Sottoprodotto" 
+          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" 
+          : "bg-amber-500/10 text-amber-400 border-amber-500/30";
+        
+        const iniziali = calcolaIniziali(item.autore);
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/50 transition";
+        tr.innerHTML = `
+          <td class="p-3.5"><span class="px-2.5 py-1 rounded-full border text-[10px] font-bold ${badgeMatrice}">${item.matrice}</span></td>
+          <td class="p-3.5 font-bold text-white">${item.id}</td>
+          <td class="p-3.5">${item.data ? item.data.replace('T', ' ') : 'N.D.'}</td>
+          <td class="p-3.5">${item.cantiere}</td>
+          <td class="p-3.5">${item.laboratorio}</td>
+          <td class="p-3.5 text-center"><span class="text-emerald-400 font-semibold">${item.esito}</span></td>
+          <td class="p-3.5 text-center">
+            <span class="bg-slate-800 text-sky-400 border border-slate-700 px-2.5 py-1 rounded-md font-black text-[11px]" title="${item.autore}">
+              ${iniziali}
+            </span>
+          </td>
+          <td class="p-3.5 text-center">
+            <a href="${item.link}" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1 rounded-lg font-bold transition inline-flex items-center gap-1.5">
+              <i class="fa-solid fa-file-pdf text-sky-400"></i> Apri
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function costruisciAlberoCartelle(dati) {
+      const container = document.getElementById('albero-cartelle-container');
+      if (!container) return;
+
+      if (dati.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 italic">Nessun dato disponibile per suddividere le cartelle.</p>`;
+        return;
+      }
+
+      // Raggruppamento per Cantiere -> Giorno
+      const alberatura = {};
+      dati.forEach(item => {
+        const cantiere = item.cantiere || "Cantiere Generico";
+        const giorno = item.data ? item.data.split('T')[0] : "Data non specificata";
+        
+        if (!alberatura[cantiere]) alberatura[cantiere] = {};
+        if (!alberatura[cantiere][giorno]) alberatura[cantiere][giorno] = [];
+        alberatura[cantiere][giorno].push(item);
+      });
+
+      let html = '';
+      Object.keys(alberatura).forEach(cantiere => {
+        html += `
+          <div class="border border-slate-800 rounded-xl p-4 bg-slate-950/50 space-y-3">
+            <div class="flex items-center gap-2 text-sky-400 font-bold text-xs uppercase tracking-wide">
+              <i class="fa-solid fa-folder-open"></i> Cantiere: ${cantiere}
+            </div>
+            <div class="pl-4 space-y-2 border-l border-slate-800 ml-2">
+        `;
+
+        Object.keys(alberatura[cantiere]).forEach(giorno => {
+          const listaRdP = alberatura[cantiere][giorno];
+          html += `
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 text-slate-300 font-semibold text-xs">
+                <i class="fa-regular fa-calendar-days text-amber-400"></i> Giorno Prelievo: ${giorno.split('-').reverse().join('/')} 
+                <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">${listaRdP.length} certificati</span>
+              </div>
+              <div class="pl-6 grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          `;
+
+          listaRdP.forEach(rdp => {
+            html += `
+              <div class="bg-slate-900 border border-slate-800 rounded-lg p-2.5 flex items-center justify-between text-xs">
+                <div>
+                  <div class="font-bold text-white">${rdp.id}</div>
+                  <div class="text-[10px] text-slate-400">Lab: ${rdp.laboratorio} • <span class="text-emerald-400">${rdp.matrice}</span></div>
+                </div>
+                <a href="${rdp.link}" class="bg-slate-800 hover:bg-slate-700 text-sky-400 p-2 rounded-lg transition" title="Apri scheda">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </a>
+              </div>
+            `;
+          });
+
+          html += `</div></div>`;
+        });
+
+        html += `</div></div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function cambiaVista(vista) {
+      const btnTabella = document.getElementById('btn-tabella');
+      const btnCartelle = document.getElementById('btn-cartelle');
+      const divTabella = document.getElementById('vista-tabella');
+      const divCartelle = document.getElementById('vista-cartelle');
+
+      if (vista === 'tabella') {
+        btnTabella.className = "pb-3 border-b-2 border-sky-400 text-sky-400 flex items-center gap-2 transition cursor-pointer";
+        btnCartelle.className = "pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer";
+        divTabella.classList.remove('hidden');
+        divCartelle.classList.add('hidden');
+      } else {
+        btnCartelle.className = "pb-3 border-b-2 border-sky-400 text-sky-400 flex items-center gap-2 transition cursor-pointer";
+        btnTabella.className = "pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer";
+        divCartelle.classList.remove('hidden');
+        divTabella.classList.add('hidden');
+      }
+    }
+
+    function filtraTabellaRdP() {
+      const testo = document.getElementById('filtroTesto').value.toLowerCase();
+      const matrice = document.getElementById('filtroMatrice').value;
+
+      const filtrati = archivioRdPGlobal.filter(item => {
+        const matchTesto = item.id.toLowerCase().includes(testo) || item.cantiere.toLowerCase().includes(testo) || item.laboratorio.toLowerCase().includes(testo);
+        const matchMatrice = matrice === "" || item.matrice === matrice;
+        return matchTesto && matchMatrice;
+      });
+
+      mostraTabellaRdP(filtrati);
+    }
+
+    function esportaRdPInExcel() {
+      if (archivioRdPGlobal.length === 0) {
+        alert("Nessun dato RdP da esportare.");
+        return;
+      }
+
+      const workbook = XLSX.utils.book_new();
+
+      // Foglio 1: Sottoprodotti (Terre e Rocce da Scavo)
+      const sottoData = archivioRdPGlobal
+        .filter(item => item.matrice === "Sottoprodotto")
+        .map(item => ({
+          "Protocollo RdP": item.id,
+          "Data Prelievo": item.data,
+          "Cantiere": item.cantiere,
+          "Laboratorio": item.laboratorio,
+          "Esito / Giudizio": item.esito,
+          "Autore": item.autore
+        }));
+
+      if (sottoData.length > 0) {
+        const wsSotto = XLSX.utils.json_to_sheet(sottoData);
+        XLSX.utils.book_append_sheet(workbook, wsSotto, "RdP Sottoprodotti (MdS)");
+      }
+
+      // Foglio 2: Rifiuti
+      const rifiutiData = archivioRdPGlobal
+        .filter(item => item.matrice === "Rifiuto")
+        .map(item => ({
+          "Protocollo RdP": item.id,
+          "Data Prelievo": item.data,
+          "Cantiere": item.cantiere,
+          "Laboratorio": item.laboratorio,
+          "Esito / Giudizio": item.esito,
+          "Autore": item.autore
+        }));
+
+      if (rifiutiData.length > 0) {
+        const wsRifiuti = XLSX.utils.json_to_sheet(rifiutiData);
+        XLSX.utils.book_append_sheet(workbook, wsRifiuti, "RdP Rifiuti");
+      }
+
+      // Foglio 3: Riepilogo Generale
+      const generaleData = archivioRdPGlobal.map(item => ({
+        "Matrice": item.matrice,
+        "Protocollo RdP": item.id,
+        "Data Prelievo": item.data,
+        "Cantiere": item.cantiere,
+        "Laboratorio": item.laboratorio,
+        "Esito": item.esito,
+        "Autore": item.autore
+      }));
+
+      const wsGenerale = XLSX.utils.json_to_sheet(generaleData);
+      XLSX.utils.book_append_sheet(workbook, wsGenerale, "Tutti i RdP");
+
+      XLSX.writeFile(workbook, "Registro_Rapporti_di_Prova_QHSE.xlsx");
+    }
+  </script>
+
+  <!-- CARICAMENTO HEADER GLOBALE -->
+  <script src="../../header.js"></script>
+
+</body>
+</html>
