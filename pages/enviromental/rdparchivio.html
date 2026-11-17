@@ -8,12 +8,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Libreria SheetJS per l'esportazione in Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Libreria PDF.js per la lettura e l'estrazione del testo dai PDF rilasciati -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <!-- Firebase SDK Compat -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+    .dropzone { border: 2px dashed rgba(56, 189, 248, 0.4); transition: all 0.3s ease; }
+    .dropzone.dragover { background-color: rgba(56, 189, 248, 0.1); border-color: #38bdf8; }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between pb-10">
@@ -35,6 +39,70 @@
         <button onclick="esportaRdPInExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition cursor-pointer">
           <i class="fa-solid fa-file-excel text-sm"></i> Esporta Registro RdP (.xlsx)
         </button>
+      </div>
+    </div>
+
+    <!-- BOX DRAG & DROP INTelligente PER ESTRAZIONE AUTOMATICA PDF -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8 shadow-xl">
+      <h3 class="text-xs font-black text-sky-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Acquisizione Automatica RdP (Trascina il PDF)
+      </h3>
+      <div id="dropzone" class="dropzone rounded-xl p-8 text-center cursor-pointer bg-slate-950/50 flex flex-col items-center justify-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center text-xl shadow">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">oppure clicca per selezionarlo dal computer (estrazione automatica dati)</p>
+        </div>
+        <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
+      </div>
+
+      <!-- MODALE / ANTEPRIMA DATI ESTRATTI (Nascosto finché non si rilascia un PDF) -->
+      <div id="form-estratto-container" class="hidden mt-6 border border-sky-500/30 bg-sky-950/10 rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between border-b border-sky-900/50 pb-2">
+          <h4 class="text-xs font-black text-sky-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-check-to-slot"></i> Verifica e Conferma Dati Estratti dal PDF
+          </h4>
+          <button onclick="chiudiAnteprimaPDF()" class="text-slate-400 hover:text-white text-xs font-bold">Annulla</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">N. Protocollo / ID RdP</label>
+            <input type="text" id="estratto_id" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold outline-none focus:border-sky-400">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">Matrice</label>
+            <select id="estratto_matrice" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold outline-none focus:border-sky-400">
+              <option value="Sottoprodotto">Sottoprodotto (MdS)</option>
+              <option value="Rifiuto">Rifiuto</option>
+              <option value="Acque">Acque</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">Data Emissione / Prelievo</label>
+            <input type="text" id="estratto_data" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">Cantiere / WBS</label>
+            <input type="text" id="estratto_cantiere" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400" value="Terzo Valico - CSL2">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">Laboratorio Incaricato</label>
+            <input type="text" id="estratto_laboratorio" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400" value="Laboratorio Accreditato">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">Esito Analitico</label>
+            <input type="text" id="estratto_esito" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-bold outline-none focus:border-sky-400" value="Conforme / Verificato">
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <button onclick="salvaRdPEstrattoCloud()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs transition shadow-lg cursor-pointer flex items-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Archivia e Schedula in Cloud
+          </button>
+        </div>
       </div>
     </div>
 
@@ -104,7 +172,7 @@
 
   </main>
 
-  <!-- SCRIPT LOGICA ARCHIVIO RDP -->
+  <!-- SCRIPT LOGICA ARCHIVIO RDP + LETTORE PDF.JS -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -113,12 +181,14 @@
     const db = firebase.database();
 
     let archivioRdPGlobal = [];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
     document.addEventListener("DOMContentLoaded", () => {
       if (!localStorage.getItem('utente_loggato')) {
         localStorage.setItem('utente_loggato', 'Leone Bastiancich');
       }
       caricaRdPaaS();
+      configuraDropzone();
     });
 
     function calcolaIniziali(nomeCompleto) {
@@ -130,18 +200,133 @@
       return nomeCompleto.substring(0, 2).toUpperCase();
     }
 
+    // --- GESTIONE DRAG & DROP PDF ---
+    function configuraDropzone() {
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInputPdf');
+
+      dropzone.addEventListener('click', () => fileInput.click());
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0 && files[0].type === 'application/pdf') {
+          gestisciFileSelezionato(files[0]);
+        } else {
+          alert("Si prega di trascinare un file in formato PDF valido.");
+        }
+      });
+    }
+
+    function gestisciFileSelezionato(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const typedarray = new Uint8Array(this.result);
+        try {
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
+          let testoCompleto = "";
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            testoCompleto += textContent.items.map(s => s.str).join(' ') + " ";
+          }
+          estraiDatiDaTestoPDF(testoCompleto, file.name);
+        } catch (err) {
+          console.error("Errore lettura PDF:", err);
+          alert("Impossibile leggere il contenuto del file PDF.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function estraiDatiDaTestoPDF(testo, nomeFile) {
+      // Algoritmo euristico con RegEx per rilevare protocolli, date e laboratori
+      const matchProtocollo = testo.match(/(?:prot|rapporto|rif|rdp)[\.\:\s]*([a-zA-Z0-9\/\-\_]{4,25})/i);
+      const matchData = testo.match(/(\d{2}[\/\-\.]\d{2}[\/\-\.]\d{4})/);
+      
+      let protocolloEstratto = matchProtocollo ? matchProtocollo[1] : nomeFile.replace('.pdf', '');
+      let dataEstratta = matchData ? matchData[1].replace(/[\/\.]/g, '-') : new Date().toISOString().split('T')[0];
+      
+      let matriceRilevata = "Sottoprodotto";
+      if (/rifiuto|cer|smaltimento/i.test(testo)) {
+        matriceRilevata = "Rifiuto";
+      } else if (/acqua|scarico|acque/i.test(testo)) {
+        matriceRilevata = "Acque";
+      }
+
+      let laboratorioRilevato = "Laboratorio Accreditato";
+      if (/arpal/i.test(testo)) laboratorioRilevato = "ARPAL";
+      else if (/sige/i.test(testo)) laboratorioRilevato = "SIGE Lab";
+      else if (/chelab/i.test(testo)) laboratorioRilevato = "Mérieux NutriSciences (CheLab)";
+
+      // Compilazione automatica dei campi del form di anteprima
+      document.getElementById('estratto_id').value = protocolloEstratto;
+      document.getElementById('estratto_matrice').value = matriceRilevata;
+      document.getElementById('estratto_data').value = dataEstratta;
+      document.getElementById('estratto_laboratorio').value = laboratorioRilevato;
+
+      document.getElementById('form-estratto-container').classList.remove('hidden');
+      document.getElementById('form-estratto-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function chiudiAnteprimaPDF() {
+      document.getElementById('form-estratto-container').classList.add('hidden');
+    }
+
+    function salvaRdPEstrattoCloud() {
+      const id = document.getElementById('estratto_id').value.trim();
+      const matrice = document.getElementById('estratto_matrice').value;
+      const data = document.getElementById('estratto_data').value;
+      const cantiere = document.getElementById('estratto_cantiere').value;
+      const laboratorio = document.getElementById('estratto_laboratorio').value;
+      const esito = document.getElementById('estratto_esito').value;
+      const autore = localStorage.getItem('utente_loggato') || 'Leone Bastiancich';
+
+      if (!id) {
+        alert("Inserisci un identificativo valido per il RdP.");
+        return;
+      }
+
+      const payload = {
+        protocollo: id,
+        matrice: matrice,
+        dataEmissione: data,
+        cantiere: cantiere,
+        laboratorio: laboratorio,
+        esito: esito,
+        autore: autore,
+        timestamp: Date.now()
+      };
+
+      db.ref('rapporti_prova/' + id.replace(/[.#$/[\]]/g, "_")).set(payload, (error) => {
+        if (error) {
+          alert("Errore salvataggio: " + error.message);
+        } else {
+          alert("☁️ Rapporto di Prova archiviato e schedulato con successo!");
+          chiudiAnteprimaPDF();
+          caricaRdPaaS();
+        }
+      });
+    }
+
     function caricaRdPaaS() {
-      // Legge sia dai campionamenti che da eventuali nodi dedicati ai rapporti di prova
       Promise.all([
         db.ref('campionamenti').once('value'),
         db.ref('rapporti_prova').once('value')
       ]).then(([snapCamp, snapRdP]) => {
         archivioRdPGlobal = [];
-
         const datiCamp = snapCamp.val() || {};
         const datiRdP = snapRdP.val() || {};
 
-        // 1. Estrae i dati dai campionamenti e catene di custodia
         Object.keys(datiCamp).forEach(key => {
           const item = datiCamp[key];
           archivioRdPGlobal.push({
@@ -157,7 +342,6 @@
           });
         });
 
-        // 2. Estrae eventuali RdP caricati direttamente
         Object.keys(datiRdP).forEach(key => {
           const item = datiRdP[key];
           archivioRdPGlobal.push({
@@ -174,7 +358,6 @@
         });
 
         archivioRdPGlobal.sort((a, b) => new Date(b.data) - new Date(a.data));
-
         mostraTabellaRdP(archivioRdPGlobal);
         costruisciAlberoCartelle(archivioRdPGlobal);
       });
@@ -230,7 +413,6 @@
         return;
       }
 
-      // Raggruppamento per Cantiere -> Giorno
       const alberatura = {};
       dati.forEach(item => {
         const cantiere = item.cantiere || "Cantiere Generico";
@@ -325,7 +507,6 @@
 
       const workbook = XLSX.utils.book_new();
 
-      // Foglio 1: Sottoprodotti (Terre e Rocce da Scavo)
       const sottoData = archivioRdPGlobal
         .filter(item => item.matrice === "Sottoprodotto")
         .map(item => ({
@@ -342,7 +523,6 @@
         XLSX.utils.book_append_sheet(workbook, wsSotto, "RdP Sottoprodotti (MdS)");
       }
 
-      // Foglio 2: Rifiuti
       const rifiutiData = archivioRdPGlobal
         .filter(item => item.matrice === "Rifiuto")
         .map(item => ({
@@ -359,7 +539,6 @@
         XLSX.utils.book_append_sheet(workbook, wsRifiuti, "RdP Rifiuti");
       }
 
-      // Foglio 3: Riepilogo Generale
       const generaleData = archivioRdPGlobal.map(item => ({
         "Matrice": item.matrice,
         "Protocollo RdP": item.id,
