@@ -341,20 +341,28 @@
     }
 
 function trovaValoreAnalita(testo, nomeParametro) {
-      let idx = testo.indexOf(nomeParametro);
+      // Mappa le etichette complete per evitare di leggere "105" da "105° C" o "<12" da "C<12"
+      const etichetteReali = {
+        "Residuo secco": "Residuo secco a 105° C",
+        "Idrocarburi leggeri": "Idrocarburi leggeri C<12",
+        "Idrocarburi pesanti": "Idrocarburi pesanti C12-C40"
+      };
+      
+      const labelDaCercare = etichetteReali[nomeParametro] || nomeParametro;
+      let idx = testo.indexOf(labelDaCercare);
+      if (idx === -1) idx = testo.indexOf(nomeParametro);
       if (idx === -1) return "n.r.";
 
-      // Prende una finestra di 120 caratteri dopo il nome del parametro
-      let sotto = testo.substring(idx + nomeParametro.length, idx + nomeParametro.length + 120);
+      // Prende la finestra successiva all'etichetta completa
+      let sotto = testo.substring(idx + labelDaCercare.length, idx + labelDaCercare.length + 120);
       
-      // Cerca prima i risultati strutturati: n.r., <X, oppure numeri con decimali o interi fino a 3 cifre
-      // Esclude rigorosamente i numeri interi a 4 o 5 cifre (i codici norma come 13657 o 16703)
-      let matches = sotto.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+[.,]\d+(?:\s*[\±\+\-]\s*\d+(?:[.,]\d+)?)?|\b\d{1,3}\b)/g);
+      // Estrae SOLO il valore principale (n.r., <X, oppure il numero secco PRIMA dell'incertezza ±)
+      let matches = sotto.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+[.,]\d+|\b\d{1,3}\b)/g);
       
       if (matches) {
         for (let m of matches) {
           let val = m.trim().replace(',', '.');
-          // Scarta qualsiasi numero intero di 4 o 5 cifre (codici norma)
+          // Scarta i codici norma a 4 o 5 cifre (es. 13657, 16703, 17294)
           if (/^\d{4,5}$/.test(val)) continue;
           return val;
         }
