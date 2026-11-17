@@ -340,18 +340,24 @@
       reader.readAsArrayBuffer(file);
     }
 
-    function trovaValoreAnalita(testo, nomeParametro) {
+function trovaValoreAnalita(testo, nomeParametro) {
       let idx = testo.indexOf(nomeParametro);
       if (idx === -1) return "n.r.";
 
-      // Prende una finestra di 100 caratteri dopo il nome del parametro
-      let sotto = testo.substring(idx + nomeParametro.length, idx + nomeParametro.length + 100);
-      let match = sotto.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
+      // Prende una finestra di 120 caratteri dopo il nome del parametro
+      let sotto = testo.substring(idx + nomeParametro.length, idx + nomeParametro.length + 120);
       
-      if (match) {
-        let val = match[1].replace(',', '.');
-        if (/^\d{4}$/.test(val)) return "n.r."; // Scarta i codici norma isolati
-        return val;
+      // Cerca prima i risultati strutturati: n.r., <X, oppure numeri con decimali o interi fino a 3 cifre
+      // Esclude rigorosamente i numeri interi a 4 o 5 cifre (i codici norma come 13657 o 16703)
+      let matches = sotto.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+[.,]\d+(?:\s*[\±\+\-]\s*\d+(?:[.,]\d+)?)?|\b\d{1,3}\b)/g);
+      
+      if (matches) {
+        for (let m of matches) {
+          let val = m.trim().replace(',', '.');
+          // Scarta qualsiasi numero intero di 4 o 5 cifre (codici norma)
+          if (/^\d{4,5}$/.test(val)) continue;
+          return val;
+        }
       }
       return "n.r.";
     }
