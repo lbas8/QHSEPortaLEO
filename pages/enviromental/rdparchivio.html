@@ -53,7 +53,7 @@
         </div>
         <div>
           <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Estrazione automatica basata sui 14 parametri chiave ufficiali di Arcadia</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Motore di parsing pulito: ignora i codici norma e isola i risultati analitici</p>
         </div>
         <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
       </div>
@@ -231,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT DEFINITIVO CON I 14 PARAMETRI CHIAVE DI ARCADIA -->
+  <!-- SCRIPT DEFINITIVO CON FILTRAGGIO NORME E NORMATIVE -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -325,27 +325,33 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // Funzione di ricerca mirata per ciascun analita nella sezione dei risultati
+    // Motore di estrazione pulito: scarta i numeri di norma ed estrae solo i risultati reali
     function estraiValorePuntuale(testo, param) {
       const etichette = [param.label, ...param.alt];
       
       for (let label of etichette) {
         let pos = testo.indexOf(label);
         while (pos !== -1) {
-          // Verifica che ci troviamo nella sezione dei risultati (scarta intestazioni o note finali)
           const contestoPrecedente = testo.substring(Math.max(0, pos - 300), pos).toLowerCase();
           const eValido = !contestoPrecedente.includes("ordine dei chimici") && 
                           !contestoPrecedente.includes("note") && 
                           !contestoPrecedente.includes("giudizio");
           
           if (eValido || contestoPrecedente.includes("risultati analitici")) {
-            // Estrae una finestra di testo successiva all'etichetta
-            const finestra = testo.substring(pos + label.length, pos + label.length + 100);
+            // Isola la finestra successiva all'etichetta
+            const finestra = testo.substring(pos + label.length, pos + label.length + 120);
             
-            // Cerca il primo valore utile (n.r., <X, oppure un numero decimale)
-            const match = finestra.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
-            if (match) {
-              return match[1].replace(',', '.');
+            // Cerca tutti i pattern di risultati validi (es. n.r., <0.500, oppure valori con eventuale incertezza es. 3.07 ± 0.92)
+            // Escludiamo rigorosamente i codici numerici isolati di 4 cifre tipici delle norme (es. 13657, 16703, 17294)
+            const matches = finestra.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?(?:\s*[\±\+\-]\s*\d+(?:[.,]\d+)?)?)/g);
+            
+            if (matches) {
+              for (let m of matches) {
+                let pulito = m.trim().replace(',', '.');
+                // Se il token trovato è un numero intero di 4 cifre, è sicuramente il codice della norma, quindi lo saltiamo
+                if (/^\d{4}$/.test(pulito)) continue;
+                return pulito;
+              }
             }
           }
           pos = testo.indexOf(label, pos + label.length);
@@ -403,7 +409,7 @@
           <td class="p-2 font-semibold text-white">${param.label}</td>
           <td class="p-2 text-center text-slate-400">${param.um}</td>
           <td class="p-2 text-center">
-            <input type="text" id="prev_val_${param.key}" value="${valSecco}" class="w-24 text-center bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sky-400 font-bold focus:border-sky-400 outline-none">
+            <input type="text" id="prev_val_${param.key}" value="${valSecco}" class="w-32 text-center bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sky-400 font-bold focus:border-sky-400 outline-none">
           </td>
           <td class="p-2 text-center border-l border-slate-800 text-slate-400">${param.colA}</td>
           <td class="p-2 text-center border-l border-slate-800 text-slate-400">${param.colB}</td>
