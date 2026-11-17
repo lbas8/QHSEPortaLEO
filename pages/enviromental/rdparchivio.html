@@ -53,7 +53,7 @@
         </div>
         <div>
           <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Lettura puntuale della colonna "Risultato e incertezza" per Sottoprodotti e Rifiuti</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Lettura puntuale della colonna "Risultato e incertezza" per qualsiasi revisione di certificato</p>
         </div>
         <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
       </div>
@@ -231,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT LOGICA ARCHIVIO RDP + PARSING PUNTUALE COLONNA RISULTATO + EXCEL -->
+  <!-- SCRIPT LOGICA ARCHIVIO RDP + PARSING ROBUSTO MULTI-REVISIONE -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -242,9 +242,9 @@
     let archivioRdPGlobal = [];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    // Lista dei 14 parametri con unità di misura associata per il parsing deterministico
+    // Lista dei 14 parametri con etichetta e unità di misura
     const PARAMETRI_SOTTOPRODOTTO = [
-      { key: "residuo_secco", label: "Residuo secco a 105°C", um: "%", colA: "-", colB: "-" },
+      { key: "residuo_secco", label: "Residuo secco", um: "%", colA: "-", colB: "-" },
       { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-" },
       { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15" },
       { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250" },
@@ -325,20 +325,17 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // Funzione deterministica per leggere esattamente dalla colonna "Risultato e incertezza"
+    // Motore di parsing deterministico e robusto per qualsiasi revisione di RdP Arcadia
     function estraiValoreAnalita(testo, nomeParametro, unitaMisura) {
-      const idx = testo.indexOf(nomeParametro);
-      if (idx === -1) return "n.r.";
+      // Normalizzazione per gestire variazioni di spazi o caratteri speciali
+      const escapedName = nomeParametro.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const escapedUm = unitaMisura.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
       
-      const sottostringa = testo.substring(idx, idx + 250);
-      const idxUm = sottostringa.indexOf(unitaMisura);
-      if (idxUm === -1) return "n.r.";
+      // Crea una regex flessibile che individua il nome, l'unità di misura e cattura il primo risultato
+      const regex = new RegExp(escapedName + '[\\s\\S]{0,100}?' + escapedUm + '[\\s\\S]{0,25}?([nN]\\.[rR]\\.|<\\s*\\d+(?:[.,]\\d+)?|\\d+(?:[.,]\\d+)?)', 'i');
       
-      const dopoUm = sottostringa.substring(idxUm + unitaMisura.length).trim();
-      
-      // Cattura il token del risultato esatto (n.r., <X, oppure valore numerico) escludendo l'incertezza ±
-      const match = dopoUm.match(/^([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
-      if (match) {
+      const match = testo.match(regex);
+      if (match && match[1]) {
         return match[1].replace(',', '.');
       }
       return "n.r.";
