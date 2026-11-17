@@ -53,7 +53,7 @@
         </div>
         <div>
           <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Estrazione automatica con campi completamente modificabili in anteprima</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Estrazione automatica basata sui 14 parametri chiave ufficiali di Arcadia</p>
         </div>
         <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
       </div>
@@ -105,7 +105,7 @@
             <span class="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-2">
               <i class="fa-solid fa-flask"></i> Valori Secchi Estratti — Tab. 1 All. 5 Parte IV D.Lgs. 152/06 (Modificabili)
             </span>
-            <span class="text-[11px] text-slate-400">Puoi correggere qualsiasi valore direttamente nelle caselle sottostanti</span>
+            <span class="text-[11px] text-slate-400">Puoi correggere qualsiasi valore direttamente prima di archiviare</span>
           </div>
           <div class="overflow-x-auto bg-slate-900/90 border border-slate-800 rounded-xl">
             <table class="w-full text-left border-collapse text-xs">
@@ -231,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT LOGICA ARCHIVIO RDP + PARSING DIRETTO BASATO SU CHIAVI ESatte -->
+  <!-- SCRIPT DEFINITIVO CON I 14 PARAMETRI CHIAVE DI ARCADIA -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -242,22 +242,22 @@
     let archivioRdPGlobal = [];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    // Lista ufficiale dei parametri con chiavi di ricerca multiple per coprire varianti di etichette nei vari anni
+    // Lista fissa e ordinata dei 14 parametri con etichette esatte dei certificati Arcadia
     const PARAMETRI_SOTTOPRODOTTO = [
-      { key: "residuo_secco", labels: ["Residuo secco a 105° C", "Residuo secco a 105°C", "Residuo secco"], um: "%", colA: "-", colB: "-" },
-      { key: "scheletro", labels: ["Scheletro"], um: "%", colA: "-", colB: "-" },
-      { key: "cromo_vi", labels: ["Cromo (VI)"], um: "mg/Kg ss", colA: "2", colB: "15" },
-      { key: "idrocarburi_leggeri", labels: ["Idrocarburi leggeri C<12"], um: "mg/Kg ss", colA: "10", colB: "250" },
-      { key: "idrocarburi_pesanti", labels: ["Idrocarburi pesanti C12-C40"], um: "mg/Kg ss", colA: "50", colB: "750" },
-      { key: "arsenico", labels: ["Arsenico"], um: "mg/Kg ss", colA: "20", colB: "50" },
-      { key: "cadmio", labels: ["Cadmio"], um: "mg/Kg ss", colA: "2", colB: "15" },
-      { key: "cobalto", labels: ["Cobalto"], um: "mg/Kg ss", colA: "20", colB: "250" },
-      { key: "cromo_totale", labels: ["Cromo totale"], um: "mg/Kg ss", colA: "150", colB: "800" },
-      { key: "rame", labels: ["Rame"], um: "mg/Kg ss", colA: "120", colB: "600" },
-      { key: "mercurio", labels: ["Mercurio"], um: "mg/Kg ss", colA: "1", colB: "5" },
-      { key: "nichel", labels: ["Nichel"], um: "mg/Kg ss", colA: "120", colB: "500" },
-      { key: "piombo", labels: ["Piombo"], um: "mg/Kg ss", colA: "100", colB: "1000" },
-      { key: "zinco", labels: ["Zinco"], um: "mg/Kg ss", colA: "150", colB: "1500" }
+      { key: "residuo_secco", label: "Residuo secco a 105° C", alt: ["Residuo secco a 105°C", "Residuo secco"], um: "%", colA: "-", colB: "-" },
+      { key: "scheletro", label: "Scheletro", alt: [], um: "%", colA: "-", colB: "-" },
+      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", alt: [], um: "mg/kg ss", colA: "10", colB: "250" },
+      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", alt: [], um: "mg/kg ss", colA: "50", colB: "750" },
+      { key: "arsenico", label: "Arsenico", alt: [], um: "mg/Kg ss", colA: "20", colB: "50" },
+      { key: "cadmio", label: "Cadmio", alt: [], um: "mg/Kg ss", colA: "2", colB: "15" },
+      { key: "cobalto", label: "Cobalto", alt: [], um: "mg/Kg ss", colA: "20", colB: "250" },
+      { key: "cromo_totale", label: "Cromo totale", alt: [], um: "mg/Kg ss", colA: "150", colB: "800" },
+      { key: "cromo_vi", label: "Cromo (VI)", alt: ["Cromo(VI)"], um: "mg/Kg ss", colA: "2", colB: "15" },
+      { key: "rame", label: "Rame", alt: [], um: "mg/Kg ss", colA: "120", colB: "600" },
+      { key: "mercurio", label: "Mercurio", alt: [], um: "mg/Kg ss", colA: "1", colB: "5" },
+      { key: "nichel", label: "Nichel", alt: [], um: "mg/kg ss", colA: "120", colB: "500" },
+      { key: "piombo", label: "Piombo", alt: [], um: "mg/kg ss", colA: "100", colB: "1000" },
+      { key: "zinco", label: "Zinco", alt: [], um: "mg/kg ss", colA: "150", colB: "1500" }
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -325,25 +325,30 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // Motore di parsing migliorato con ricerca iterativa tra etichette alternative
-    function estraiValoreAnalita(testo, paramConfig) {
-      for (let label of paramConfig.labels) {
-        let idx = testo.indexOf(label);
-        // Se troviamo la label, cerchiamo l'unità di misura nelle vicinanze immediate
-        while (idx !== -1) {
-          const sottostringa = testo.substring(idx, idx + 160);
-          if (sottostringa.includes(paramConfig.um) || paramConfig.um === "%") {
-            const idxUm = sottostringa.indexOf(paramConfig.um);
-            const zonaRisultato = sottostringa.substring(idxUm !== -1 ? idxUm + paramConfig.um.length : label.length).trim();
+    // Funzione di ricerca mirata per ciascun analita nella sezione dei risultati
+    function estraiValorePuntuale(testo, param) {
+      const etichette = [param.label, ...param.alt];
+      
+      for (let label of etichette) {
+        let pos = testo.indexOf(label);
+        while (pos !== -1) {
+          // Verifica che ci troviamo nella sezione dei risultati (scarta intestazioni o note finali)
+          const contestoPrecedente = testo.substring(Math.max(0, pos - 300), pos).toLowerCase();
+          const eValido = !contestoPrecedente.includes("ordine dei chimici") && 
+                          !contestoPrecedente.includes("note") && 
+                          !contestoPrecedente.includes("giudizio");
+          
+          if (eValido || contestoPrecedente.includes("risultati analitici")) {
+            // Estrae una finestra di testo successiva all'etichetta
+            const finestra = testo.substring(pos + label.length, pos + label.length + 100);
             
-            // Cerca il primo token valido (n.r., <X, oppure valore numerico)
-            const match = zonaRisultato.match(/^([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
+            // Cerca il primo valore utile (n.r., <X, oppure un numero decimale)
+            const match = finestra.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
             if (match) {
               return match[1].replace(',', '.');
             }
           }
-          // Se la prima occorrenza era casuale (es. intestazione o nota), cerca la successiva
-          idx = testo.indexOf(label, idx + label.length);
+          pos = testo.indexOf(label, pos + label.length);
         }
       }
       return "n.r.";
@@ -372,7 +377,6 @@
       }
 
       let laboratorioRilevato = "Arcadia S.r.l.";
-
       let esitoRilevato = "Conforme / Verificato";
       if (matriceRilevata === "Sottoprodotto") {
         if (/rispetta\s+i\s+limiti/i.test(testo) || /rispetta\s+i\s+requisiti/i.test(testo)) {
@@ -391,12 +395,12 @@
       tbodyPreview.innerHTML = '';
 
       PARAMETRI_SOTTOPRODOTTO.forEach(param => {
-        let valSecco = estraiValoreAnalita(testo, param);
+        let valSecco = estraiValorePuntuale(testo, param);
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/50";
         tr.innerHTML = `
-          <td class="p-2 font-semibold text-white">${param.labels[0]}</td>
+          <td class="p-2 font-semibold text-white">${param.label}</td>
           <td class="p-2 text-center text-slate-400">${param.um}</td>
           <td class="p-2 text-center">
             <input type="text" id="prev_val_${param.key}" value="${valSecco}" class="w-24 text-center bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sky-400 font-bold focus:border-sky-400 outline-none">
@@ -531,7 +535,7 @@
       `;
 
       PARAMETRI_SOTTOPRODOTTO.forEach(p => {
-        riga1 += `<th class="p-2 text-center border-r border-slate-700 whitespace-nowrap" colspan="2">${p.labels[0]}<br><span class="text-[9px] text-sky-400 font-normal">(${p.um})</span></th>`;
+        riga1 += `<th class="p-2 text-center border-r border-slate-700 whitespace-nowrap" colspan="2">${p.label}<br><span class="text-[9px] text-sky-400 font-normal">(${p.um})</span></th>`;
         riga2 += `
           <th class="p-1 text-center border-r border-slate-700/60 text-emerald-400" title="Limite Colonna A">Col. A: ${p.colA}</th>
           <th class="p-1 text-center border-r border-slate-700 text-amber-400" title="Limite Colonna B">Col. B: ${p.colB}</th>
@@ -725,7 +729,7 @@
 
         let colIdx = 5;
         PARAMETRI_SOTTOPRODOTTO.forEach(p => {
-          headerRow1.push(`${p.labels[0]} (${p.um})`, "");
+          headerRow1.push(`${p.label} (${p.um})`, "");
           headerRow2.push(`Col. A (${p.colA})`, `Col. B (${p.colB})`);
           merges.push({ s: { r: 0, c: colIdx }, e: { r: 0, c: colIdx + 1 } });
           colIdx += 2;
