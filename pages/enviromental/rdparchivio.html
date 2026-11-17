@@ -242,10 +242,10 @@
     let archivioRdPGlobal = [];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    // RegEx corrette vincolate all'unità di misura per evitare di catturare i numeri delle norme (es. 13657)
+// RegEx corrette e mirate per Residuo Secco e Scheletro
     const PARAMETRI_SOTTOPRODOTTO = [
-      { key: "residuo_secco", label: "Residuo secco a 105°C", um: "%", colA: "-", colB: "-", regex: /Residuo\s+secco\s+a\s+105°C[\s\S]{0,100}?%\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-", regex: /Scheletro[\s\S]{0,100}?%\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "residuo_secco", label: "Residuo secco a 105°C", um: "%", colA: "-", colB: "-", regex: /Residuo\s+secco\s+a\s+105°\s*C[\s\S]{0,50}?(\d+(?:[.,]\d+)?)/i },
+      { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-", regex: /Scheletro[\s\S]{0,50}?(\d+(?:[.,]\d+)?)/i },
       { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cromo\s*\(VI\)[\s\S]{0,120}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
       { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250", regex: /Idrocarburi\s+leggeri\s+C<12[\s\S]{0,120}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
       { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/kg ss", colA: "50", colB: "750", regex: /Idrocarburi\s+pesanti\s+C12-C40[\s\S]{0,120}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
