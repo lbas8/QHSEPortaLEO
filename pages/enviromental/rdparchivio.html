@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Libreria SheetJS per l'esportazione in Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- Libreria PDF.js per la lettura strutturata delle coordinate del PDF -->
+  <!-- Libreria PDF.js per la lettura e l'estrazione del testo dai PDF rilasciati -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <!-- Firebase SDK Compat -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -53,7 +53,7 @@
         </div>
         <div>
           <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Motore di parsing geometrico a coordinate per certificati Arcadia</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Estrazione automatica ottimizzata per certificati Arcadia</p>
         </div>
         <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
       </div>
@@ -231,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT DEFINITIVO CON PARSING GEOMETRICO BASATO SULLE COORDINATE (Y) -->
+  <!-- SCRIPT DEFINITIVO ROBUSTO PER LETTURA PDF -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -242,12 +242,12 @@
     let archivioRdPGlobal = [];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    // Lista fissa e ordinata dei 14 parametri con chiavi esatte per i certificati Arcadia
+    // Lista fissa e ordinata dei 14 parametri chiave
     const PARAMETRI_SOTTOPRODOTTO = [
       { key: "residuo_secco", label: "Residuo secco", um: "%", colA: "-", colB: "-" },
       { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-" },
-      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250" },
-      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/kg ss", colA: "50", colB: "750" },
+      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri", um: "mg/kg ss", colA: "10", colB: "250" },
+      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti", um: "mg/kg ss", colA: "50", colB: "750" },
       { key: "arsenico", label: "Arsenico", um: "mg/Kg ss", colA: "20", colB: "50" },
       { key: "cadmio", label: "Cadmio", um: "mg/Kg ss", colA: "2", colB: "15" },
       { key: "cobalto", label: "Cobalto", um: "mg/Kg ss", colA: "20", colB: "250" },
@@ -309,32 +309,29 @@
       reader.onload = async function() {
         const typedarray = new Uint8Array(this.result);
         try {
-          const pdf = await pdfjsLib.getDocument(typedarray).promise;
-          let lineeTotali = [];
-          let testoGrezzoCompleto = "";
+          const loadingTask = pdfjsLib.getDocument({ data: typedarray });
+          const pdf = await loadingTask.promise;
+          let testoCompleto = "";
 
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
-            
-            // Raggruppa per coordinata verticale Y (transform[5]) per ricostruire le righe esatte della tabella
             let righeMappa = {};
+            
             textContent.items.forEach(item => {
-              let y = Math.round(item.transform[5] / 4) * 4; // Raggruppa per tolleranza verticale
+              let y = Math.round(item.transform[5] / 8) * 8;
               if (!righeMappa[y]) righeMappa[y] = [];
               righeMappa[y].push({ x: item.transform[4], str: item.str });
-              testoGrezzoCompleto += item.str + " ";
             });
 
-            // Ordina gli elementi di ogni riga da sinistra a destra (X)
-            Object.keys(righeMappa).sort((a, b) => b - a).forEach(y => {
-              let rigaElementi = righeMappa[y].sort((a, b) => a.x - b.x);
-              let rigaTesto = rigaElementi.map(e => e.str).join(" ");
-              lineeTotali.push(rigaTesto);
+            let yKeys = Object.keys(righeMappa).sort((a, b) => b - a);
+            yKeys.forEach(y => {
+              let riga = righeMappa[y].sort((a, b) => a.x - b.x).map(e => e.str).join(" ");
+              testoCompleto += riga + "\n";
             });
           }
 
-          estraiDatiGeometrici(lineeTotali, testoGrezzoCompleto, file.name);
+          elaboreTestoPDF(testoCompleto, file.name);
         } catch (err) {
           console.error("Errore lettura PDF:", err);
           alert("Impossibile leggere il contenuto del file PDF.");
@@ -343,28 +340,24 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // Motore basato su righe geometriche: individua il parametro e prende il primo valore valido sulla stessa riga
-    function estraiValoreDaLinee(linee, param) {
-      for (let riga of linee) {
-        if (riga.toLowerCase().includes(param.label.toLowerCase())) {
-          // Cerca token di risultato valido sulla riga (es. n.r., <0.500, o un numero con eventuale incertezza)
-          // Escludiamo rigorosamente i codici numerici isolati di 4 cifre (es. 13657, 16703)
-          const matches = riga.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?(?:\s*[\±\+\-]\s*\d+(?:[.,]\d+)?)?)/g);
-          if (matches) {
-            for (let m of matches) {
-              let pulito = m.trim().replace(',', '.');
-              if (/^\d{4}$/.test(pulito)) continue; // salta i codici norma
-              // Se la riga contiene il nome del parametro e il token non è il codice norma, lo restituiamo
-              return pulito;
-            }
-          }
-        }
+    function trovaValoreAnalita(testo, nomeParametro) {
+      let idx = testo.indexOf(nomeParametro);
+      if (idx === -1) return "n.r.";
+
+      // Prende una finestra di 100 caratteri dopo il nome del parametro
+      let sotto = testo.substring(idx + nomeParametro.length, idx + nomeParametro.length + 100);
+      let match = sotto.match(/([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
+      
+      if (match) {
+        let val = match[1].replace(',', '.');
+        if (/^\d{4}$/.test(val)) return "n.r."; // Scarta i codici norma isolati
+        return val;
       }
       return "n.r.";
     }
 
-    function estraiDatiGeometrici(linee, testoCompleto, nomeFile) {
-      const matchProt = testoCompleto.match(/Rapporto\s+di\s+[Pp]rova\s+n[°º]?\s*([A-Z0-9\-\/]+)/i) || testo.match(/(\d{2}LA\d+)/i);
+    function elaboreTestoPDF(testo, nomeFile) {
+      const matchProt = testo.match(/Rapporto\s+di\s+[Pp]rova\s+n[°º]?\s*([A-Z0-9\-\/]+)/i) || testo.match(/(\d{2}LA\d+)/i);
       const protocolloEstratto = matchProt ? matchProt[1].trim() : nomeFile.replace('.pdf', '');
 
       const matchDataCamp = testo.match(/Data\s+prelievo:\s*(\d{2}\/\d{2}\/\d{4})/i) || testo.match(/Data:\s*(\d{2}\/\d{2}\/\d{4})/i);
@@ -372,14 +365,14 @@
       let dataEstratta = matchDataCamp ? matchDataCamp[1] : (matchDataGen ? matchDataGen[1] : new Date().toLocaleDateString('it-IT'));
 
       let matriceRilevata = "Sottoprodotto";
-      if (/EER\s+dichiarato|Giudizio\s+di\s+Classificazione|rifiuto|17\s*06\s*03/i.test(testoCompleto)) {
+      if (/EER\s+dichiarato|Giudizio\s+di\s+Classificazione|rifiuto|17\s*06\s*03/i.test(testo)) {
         matriceRilevata = "Rifiuto";
-      } else if (/scarico\s+acque|Tab\.\s*3/i.test(testoCompleto)) {
+      } else if (/scarico\s+acque|Tab\.\s*3/i.test(testo)) {
         matriceRilevata = "Acque";
       }
 
-      const matchDesc = testoCompleto.match(/Descrizione:\s*([^\n\r§\(]{4,70})/i) || testoCompleto.match(/(Fronte\s+scavo[^-\n\r]{3,40})/i);
-      const matchRif = testoCompleto.match(/Riferimento\s+cliente:\s*([A-Z0-9\_\-\s]{4,40})/i);
+      const matchDesc = testo.match(/Descrizione:\s*([^\n\r§\(]{4,70})/i) || testo.match(/(Fronte\s+scavo[^-\n\r]{3,40})/i);
+      const matchRif = testo.match(/Riferimento\s+cliente:\s*([A-Z0-9\_\-\s]{4,40})/i);
       let cantiereEstratto = matchDesc ? matchDesc[1].trim() : "Terzo Valico";
       if (matchRif) {
         cantiereEstratto += ` (Rif: ${matchRif[1].trim()})`;
@@ -388,7 +381,7 @@
       let laboratorioRilevato = "Arcadia S.r.l.";
       let esitoRilevato = "Conforme / Verificato";
       if (matriceRilevata === "Sottoprodotto") {
-        if (/rispetta\s+i\s+limiti/i.test(testoCompleto) || /rispetta\s+i\s+requisiti/i.test(testoCompleto)) {
+        if (/rispetta\s+i\s+limiti/i.test(testo) || /rispetta\s+i\s+requisiti/i.test(testo)) {
           esitoRilevato = "Conforme (Col. A - Verde/Residenziale)";
         }
       }
@@ -404,7 +397,7 @@
       tbodyPreview.innerHTML = '';
 
       PARAMETRI_SOTTOPRODOTTO.forEach(param => {
-        let valSecco = estraiValoreDaLinee(linee, param);
+        let valSecco = trovaValoreAnalita(testo, param.label);
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/50";
