@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <!-- BOX DRAG & DROP INTelligente PER ESTRAZIONE AUTOMATICA PDF -->
+    <!-- BOX DRAG & DROP INTELLIGENTE PER ESTRAZIONE AUTOMATICA PDF -->
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8 shadow-xl">
       <h3 class="text-xs font-black text-sky-400 uppercase tracking-wider mb-3 flex items-center gap-2">
         <i class="fa-solid fa-wand-magic-sparkles"></i> Acquisizione Automatica RdP (Trascina il PDF)
@@ -53,20 +53,21 @@
         </div>
         <div>
           <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">oppure clicca per selezionarlo dal computer (estrazione automatica dati)</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Estrazione automatica metadati (Rifiuti) e tabulazione completa analiti (Sottoprodotti)</p>
         </div>
         <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
       </div>
 
-      <!-- MODALE / ANTEPRIMA DATI ESTRATTI (Nascosto finché non si rilascia un PDF) -->
-      <div id="form-estratto-container" class="hidden mt-6 border border-sky-500/30 bg-sky-950/10 rounded-xl p-5 space-y-4">
+      <!-- ANTEPRIMA DATI ESTRATTI -->
+      <div id="form-estratto-container" class="hidden mt-6 border border-sky-500/30 bg-sky-950/10 rounded-xl p-5 space-y-5">
         <div class="flex items-center justify-between border-b border-sky-900/50 pb-2">
           <h4 class="text-xs font-black text-sky-400 uppercase tracking-wider flex items-center gap-2">
             <i class="fa-solid fa-check-to-slot"></i> Verifica e Conferma Dati Estratti dal PDF
           </h4>
-          <button onclick="chiudiAnteprimaPDF()" class="text-slate-400 hover:text-white text-xs font-bold">Annulla</button>
+          <button onclick="chiudiAnteprimaPDF()" class="text-slate-400 hover:text-white text-xs font-bold cursor-pointer">Annulla</button>
         </div>
 
+        <!-- Dati Generali -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div>
             <label class="block font-bold text-slate-400 mb-1">N. Protocollo / ID RdP</label>
@@ -74,49 +75,79 @@
           </div>
           <div>
             <label class="block font-bold text-slate-400 mb-1">Matrice</label>
-            <select id="estratto_matrice" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold outline-none focus:border-sky-400">
+            <select id="estratto_matrice" onchange="toggleSezioneAnalitiPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold outline-none focus:border-sky-400">
               <option value="Sottoprodotto">Sottoprodotto (MdS)</option>
               <option value="Rifiuto">Rifiuto</option>
               <option value="Acque">Acque</option>
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-400 mb-1">Data Emissione / Prelievo</label>
+            <label class="block font-bold text-slate-400 mb-1">Data Prelievo / Emissione</label>
             <input type="text" id="estratto_data" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400">
           </div>
           <div>
-            <label class="block font-bold text-slate-400 mb-1">Cantiere / WBS</label>
-            <input type="text" id="estratto_cantiere" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400" value="Terzo Valico - CSL2">
+            <label class="block font-bold text-slate-400 mb-1">Cantiere / WBS / Riferimento</label>
+            <input type="text" id="estratto_cantiere" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400">
           </div>
           <div>
             <label class="block font-bold text-slate-400 mb-1">Laboratorio Incaricato</label>
-            <input type="text" id="estratto_laboratorio" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400" value="Laboratorio Accreditato">
+            <input type="text" id="estratto_laboratorio" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none focus:border-sky-400">
           </div>
           <div>
-            <label class="block font-bold text-slate-400 mb-1">Esito Analitico</label>
-            <input type="text" id="estratto_esito" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-bold outline-none focus:border-sky-400" value="Conforme / Verificato">
+            <label class="block font-bold text-slate-400 mb-1">Esito / Classificazione</label>
+            <input type="text" id="estratto_esito" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-bold outline-none focus:border-sky-400">
+          </div>
+        </div>
+
+        <!-- Sezione Analiti Sottoprodotto (Visibile solo per Sottoprodotto) -->
+        <div id="preview-analiti-box" class="border-t border-slate-800 pt-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-flask"></i> Valori Secchi Estratti — Tab. 1 All. 5 Parte IV D.Lgs. 152/06
+            </span>
+            <span class="text-[11px] text-slate-400">Valori ripuliti da incertezze/LOD</span>
+          </div>
+          <div class="overflow-x-auto bg-slate-900/90 border border-slate-800 rounded-xl">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-800 text-slate-300 border-b border-slate-700">
+                  <th class="p-2.5" rowspan="2">Parametro / Analita</th>
+                  <th class="p-2.5 text-center" rowspan="2">U.M.</th>
+                  <th class="p-2.5 text-center text-sky-400" rowspan="2">Valore Secco</th>
+                  <th class="p-1.5 text-center border-l border-slate-700 text-amber-400" colspan="2">Limite di Legge (D.Lgs. 152/06)</th>
+                </tr>
+                <tr class="bg-slate-800/70 text-[10px] text-slate-400 border-b border-slate-700">
+                  <th class="p-1.5 text-center border-l border-slate-700">Col. A (Verde/Resid.)</th>
+                  <th class="p-1.5 text-center border-l border-slate-700">Col. B (Industriale)</th>
+                </tr>
+              </thead>
+              <tbody id="preview-analiti-tbody" class="divide-y divide-slate-800"></tbody>
+            </table>
           </div>
         </div>
 
         <div class="flex justify-end pt-2">
           <button onclick="salvaRdPEstrattoCloud()" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-black px-5 py-2.5 rounded-xl text-xs transition shadow-lg cursor-pointer flex items-center gap-2">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Archivia e Schedula in Cloud
+            <i class="fa-solid fa-cloud-arrow-up"></i> Archivia e Aggiorna Registro Excel
           </button>
         </div>
       </div>
     </div>
 
     <!-- SELETTORE A SCHEDE (TAB) -->
-    <div class="flex border-b border-slate-800 mb-6 gap-6 text-sm font-bold">
-      <button onclick="cambiaVista('tabella')" id="btn-tabella" class="pb-3 border-b-2 border-sky-400 text-sky-400 flex items-center gap-2 transition cursor-pointer">
-        <i class="fa-solid fa-table-list"></i> Registro Tabellare Dinamico
+    <div class="flex border-b border-slate-800 mb-6 gap-6 text-sm font-bold overflow-x-auto">
+      <button onclick="cambiaVista('tabella')" id="btn-tabella" class="pb-3 border-b-2 border-sky-400 text-sky-400 flex items-center gap-2 transition cursor-pointer whitespace-nowrap">
+        <i class="fa-solid fa-table-list"></i> Registro Generale RdP
       </button>
-      <button onclick="cambiaVista('cartelle')" id="btn-cartelle" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer">
-        <i class="fa-solid fa-folder-tree"></i> Suddivisione per Cartelle (Cantiere / WBS / Giorno)
+      <button onclick="cambiaVista('sottoprodotto')" id="btn-sottoprodotto" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer whitespace-nowrap">
+        <i class="fa-solid fa-vials text-emerald-400"></i> Tabulazione Analiti Sottoprodotto (MdS)
+      </button>
+      <button onclick="cambiaVista('cartelle')" id="btn-cartelle" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer whitespace-nowrap">
+        <i class="fa-solid fa-folder-tree text-amber-400"></i> Cartelle (Cantiere / WBS / Giorno)
       </button>
     </div>
 
-    <!-- VISTA 1: REGISTRO TABELLARE DINAMICO -->
+    <!-- VISTA 1: REGISTRO TABELLARE GENERALE -->
     <div id="vista-tabella" class="space-y-4">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <input type="text" id="filtroTesto" oninput="filtraTabellaRdP()" placeholder="Cerca per Protocollo RdP, Cantiere o Laboratorio..." class="bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white outline-none focus:border-sky-500">
@@ -137,7 +168,7 @@
               <tr class="bg-slate-800/90 text-slate-300 border-b border-slate-700">
                 <th class="p-3.5">Matrice</th>
                 <th class="p-3.5">N. Protocollo / ID RdP</th>
-                <th class="p-3.5">Data Emissione / Prelievo</th>
+                <th class="p-3.5">Data Prelievo / Emissione</th>
                 <th class="p-3.5">Cantiere / WBS</th>
                 <th class="p-3.5">Laboratorio Incaricato</th>
                 <th class="p-3.5 text-center">Esito / Giudizio</th>
@@ -155,7 +186,35 @@
       </div>
     </div>
 
-    <!-- VISTA 2: SUDDIVISIONE PER CARTELLE (Cantiere / WBS / Giorno) -->
+    <!-- VISTA 2: TABULAZIONE ANALITI SOTTOPRODOTTO (CON DOPPIA SOTTO-COLONNA INTESTAZIONE) -->
+    <div id="vista-sottoprodotto" class="space-y-4 hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
+          <div>
+            <h3 class="text-sm font-black text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-table-columns"></i> Registro Chimico Terre e Rocce da Scavo (Sottoprodotto)
+            </h3>
+            <p class="text-[11px] text-slate-400">Valori secchi riscontrati confrontati con i limiti di legge (Col. A e Col. B — Tab. 1 All. 5 Parte IV D.Lgs. 152/06)</p>
+          </div>
+          <button onclick="esportaRdPInExcel()" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer">
+            <i class="fa-solid fa-download mr-1"></i> Scarica Tabella Excel
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-[11px]" id="tabella-analiti-sottoprodotto">
+            <thead id="thead-analiti-sottoprodotto"></thead>
+            <tbody id="tbody-analiti-sottoprodotto" class="divide-y divide-slate-800 text-slate-300">
+              <tr>
+                <td class="p-6 text-center text-slate-500">Caricamento matrice analitica...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA 3: SUDDIVISIONE PER CARTELLE (Cantiere / WBS / Giorno) -->
     <div id="vista-cartelle" class="space-y-6 hidden">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -172,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT LOGICA ARCHIVIO RDP + LETTORE PDF.JS -->
+  <!-- SCRIPT LOGICA ARCHIVIO RDP + ESTRAZIONE ANALITI PDF.JS + EXCEL DINAMICO -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -183,10 +242,29 @@
     let archivioRdPGlobal = [];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
+    // Configurazione canonica dei 14 parametri del Sottoprodotto (Tab. 1 All. 5 D.Lgs. 152/06)
+    const PARAMETRI_SOTTOPRODOTTO = [
+      { key: "residuo_secco", label: "Residuo secco a 105°C", um: "%", colA: "-", colB: "-", regex: /Residuo\s+secco\s+a\s+105°C[\s\S]{0,80}?(\d+(?:[.,]\d+)?|n\.r\.|<\s*\d+(?:[.,]\d+)?)/i },
+      { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-", regex: /Scheletro[\s\S]{0,90}?(\d+(?:[.,]\d+)?|n\.r\.|<\s*\d+(?:[.,]\d+)?)/i },
+      { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cromo\s*\(VI\)[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250", regex: /Idrocarburi\s+leggeri\s+C<12[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/kg ss", colA: "50", colB: "750", regex: /Idrocarburi\s+pesanti\s+C12-C40[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "arsenico", label: "Arsenico", um: "mg/Kg ss", colA: "20", colB: "50", regex: /Arsenico[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "cadmio", label: "Cadmio", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cadmio[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "cobalto", label: "Cobalto", um: "mg/Kg ss", colA: "20", colB: "250", regex: /Cobalto[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "cromo_totale", label: "Cromo totale", um: "mg/kg ss", colA: "150", colB: "800", regex: /Cromo\s+totale[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "rame", label: "Rame", um: "mg/Kg ss", colA: "120", colB: "600", regex: /Rame[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "mercurio", label: "Mercurio", um: "mg/Kg ss", colA: "1", colB: "5", regex: /Mercurio[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "nichel", label: "Nichel", um: "mg/kg ss", colA: "120", colB: "500", regex: /Nichel[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "piombo", label: "Piombo", um: "mg/kg ss", colA: "100", colB: "1000", regex: /Piombo[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "zinco", label: "Zinco", um: "mg/kg ss", colA: "150", colB: "1500", regex: /Zinco[\s\S]{0,80}?(n\.r\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i }
+    ];
+
     document.addEventListener("DOMContentLoaded", () => {
       if (!localStorage.getItem('utente_loggato')) {
         localStorage.setItem('utente_loggato', 'Leone Bastiancich');
       }
+      costruisciIntestazioneTabellaSottoprodotto();
       caricaRdPaaS();
       configuraDropzone();
     });
@@ -237,7 +315,7 @@
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
-            testoCompleto += textContent.items.map(s => s.str).join(' ') + " ";
+            testoCompleto += textContent.items.map(s => s.str).join(' ') + " \n ";
           }
           estraiDatiDaTestoPDF(testoCompleto, file.name);
         } catch (err) {
@@ -248,34 +326,106 @@
       reader.readAsArrayBuffer(file);
     }
 
+    function pulisciValoreSecco(valoreGrezzo) {
+      if (!valoreGrezzo) return "n.r.";
+      const str = valoreGrezzo.trim();
+      if (/n\.r\./i.test(str)) return "n.r.";
+      // Rimuove eventuali incertezze (± ...) o testo residuo lasciando solo il numero secco o <LOQ
+      const matchNum = str.match(/^(<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
+      return matchNum ? matchNum[1].replace(',', '.') : str;
+    }
+
     function estraiDatiDaTestoPDF(testo, nomeFile) {
-      // Algoritmo euristico con RegEx per rilevare protocolli, date e laboratori
-      const matchProtocollo = testo.match(/(?:prot|rapporto|rif|rdp)[\.\:\s]*([a-zA-Z0-9\/\-\_]{4,25})/i);
-      const matchData = testo.match(/(\d{2}[\/\-\.]\d{2}[\/\-\.]\d{4})/);
-      
-      let protocolloEstratto = matchProtocollo ? matchProtocollo[1] : nomeFile.replace('.pdf', '');
-      let dataEstratta = matchData ? matchData[1].replace(/[\/\.]/g, '-') : new Date().toISOString().split('T')[0];
-      
+      // 1. Numero Protocollo RdP (es. 26LA14104 o 26LA12758)
+      const matchProt = testo.match(/Rapporto\s+di\s+[Pp]rova\s+n[°º]?\s*([A-Z0-9\-\/]+)/i) || testo.match(/(26LA\d+)/i);
+      const protocolloEstratto = matchProt ? matchProt[1].trim() : nomeFile.replace('.pdf', '');
+
+      // 2. Data Campionamento / Emissione
+      const matchDataCamp = testo.match(/Dati\s+di\s+campionamento[\s\S]{0,60}?Data:\s*(\d{2}\/\d{2}\/\d{4})/i);
+      const matchDataGen = testo.match(/(\d{2}\/\d{2}\/\d{4})/);
+      let dataEstratta = matchDataCamp ? matchDataCamp[1] : (matchDataGen ? matchDataGen[1] : new Date().toLocaleDateString('it-IT'));
+
+      // 3. Matrice (Rifiuto vs Sottoprodotto)
       let matriceRilevata = "Sottoprodotto";
-      if (/rifiuto|cer|smaltimento/i.test(testo)) {
+      if (/EER\s+dichiarato|Giudizio\s+di\s+Classificazione|rifiuto|17\s*06\s*03/i.test(testo)) {
         matriceRilevata = "Rifiuto";
-      } else if (/acqua|scarico|acque/i.test(testo)) {
+      } else if (/scarico\s+acque|Tab\.\s*3/i.test(testo)) {
         matriceRilevata = "Acque";
       }
 
-      let laboratorioRilevato = "Laboratorio Accreditato";
-      if (/arpal/i.test(testo)) laboratorioRilevato = "ARPAL";
-      else if (/sige/i.test(testo)) laboratorioRilevato = "SIGE Lab";
-      else if (/chelab/i.test(testo)) laboratorioRilevato = "Mérieux NutriSciences (CheLab)";
+      // 4. Cantiere / Descrizione / Riferimento Cliente
+      const matchDesc = testo.match(/Descrizione:\s*([^\n\r§\(]{4,70})/i);
+      const matchRif = testo.match(/Riferimento\s+cliente:\s*([A-Z0-9\_\-\s]{4,40})/i);
+      let cantiereEstratto = matchDesc ? matchDesc[1].trim() : "Terzo Valico";
+      if (matchRif) {
+        cantiereEstratto += ` (Rif: ${matchRif[1].trim()})`;
+      }
 
-      // Compilazione automatica dei campi del form di anteprima
+      // 5. Laboratorio
+      let laboratorioRilevato = "Laboratorio Accreditato";
+      if (/arcadia/i.test(testo)) laboratorioRilevato = "Arcadia S.r.l.";
+      else if (/arpal/i.test(testo)) laboratorioRilevato = "ARPAL";
+      else if (/sige/i.test(testo)) laboratorioRilevato = "SIGE Lab";
+
+      // 6. Esito / Giudizio
+      let esitoRilevato = "Conforme / Verificato";
+      if (matriceRilevata === "Sottoprodotto") {
+        if (/rispetta\s+i\s+limiti\s+riportati\s+in\s+colonna\s+A/i.test(testo)) {
+          esitoRilevato = "Conforme (Col. A - Verde/Residenziale)";
+        } else if (/colonna\s+B/i.test(testo)) {
+          esitoRilevato = "Conforme (Col. B - Industriale)";
+        }
+      } else if (matriceRilevata === "Rifiuto") {
+        const matchEER = testo.match(/EER\s*(?:\(1\))?\s*:?\s*(\d{2}\s*\d{2}\s*\d{2}\*?)/i);
+        const matchHP = testo.match(/(HP\d+\s*-\s*[A-Za-zàèéìòù]+)/i);
+        const eerStr = matchEER ? `EER ${matchEER[1].trim()}` : "Rifiuto";
+        const hpStr = matchHP ? ` - Pericoloso (${matchHP[1].trim()})` : "";
+        esitoRilevato = `${eerStr}${hpStr}`;
+      }
+
+      // Compilazione campi generali
       document.getElementById('estratto_id').value = protocolloEstratto;
       document.getElementById('estratto_matrice').value = matriceRilevata;
       document.getElementById('estratto_data').value = dataEstratta;
+      document.getElementById('estratto_cantiere').value = cantiereEstratto;
       document.getElementById('estratto_laboratorio').value = laboratorioRilevato;
+      document.getElementById('estratto_esito').value = esitoRilevato;
 
+      // 7. Estrazione Analiti (Specifico per Sottoprodotto)
+      const tbodyPreview = document.getElementById('preview-analiti-tbody');
+      tbodyPreview.innerHTML = '';
+
+      PARAMETRI_SOTTOPRODOTTO.forEach(param => {
+        const match = testo.match(param.regex);
+        const valSecco = match ? pulisciValoreSecco(match[1]) : "n.r.";
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/50";
+        tr.innerHTML = `
+          <td class="p-2 font-semibold text-white">${param.label}</td>
+          <td class="p-2 text-center text-slate-400">${param.um}</td>
+          <td class="p-2 text-center">
+            <input type="text" id="prev_val_${param.key}" value="${valSecco}" class="w-20 text-center bg-slate-950 border border-slate-700 rounded px-1.5 py-0.5 text-sky-400 font-bold focus:border-sky-400 outline-none">
+          </td>
+          <td class="p-2 text-center border-l border-slate-800 text-slate-400">${param.colA}</td>
+          <td class="p-2 text-center border-l border-slate-800 text-slate-400">${param.colB}</td>
+        `;
+        tbodyPreview.appendChild(tr);
+      });
+
+      toggleSezioneAnalitiPreview();
       document.getElementById('form-estratto-container').classList.remove('hidden');
       document.getElementById('form-estratto-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleSezioneAnalitiPreview() {
+      const matrice = document.getElementById('estratto_matrice').value;
+      const box = document.getElementById('preview-analiti-box');
+      if (matrice === "Sottoprodotto") {
+        box.classList.remove('hidden');
+      } else {
+        box.classList.add('hidden');
+      }
     }
 
     function chiudiAnteprimaPDF() {
@@ -296,6 +446,16 @@
         return;
       }
 
+      // Se è Sottoprodotto, raccoglie i valori secchi dei 14 parametri
+      let analitiEstratti = null;
+      if (matrice === "Sottoprodotto") {
+        analitiEstratti = {};
+        PARAMETRI_SOTTOPRODOTTO.forEach(param => {
+          const inputEl = document.getElementById(`prev_val_${param.key}`);
+          analitiEstratti[param.key] = inputEl ? inputEl.value.trim() : "n.r.";
+        });
+      }
+
       const payload = {
         protocollo: id,
         matrice: matrice,
@@ -303,6 +463,7 @@
         cantiere: cantiere,
         laboratorio: laboratorio,
         esito: esito,
+        analiti: analitiEstratti,
         autore: autore,
         timestamp: Date.now()
       };
@@ -311,7 +472,7 @@
         if (error) {
           alert("Errore salvataggio: " + error.message);
         } else {
-          alert("☁️ Rapporto di Prova archiviato e schedulato con successo!");
+          alert("☁️ Rapporto di Prova archiviato! Il registro tabellare e il foglio Excel sono stati aggiornati.");
           chiudiAnteprimaPDF();
           caricaRdPaaS();
         }
@@ -333,10 +494,10 @@
             id: item.identificativo || key,
             matrice: item.matrice || "Rifiuto",
             cantiere: item.cantiere || "Cantiere Generale",
-            wbs: item.wbs || "WBS non specificata",
             data: item.datetime || "",
             laboratorio: item.laboratorio || "Laboratorio Accreditato",
             esito: item.esitoRdP || "Conforme / Verificato",
+            analiti: item.analiti || null,
             autore: item.autore || localStorage.getItem('utente_loggato'),
             link: `campionamentoform.html?load=${encodeURIComponent(key)}`
           });
@@ -348,18 +509,74 @@
             id: item.protocollo || key,
             matrice: item.matrice || "Sottoprodotto",
             cantiere: item.cantiere || "Cantiere Generale",
-            wbs: item.wbs || "WBS non specificata",
             data: item.dataEmissione || "",
             laboratorio: item.laboratorio || "Laboratorio Incaricato",
             esito: item.esito || "Conforme",
+            analiti: item.analiti || null,
             autore: item.autore || localStorage.getItem('utente_loggato'),
             link: `#`
           });
         });
 
-        archivioRdPGlobal.sort((a, b) => new Date(b.data) - new Date(a.data));
+        archivioRdPGlobal.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         mostraTabellaRdP(archivioRdPGlobal);
+        popolaTabellaAnalitiSottoprodotto(archivioRdPGlobal);
         costruisciAlberoCartelle(archivioRdPGlobal);
+      });
+    }
+
+    // Costruisce l'intestazione a 2 righe (2 sotto-colonne per ogni parametro: Col. A | Col. B)
+    function costruisciIntestazioneTabellaSottoprodotto() {
+      const thead = document.getElementById('thead-analiti-sottoprodotto');
+      let riga1 = `
+        <tr class="bg-slate-800 text-slate-200 border-b border-slate-700">
+          <th class="p-2.5 sticky left-0 bg-slate-800 z-10 border-r border-slate-700" rowspan="2">Protocollo RdP</th>
+          <th class="p-2.5 border-r border-slate-700" rowspan="2">Data</th>
+          <th class="p-2.5 border-r border-slate-700" rowspan="2">Cantiere / WBS</th>
+      `;
+      let riga2 = `
+        <tr class="bg-slate-800/80 text-[9px] text-slate-400 border-b border-slate-700">
+      `;
+
+      PARAMETRI_SOTTOPRODOTTO.forEach(p => {
+        riga1 += `<th class="p-2 text-center border-r border-slate-700 whitespace-nowrap" colspan="2">${p.label}<br><span class="text-[9px] text-sky-400 font-normal">(${p.um})</span></th>`;
+        riga2 += `
+          <th class="p-1 text-center border-r border-slate-700/60 text-emerald-400" title="Limite Colonna A">Col. A: ${p.colA}</th>
+          <th class="p-1 text-center border-r border-slate-700 text-amber-400" title="Limite Colonna B">Col. B: ${p.colB}</th>
+        `;
+      });
+
+      riga1 += `</tr>`;
+      riga2 += `</tr>`;
+      thead.innerHTML = riga1 + riga2;
+    }
+
+    function popolaTabellaAnalitiSottoprodotto(dati) {
+      const tbody = document.getElementById('tbody-analiti-sottoprodotto');
+      const sottoprodotti = dati.filter(d => d.matrice === "Sottoprodotto");
+
+      if (sottoprodotti.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${3 + PARAMETRI_SOTTOPRODOTTO.length * 2}" class="p-8 text-center text-slate-500">Nessun RdP Sottoprodotto archiviato. Trascina un PDF sopra per popolare la tabella.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      sottoprodotti.forEach(item => {
+        let trHtml = `
+          <tr class="hover:bg-slate-800/50 transition">
+            <td class="p-2.5 font-bold text-white sticky left-0 bg-slate-900 border-r border-slate-800 whitespace-nowrap">${item.id}</td>
+            <td class="p-2.5 border-r border-slate-800 whitespace-nowrap">${item.data ? item.data.replace('T', ' ') : 'N.D.'}</td>
+            <td class="p-2.5 border-r border-slate-800 max-w-[200px] truncate" title="${item.cantiere}">${item.cantiere}</td>
+        `;
+
+        PARAMETRI_SOTTOPRODOTTO.forEach(p => {
+          const val = (item.analiti && item.analiti[p.key] !== undefined) ? item.analiti[p.key] : "-";
+          // Il valore riscontrato occupa le 2 sotto-colonne del parametro mantenendo l'allineamento con Col. A e Col. B
+          trHtml += `<td class="p-2 text-center font-bold text-sky-300 border-r border-slate-800" colspan="2">${val}</td>`;
+        });
+
+        trHtml += `</tr>`;
+        tbody.innerHTML += trHtml;
       });
     }
 
@@ -428,7 +645,7 @@
         html += `
           <div class="border border-slate-800 rounded-xl p-4 bg-slate-950/50 space-y-3">
             <div class="flex items-center gap-2 text-sky-400 font-bold text-xs uppercase tracking-wide">
-              <i class="fa-solid fa-folder-open"></i> Cantiere: ${cantiere}
+              <i class="fa-solid fa-folder-open"></i> Cantiere / Area: ${cantiere}
             </div>
             <div class="pl-4 space-y-2 border-l border-slate-800 ml-2">
         `;
@@ -438,7 +655,7 @@
           html += `
             <div class="space-y-1">
               <div class="flex items-center gap-2 text-slate-300 font-semibold text-xs">
-                <i class="fa-regular fa-calendar-days text-amber-400"></i> Giorno Prelievo: ${giorno.split('-').reverse().join('/')} 
+                <i class="fa-regular fa-calendar-days text-amber-400"></i> Data Prelievo: ${giorno} 
                 <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">${listaRdP.length} certificati</span>
               </div>
               <div class="pl-6 grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
@@ -468,22 +685,18 @@
     }
 
     function cambiaVista(vista) {
-      const btnTabella = document.getElementById('btn-tabella');
-      const btnCartelle = document.getElementById('btn-cartelle');
-      const divTabella = document.getElementById('vista-tabella');
-      const divCartelle = document.getElementById('vista-cartelle');
-
-      if (vista === 'tabella') {
-        btnTabella.className = "pb-3 border-b-2 border-sky-400 text-sky-400 flex items-center gap-2 transition cursor-pointer";
-        btnCartelle.className = "pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer";
-        divTabella.classList.remove('hidden');
-        divCartelle.classList.add('hidden');
-      } else {
-        btnCartelle.className = "pb-3 border-b-2 border-sky-400 text-sky-400 flex items-center gap-2 transition cursor-pointer";
-        btnTabella.className = "pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer";
-        divCartelle.classList.remove('hidden');
-        divTabella.classList.add('hidden');
-      }
+      const tabs = ['tabella', 'sottoprodotto', 'cartelle'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`btn-${t}`);
+        const div = document.getElementById(`vista-${t}`);
+        if (t === vista) {
+          btn.className = "pb-3 border-b-2 border-sky-400 text-sky-400 flex items-center gap-2 transition cursor-pointer whitespace-nowrap";
+          div.classList.remove('hidden');
+        } else {
+          btn.className = "pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition cursor-pointer whitespace-nowrap";
+          div.classList.add('hidden');
+        }
+      });
     }
 
     function filtraTabellaRdP() {
@@ -499,6 +712,7 @@
       mostraTabellaRdP(filtrati);
     }
 
+    // --- ESPORTAZIONE EXCEL DINAMICA CON DOPPIA SOTTO-COLONNA INTESTAZIONE PER SOTTOPRODOTTO ---
     function esportaRdPInExcel() {
       if (archivioRdPGlobal.length === 0) {
         alert("Nessun dato RdP da esportare.");
@@ -507,30 +721,64 @@
 
       const workbook = XLSX.utils.book_new();
 
-      const sottoData = archivioRdPGlobal
-        .filter(item => item.matrice === "Sottoprodotto")
-        .map(item => ({
-          "Protocollo RdP": item.id,
-          "Data Prelievo": item.data,
-          "Cantiere": item.cantiere,
-          "Laboratorio": item.laboratorio,
-          "Esito / Giudizio": item.esito,
-          "Autore": item.autore
-        }));
+      // 1. FOGLIO SOTTOPRODOTTI (Tabulazione analiti con doppia sotto-colonna Col. A / Col. B in intestazione)
+      const sottoItems = archivioRdPGlobal.filter(item => item.matrice === "Sottoprodotto");
+      if (sottoItems.length > 0) {
+        const headerRow1 = ["Protocollo RdP", "Data Prelievo", "Cantiere / WBS", "Laboratorio", "Esito / Giudizio"];
+        const headerRow2 = ["", "", "", "", ""];
+        const merges = [
+          { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } },
+          { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } },
+          { s: { r: 0, c: 2 }, e: { r: 1, c: 2 } },
+          { s: { r: 0, c: 3 }, e: { r: 1, c: 3 } },
+          { s: { r: 0, c: 4 }, e: { r: 1, c: 4 } }
+        ];
 
-      if (sottoData.length > 0) {
-        const wsSotto = XLSX.utils.json_to_sheet(sottoData);
-        XLSX.utils.book_append_sheet(workbook, wsSotto, "RdP Sottoprodotti (MdS)");
+        let colIdx = 5;
+        PARAMETRI_SOTTOPRODOTTO.forEach(p => {
+          headerRow1.push(`${p.label} (${p.um})`, "");
+          headerRow2.push(`Col. A (${p.colA})`, `Col. B (${p.colB})`);
+          merges.push({ s: { r: 0, c: colIdx }, e: { r: 0, c: colIdx + 1 } });
+          colIdx += 2;
+        });
+
+        const aoaSotto = [headerRow1, headerRow2];
+
+        sottoItems.forEach((item, rIdx) => {
+          const excelRowIndex = rIdx + 2;
+          const row = [
+            item.id,
+            item.data ? item.data.replace('T', ' ') : "",
+            item.cantiere,
+            item.laboratorio,
+            item.esito
+          ];
+
+          let cIdx = 5;
+          PARAMETRI_SOTTOPRODOTTO.forEach(p => {
+            const val = (item.analiti && item.analiti[p.key] !== undefined) ? item.analiti[p.key] : "-";
+            row.push(val, "");
+            merges.push({ s: { r: excelRowIndex, c: cIdx }, e: { r: excelRowIndex, c: cIdx + 1 } });
+            cIdx += 2;
+          });
+
+          aoaSotto.push(row);
+        });
+
+        const wsSotto = XLSX.utils.aoa_to_sheet(aoaSotto);
+        wsSotto['!merges'] = merges;
+        XLSX.utils.book_append_sheet(workbook, wsSotto, "Sottoprodotti (Analiti)");
       }
 
+      // 2. FOGLIO RIFIUTI (Estrazione sintetica)
       const rifiutiData = archivioRdPGlobal
         .filter(item => item.matrice === "Rifiuto")
         .map(item => ({
           "Protocollo RdP": item.id,
-          "Data Prelievo": item.data,
-          "Cantiere": item.cantiere,
+          "Data Prelievo": item.data ? item.data.replace('T', ' ') : "",
+          "Cantiere / Riferimento": item.cantiere,
           "Laboratorio": item.laboratorio,
-          "Esito / Giudizio": item.esito,
+          "Esito / Classificazione": item.esito,
           "Autore": item.autore
         }));
 
@@ -539,13 +787,14 @@
         XLSX.utils.book_append_sheet(workbook, wsRifiuti, "RdP Rifiuti");
       }
 
+      // 3. FOGLIO RIEPILOGO GENERALE
       const generaleData = archivioRdPGlobal.map(item => ({
         "Matrice": item.matrice,
         "Protocollo RdP": item.id,
-        "Data Prelievo": item.data,
-        "Cantiere": item.cantiere,
+        "Data Prelievo": item.data ? item.data.replace('T', ' ') : "",
+        "Cantiere / WBS": item.cantiere,
         "Laboratorio": item.laboratorio,
-        "Esito": item.esito,
+        "Esito / Giudizio": item.esito,
         "Autore": item.autore
       }));
 
