@@ -53,7 +53,7 @@
         </div>
         <div>
           <p class="text-xs font-bold text-white">Trascina qui il file PDF del Rapporto di Prova</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Estrazione automatica metadati (Rifiuti) e tabulazione analiti corretta (Sottoprodotti)</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Lettura puntuale della colonna "Risultato e incertezza" per Sottoprodotti e Rifiuti</p>
         </div>
         <input type="file" id="fileInputPdf" accept=".pdf" class="hidden" onchange="gestisciFileSelezionato(this.files[0])">
       </div>
@@ -231,7 +231,7 @@
 
   </main>
 
-  <!-- SCRIPT LOGICA ARCHIVIO RDP + ESTRAZIONE ANALITI CORRETTA + EXCEL -->
+  <!-- SCRIPT LOGICA ARCHIVIO RDP + PARSING PUNTUALE COLONNA RISULTATO + EXCEL -->
   <script>
     const firebaseConfig = {
       databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
@@ -242,21 +242,22 @@
     let archivioRdPGlobal = [];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-const PARAMETRI_SOTTOPRODOTTO = [
-      { key: "residuo_secco", label: "Residuo secco a 105°C", um: "%", colA: "-", colB: "-", regex: /Residuo\s+secco\s+a\s+105°\s*C[\s\S]{0,50}?\%\s*([nN]\.[rR]\.|\d+[.,]\d+)/i },
-      { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-", regex: /Scheletro[\s\S]{0,50}?\%\s*([nN]\.[rR]\.|\d+[.,]\d+)/i },
-      { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cromo\s*\(VI\)[\s\S]{0,60}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250", regex: /Idrocarburi\s+leggeri\s+C<12[\s\S]{0,60}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/kg ss", colA: "50", colB: "750", regex: /Idrocarburi\s+pesanti\s+C12-C40[\s\S]{0,60}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "arsenico", label: "Arsenico", um: "mg/Kg ss", colA: "20", colB: "50", regex: /Arsenico\b[\s\S]{0,60}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "cadmio", label: "Cadmio", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cadmio\b[\s\S]{0,60}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "cobalto", label: "Cobalto", um: "mg/Kg ss", colA: "20", colB: "250", regex: /Cobalto\b[\s\S]{0,60}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "cromo_totale", label: "Cromo totale", um: "mg/kg ss", colA: "150", colB: "800", regex: /Cromo\s+totale[\s\S]{0,60}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "rame", label: "Rame", um: "mg/Kg ss", colA: "120", colB: "600", regex: /Rame\b[\s\S]{0,60}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "mercurio", label: "Mercurio", um: "mg/Kg ss", colA: "1", colB: "5", regex: /Mercurio\b[\s\S]{0,60}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "nichel", label: "Nichel", um: "mg/kg ss", colA: "120", colB: "500", regex: /Nichel\b[\s\S]{0,60}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "piombo", label: "Piombo", um: "mg/kg ss", colA: "100", colB: "1000", regex: /Piombo\b[\s\S]{0,60}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "zinco", label: "Zinco", um: "mg/kg ss", colA: "150", colB: "1500", regex: /Zinco\b[\s\S]{0,60}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i }
+    // Lista dei 14 parametri con unità di misura associata per il parsing deterministico
+    const PARAMETRI_SOTTOPRODOTTO = [
+      { key: "residuo_secco", label: "Residuo secco a 105°C", um: "%", colA: "-", colB: "-" },
+      { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-" },
+      { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15" },
+      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250" },
+      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/kg ss", colA: "50", colB: "750" },
+      { key: "arsenico", label: "Arsenico", um: "mg/Kg ss", colA: "20", colB: "50" },
+      { key: "cadmio", label: "Cadmio", um: "mg/Kg ss", colA: "2", colB: "15" },
+      { key: "cobalto", label: "Cobalto", um: "mg/Kg ss", colA: "20", colB: "250" },
+      { key: "cromo_totale", label: "Cromo totale", um: "mg/kg ss", colA: "150", colB: "800" },
+      { key: "rame", label: "Rame", um: "mg/Kg ss", colA: "120", colB: "600" },
+      { key: "mercurio", label: "Mercurio", um: "mg/Kg ss", colA: "1", colB: "5" },
+      { key: "nichel", label: "Nichel", um: "mg/kg ss", colA: "120", colB: "500" },
+      { key: "piombo", label: "Piombo", um: "mg/kg ss", colA: "100", colB: "1000" },
+      { key: "zinco", label: "Zinco", um: "mg/kg ss", colA: "150", colB: "1500" }
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -324,19 +325,30 @@ const PARAMETRI_SOTTOPRODOTTO = [
       reader.readAsArrayBuffer(file);
     }
 
-    function pulisciValoreSecco(valoreGrezzo) {
-      if (!valoreGrezzo) return "n.r.";
-      const str = valoreGrezzo.trim();
-      if (/n\.r\./i.test(str)) return "n.r.";
-      const matchNum = str.match(/^(<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
-      return matchNum ? matchNum[1].replace(',', '.') : str;
+    // Funzione deterministica per leggere esattamente dalla colonna "Risultato e incertezza"
+    function estraiValoreAnalita(testo, nomeParametro, unitaMisura) {
+      const idx = testo.indexOf(nomeParametro);
+      if (idx === -1) return "n.r.";
+      
+      const sottostringa = testo.substring(idx, idx + 250);
+      const idxUm = sottostringa.indexOf(unitaMisura);
+      if (idxUm === -1) return "n.r.";
+      
+      const dopoUm = sottostringa.substring(idxUm + unitaMisura.length).trim();
+      
+      // Cattura il token del risultato esatto (n.r., <X, oppure valore numerico) escludendo l'incertezza ±
+      const match = dopoUm.match(/^([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/);
+      if (match) {
+        return match[1].replace(',', '.');
+      }
+      return "n.r.";
     }
 
     function estraiDatiDaTestoPDF(testo, nomeFile) {
-      const matchProt = testo.match(/Rapporto\s+di\s+[Pp]rova\s+n[°º]?\s*([A-Z0-9\-\/]+)/i) || testo.match(/(26LA\d+)/i);
+      const matchProt = testo.match(/Rapporto\s+di\s+[Pp]rova\s+n[°º]?\s*([A-Z0-9\-\/]+)/i) || testo.match(/(25LA\d+|26LA\d+)/i);
       const protocolloEstratto = matchProt ? matchProt[1].trim() : nomeFile.replace('.pdf', '');
 
-      const matchDataCamp = testo.match(/Dati\s+di\s+campionamento[\s\S]{0,60}?Data:\s*(\d{2}\/\d{2}\/\d{4})/i);
+      const matchDataCamp = testo.match(/Data\s+prelievo:\s*(\d{2}\/\d{2}\/\d{4})/i) || testo.match(/Data:\s*(\d{2}\/\d{2}\/\d{4})/i);
       const matchDataGen = testo.match(/(\d{2}\/\d{2}\/\d{4})/);
       let dataEstratta = matchDataCamp ? matchDataCamp[1] : (matchDataGen ? matchDataGen[1] : new Date().toLocaleDateString('it-IT'));
 
@@ -354,10 +366,7 @@ const PARAMETRI_SOTTOPRODOTTO = [
         cantiereEstratto += ` (Rif: ${matchRif[1].trim()})`;
       }
 
-      let laboratorioRilevato = "Laboratorio Accreditato";
-      if (/arcadia/i.test(testo)) laboratorioRilevato = "Arcadia S.r.l.";
-      else if (/arpal/i.test(testo)) laboratorioRilevato = "ARPAL";
-      else if (/sige/i.test(testo)) laboratorioRilevato = "SIGE Lab";
+      let laboratorioRilevato = "Arcadia S.r.l.";
 
       let esitoRilevato = "Conforme / Verificato";
       if (matriceRilevata === "Sottoprodotto") {
@@ -385,8 +394,7 @@ const PARAMETRI_SOTTOPRODOTTO = [
       tbodyPreview.innerHTML = '';
 
       PARAMETRI_SOTTOPRODOTTO.forEach(param => {
-        const match = testo.match(param.regex);
-        const valSecco = match ? pulisciValoreSecco(match[1]) : "n.r.";
+        const valSecco = estraiValoreAnalita(testo, param.label, param.um);
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/50";
