@@ -243,20 +243,20 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
 const PARAMETRI_SOTTOPRODOTTO = [
-      { key: "residuo_secco", label: "Residuo secco a 105°C", um: "%", colA: "-", colB: "-", regex: /Residuo\s+secco\s+a\s+105°\s*C[\s\S]{0,150}?%\s*(\d+[.,]\d+)/i },
-      { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-", regex: /Scheletro[\s\S]{0,150}?%\s*(\d+[.,]\d+)/i },
-      { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cromo\s*\(VI\)[\s\S]{0,120}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250", regex: /Idrocarburi\s+leggeri\s+C<12[\s\S]{0,120}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/kg ss", colA: "50", colB: "750", regex: /Idrocarburi\s+pesanti\s+C12-C40[\s\S]{0,120}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "arsenico", label: "Arsenico", um: "mg/Kg ss", colA: "20", colB: "50", regex: /Arsenico[\s\S]{0,120}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "cadmio", label: "Cadmio", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cadmio[\s\S]{0,120}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "cobalto", label: "Cobalto", um: "mg/Kg ss", colA: "20", colB: "250", regex: /Cobalto[\s\S]{0,120}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "cromo_totale", label: "Cromo totale", um: "mg/kg ss", colA: "150", colB: "800", regex: /Cromo\s+totale[\s\S]{0,120}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "rame", label: "Rame", um: "mg/Kg ss", colA: "120", colB: "600", regex: /Rame[\s\S]{0,120}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "mercurio", label: "Mercurio", um: "mg/Kg ss", colA: "1", colB: "5", regex: /Mercurio[\s\S]{0,120}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "nichel", label: "Nichel", um: "mg/kg ss", colA: "120", colB: "500", regex: /Nichel[\s\S]{0,120}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "piombo", label: "Piombo", um: "mg/kg ss", colA: "100", colB: "1000", regex: /Piombo[\s\S]{0,120}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
-      { key: "zinco", label: "Zinco", um: "mg/kg ss", colA: "150", colB: "1500", regex: /Zinco[\s\S]{0,120}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i }
+      { key: "residuo_secco", label: "Residuo secco a 105°C", um: "%", colA: "-", colB: "-", regex: /Residuo\s+secco\s+a\s+105°\s*C[\s\S]{0,40}?\%\s*(\d+[.,]\d+)/i },
+      { key: "scheletro", label: "Scheletro", um: "%", colA: "-", colB: "-", regex: /Scheletro[\s\S]{0,40}?\%\s*(\d+[.,]\d+)/i },
+      { key: "cromo_vi", label: "Cromo (VI)", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cromo\s*\(VI\)[\s\S]{0,50}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "idrocarburi_leggeri", label: "Idrocarburi leggeri C<12", um: "mg/kg ss", colA: "10", colB: "250", regex: /Idrocarburi\s+leggeri\s+C<12[\s\S]{0,50}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "idrocarburi_pesanti", label: "Idrocarburi pesanti C12-C40", um: "mg/kg ss", colA: "50", colB: "750", regex: /Idrocarburi\s+pesanti\s+C12-C40[\s\S]{0,50}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "arsenico", label: "Arsenico", um: "mg/Kg ss", colA: "20", colB: "50", regex: /Arsenico\b[\s\S]{0,50}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "cadmio", label: "Cadmio", um: "mg/Kg ss", colA: "2", colB: "15", regex: /Cadmio\b[\s\S]{0,50}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "cobalto", label: "Cobalto", um: "mg/Kg ss", colA: "20", colB: "250", regex: /Cobalto\b[\s\S]{0,50}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "cromo_totale", label: "Cromo totale", um: "mg/kg ss", colA: "150", colB: "800", regex: /Cromo\s+totale[\s\S]{0,50}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "rame", label: "Rame", um: "mg/Kg ss", colA: "120", colB: "600", regex: /Rame\b[\s\S]{0,50}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "mercurio", label: "Mercurio", um: "mg/Kg ss", colA: "1", colB: "5", regex: /Mercurio\b[\s\S]{0,50}?mg\/Kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "nichel", label: "Nichel", um: "mg/kg ss", colA: "120", colB: "500", regex: /Nichel\b[\s\S]{0,50}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "piombo", label: "Piombo", um: "mg/kg ss", colA: "100", colB: "1000", regex: /Piombo\b[\s\S]{0,50}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i },
+      { key: "zinco", label: "Zinco", um: "mg/kg ss", colA: "150", colB: "1500", regex: /Zinco\b[\s\S]{0,50}?mg\/kg\s*ss\s*([nN]\.[rR]\.|<\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)/i }
     ];
 
     document.addEventListener("DOMContentLoaded", () => {
