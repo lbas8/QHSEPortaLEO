@@ -28,7 +28,7 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 12mm;
+        margin: 12mm 12mm 22mm 12mm;
       }
 
       .no-print {
@@ -53,7 +53,7 @@
       .doc-header-grid {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         font-size: 9pt;
       }
 
@@ -74,7 +74,7 @@
 
       .doc-title-box {
         text-align: center;
-        margin: 10px 0 14px 0;
+        margin: 8px 0 12px 0;
       }
 
       .doc-title-main {
@@ -105,14 +105,14 @@
         font-size: 9.8pt;
         line-height: 1.45;
         color: #111827;
-        margin: 8px 0 14px 0;
+        margin: 6px 0 12px 0;
       }
 
       .doc-presenze-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 8px;
-        margin-bottom: 14px;
+        margin-top: 6px;
+        margin-bottom: 12px;
         font-size: 9.5pt;
       }
 
@@ -122,13 +122,13 @@
         font-weight: 700;
         text-align: left;
         border: 1px solid #4b5563;
-        padding: 6px 8px;
+        padding: 5px 8px;
       }
 
       .doc-presenze-table td {
         border: 1px solid #6b7280;
         padding: 5px 8px;
-        vertical-align: top;
+        vertical-align: middle;
       }
 
       .doc-presenze-table tr {
@@ -136,10 +136,19 @@
         page-break-inside: avoid;
       }
 
+      .doc-firma-img {
+        max-height: 36px;
+        max-width: 140px;
+        object-fit: contain;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
       .doc-closing-grid {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 14px;
+        margin-top: 12px;
+        margin-bottom: 16px;
         font-size: 9.5pt;
         break-inside: avoid;
         page-break-inside: avoid;
@@ -148,6 +157,38 @@
       .doc-closing-grid td {
         border: 1px solid #4b5563;
         padding: 6px 8px;
+        vertical-align: middle;
+      }
+
+      .doc-print-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-top: 1px solid #9ca3af;
+        background: #ffffff !important;
+        padding-top: 5px;
+        font-size: 7.2pt;
+        line-height: 1.3;
+        color: #4b5563;
+      }
+
+      .doc-footer-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .doc-footer-table td {
+        border: none;
+        padding: 0 4px 0 0;
+        vertical-align: middle;
+      }
+
+      .doc-footer-mark {
+        max-height: 28px;
+        width: auto;
+        object-fit: contain;
+        display: inline-block;
       }
     }
   </style>
@@ -316,7 +357,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-950/50 border border-slate-800 rounded-xl p-4">
           <div>
             <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Nominativo Coordinatore / Sottoscritto</label>
-            <input type="text" id="v-coordinatore" placeholder="Ing. Nome Cognome" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+            <input type="text" id="v-coordinatore" placeholder="Ing. Nome Cognome" oninput="sincronizzaFirmaChiusuraDaNominativi()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
           </div>
           <div class="space-y-1.5">
             <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400">In qualità di</label>
@@ -336,7 +377,7 @@
         <p>
           per i lavori di realizzazione inerenti alla
           <span id="preview-opera" class="font-semibold text-white">Tratta AV/AC “Terzo Valico dei Giovi - Nodo di Genova”</span>
-          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, 
+          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, su
           <span id="preview-modalita" class="font-semibold text-white">piattaforma Microsoft Teams</span>,
           alla quale hanno partecipato le persone di cui al foglio presenze allegato.
         </p>
@@ -362,7 +403,7 @@
             <h3 class="text-xs font-black uppercase tracking-wider text-violet-400">
               Foglio Presenze Partecipanti
             </h3>
-            <p class="text-[11px] text-slate-400">Puoi allegare un file .PDF di firma per ciascun partecipante (max 4 MB).</p>
+            <p class="text-[11px] text-slate-400">Puoi allegare la firma di ciascun partecipante in formato <strong class="text-slate-200">.PDF</strong> oppure <strong class="text-slate-200">.JPEG / .JPG</strong> (max 4 MB).</p>
           </div>
           <button type="button" onclick="aggiungiPartecipante()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer">
             <i class="fa-solid fa-user-plus text-violet-400"></i> Aggiungi Partecipante
@@ -375,7 +416,7 @@
               <tr>
                 <th class="p-3 border-b border-r border-slate-800 w-1/4">Nome e Cognome</th>
                 <th class="p-3 border-b border-r border-slate-800 w-2/5">Mansione</th>
-                <th class="p-3 border-b border-slate-800 w-1/4">Firma (.PDF)</th>
+                <th class="p-3 border-b border-slate-800 w-1/4">Firma (.PDF / .JPEG)</th>
                 <th class="p-3 border-b border-l border-slate-800 w-10 text-center"></th>
               </tr>
             </thead>
@@ -396,9 +437,18 @@
             <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Data</label>
             <input type="text" id="v-data-firma" placeholder="gg/mm/aaaa" class="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
           </div>
-          <div>
-            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Firma</label>
-            <input type="text" id="v-firma" placeholder="Firma / Nominativo" class="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Firma (Riprende firma partecipante se presente)</label>
+              <select id="v-firma-da-partecipante" onchange="selezionaFirmatarioDaPartecipanti()" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-0.5 text-[11px] text-violet-300 outline-none focus:border-violet-400 cursor-pointer">
+                <option value="">-- Riprendi da partecipante --</option>
+              </select>
+            </div>
+            <input type="text" id="v-firma" placeholder="Firma / Nominativo" oninput="aggiornaAnteprimaFirmaChiusura()" class="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+            <div id="ui-firma-chiusura-preview" class="hidden bg-white rounded-lg px-3 py-1.5 border border-slate-700 flex items-center justify-between gap-2">
+              <img id="ui-firma-chiusura-img" src="" alt="Anteprima Firma Chiusura" class="max-h-9 max-w-[160px] object-contain">
+              <span id="ui-firma-chiusura-label" class="text-[10px] font-semibold text-slate-600 truncate"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -471,8 +521,9 @@
     <table class="doc-presenze-table">
       <thead>
         <tr>
-          <th style="width: 38%;">Nome e Cognome</th>
-          <th style="width: 62%;">Mansione</th>
+          <th style="width: 30%;">Nome e Cognome</th>
+          <th style="width: 46%;">Mansione</th>
+          <th style="width: 24%;">Firma</th>
         </tr>
       </thead>
       <tbody id="doc-presenze-tbody"></tbody>
@@ -484,14 +535,45 @@
 
     <table class="doc-closing-grid">
       <tr>
-        <td style="width: 25%;"><strong>LOTTO WBS:</strong> <span id="doc-wbs-bottom"></span></td>
-        <td style="width: 30%;"><strong>DATA:</strong> <span id="doc-data-bottom"></span></td>
-        <td style="width: 45%;"><strong>FIRMA:</strong> <span id="doc-firma"></span></td>
+        <td style="width: 22%;"><strong>LOTTO WBS:</strong> <span id="doc-wbs-bottom"></span></td>
+        <td style="width: 25%;"><strong>DATA:</strong> <span id="doc-data-bottom"></span></td>
+        <td style="width: 53%;">
+          <strong>FIRMA:</strong>
+          <span id="doc-firma-wrap" style="margin-left: 6px;">
+            <img id="doc-firma-img" src="" alt="Firma" class="doc-firma-img" style="display: none;">
+            <span id="doc-firma-testo"></span>
+          </span>
+        </td>
       </tr>
     </table>
+
+    <!-- FOOTER UFFICIALE STAMPA / PDF -->
+    <footer class="doc-print-footer">
+      <table class="doc-footer-table">
+        <tr>
+          <td style="width: 42px; text-align: center;">
+            <img id="doc-footer-emas" src="../../assets/img/emas.jpg" alt="EMAS" class="doc-footer-mark" onerror="this.style.display='none';">
+          </td>
+          <td style="width: 42px; text-align: center;">
+            <img id="doc-footer-dnv" src="../../assets/img/dnv.jpg" alt="DNV ISO 14001" class="doc-footer-mark" onerror="this.style.display='none';">
+          </td>
+          <td style="width: 46%;">
+            <div style="font-weight: 700; color: #374151;">Consorzio Cociv</div>
+            <div>Sede legale e Ufficio Tecnico Amministrativo</div>
+            <div>Via Renata Bianchi, 40 - 16152 Genova</div>
+            <div>T 010 4218711 - F 010 4218708</div>
+          </td>
+          <td style="width: 42%; text-align: left;">
+            <div>P.IVA, C.F. e N. Iscr. Registro Imprese Genova 03299440101</div>
+            <div>R.E.A. Genova 332670</div>
+            <div>pec@cociv.postecert.it</div>
+          </td>
+        </tr>
+      </table>
+    </footer>
   </section>
 
-  <!-- FOOTER -->
+  <!-- FOOTER APPLICAZIONE WEB -->
   <footer class="no-print w-full border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
     <div class="max-w-5xl mx-auto px-4">
       <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
@@ -501,6 +583,9 @@
   <script src="../../header.js"></script>
   <script>
     const WEBUILD_LOGO_URL = "../../assets/img/logowb.jpg";
+    const EMAS_LOGO_URL = "../../assets/img/emas.jpg";
+    const DNV_LOGO_URL = "../../assets/img/dnv.jpg";
+
     const MANSIONI_PREDEFINITE = [
       "Direzione Generale (DG)",
       "Direzione di Tronco (DT)",
@@ -521,7 +606,7 @@
     let currentLoadKey = null;
     let rowCounter = 0;
     let logoState = {
-      mode: 'webuild', // 'webuild' | 'custom' | 'none'
+      mode: 'webuild',
       nome: 'logowb.jpg',
       base64: null,
       changed: false
@@ -533,7 +618,12 @@
       base64: null,
       changed: false
     };
-    const partecipantePdfMap = {};
+    const partecipanteFirmaMap = {};
+
+    function isImageMimeOrName(mimeOrName = '') {
+      const s = String(mimeOrName).toLowerCase();
+      return s.startsWith('image/') || s.endsWith('.jpg') || s.endsWith('.jpeg') || s.startsWith('data:image/');
+    }
 
     function aggiornaUiLogo() {
       const uiImg = document.getElementById('ui-logo-preview');
@@ -579,7 +669,7 @@
       if (!file) return;
 
       if (!file.type.startsWith('image/')) {
-        alert("Seleziona un file immagine valido (PNG, JPG, WebP o SVG).");
+        alert("Seleziona un file immagine valido (PNG, JPG/JPEG, WebP o SVG).");
         event.target.value = '';
         return;
       }
@@ -731,7 +821,137 @@
       }
     }
 
-    function preparaDocumentoStampa() {
+    function raccogliPartecipantiConFirma() {
+      const list = [];
+      document.querySelectorAll('#presenze-tbody tr').forEach(tr => {
+        const uid = tr.dataset.uid;
+        const nome = (tr.querySelector('.p-nome')?.value || '').trim();
+        const selVal = tr.querySelector('.p-mansione-select')?.value || '';
+        const customVal = (tr.querySelector('.p-mansione-custom')?.value || '').trim();
+        const mansione = selVal === '__CUSTOM__' ? customVal : selVal;
+        const st = partecipanteFirmaMap[uid] || { presente: false, nome: '', mime: '', size: 0, base64: null };
+
+        list.push({
+          uid,
+          nome,
+          mansione,
+          firmaPresente: Boolean(st.presente),
+          firmaNome: st.presente ? st.nome : '',
+          firmaMime: st.presente ? st.mime : '',
+          firmaSize: st.presente ? st.size : 0,
+          firmaBase64: st.presente ? st.base64 : null
+        });
+      });
+      return list;
+    }
+
+    function trovaFirmaAssociataChiusura() {
+      const firmaInputVal = (document.getElementById('v-firma').value || '').trim().toLowerCase();
+      const coordVal = (document.getElementById('v-coordinatore').value || '').trim().toLowerCase();
+      const partecipanti = raccogliPartecipantiConFirma().filter(p => p.firmaPresente);
+
+      if (partecipanti.length === 0) return null;
+
+      if (firmaInputVal) {
+        const matchExact = partecipanti.find(p => p.nome.toLowerCase() === firmaInputVal);
+        if (matchExact) return matchExact;
+
+        const matchPartial = partecipanti.find(p => p.nome.toLowerCase().includes(firmaInputVal) || firmaInputVal.includes(p.nome.toLowerCase()));
+        if (matchPartial) return matchPartial;
+      }
+
+      if (coordVal) {
+        const matchCoord = partecipanti.find(p => p.nome.toLowerCase() === coordVal || p.nome.toLowerCase().includes(coordVal));
+        if (matchCoord) return matchCoord;
+      }
+
+      if (partecipanti.length === 1) {
+        return partecipanti[0];
+      }
+
+      return null;
+    }
+
+    function aggiornaSelettoreFirmatari() {
+      const sel = document.getElementById('v-firma-da-partecipante');
+      if (!sel) return;
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">-- Riprendi da partecipante --</option>';
+
+      const partecipanti = raccogliPartecipantiConFirma();
+      partecipanti.forEach(p => {
+        if (!p.nome && !p.firmaPresente) return;
+        const opt = document.createElement('option');
+        opt.value = p.uid;
+        opt.textContent = p.firmaPresente
+          ? `${p.nome || 'Partecipante'} (Firma allegata)`
+          : `${p.nome || 'Partecipante'}`;
+        if (p.uid === currentVal) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function selezionaFirmatarioDaPartecipanti() {
+      const sel = document.getElementById('v-firma-da-partecipante');
+      if (!sel || !sel.value) return;
+      const p = raccogliPartecipantiConFirma().find(item => item.uid === sel.value);
+      if (p && p.nome) {
+        document.getElementById('v-firma').value = p.nome;
+      }
+      aggiornaAnteprimaFirmaChiusura();
+    }
+
+    function sincronizzaFirmaChiusuraDaNominativi() {
+      const firmaInput = document.getElementById('v-firma');
+      const coordInput = document.getElementById('v-coordinatore');
+      if (!firmaInput.value.trim() && coordInput.value.trim()) {
+        firmaInput.value = coordInput.value.trim();
+      }
+      aggiornaSelettoreFirmatari();
+      aggiornaAnteprimaFirmaChiusura();
+    }
+
+    async function aggiornaAnteprimaFirmaChiusura() {
+      const box = document.getElementById('ui-firma-chiusura-preview');
+      const img = document.getElementById('ui-firma-chiusura-img');
+      const lbl = document.getElementById('ui-firma-chiusura-label');
+      if (!box || !img || !lbl) return;
+
+      const match = trovaFirmaAssociataChiusura();
+      if (!match) {
+        box.classList.add('hidden');
+        img.src = '';
+        lbl.innerText = '';
+        return;
+      }
+
+      let b64 = match.firmaBase64;
+      if (!b64 && currentLoadKey && dbRef) {
+        const snap = await dbRef.ref('verbali_allegati_pdf/' + currentLoadKey + '/partecipanti/' + match.uid).once('value');
+        const val = snap.val();
+        if (val && val.base64) {
+          b64 = val.base64;
+          if (partecipanteFirmaMap[match.uid]) {
+            partecipanteFirmaMap[match.uid].base64 = b64;
+          }
+        }
+      }
+
+      if (b64 && isImageMimeOrName(match.firmaMime || match.firmaNome || b64)) {
+        img.src = b64;
+        img.style.display = 'inline-block';
+        lbl.innerText = `Ripresa da: ${match.nome || 'Partecipante'} (${match.firmaNome || 'JPEG'})`;
+        box.classList.remove('hidden');
+      } else if (match.firmaPresente) {
+        img.style.display = 'none';
+        lbl.innerText = `Firma PDF associata (${match.nome || 'Partecipante'}: ${match.firmaNome || 'Firma.pdf'})`;
+        box.classList.remove('hidden');
+      } else {
+        box.classList.add('hidden');
+      }
+    }
+
+    async function preparaDocumentoStampa() {
       aggiornaUiLogo();
       const { itDate } = estraiPartiDataDaInput();
       const idVal = (document.getElementById('v-id').value || '').trim();
@@ -763,7 +983,6 @@
       document.getElementById('doc-opera').innerText = operaVal;
       document.getElementById('doc-modalita').innerText = modalitaVal;
       document.getElementById('doc-output').innerText = outputVal;
-      document.getElementById('doc-firma').innerText = firmaVal;
 
       const noteWrap = document.getElementById('doc-note-wrap');
       if (noteVal) {
@@ -773,22 +992,41 @@
         noteWrap.style.display = 'none';
       }
 
+      const partecipanti = raccogliPartecipantiConFirma();
+      for (const p of partecipanti) {
+        if (p.firmaPresente && !p.firmaBase64 && currentLoadKey && dbRef) {
+          const snap = await dbRef.ref('verbali_allegati_pdf/' + currentLoadKey + '/partecipanti/' + p.uid).once('value');
+          const val = snap.val();
+          if (val && val.base64) {
+            p.firmaBase64 = val.base64;
+            p.firmaMime = val.mime || p.firmaMime;
+            if (partecipanteFirmaMap[p.uid]) {
+              partecipanteFirmaMap[p.uid].base64 = val.base64;
+              partecipanteFirmaMap[p.uid].mime = p.firmaMime;
+            }
+          }
+        }
+      }
+
       const docTbody = document.getElementById('doc-presenze-tbody');
       docTbody.innerHTML = '';
 
       let hasRows = false;
-      document.querySelectorAll('#presenze-tbody tr').forEach(tr => {
-        const nome = (tr.querySelector('.p-nome')?.value || '').trim();
-        const selVal = tr.querySelector('.p-mansione-select')?.value || '';
-        const customVal = (tr.querySelector('.p-mansione-custom')?.value || '').trim();
-        const mansione = selVal === '__CUSTOM__' ? customVal : selVal;
-
-        if (nome || mansione) {
+      partecipanti.forEach(p => {
+        if (p.nome || p.mansione || p.firmaPresente) {
           hasRows = true;
+          let firmaCellHtml = '';
+          if (p.firmaPresente && p.firmaBase64 && isImageMimeOrName(p.firmaMime || p.firmaNome || p.firmaBase64)) {
+            firmaCellHtml = `<img src="${p.firmaBase64}" alt="Firma ${p.nome.replace(/"/g, '&quot;')}" class="doc-firma-img">`;
+          } else if (p.firmaPresente) {
+            firmaCellHtml = `<span style="font-size: 8pt; color: #374151;">Allegato: ${p.firmaNome || 'Firma'}</span>`;
+          }
+
           const row = document.createElement('tr');
           row.innerHTML = `
-            <td>${nome}</td>
-            <td>${mansione}</td>
+            <td>${p.nome}</td>
+            <td>${p.mansione}</td>
+            <td>${firmaCellHtml}</td>
           `;
           docTbody.appendChild(row);
         }
@@ -796,13 +1034,28 @@
 
       if (!hasRows) {
         const emptyRow = document.createElement('tr');
-        emptyRow.innerHTML = `<td colspan="2" style="color: #6b7280; font-style: italic;">Nessun partecipante registrato</td>`;
+        emptyRow.innerHTML = `<td colspan="3" style="color: #6b7280; font-style: italic;">Nessun partecipante registrato</td>`;
         docTbody.appendChild(emptyRow);
+      }
+
+      const firmaMatch = trovaFirmaAssociataChiusura();
+      const docFirmaImg = document.getElementById('doc-firma-img');
+      const docFirmaTesto = document.getElementById('doc-firma-testo');
+      const nomeFinaleFirma = firmaVal || (firmaMatch ? firmaMatch.nome : '');
+
+      if (firmaMatch && firmaMatch.firmaBase64 && isImageMimeOrName(firmaMatch.firmaMime || firmaMatch.firmaNome || firmaMatch.firmaBase64)) {
+        docFirmaImg.src = firmaMatch.firmaBase64;
+        docFirmaImg.style.display = 'inline-block';
+        docFirmaTesto.innerText = nomeFinaleFirma ? ` (${nomeFinaleFirma})` : '';
+      } else {
+        docFirmaImg.style.display = 'none';
+        docFirmaImg.src = '';
+        docFirmaTesto.innerText = nomeFinaleFirma;
       }
     }
 
-    function stampaDocumentoUfficiale() {
-      preparaDocumentoStampa();
+    async function stampaDocumentoUfficiale() {
+      await preparaDocumentoStampa();
       window.print();
     }
 
@@ -938,10 +1191,31 @@
       const tbody = document.getElementById('presenze-tbody');
       tbody.innerHTML = '';
       if (Array.isArray(data.partecipanti) && data.partecipanti.length > 0) {
-        data.partecipanti.forEach(p => aggiungiPartecipante(p.nome || '', p.mansione || '', p));
+        for (const p of data.partecipanti) {
+          const hasSig = Boolean(p.firmaPresente || p.pdfPresente);
+          const extra = {
+            firmaPresente: hasSig,
+            firmaNome: p.firmaNome || p.pdfNome || '',
+            firmaMime: p.firmaMime || '',
+            firmaSize: p.firmaSize || p.pdfSize || 0,
+            base64: null
+          };
+          if (hasSig && p.uid && dbRef) {
+            const sigSnap = await dbRef.ref('verbali_allegati_pdf/' + loadedKey + '/partecipanti/' + p.uid).once('value');
+            const sigVal = sigSnap.val();
+            if (sigVal && sigVal.base64) {
+              extra.base64 = sigVal.base64;
+              extra.firmaMime = sigVal.mime || extra.firmaMime;
+            }
+          }
+          aggiungiPartecipante(p.nome || '', p.mansione || '', extra);
+        }
       } else {
         for (let i = 0; i < 6; i++) aggiungiPartecipante();
       }
+
+      aggiornaSelettoreFirmatari();
+      await aggiornaAnteprimaFirmaChiusura();
     }
 
     function gestisciUploadPdf(event) {
@@ -1011,13 +1285,15 @@
 
     function base64ToBlobUrl(dataUrl) {
       const parts = dataUrl.split(',');
+      const mimeMatch = parts[0].match(/data:([^;]+);base64/);
+      const mimeType = mimeMatch ? mimeMatch[1] : 'application/pdf';
       const byteString = atob(parts[1]);
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
       for (let i = 0; i < byteString.length; i++) {
         ia[i] = byteString.charCodeAt(i);
       }
-      const blob = new Blob([ab], { type: 'application/pdf' });
+      const blob = new Blob([ab], { type: mimeType });
       return URL.createObjectURL(blob);
     }
 
@@ -1075,11 +1351,12 @@
       const isPredefinita = MANSIONI_PREDEFINITE.includes(mansione);
       const isCustom = Boolean(mansione) && !isPredefinita;
 
-      partecipantePdfMap[uid] = {
-        presente: Boolean(datiExtra && datiExtra.pdfPresente),
-        nome: (datiExtra && datiExtra.pdfNome) || '',
-        size: (datiExtra && datiExtra.pdfSize) || 0,
-        base64: null,
+      partecipanteFirmaMap[uid] = {
+        presente: Boolean(datiExtra && datiExtra.firmaPresente),
+        nome: (datiExtra && datiExtra.firmaNome) || '',
+        mime: (datiExtra && datiExtra.firmaMime) || '',
+        size: (datiExtra && datiExtra.firmaSize) || 0,
+        base64: (datiExtra && datiExtra.base64) || null,
         changed: false
       };
 
@@ -1094,7 +1371,7 @@
       tr.dataset.uid = uid;
       tr.innerHTML = `
         <td class="p-1.5 border-r border-slate-800 align-top">
-          <input type="text" value="${nome.replace(/"/g, '&quot;')}" placeholder="Nome e Cognome" class="p-nome w-full bg-transparent px-2 py-1 text-xs sm:text-sm text-white outline-none focus:bg-slate-950/70 rounded">
+          <input type="text" value="${nome.replace(/"/g, '&quot;')}" placeholder="Nome e Cognome" oninput="sincronizzaFirmaChiusuraDaNominativi()" class="p-nome w-full bg-transparent px-2 py-1 text-xs sm:text-sm text-white outline-none focus:bg-slate-950/70 rounded">
         </td>
         <td class="p-1.5 border-r border-slate-800 align-top space-y-1.5">
           <select onchange="gestisciCambioMansione(this)" class="p-mansione-select w-full bg-slate-950/80 border border-slate-800 rounded-lg px-2 py-1 text-xs sm:text-sm text-white outline-none focus:border-violet-400 cursor-pointer">
@@ -1104,16 +1381,16 @@
         </td>
         <td class="p-1.5 align-top">
           <div class="flex flex-col gap-1">
-            <input type="file" id="file_${uid}" accept="application/pdf,.pdf" class="hidden" onchange="gestisciUploadPdfPartecipante('${uid}', event)">
+            <input type="file" id="file_${uid}" accept="application/pdf,.pdf,image/jpeg,.jpg,.jpeg" class="hidden" onchange="gestisciUploadFirmaPartecipante('${uid}', event)">
             <label for="file_${uid}" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-[11px] font-bold text-emerald-300 inline-flex items-center justify-center gap-1.5 cursor-pointer transition">
               <i class="fa-solid fa-file-arrow-up"></i>
-              <span class="p-pdf-btn-text">${partecipantePdfMap[uid].presente ? 'Sostituisci PDF' : 'Carica PDF'}</span>
+              <span class="p-pdf-btn-text">${partecipanteFirmaMap[uid].presente ? 'Sostituisci Firma' : 'Carica PDF / JPEG'}</span>
             </label>
-            <div class="p-pdf-info ${partecipantePdfMap[uid].presente ? '' : 'hidden'} flex items-center justify-between gap-1 bg-slate-950/90 border border-emerald-500/30 rounded-lg px-2 py-1 text-[10px]">
-              <button type="button" onclick="apriPdfPartecipante('${uid}')" class="text-sky-300 hover:underline truncate text-left font-semibold cursor-pointer" title="${(partecipantePdfMap[uid].nome || '').replace(/"/g, '&quot;')}">
-                <i class="fa-solid fa-file-pdf text-rose-400 mr-1"></i><span class="p-pdf-name">${partecipantePdfMap[uid].nome || 'Firma.pdf'}</span>
+            <div class="p-pdf-info ${partecipanteFirmaMap[uid].presente ? '' : 'hidden'} flex items-center justify-between gap-1 bg-slate-950/90 border border-emerald-500/30 rounded-lg px-2 py-1 text-[10px]">
+              <button type="button" onclick="apriFirmaPartecipante('${uid}')" class="text-sky-300 hover:underline truncate text-left font-semibold cursor-pointer" title="${(partecipanteFirmaMap[uid].nome || '').replace(/"/g, '&quot;')}">
+                <i class="fa-solid fa-pen-nib text-emerald-400 mr-1"></i><span class="p-pdf-name">${partecipanteFirmaMap[uid].nome || 'Firma'}</span>
               </button>
-              <button type="button" onclick="rimuoviPdfPartecipante('${uid}')" class="text-rose-400 hover:text-rose-300 px-1 cursor-pointer" title="Rimuovi PDF firma">
+              <button type="button" onclick="rimuoviFirmaPartecipante('${uid}')" class="text-rose-400 hover:text-rose-300 px-1 cursor-pointer" title="Rimuovi firma">
                 <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
@@ -1126,16 +1403,19 @@
         </td>
       `;
       tbody.appendChild(tr);
+      aggiornaSelettoreFirmatari();
     }
 
     function rimuoviRigaPartecipante(btn, uid) {
-      delete partecipantePdfMap[uid];
+      delete partecipanteFirmaMap[uid];
       btn.closest('tr').remove();
+      aggiornaSelettoreFirmatari();
+      aggiornaAnteprimaFirmaChiusura();
     }
 
-    function aggiornaUiPdfPartecipante(uid) {
+    function aggiornaUiFirmaPartecipante(uid) {
       const tr = document.querySelector(`#presenze-tbody tr[data-uid="${uid}"]`);
-      const st = partecipantePdfMap[uid];
+      const st = partecipanteFirmaMap[uid];
       if (!tr || !st) return;
 
       const btnText = tr.querySelector('.p-pdf-btn-text');
@@ -1143,75 +1423,93 @@
       const nameSpan = tr.querySelector('.p-pdf-name');
 
       if (st.presente) {
-        btnText.innerText = 'Sostituisci PDF';
-        nameSpan.innerText = st.nome || 'Firma.pdf';
+        btnText.innerText = 'Sostituisci Firma';
+        nameSpan.innerText = st.nome || 'Firma';
         infoBox.classList.remove('hidden');
       } else {
-        btnText.innerText = 'Carica PDF';
+        btnText.innerText = 'Carica PDF / JPEG';
         infoBox.classList.add('hidden');
       }
+      aggiornaSelettoreFirmatari();
+      aggiornaAnteprimaFirmaChiusura();
     }
 
-    function gestisciUploadPdfPartecipante(uid, event) {
+    function gestisciUploadFirmaPartecipante(uid, event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert("Seleziona esclusivamente un file in formato .PDF.");
+      const lower = file.name.toLowerCase();
+      const isPdf = file.type === 'application/pdf' || lower.endsWith('.pdf');
+      const isJpeg = file.type === 'image/jpeg' || lower.endsWith('.jpg') || lower.endsWith('.jpeg');
+
+      if (!isPdf && !isJpeg) {
+        alert("Seleziona esclusivamente un file in formato .PDF oppure .JPEG / .JPG.");
         event.target.value = '';
         return;
       }
 
       const maxBytes = 4 * 1024 * 1024;
       if (file.size > maxBytes) {
-        alert("Il PDF della firma supera il limite consigliato di 4 MB per singolo partecipante.");
+        alert("Il file della firma supera il limite consigliato di 4 MB per singolo partecipante.");
         event.target.value = '';
         return;
       }
 
       const reader = new FileReader();
       reader.onload = function(e) {
-        partecipantePdfMap[uid] = {
+        const tr = document.querySelector(`#presenze-tbody tr[data-uid="${uid}"]`);
+        const nomePartecipante = (tr?.querySelector('.p-nome')?.value || '').trim();
+        const firmaInput = document.getElementById('v-firma');
+        if (nomePartecipante && !firmaInput.value.trim()) {
+          firmaInput.value = nomePartecipante;
+        }
+
+        partecipanteFirmaMap[uid] = {
           presente: true,
           nome: file.name,
+          mime: file.type || (isJpeg ? 'image/jpeg' : 'application/pdf'),
           size: file.size,
           base64: e.target.result,
           changed: true
         };
-        aggiornaUiPdfPartecipante(uid);
+        aggiornaUiFirmaPartecipante(uid);
       };
       reader.readAsDataURL(file);
     }
 
-    async function apriPdfPartecipante(uid) {
-      const st = partecipantePdfMap[uid];
+    async function apriFirmaPartecipante(uid) {
+      const st = partecipanteFirmaMap[uid];
       if (!st || !st.presente) return;
 
-      if (!st.base64 && currentLoadKey) {
-        const snap = await firebase.database().ref('verbali_allegati_pdf/' + currentLoadKey + '/partecipanti/' + uid).once('value');
+      if (!st.base64 && currentLoadKey && dbRef) {
+        const snap = await dbRef.ref('verbali_allegati_pdf/' + currentLoadKey + '/partecipanti/' + uid).once('value');
         const val = snap.val();
-        if (val && val.base64) st.base64 = val.base64;
+        if (val && val.base64) {
+          st.base64 = val.base64;
+          st.mime = val.mime || st.mime;
+        }
       }
 
       if (!st.base64) {
-        alert("Impossibile recuperare il PDF della firma. Assicurati di aver salvato il verbale.");
+        alert("Impossibile recuperare la firma. Assicurati di aver salvato il verbale.");
         return;
       }
       window.open(base64ToBlobUrl(st.base64), '_blank');
     }
 
-    function rimuoviPdfPartecipante(uid) {
-      if (!partecipantePdfMap[uid]) return;
-      partecipantePdfMap[uid] = {
+    function rimuoviFirmaPartecipante(uid) {
+      if (!partecipanteFirmaMap[uid]) return;
+      partecipanteFirmaMap[uid] = {
         presente: false,
         nome: '',
+        mime: '',
         size: 0,
         base64: null,
         changed: true
       };
       const fileInput = document.getElementById('file_' + uid);
       if (fileInput) fileInput.value = '';
-      aggiornaUiPdfPartecipante(uid);
+      aggiornaUiFirmaPartecipante(uid);
     }
 
     async function salvaVerbaleCoordinamento() {
@@ -1237,7 +1535,7 @@
         const qualitaFinale = qualitaSel === '__CUSTOM__' ? qualitaCustom : qualitaSel;
 
         const partecipanti = [];
-        let haPdfPartecipanti = false;
+        let haFirmePartecipanti = false;
 
         document.querySelectorAll('#presenze-tbody tr').forEach(tr => {
           const uid = tr.dataset.uid;
@@ -1245,18 +1543,22 @@
           const selVal = tr.querySelector('.p-mansione-select')?.value || '';
           const customVal = (tr.querySelector('.p-mansione-custom')?.value || '').trim();
           const mansione = selVal === '__CUSTOM__' ? customVal : selVal;
-          const pdfSt = partecipantePdfMap[uid] || { presente: false, nome: '', size: 0 };
+          const st = partecipanteFirmaMap[uid] || { presente: false, nome: '', mime: '', size: 0 };
 
-          if (pdfSt.presente) haPdfPartecipanti = true;
+          if (st.presente) haFirmePartecipanti = true;
 
-          if (nome || mansione || pdfSt.presente) {
+          if (nome || mansione || st.presente) {
             partecipanti.push({
               uid,
               nome,
               mansione,
-              pdfPresente: Boolean(pdfSt.presente),
-              pdfNome: pdfSt.presente ? pdfSt.nome : '',
-              pdfSize: pdfSt.presente ? pdfSt.size : 0
+              firmaPresente: Boolean(st.presente),
+              firmaNome: st.presente ? st.nome : '',
+              firmaMime: st.presente ? st.mime : '',
+              firmaSize: st.presente ? st.size : 0,
+              pdfPresente: Boolean(st.presente),
+              pdfNome: st.presente ? st.nome : '',
+              pdfSize: st.presente ? st.size : 0
             });
           }
         });
@@ -1280,7 +1582,7 @@
           partecipanti,
           logoMode: logoState.mode,
           logoNome: logoState.nome || '',
-          pdfFirmatoPresente: Boolean(pdfFirmatoState.presente || haPdfPartecipanti),
+          pdfFirmatoPresente: Boolean(pdfFirmatoState.presente || haFirmePartecipanti),
           pdfFirmatoNome: pdfFirmatoState.presente ? pdfFirmatoState.nome : '',
           pdfFirmatoSize: pdfFirmatoState.presente ? pdfFirmatoState.size : 0
         };
@@ -1324,13 +1626,14 @@
           pdfFirmatoState.changed = false;
         }
 
-        for (const uid of Object.keys(partecipantePdfMap)) {
-          const st = partecipantePdfMap[uid];
+        for (const uid of Object.keys(partecipanteFirmaMap)) {
+          const st = partecipanteFirmaMap[uid];
           if (!st || !st.changed) continue;
           const pRef = baseAllegatiRef.child('partecipanti/' + uid);
           if (st.presente && st.base64) {
             await pRef.set({
               nome: st.nome,
+              mime: st.mime || '',
               size: st.size,
               base64: st.base64,
               updatedAt: Date.now()
