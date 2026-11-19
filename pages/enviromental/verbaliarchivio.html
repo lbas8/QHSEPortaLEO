@@ -318,7 +318,7 @@ function deleteVerbale(vKey) {
         tr.dataset.tipo = tipo;
         tr.innerHTML = `
           <td class="p-3.5 font-bold text-sky-400">${vKey}</td>
-          <td class="p-3.5">${getTipoBadgeHtml(tipo)}</td>
+          <td class="p-3.5">${getTipoBadgeHtml(tipo, Boolean(verbale.pdfFirmatoPresente))}</td>
           <td class="p-3.5 text-slate-300">${dateStr}</td>
           <td class="p-3.5 font-semibold text-white">${contestoPrincipale}</td>
           <td class="p-3.5 text-slate-300">${dettaglioSecondario}</td>
@@ -422,7 +422,7 @@ function deleteVerbale(vKey) {
         <div class="flex-1 min-w-[200px]">
           <div class="font-bold text-white flex flex-wrap items-center gap-2">
             <span><i class="fa-regular fa-file-lines text-sky-400 mr-1"></i> ${vKey}</span>
-            ${getTipoBadgeHtml(tipo)}
+            ${getTipoBadgeHtml(tipo, Boolean(verbale.pdfFirmatoPresente))}
           </div>
           <div class="text-[11px] text-slate-400 mt-1">
             ${dettagliHtml}
