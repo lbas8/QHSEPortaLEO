@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Targhe Autorizzate — Database MdS | Portale QHSE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #060911; color: #f8fafc; }
+    .glass-card { background: rgba(15, 22, 36, 0.88); border: 1px solid rgba(255, 255, 255, 0.08); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white" data-settore="E">
+
+  <header class="w-full bg-[#090d16]/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="mds_hub.html" class="flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-full text-xs font-bold transition no-underline">
+          <i class="fa-solid fa-arrow-left text-emerald-400"></i>
+          <span>MdS Hub</span>
+        </a>
+        <div>
+          <h1 class="font-black text-sm sm:text-base text-white uppercase tracking-wide">Targhe Autorizzate</h1>
+          <p class="text-[11px] text-emerald-400 font-semibold">Foglio 7/7 — Targhe_Autorizzate</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="aggiungiRecord()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer">
+          <i class="fa-solid fa-plus mr-1"></i> Aggiungi
+        </button>
+        <button type="button" onclick="esportaJson()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 cursor-pointer">
+          <i class="fa-solid fa-download mr-1 text-emerald-400"></i> JSON
+        </button>
+        <button type="button" onclick="ripristinaDefault()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-slate-700 cursor-pointer">
+          <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
+    <section class="glass-card rounded-2xl p-5 space-y-4 border-t-2 border-emerald-500">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-id-card"></i>
+          </div>
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">FOGLIO 7 • TARGHE AUTORIZZATE</span>
+            <div id="conteggio-record" class="text-xs text-slate-400 mt-1">Caricamento...</div>
+          </div>
+        </div>
+        <input type="text" id="filtro-ricerca" oninput="renderTabella()" placeholder="Filtra record..." class="w-full sm:w-72 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white">
+      </div>
+
+      <div id="tabella-wrap" class="overflow-x-auto border border-slate-800 rounded-xl"></div>
+    </section>
+  </main>
+
+  <footer class="w-full border-t border-slate-900 bg-[#05080f] py-4 text-center text-xs text-slate-500">
+    <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+  </footer>
+
+  <script>
+    const DB_KEY = "targhe_per_azienda";
+    const STORAGE_KEY = "qhse_mds_sub_" + DB_KEY;
+    const UNIFIED_STORAGE_KEY = "qhse_mds_database_v1";
+    const MODE = "plates_map";
+    const COLUMNS = [{"key": "azienda", "label": "Trasportatore"}, {"key": "targhe", "label": "Targhe"}];
+    const DEFAULT_DATA = [{"azienda": "ATI  - Portalupi Carlo Impresa Spa", "targhe": ["FD133ZW", "FV218CR", "FV219CR"]}, {"azienda": "ATI POLISTRADE-TERRA UOMINI AMBIENTE", "targhe": ["GW722JW"]}, {"azienda": "AUTOSPED G S.p.A.", "targhe": ["EG348GS", "EG461GS", "EL912FS", "EL913FS", "EP620ZW", "ES271GK", "ES377GK", "EW270FK", "EZ004WC", "EZ005WC", "EZ008WC", "EZ014WC", "EZ020WC", "EZ021WC", "EZ187WC", "EZ188WC", "EZ189WC", "EZ191WC", "EZ921RD", "EZ922RD", "EZ939RD", "EZ940RD", "EZ941RD", "FB913HX", "FB917HX", "FB918HX", "FB966HX", "FB967HX", "FB968HX", "FB969HX", "FC828JM", "FF853ER", "FF857ER", "FF929ER", "FF930ER", "FF932ER", "FF933ER", "FF934ER", "FN896AM", "FN957AM", "FV270CR", "FV271CR", "FV272CR", "FV273CR", "FV274CR", "FV275CR", "FV276CR", "FX117SR", "FX118SR", "FX190SR", "FX191SR", "FX192SR", "FX193SR", "FX194SR", "FX195SR", "FX196SR", "FX282SR", "FX283SR", "FX284SR", "FX285SR", "FY247RN", "FY248RN", "FY249RN", "FY283SR", "FY352RN", "FY353RN", "FY354RN", "FY355RN", "FY356RN", "GA255HS", "GA256HS", "GA257HS", "GA430HS", "GA431HS", "GA432HS", "GA433HS", "GA434HS", "GA452HS", "GA454HS", "GA899BJ", "GB957HR", "GB958HR", "GB959HR", "GB960HR", "GC226LS", "GC227LS", "GC228LS", "GC228ZX", "GF106JA", "GF107JA", "GF108JA", "GF109JA", "GF110JA", "GF111JA", "GF282JA", "GG029TL", "GG030TL", "GG031TL", "GG032TL", "GG033TL", "GG034TL", "GG125TL", "GG126TL", "GG177TL", "GG178TL", "GG179TL", "GG180TL", "GG229TK", "GG684TK", "GL057DL", "GL059DL", "GL060DL", "GL061DL", "GL062DL", "GL063DL", "GL067DL", "GL128DL", "GL904DN", "GL921DL", "GM807DJ", "GN225JA", "GN240JA", "GN241JA", "GN242JA", "GN243JA", "GN245JA", "GV524DC", "GW112SL", "GW334SM", "GW884JW", "GW885JW", "GW892JW", "GZ851CY", "GZ925CY"]}, {"azienda": "AUTOTRASPORTI PENSIERO S.r.l.", "targhe": ["DF673AP", "DF905AP", "EH700FS", "FL050KH", "FV087LV", "FW004DP", "FW060DP", "GA052VZ", "GA089VZ", "GA928WA", "GB896VH", "GE951ME", "GJ747SW", "GJ770SW", "GJ860SW", "GX633SJ", "GX635SJ", "HB862JD", "HC465HZ"]}, {"azienda": "BERTINI S.R.L.", "targhe": ["B93A631EC03612048", "B93A63IEV03511366", "EF061RD", "FE019HZ", "GH095FF", "GJ986ZD"]}, {"azienda": "CAR Trasporti S.r.l.", "targhe": ["ES179FL", "FJ914EG", "FX758NN"]}, {"azienda": "CARNOVALE COSTRUZIONI S.R.L.", "targhe": ["FT996XG", "FX734NN", "FX735NN", "FX920NN", "HC929YF"]}, {"azienda": "Cart Soc. Coop. a r. l.", "targhe": ["ED448FG", "EF252YE", "EF436YE", "FC653JM", "FW601MV", "GC701DP", "GC702DP", "GK969CT", "GZ834LE"]}, {"azienda": "Cave Sinni S.r.l.", "targhe": ["EX922ZV", "EY068KB", "FA883ST", "FA884ST"]}, {"azienda": "CIPA S.p.A.", "targhe": ["GB802JL"]}, {"azienda": "CONSORZIO TUNNEL GIOVI", "targhe": ["GX195VV", "NASTRO"]}, {"azienda": "Costruttori S.p.A.", "targhe": ["GD057LZ", "GE291HP", "GM728CC", "GS179DJ"]}, {"azienda": "DIMOTER S.r.l.", "targhe": ["FC880CB", "FM972RK", "FP748KN", "GG901DN", "GH879TR"]}, {"azienda": "ECAM S.R.L.", "targhe": ["EX784HR", "FR885PV", "FY960YC", "GD169NV", "GF079HV", "GF080HV", "GJ017ZC", "GJ979ZD", "GR062FB", "GR095FB"]}, {"azienda": "Eurocav S.C.AR.L.", "targhe": ["DF965AP", "DF966AP", "EM760SK", "FD104LJ", "FP030WY", "FV068LV", "GB898HR"]}, {"azienda": "EUROSCAVI S.r.l.", "targhe": ["DT516HT", "EL501ZZ", "EM831GA", "FH883AP", "FH942AP", "FW141XA", "FY762GE", "FZ841JT", "GB119ZC", "GB949ZE", "GG742LZ", "GG743LZ", "GJ890FZ", "GP420ES", "GT956VT", "GW310KD"]}, {"azienda": "Eurotrasporti Srl", "targhe": ["DF373JR", "FB889XB", "FT642SY"]}, {"azienda": "GERMANI S.P.A.", "targhe": ["FH950BR", "FJ639CN", "FJ640CN", "FJ641CN", "FJ642CN", "FJ643CN", "FJ644CN", "FJ645CN", "FJ646CN", "FJ647CN", "FJ687CN", "FJ689CN", "FJ690CN", "FK929YW", "FK930YW", "FK931YW", "FK932YW", "FK933YW", "FL099YH", "FL100YH", "FL101YH", "FL114YH", "FL115YH", "FL116YH", "FL212YH", "FT083GZ", "FT084GZ", "FT085GZ", "FT105GZ", "FT106GZ", "FT107GZ", "FT150GZ", "FT151GZ", "FT304GZ", "FT306GZ", "FT307GZ", "FT308GZ", "FT957JH", "FT983JH", "FV590JE", "FV591JE", "FV592JE", "FV753JH", "FV754JH", "FV755JH", "FV756JH", "FV865JH", "FV866JH", "FV867JH", "FV868JH", "FV870JH", "FV904JH", "FV905JH", "FV906JH", "FV907JH", "FV908JH", "FV956JH", "FV957JH", "FV958JH", "FV960JH", "FV981JH", "FV982JH", "FV983JH", "FV984JH", "FV985JH", "FW214SK", "FW215SK", "FW216SK", "FW250SK", "FW251SK", "FW252SK", "FW253SK", "FW254SK", "FW338SK", "FW339SK", "FW340SK", "FZ152MD", "FZ251MD", "FZ913MC", "GA138LY", "GA139LY", "GA140LY", "GA141LY", "GA142LY", "GA143LY", "GA144LY", "GC500MK", "GC501MK", "GC553MK", "GC554MK", "GC587MK", "GC589MK", "GC624MK", "GC683MK", "GC684MK", "GC732MK", "GC733MK", "GC736MK", "GC800MK", "GD039GX", "GD040GX", "GD041GX", "GD042GX", "GD043GX", "GD045GX", "GD047GX", "GD048GX", "GD081GX", "GF488AJ", "GH307AS", "GH310AS", "GH312AS", "GH357AS", "GH361AS", "GH364AS", "GH368AS", "GH369AS", "GH370AS", "GH417AS", "GH419AS", "GH420AS", "GH421AS", "GH574AR", "GH577AS", "GH721AR", "GM795XJ", "GR573DG", "GR586DG", "GR587DG", "GR589DG", "GR676DG", "GR763DG", "GR767DG", "GR897DG", "GS483AP", "GS484AP", "GS485AP", "GS579AP", "GS676AP", "GS737AP", "GS797AP", "GS862AP", "GS969AP", "GS972AP", "GS973AP", "GY005MS", "GY006MS", "GY026MS", "GY027MS", "GY028MS", "GY075MS", "GY076MS", "GY150MS", "GY151MS", "GY152MS", "GY153MS", "GY154MS", "GY155MS", "GY156MS", "GY158MS", "GY159MS", "GY169MS", "GY170MS", "GY171MS", "GY172MS", "HA005ZB", "HA095ZB"]}, {"azienda": "Impresa Bacchi Srl", "targhe": ["DZ673BA", "EC798TR", "GA949CH", "GA950CH", "GE380AM", "GE570AM", "GE571AM", "GH622XH", "GJ090KV"]}, {"azienda": "M&D S.R.L.", "targhe": ["FX443SE", "FX490SE", "FX491SE", "FZ861WP", "GB136GB", "GB137GB", "GB138GB", "GS741WP", "GS743WP", "GS744WP", "HA585MG", "HA586MG", "NASTRO_M&D"]}, {"azienda": "MORELLO CARMELO", "targhe": ["AS123AS", "DR606FB", "EA400SG", "EH705FS", "EK121BN", "EL272LK", "EL274LK", "EN227WE", "ES400GK", "ES401GK", "ET820NK", "EX268BS", "EX884TA", "EX885TA", "EY915NH", "EY921JB", "EZ067WC", "EZ068WC", "EZ069WC", "FC346JR", "FC366JR", "FH284ZA", "FH285ZA", "FK542EH", "FS907RV", "FS908RV", "GA012FR", "GA013FR", "GA041FR", "GA424AB", "GA432AB", "GD581MA", "GD603MA", "GD604MA", "GD607MA", "GD830YD", "GD831YD", "GE913YK", "GE960YK", "GE961YK", "GE962YK", "GE972XV", "GG935DN", "GJ833TY", "GJ883TY", "GM951KA", "GM954KA", "GT978WL", "GX806XK", "GX828XK", "GX926XK", "GY701BR", "GY703BR", "GY770BT", "HB007KH", "HB009KH", "HB834HT", "HB977KK"]}, {"azienda": "MORELLO DOMENICO", "targhe": ["ES469GK", "EW554WN", "EY944HM", "EZ561SV", "FA912MB", "FC879CB", "FC983CB", "FC984CB", "FE116DD", "FE161DD", "FF977HE", "FK531EH", "FL934VJ", "FM971RK", "FN051FT", "FP432CP", "FS311FD", "FS875RV", "FS951RX", "FY039SN", "GD846YB", "GD857DF", "GD910DT", "GD914DT", "GD926DT", "GG904DN", "GH850TR", "GW179YT", "GX857XK", "HC949CD"]}, {"azienda": "MOVITER S.r.l.", "targhe": ["FL920BL", "FM183PM", "FN116FK", "FT082GF", "FV785DG", "FV786DG", "FX252TM", "FX253TM", "FX439TM", "FX924TM", "FX934TM", "GA099BJ", "GA250BJ", "GA251BJ", "GA682BJ"]}, {"azienda": "NEW GROUP INFRASTRUTTURE S.R.L.", "targhe": ["FP991KX", "GV876AK", "GV920AK", "HA265BV", "HA266BV", "HA411BV"]}, {"azienda": "P.M. Trasporti Srl", "targhe": ["FH761HG", "FM024WY", "FM330WY", "FN824VF", "GA105HS", "GA402HS"]}, {"azienda": "PARATORI SPA", "targhe": ["EZ844PD", "GD748DF", "GZ505CY", "GZ506CY", "GZ507CY", "GZ508CY", "GZ509CY", "HA112LB", "HA730LD", "HA732LD", "HA735LD", "HB326XJ", "HB372XJ", "HB375XJ"]}, {"azienda": "PICCO BARTOLOMEO S.R.L.", "targhe": ["CH864GT", "GG846YZ", "GL656FG"]}, {"azienda": "PM SERVICES S.R.L.", "targhe": ["DJ935GW", "DR579CR", "EF270SV", "ER528VY", "ER529VY", "ER865VY", "ER866VY", "EW134YW", "EX059NJ", "FB847XK", "FD688XH", "FH827LD", "FH997SP", "FJ514HN", "FK827NX", "FN659WD", "FR376BF", "GA165BJ", "GA230BK", "GC245RN", "GC866AT", "GC899AT", "GC900AT", "GC996RN", "GE002XR", "GE474BA", "GE489BA", "GF105JK", "GF106JK", "GJ013BR", "GJ291BR", "GJ378BR", "GN210JX", "HB220AK", "HB221AK", "HC015ZN"]}, {"azienda": "PREVE COSTRUZIONI S.P.A", "targhe": ["FB059JE", "FB060JE", "FB061JE", "FB356JE", "FB783JE", "FG169HG", "FG171HG", "FL962MB", "FM138RK", "HC573ZS", "HE978GX"]}, {"azienda": "TESTA SCAVI Srl", "targhe": ["GG128TL", "GP852CC"]}, {"azienda": "TRASPOTER S.r.l.", "targhe": ["FF110XL", "FT072GF", "FV547DG", "FX313TM", "FX440TM", "FX852TM", "GA258BJ", "GA259BJ", "GA259BK", "GA687BJ"]}, {"azienda": "TRIO S.r.l.", "targhe": ["GH913CH", "GJ192HG", "GJ193HG"]}, {"azienda": "TRIZZINO SALVATORE", "targhe": ["FW052RK", "FY082KV", "GR076FB"]}, {"azienda": "Truck Rail Container S.p.A.", "targhe": ["FE901WY", "FE904WY", "FE905WY", "FE906WY", "FE930WY", "FE931WY", "FF851ER", "FF852ER", "FF855ER", "FF856ER", "FF931ER", "FS992PS", "GM815DJ", "GM818DJ", "GM823DJ", "GM826DJ"]}, {"azienda": "Unistrade S.r.l.", "targhe": ["CB522PF", "DX894DM", "EK009BK", "EL861XE", "FB032TA", "FF627SM"]}, {"azienda": "VE COSTRUZIONI S.R.L.", "targhe": ["CW430ZM", "DE002NV", "FF107JT", "FM939SN", "GJ908TZ", "GN824ZX"]}, {"azienda": "ZENTI TRANSPORT S.r.l.", "targhe": ["EH408LW", "FD260EL", "FE968RH", "FF840ZH", "FG688NM"]}];
+
+    let records = caricaDati();
+
+    function caricaDati() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (_) {}
+      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+
+    function salvaDati() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      try {
+        const unifiedRaw = localStorage.getItem(UNIFIED_STORAGE_KEY);
+        const unified = unifiedRaw ? JSON.parse(unifiedRaw) : {};
+        unified[DB_KEY] = records;
+        localStorage.setItem(UNIFIED_STORAGE_KEY, JSON.stringify(unified));
+      } catch (_) {}
+      if (typeof firebase !== "undefined" && firebase.apps && firebase.apps.length) {
+        firebase.database().ref("mds_database/" + DB_KEY).set(records).catch(() => {});
+      }
+      aggiornaConteggio();
+    }
+
+    function aggiornaConteggio() {
+      const tot = MODE === "plates_map"
+        ? records.reduce((acc, r) => acc + (r.targhe ? r.targhe.length : 0), 0)
+        : records.length;
+      const extra = MODE === "plates_map" ? ` (${records.length} aziende)` : "";
+      document.getElementById("conteggio-record").textContent = `${tot} voci attive${extra}`;
+    }
+
+    function renderTabella() {
+      const q = (document.getElementById("filtro-ricerca").value || "").toLowerCase().trim();
+      const wrap = document.getElementById("tabella-wrap");
+
+      if (MODE === "string_list") {
+        const filtered = records
+          .map((val, idx) => ({ val, idx }))
+          .filter(item => !q || item.val.toLowerCase().includes(q));
+
+        wrap.innerHTML = `
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-950 text-slate-300">
+              <tr>
+                <th class="p-3">${COLUMNS[0].label}</th>
+                <th class="p-3 w-20 text-center">Elimina</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              ${filtered.map(item => `
+                <tr>
+                  <td class="p-2">
+                    <input type="text" value="${item.val.replace(/"/g, '&quot;')}"
+                      onchange="records[${item.idx}] = this.value; salvaDati();"
+                      class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-white">
+                  </td>
+                  <td class="p-2 text-center">
+                    <button type="button" onclick="records.splice(${item.idx}, 1); salvaDati(); renderTabella();" class="text-rose-400 hover:text-rose-300 cursor-pointer">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>`;
+        aggiornaConteggio();
+        return;
+      }
+
+      if (MODE === "plates_map") {
+        const filtered = records
+          .map((row, idx) => ({ row, idx }))
+          .filter(item => {
+            if (!q) return true;
+            const hay = `${item.row.azienda} ${(item.row.targhe || []).join(" ")}`.toLowerCase();
+            return hay.includes(q);
+          });
+
+        wrap.innerHTML = `
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-950 text-slate-300">
+              <tr>
+                <th class="p-3 w-1/3">Trasportatore / Azienda</th>
+                <th class="p-3">Targhe Autorizzate (separate da ;)</th>
+                <th class="p-3 w-20 text-center">Elimina</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              ${filtered.map(item => {
+                const tStr = (item.row.targhe || []).join("; ");
+                return `
+                  <tr>
+                    <td class="p-2">
+                      <input type="text" value="${(item.row.azienda || "").replace(/"/g, '&quot;')}"
+                        onchange="records[${item.idx}].azienda = this.value; salvaDati();"
+                        class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-emerald-300 font-semibold">
+                    </td>
+                    <td class="p-2">
+                      <input type="text" value="${tStr.replace(/"/g, '&quot;')}"
+                        onchange="records[${item.idx}].targhe = this.value.split(/[;,]+/).map(s => s.trim()).filter(Boolean); salvaDati();"
+                        class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-white">
+                    </td>
+                    <td class="p-2 text-center">
+                      <button type="button" onclick="records.splice(${item.idx}, 1); salvaDati(); renderTabella();" class="text-rose-400 hover:text-rose-300 cursor-pointer">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>`;
+        aggiornaConteggio();
+        return;
+      }
+
+      const filtered = records
+        .map((row, idx) => ({ row, idx }))
+        .filter(item => {
+          if (!q) return true;
+          return COLUMNS.some(c => String(item.row[c.key] ?? "").toLowerCase().includes(q));
+        });
+
+      wrap.innerHTML = `
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-950 text-slate-300">
+            <tr>
+              ${COLUMNS.map(c => `<th class="p-3">${c.label}</th>`).join("")}
+              <th class="p-3 w-20 text-center">Elimina</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            ${filtered.map(item => `
+              <tr>
+                ${COLUMNS.map(c => `
+                  <td class="p-2">
+                    <input type="text" value="${String(item.row[c.key] ?? "").replace(/"/g, '&quot;')}"
+                      onchange="records[${item.idx}]['${c.key}'] = this.value; salvaDati();"
+                      class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-white">
+                  </td>
+                `).join("")}
+                <td class="p-2 text-center">
+                  <button type="button" onclick="records.splice(${item.idx}, 1); salvaDati(); renderTabella();" class="text-rose-400 hover:text-rose-300 cursor-pointer">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>`;
+      aggiornaConteggio();
+    }
+
+    function aggiungiRecord() {
+      if (MODE === "string_list") {
+        records.unshift("Nuova litologia");
+      } else if (MODE === "plates_map") {
+        records.unshift({ azienda: "Nuovo trasportatore", targhe: [] });
+      } else {
+        const empty = {};
+        COLUMNS.forEach(c => empty[c.key] = "");
+        records.unshift(empty);
+      }
+      salvaDati();
+      renderTabella();
+    }
+
+    function esportaJson() {
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = DB_KEY + ".json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function ripristinaDefault() {
+      if (!confirm("Ripristinare i dati predefiniti del foglio Excel per questa sezione?")) return;
+      records = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      salvaDati();
+      renderTabella();
+    }
+
+    document.addEventListener("DOMContentLoaded", renderTabella);
+  </script>
+</body>
+</html>

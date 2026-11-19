@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MdS HUB — Materiale da Scavo | Portale QHSE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #060911;
+      color: #f8fafc;
+    }
+
+    .hub-card {
+      position: relative;
+      background: rgba(15, 22, 36, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 2px solid #10b981;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hub-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(16, 185, 129, 0.45);
+      border-top-color: #34d399;
+      box-shadow: 0 14px 32px -12px rgba(16, 185, 129, 0.22);
+    }
+
+    .sub-db-card {
+      background: rgba(9, 13, 22, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-left: 3px solid #10b981;
+      transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .sub-db-card:hover {
+      transform: translateY(-1px);
+      border-color: rgba(52, 211, 153, 0.45);
+      background: rgba(16, 185, 129, 0.08);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white" data-settore="E">
+
+  <header class="w-full bg-[#090d16]/95 border-b border-slate-800/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="javascript:history.back()" class="flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-full text-xs font-bold transition no-underline">
+          <i class="fa-solid fa-arrow-left text-emerald-400"></i>
+          <span>Indietro</span>
+        </a>
+
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-mountain text-base"></i>
+        </div>
+
+        <div>
+          <span class="font-black text-sm sm:text-base text-white uppercase tracking-wide">
+            MdS HUB — Materiale da Scavo
+          </span>
+          <p class="text-[11px] text-emerald-400 font-semibold">
+            Terzo Valico dei Giovi — D.P.R. 120/2017 & Sottoprodotto
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="index.html" class="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-full text-xs font-bold transition no-underline">
+          <i class="fa-solid fa-house text-emerald-400"></i>
+          <span>Home</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-10 space-y-8">
+
+    <div class="text-center space-y-2 max-w-2xl mx-auto">
+      <h1 class="text-2xl sm:text-4xl font-black uppercase tracking-wide text-white">
+        MODULI & PORTALI MdS
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+        Seleziona l'area operativa per accedere al portale esterno MdS, alle attività preventive, alle rettificate a zero e ai 7 database modulari.
+      </p>
+    </div>
+
+    <!-- GRIGLIA PRINCIPALE -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- CARD 1: PORTALE MdS ESTERNO -->
+      <a href="https://cociv.ate.cloud/Account/Login?ReturnUrl=%2F" target="_blank" rel="noopener noreferrer"
+         class="hub-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between min-h-[200px] no-underline group">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between gap-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-lg">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              PORTALE ESTERNO
+            </span>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-black uppercase tracking-wide text-white group-hover:text-emerald-300 transition">
+              PORTALE MdS
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1.5 leading-relaxed">
+              Accesso diretto al portale applicativo COCIV per la gestione e tracciabilità del Materiale da Scavo.
+            </p>
+          </div>
+        </div>
+        <div class="pt-5 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400">
+          <span>Apri Sito MdS</span>
+          <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+        </div>
+      </a>
+
+      <!-- CARD 2: PREVENTIVE -->
+      <a href="mds_preventiva.html"
+         class="hub-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between min-h-[200px] no-underline group">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between gap-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-lg">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              PIANIFICAZIONE & CONTROLLI
+            </span>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-black uppercase tracking-wide text-white group-hover:text-emerald-300 transition">
+              PREVENTIVE
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1.5 leading-relaxed">
+              Gestione delle attività preventive, comunicazioni mensili, cronoprogrammi settimanali e controlli operativi.
+            </p>
+          </div>
+        </div>
+        <div class="pt-5 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400">
+          <span>Apri Sezione Preventive</span>
+          <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+        </div>
+      </a>
+
+      <!-- CARD 3: RETTIFICATE A ZERO -->
+      <a href="mds_rettificate_zero.html"
+         class="hub-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between min-h-[200px] no-underline group">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between gap-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-lg">
+              <i class="fa-solid fa-rotate-left"></i>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              ALLINEAMENTI & VARIANTI
+            </span>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-black uppercase tracking-wide text-white group-hover:text-emerald-300 transition">
+              RETTIFICATE A ZERO
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1.5 leading-relaxed">
+              Registro e gestione delle rettificate a zero, azzeramenti movimentazioni e riconciliazioni contabili/operative.
+            </p>
+          </div>
+        </div>
+        <div class="pt-5 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-400">
+          <span>Apri Rettificate a Zero</span>
+          <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+        </div>
+      </a>
+
+      <!-- CARD 4: DATABASE MdS CON 7 SUB-CARD -->
+      <div class="hub-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between space-y-5">
+        <div class="space-y-3">
+          <div class="flex items-center justify-between gap-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-lg">
+              <i class="fa-solid fa-database"></i>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              7 FOGLI • MODULARE
+            </span>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-black uppercase tracking-wide text-white">
+              DATABASE MdS
+            </h2>
+            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+              Seleziona uno dei 7 archivi dedicati estratti da <span class="text-slate-200 font-semibold">DATABASE_PREVENTIVE</span>:
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+          <a href="hub_sitiproduzione.html" class="sub-db-card rounded-xl p-3 flex items-center justify-between no-underline text-slate-200">
+            <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-industry text-emerald-400"></i> Siti di Produzione</span>
+            <span class="text-[10px] text-slate-400">1/7</span>
+          </a>
+
+          <a href="hub_produttori.html" class="sub-db-card rounded-xl p-3 flex items-center justify-between no-underline text-slate-200">
+            <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-building text-emerald-400"></i> Produttori</span>
+            <span class="text-[10px] text-slate-400">2/7</span>
+          </a>
+
+          <a href="hub_materiali.html" class="sub-db-card rounded-xl p-3 flex items-center justify-between no-underline text-slate-200">
+            <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-cubes text-emerald-400"></i> Tipo Materiale</span>
+            <span class="text-[10px] text-slate-400">3/7</span>
+          </a>
+
+          <a href="hub_sitidestinazione.html" class="sub-db-card rounded-xl p-3 flex items-center justify-between no-underline text-slate-200">
+            <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-location-dot text-emerald-400"></i> Siti Destinazione</span>
+            <span class="text-[10px] text-slate-400">4/7</span>
+          </a>
+
+          <a href="hub_destinatari.html" class="sub-db-card rounded-xl p-3 flex items-center justify-between no-underline text-slate-200">
+            <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-warehouse text-emerald-400"></i> Destinatari</span>
+            <span class="text-[10px] text-slate-400">5/7</span>
+          </a>
+
+          <a href="hub_trasportatori.html" class="sub-db-card rounded-xl p-3 flex items-center justify-between no-underline text-slate-200">
+            <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-truck text-emerald-400"></i> Trasportatori</span>
+            <span class="text-[10px] text-slate-400">6/7</span>
+          </a>
+
+          <a href="hub_targhe.html" class="sub-db-card rounded-xl p-3 flex items-center justify-between no-underline text-slate-200 sm:col-span-2">
+            <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-id-card text-emerald-400"></i> Targhe Autorizzate</span>
+            <span class="text-[10px] text-emerald-300 font-bold">7/7</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="w-full border-t border-slate-900 bg-[#05080f] py-4 text-center text-xs text-slate-500">
+    <div class="max-w-6xl mx-auto px-4">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+    </div>
+  </footer>
+
+</body>
+</html>

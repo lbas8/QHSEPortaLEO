@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Siti di Destinazione / WBS — Database MdS | Portale QHSE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #060911; color: #f8fafc; }
+    .glass-card { background: rgba(15, 22, 36, 0.88); border: 1px solid rgba(255, 255, 255, 0.08); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white" data-settore="E">
+
+  <header class="w-full bg-[#090d16]/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="mds_hub.html" class="flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-full text-xs font-bold transition no-underline">
+          <i class="fa-solid fa-arrow-left text-emerald-400"></i>
+          <span>MdS Hub</span>
+        </a>
+        <div>
+          <h1 class="font-black text-sm sm:text-base text-white uppercase tracking-wide">Siti di Destinazione / WBS</h1>
+          <p class="text-[11px] text-emerald-400 font-semibold">Foglio 4/7 — SITO_DI_DESTINAZIONE</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="aggiungiRecord()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer">
+          <i class="fa-solid fa-plus mr-1"></i> Aggiungi
+        </button>
+        <button type="button" onclick="esportaJson()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 cursor-pointer">
+          <i class="fa-solid fa-download mr-1 text-emerald-400"></i> JSON
+        </button>
+        <button type="button" onclick="ripristinaDefault()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-slate-700 cursor-pointer">
+          <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
+    <section class="glass-card rounded-2xl p-5 space-y-4 border-t-2 border-emerald-500">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">FOGLIO 4 • SITO_DI_DESTINAZIONE</span>
+            <div id="conteggio-record" class="text-xs text-slate-400 mt-1">Caricamento...</div>
+          </div>
+        </div>
+        <input type="text" id="filtro-ricerca" oninput="renderTabella()" placeholder="Filtra record..." class="w-full sm:w-72 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white">
+      </div>
+
+      <div id="tabella-wrap" class="overflow-x-auto border border-slate-800 rounded-xl"></div>
+    </section>
+  </main>
+
+  <footer class="w-full border-t border-slate-900 bg-[#05080f] py-4 text-center text-xs text-slate-500">
+    <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+  </footer>
+
+  <script>
+    const DB_KEY = "siti_destinazione";
+    const STORAGE_KEY = "qhse_mds_sub_" + DB_KEY;
+    const UNIFIED_STORAGE_KEY = "qhse_mds_database_v1";
+    const MODE = "object_list";
+    const COLUMNS = [{"key": "sito_wbs", "label": "Sito o WBS"}, {"key": "indirizzo", "label": "Indirizzo"}, {"key": "cap", "label": "CAP"}, {"key": "comune", "label": "Comune"}];
+    const DEFAULT_DATA = [{"sito_wbs": "Cava Castellaro - DP02", "indirizzo": "S.P.6 Via Cravasco", "cap": "16044", "comune": "Campomorone (GE)"}, {"sito_wbs": "Interconnessione", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"}, {"sito_wbs": "Gerbidi", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"}, {"sito_wbs": "Novi Ligure", "indirizzo": "Strada Cassano SP153", "cap": "15067", "comune": "Novi Ligure (AL)"}, {"sito_wbs": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"}, {"sito_wbs": "Cascina Romanellotta - DP22", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"}, {"sito_wbs": "EX Cava Cementir Voltaggio - DP04", "indirizzo": "Località Ferriera Vecchia, s.n.c.", "cap": "15060", "comune": "Voltaggio (AL)"}, {"sito_wbs": "Cascina Venezia", "indirizzo": "Via Enrico Fermi, s.n.c.", "cap": "27058", "comune": "Casei Gerola (PV)"}, {"sito_wbs": "Cascina Vassuria - DP9D", "indirizzo": "S.P. 35bis s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"}, {"sito_wbs": "Cascina Guendalina - DP98", "indirizzo": "Strada dei Molini, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"}, {"sito_wbs": "Deposito Intermedio C.na Romanellotta (DICR)", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"}, {"sito_wbs": "Cava Vecchie Fornaci - DP91", "indirizzo": "Via alle Vecchie Fornaci, s.n.c.", "cap": "16162", "comune": "Genova (GE)"}, {"sito_wbs": "Deposito Intermedio Cantiere Operativo Fegino - COL2", "indirizzo": "Via Castel Morrone, s.n.c.", "cap": "16161", "comune": "Genova (GE)"}, {"sito_wbs": "Deposito Intermedio Libarna (DILIB)", "indirizzo": "Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)"}];
+
+    let records = caricaDati();
+
+    function caricaDati() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (_) {}
+      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+
+    function salvaDati() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      try {
+        const unifiedRaw = localStorage.getItem(UNIFIED_STORAGE_KEY);
+        const unified = unifiedRaw ? JSON.parse(unifiedRaw) : {};
+        unified[DB_KEY] = records;
+        localStorage.setItem(UNIFIED_STORAGE_KEY, JSON.stringify(unified));
+      } catch (_) {}
+      if (typeof firebase !== "undefined" && firebase.apps && firebase.apps.length) {
+        firebase.database().ref("mds_database/" + DB_KEY).set(records).catch(() => {});
+      }
+      aggiornaConteggio();
+    }
+
+    function aggiornaConteggio() {
+      const tot = MODE === "plates_map"
+        ? records.reduce((acc, r) => acc + (r.targhe ? r.targhe.length : 0), 0)
+        : records.length;
+      const extra = MODE === "plates_map" ? ` (${records.length} aziende)` : "";
+      document.getElementById("conteggio-record").textContent = `${tot} voci attive${extra}`;
+    }
+
+    function renderTabella() {
+      const q = (document.getElementById("filtro-ricerca").value || "").toLowerCase().trim();
+      const wrap = document.getElementById("tabella-wrap");
+
+      if (MODE === "string_list") {
+        const filtered = records
+          .map((val, idx) => ({ val, idx }))
+          .filter(item => !q || item.val.toLowerCase().includes(q));
+
+        wrap.innerHTML = `
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-950 text-slate-300">
+              <tr>
+                <th class="p-3">${COLUMNS[0].label}</th>
+                <th class="p-3 w-20 text-center">Elimina</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              ${filtered.map(item => `
+                <tr>
+                  <td class="p-2">
+                    <input type="text" value="${item.val.replace(/"/g, '&quot;')}"
+                      onchange="records[${item.idx}] = this.value; salvaDati();"
+                      class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-white">
+                  </td>
+                  <td class="p-2 text-center">
+                    <button type="button" onclick="records.splice(${item.idx}, 1); salvaDati(); renderTabella();" class="text-rose-400 hover:text-rose-300 cursor-pointer">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>`;
+        aggiornaConteggio();
+        return;
+      }
+
+      if (MODE === "plates_map") {
+        const filtered = records
+          .map((row, idx) => ({ row, idx }))
+          .filter(item => {
+            if (!q) return true;
+            const hay = `${item.row.azienda} ${(item.row.targhe || []).join(" ")}`.toLowerCase();
+            return hay.includes(q);
+          });
+
+        wrap.innerHTML = `
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-950 text-slate-300">
+              <tr>
+                <th class="p-3 w-1/3">Trasportatore / Azienda</th>
+                <th class="p-3">Targhe Autorizzate (separate da ;)</th>
+                <th class="p-3 w-20 text-center">Elimina</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              ${filtered.map(item => {
+                const tStr = (item.row.targhe || []).join("; ");
+                return `
+                  <tr>
+                    <td class="p-2">
+                      <input type="text" value="${(item.row.azienda || "").replace(/"/g, '&quot;')}"
+                        onchange="records[${item.idx}].azienda = this.value; salvaDati();"
+                        class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-emerald-300 font-semibold">
+                    </td>
+                    <td class="p-2">
+                      <input type="text" value="${tStr.replace(/"/g, '&quot;')}"
+                        onchange="records[${item.idx}].targhe = this.value.split(/[;,]+/).map(s => s.trim()).filter(Boolean); salvaDati();"
+                        class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-white">
+                    </td>
+                    <td class="p-2 text-center">
+                      <button type="button" onclick="records.splice(${item.idx}, 1); salvaDati(); renderTabella();" class="text-rose-400 hover:text-rose-300 cursor-pointer">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>`;
+        aggiornaConteggio();
+        return;
+      }
+
+      const filtered = records
+        .map((row, idx) => ({ row, idx }))
+        .filter(item => {
+          if (!q) return true;
+          return COLUMNS.some(c => String(item.row[c.key] ?? "").toLowerCase().includes(q));
+        });
+
+      wrap.innerHTML = `
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-950 text-slate-300">
+            <tr>
+              ${COLUMNS.map(c => `<th class="p-3">${c.label}</th>`).join("")}
+              <th class="p-3 w-20 text-center">Elimina</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            ${filtered.map(item => `
+              <tr>
+                ${COLUMNS.map(c => `
+                  <td class="p-2">
+                    <input type="text" value="${String(item.row[c.key] ?? "").replace(/"/g, '&quot;')}"
+                      onchange="records[${item.idx}]['${c.key}'] = this.value; salvaDati();"
+                      class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-white">
+                  </td>
+                `).join("")}
+                <td class="p-2 text-center">
+                  <button type="button" onclick="records.splice(${item.idx}, 1); salvaDati(); renderTabella();" class="text-rose-400 hover:text-rose-300 cursor-pointer">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>`;
+      aggiornaConteggio();
+    }
+
+    function aggiungiRecord() {
+      if (MODE === "string_list") {
+        records.unshift("Nuova litologia");
+      } else if (MODE === "plates_map") {
+        records.unshift({ azienda: "Nuovo trasportatore", targhe: [] });
+      } else {
+        const empty = {};
+        COLUMNS.forEach(c => empty[c.key] = "");
+        records.unshift(empty);
+      }
+      salvaDati();
+      renderTabella();
+    }
+
+    function esportaJson() {
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = DB_KEY + ".json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function ripristinaDefault() {
+      if (!confirm("Ripristinare i dati predefiniti del foglio Excel per questa sezione?")) return;
+      records = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      salvaDati();
+      renderTabella();
+    }
+
+    document.addEventListener("DOMContentLoaded", renderTabella);
+  </script>
+</body>
+</html>
