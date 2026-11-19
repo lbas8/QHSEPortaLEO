@@ -105,7 +105,7 @@
             Comunicazione Preventiva Trasporti MdS
           </h1>
           <p id="hub-sync-status" class="text-[11px] text-emerald-400 font-semibold">
-            Collegato ai 7 Hub Modulari (localStorage + default Hub 1/7)
+            Collegato ai 7 Hub Modulari (localStorage + fallback Hub 1–7)
           </p>
         </div>
       </div>
@@ -313,7 +313,6 @@
       targhe_per_azienda: "qhse_mds_sub_targhe_per_azienda"
     };
 
-    // Fallback allineato a hub_sitiproduzione.html (Foglio 1/7 — SITO_DI_PRODUZIONE)
     const DEFAULT_SITI_PRODUZIONE = [
       {"denominazione": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
       {"denominazione": "Interconnessione", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
@@ -329,6 +328,37 @@
       {"denominazione": "Libarna (COP5)", "indirizzo": "c/o Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": ""},
       {"denominazione": "Pernigotti [TRVB]", "indirizzo": "Via dell'Argicoltura, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""},
       {"denominazione": "Novi Ligure (COP7)", "indirizzo": "Strada Cappellazza, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": "DEPOSITO INTERMEDIO"}
+    ];
+
+    const DEFAULT_SITI_DESTINAZIONE = [
+      {"sito_wbs": "Novi Ligure (Deposito / WBS)", "indirizzo": "S.P. 153 Strada Cassano, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)"},
+      {"sito_wbs": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "Libarna (COP5)", "indirizzo": "Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)"}
+    ];
+
+    const DEFAULT_PRODUTTORI = [
+      {"denominazione": "Consorzio COCIV", "indirizzo": "Via R. Bianchi 40", "cap": "16152", "comune": "Genova (GE)", "piva": ""}
+    ];
+
+    const DEFAULT_DESTINATARI = [
+      {"denominazione": "Consorzio COCIV", "indirizzo": "Via R. Bianchi 40", "cap": "16152", "comune": "Genova (GE)", "piva": ""}
+    ];
+
+    const DEFAULT_MATERIALI = [
+      "Metabasalti",
+      "Calcari / Marne",
+      "Terra e rocce da scavo",
+      "Ghiaie e sabbie"
+    ];
+
+    const DEFAULT_TRASPORTATORI = [
+      {"denominazione": "MORELLO CARMELO", "piva": ""},
+      {"denominazione": "AUTOSPED G S.p.A.", "piva": ""}
+    ];
+
+    const DEFAULT_TARGHE_PER_AZIENDA = [
+      {"azienda": "MORELLO CARMELO", "targhe": []},
+      {"azienda": "AUTOSPED G S.p.A.", "targhe": []}
     ];
 
     let hubData = {
@@ -390,16 +420,15 @@
       const tr = readSub("trasportatori");
       const ta = readSub("targhe_per_azienda");
 
-      hubData.siti_produzione = (Array.isArray(sp) && sp.length)
-        ? sp
-        : JSON.parse(JSON.stringify(DEFAULT_SITI_PRODUZIONE));
-
-      if (pr) hubData.produttori = pr;
-      if (mt) hubData.materiali = mt;
-      if (sd) hubData.siti_destinazione = sd;
-      if (de) hubData.destinatari = de;
-      if (tr) hubData.trasportatori = tr;
-      if (ta) hubData.targhe_per_azienda = normalizzaTargheMap(ta);
+      hubData.siti_produzione = (Array.isArray(sp) && sp.length) ? sp : JSON.parse(JSON.stringify(DEFAULT_SITI_PRODUZIONE));
+      hubData.produttori = (Array.isArray(pr) && pr.length) ? pr : JSON.parse(JSON.stringify(DEFAULT_PRODUTTORI));
+      hubData.materiali = (Array.isArray(mt) && mt.length) ? mt : JSON.parse(JSON.stringify(DEFAULT_MATERIALI));
+      hubData.siti_destinazione = (Array.isArray(sd) && sd.length) ? sd : JSON.parse(JSON.stringify(DEFAULT_SITI_DESTINAZIONE));
+      hubData.destinatari = (Array.isArray(de) && de.length) ? de : JSON.parse(JSON.stringify(DEFAULT_DESTINATARI));
+      hubData.trasportatori = (Array.isArray(tr) && tr.length) ? tr : JSON.parse(JSON.stringify(DEFAULT_TRASPORTATORI));
+      hubData.targhe_per_azienda = (ta && (Array.isArray(ta) ? ta.length : Object.keys(ta).length))
+        ? normalizzaTargheMap(ta)
+        : JSON.parse(JSON.stringify(DEFAULT_TARGHE_PER_AZIENDA));
     }
 
     async function ricaricaDagliHub() {
@@ -451,7 +480,7 @@
       sincronizzaBlocchiTrasportatori();
       ricalcolaCalendarioESettimane();
       document.getElementById("hub-sync-status").textContent =
-        `Aggiornato: ${hubData.siti_produzione.length} siti prod. • ${hubData.trasportatori.length} trasportatori • ${hubData.materiali.length} litologie`;
+        `Aggiornato: ${hubData.siti_produzione.length} siti prod. • ${hubData.siti_destinazione.length} destinazioni • ${hubData.trasportatori.length} trasportatori • ${hubData.materiali.length} litologie`;
     }
 
     function cambiaSitoPartenza(val) {
