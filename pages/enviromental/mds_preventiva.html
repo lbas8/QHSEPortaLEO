@@ -22,7 +22,7 @@
     @media print {
       @page {
         size: A4 landscape;
-        margin: 8mm;
+        margin: 6mm;
       }
       .no-print { display: none !important; }
       body {
@@ -37,8 +37,8 @@
         width: 100% !important;
         color: #111827 !important;
         background: #ffffff !important;
-        font-size: 6.6pt;
-        line-height: 1.2;
+        font-size: 6.2pt;
+        line-height: 1.15;
       }
       .prev-table {
         width: 100%;
@@ -47,23 +47,31 @@
       }
       .prev-table th, .prev-table td {
         border: 1px solid #374151;
-        padding: 2px 4px;
+        padding: 1.5px 3px;
         vertical-align: middle;
         word-wrap: break-word;
       }
       .prev-title {
         font-weight: 800;
-        font-size: 9pt;
+        font-size: 8.5pt;
         text-align: center;
       }
       .prev-sub {
-        font-size: 7pt;
+        font-size: 6.6pt;
         text-align: center;
       }
       .prev-sec-hdr {
         background: #e5e7eb !important;
         font-weight: 700;
         text-align: center;
+      }
+      .prev-wk-hdr {
+        background: #f3f4f6 !important;
+        font-weight: 700;
+      }
+      .prev-out-range {
+        background: #f9fafb !important;
+        color: #6b7280 !important;
       }
       .prev-num {
         text-align: right;
@@ -121,9 +129,14 @@
           <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
             1. Estremi Comunicazione & Periodo di Riferimento
           </h2>
-          <span id="codice-comunicazione-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-            PRE_set[45÷49]_2026
-          </span>
+          <div class="flex items-center gap-2">
+            <span id="settimane-range-badge" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-700">
+              5 settimane
+            </span>
+            <span id="codice-comunicazione-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              PRE_set[45÷49]_2026
+            </span>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -226,12 +239,17 @@
         </div>
       </section>
 
-      <!-- TRASPORTATORI & TARGHE -->
+      <!-- TRASPORTATORI & CALENDARIO SETTIMANALE COMPLETO -->
       <section class="glass-card rounded-2xl p-5 space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-          <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
-            3. Trasportatori, Targhe & Viaggi Previsti
-          </h2>
+          <div>
+            <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
+              3. Trasportatori, Targhe & Calendario Mensile Settimanale
+            </h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">
+              Compilazione per singola settimana e data del mese. Puoi anche applicare un pattern settimanale (Lun–Dom) a tutte le settimane.
+            </p>
+          </div>
           <button type="button" onclick="aggiungiBloccoTrasportatore()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer">
             <i class="fa-solid fa-plus mr-1"></i> Aggiungi Trasportatore
           </button>
@@ -365,25 +383,25 @@
       </tr>
     </table>
 
-    <table class="prev-table" style="margin-top:4px;">
+    <table class="prev-table" style="margin-top:3px;">
       <thead>
         <tr>
-          <th style="width:18%;">TRASPORTATORE & TARGHE</th>
-          <th style="width:10%;">Lun</th>
-          <th style="width:10%;">Mar</th>
-          <th style="width:10%;">Mer</th>
-          <th style="width:10%;">Gio</th>
-          <th style="width:10%;">Ven</th>
-          <th style="width:10%;">Sab</th>
-          <th style="width:10%;">Dom</th>
-          <th style="width:5%;">Viaggi</th>
-          <th style="width:5%;">Mc</th>
+          <th style="width:16%;">SETTIMANA / TRASPORTATORE & TARGHE</th>
+          <th style="width:9.5%;">Lun</th>
+          <th style="width:9.5%;">Mar</th>
+          <th style="width:9.5%;">Mer</th>
+          <th style="width:9.5%;">Gio</th>
+          <th style="width:9.5%;">Ven</th>
+          <th style="width:9.5%;">Sab</th>
+          <th style="width:9.5%;">Dom</th>
+          <th style="width:9%;">Viaggi</th>
+          <th style="width:8.5%;">Mc</th>
         </tr>
       </thead>
       <tbody id="pdf-crono-tbody"></tbody>
     </table>
 
-    <table class="prev-table" style="margin-top:4px;">
+    <table class="prev-table" style="margin-top:3px;">
       <tr>
         <td colspan="12"><strong>Totale numero di viaggi previsti:</strong></td>
         <td colspan="3" id="pdf-tot-viaggi" class="prev-num" style="font-weight:700;"></td>
@@ -398,8 +416,8 @@
 
   <script>
     const STORAGE_KEY = "qhse_mds_database_v1";
+    const DAY_NAMES = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
 
-    // Database estratto da DATABASE_PREVENTIVE.xlsx
     const INITIAL_DB = {
       siti_produzione: [
         { denominazione: "Deposito Intermedio Pozzolo (DIPZ)", indirizzo: "Ex S.S. 211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)", note: "" },
@@ -506,11 +524,43 @@
         { denominazione: "ZENTI TRANSPORT S.r.l.", indirizzo_cap_comune: "Via Industria, 37/39 - 25030 - Torbole e Casaglia (BS)", piva: "02703810982" }
       ],
       targhe_per_azienda: {
-        "MORELLO CARMELO": ["FH284ZA", "FH285ZA", "GA012FR", "GA013FR", "GA424AB", "GA432AB", "GD603MA", "GD604MA", "GD607MA", "GE913YK", "GE960YK", "GE961YK", "GE972XV", "GG935DN", "GJ833TY", "GM951KA", "GM954KA", "GX806XK", "GX926XK", "GY701BR", "GY703BR", "GY770BT", "HB007KH", "HB009KH", "GT978WL", "HB977KK"],
-        "AUTOSPED G S.p.A.": ["FC828JM", "FM321WY", "FM490WY", "FN896AM", "FN957AM", "FN977VF", "FV254CR", "FV262CR", "FV269CR", "FV270CR", "FV271CR", "FV272CR", "FV273CR", "FV276CR", "FV320CR", "FX117SR", "FX118SR", "FX190SR", "FX191SR", "FX192SR", "FX194SR", "FX195SR", "FX196SR", "FX273SR", "FX274SR", "FX282SR", "FX283SR", "FX285SR", "FY247RN", "FY248RN", "FY249RN", "FY346RN", "FY348RN", "FY352RN", "FY354RN", "FY355RN", "FY356RN", "GA255HS", "GA256HS", "GA257HS", "GA430HS", "GA431HS", "GA432HS", "GA433HS", "GA434HS", "GA452HS", "GA454HS", "GA899BJ", "GA900BJ", "GB957HR", "GB958HR", "GB959HR", "GB961HR", "GC226LS", "GC227LS", "GC228LS", "GE606EL", "GE607EL", "GE608EL", "GE610EL", "GE611EL", "GE612EL", "GF106JA", "GF107JA", "GF108JA", "GF109JA", "GF111JA", "GF137JA", "GF138JA", "GF143JA", "GF158JA", "GF282JA", "GG020TL", "GG027TL", "GG029TL", "GG030TL", "GG031TL", "GG032TL", "GG033TL", "GG034TL", "GG125TL", "GG126TL", "GG177TL", "GG178TL", "GG179TL", "GG180TL", "GG229TK", "GG379TK", "GH439XG", "GL057DL", "GL059DL", "GL060DL", "GL061DL", "GL062DL", "GL067DL", "GL069DL", "GL128DL", "GL132DL", "GL904DN", "GL921DL", "GL982DL", "GN225JA", "GN226JA", "GN233JA", "GN235JA", "GN240JA", "GN241JA", "GN243JA", "GN244JA", "GN245JA", "GP487RR", "GS105ZS", "GV524DC", "GW334SM", "GW884JW", "GW892JW", "GZ851CY", "GZ925CY", "HA247LB"],
-        "PICCO BARTOLOMEO S.R.L.": ["GL656FG", "CH864GT"],
-        "AUTOTRASPORTI PENSIERO S.r.l.": ["GA928WA", "GX633SJ"],
-        "MORELLO DOMENICO": ["FS311FD", "FY039SN", "GD846YB", "GD910DT", "GD926DT", "GG904DN", "GH850TR", "GW179YT", "HC948CD", "HC949CD"]
+"ATI  - Portalupi Carlo Impresa Spa": ["FD133ZW","FV218CR","FV219CR"],
+"ATI POLISTRADE-TERRA UOMINI AMBIENTE": ["GW722JW"],
+"AUTOSPED G S.p.A.": ["EG348GS","EG461GS","EL912FS","EL913FS","EP620ZW","ES271GK","ES377GK","EW270FK","EZ004WC","EZ005WC","EZ008WC","EZ014WC","EZ020WC","EZ021WC","EZ187WC","EZ188WC","EZ189WC","EZ191WC","EZ921RD","EZ922RD","EZ939RD","EZ940RD","EZ941RD","FB913HX","FB917HX","FB918HX","FB966HX","FB967HX","FB968HX","FB969HX","FC828JM","FF853ER","FF857ER","FF929ER","FF930ER","FF932ER","FF933ER","FF934ER","FN896AM","FN957AM","FV270CR","FV271CR","FV272CR","FV273CR","FV274CR","FV275CR","FV276CR","FX117SR","FX118SR","FX190SR","FX191SR","FX192SR","FX193SR","FX194SR","FX195SR","FX196SR","FX282SR","FX283SR","FX284SR","FX285SR","FY247RN","FY248RN","FY249RN","FY283SR","FY352RN","FY353RN","FY354RN","FY355RN","FY356RN","GA255HS","GA256HS","GA257HS","GA430HS","GA431HS","GA432HS","GA433HS","GA434HS","GA452HS","GA454HS","GA899BJ","GB957HR","GB958HR","GB959HR","GB960HR","GC226LS","GC227LS","GC228LS","GC228ZX","GF106JA","GF107JA","GF108JA","GF109JA","GF110JA","GF111JA","GF282JA","GG029TL","GG030TL","GG031TL","GG032TL","GG033TL","GG034TL","GG125TL","GG126TL","GG177TL","GG178TL","GG179TL","GG180TL","GG229TK","GG684TK","GL057DL","GL059DL","GL060DL","GL061DL","GL062DL","GL063DL","GL067DL","GL128DL","GL904DN","GL921DL","GM807DJ","GN225JA","GN240JA","GN241JA","GN242JA","GN243JA","GN245JA","GV524DC","GW112SL","GW334SM","GW884JW","GW885JW","GW892JW","GZ851CY","GZ925CY"],
+"AUTOTRASPORTI PENSIERO S.r.l.": ["DF673AP","DF905AP","EH700FS","FL050KH","FV087LV","FW004DP","FW060DP","GA052VZ","GA089VZ","GA928WA","GB896VH","GE951ME","GJ747SW","GJ770SW","GJ860SW","GX633SJ","GX635SJ","HB862JD","HC465HZ"],
+"BERTINI S.R.L.": ["B93A631EC03612048","B93A63IEV03511366","EF061RD","FE019HZ","GH095FF","GJ986ZD"],
+"CAR Trasporti S.r.l.": ["ES179FL","FJ914EG","FX758NN"],
+"CARNOVALE COSTRUZIONI S.R.L.": ["FT996XG","FX734NN","FX735NN","FX920NN","HC929YF"],
+"Cart Soc. Coop. a r. l.": ["ED448FG","EF252YE","EF436YE","FC653JM","FW601MV","GC701DP","GC702DP","GK969CT","GZ834LE"],
+"Cave Sinni S.r.l.": ["EX922ZV","EY068KB","FA883ST","FA884ST"],
+"CIPA S.p.A.": ["GB802JL"],
+"CONSORZIO TUNNEL GIOVI": ["GX195VV","NASTRO"],
+"Costruttori S.p.A.": ["GD057LZ","GE291HP","GM728CC","GS179DJ"],
+"DIMOTER S.r.l.": ["FC880CB","FM972RK","FP748KN","GG901DN","GH879TR"],
+"ECAM S.R.L.": ["EX784HR","FR885PV","FY960YC","GD169NV","GF079HV","GF080HV","GJ017ZC","GJ979ZD","GR062FB","GR095FB"],
+"Eurocav S.C.AR.L.": ["DF965AP","DF966AP","EM760SK","FD104LJ","FP030WY","FV068LV","GB898HR"],
+"EUROSCAVI S.r.l.": ["DT516HT","EL501ZZ","EM831GA","FH883AP","FH942AP","FW141XA","FY762GE","FZ841JT","GB119ZC","GB949ZE","GG742LZ","GG743LZ","GJ890FZ","GP420ES","GT956VT","GW310KD"],
+"Eurotrasporti Srl": ["DF373JR","FB889XB","FT642SY"],
+"GERMANI S.P.A.": ["FH950BR","FJ639CN","FJ640CN","FJ641CN","FJ642CN","FJ643CN","FJ644CN","FJ645CN","FJ646CN","FJ647CN","FJ687CN","FJ689CN","FJ690CN","FK929YW","FK930YW","FK931YW","FK932YW","FK933YW","FL099YH","FL100YH","FL101YH","FL114YH","FL115YH","FL116YH","FL212YH","FT083GZ","FT084GZ","FT085GZ","FT105GZ","FT106GZ","FT107GZ","FT150GZ","FT151GZ","FT304GZ","FT306GZ","FT307GZ","FT308GZ","FT957JH","FT983JH","FV590JE","FV591JE","FV592JE","FV753JH","FV754JH","FV755JH","FV756JH","FV865JH","FV866JH","FV867JH","FV868JH","FV870JH","FV904JH","FV905JH","FV906JH","FV907JH","FV908JH","FV956JH","FV957JH","FV958JH","FV960JH","FV981JH","FV982JH","FV983JH","FV984JH","FV985JH","FW214SK","FW215SK","FW216SK","FW250SK","FW251SK","FW252SK","FW253SK","FW254SK","FW338SK","FW339SK","FW340SK","FZ152MD","FZ251MD","FZ913MC","GA138LY","GA139LY","GA140LY","GA141LY","GA142LY","GA143LY","GA144LY","GC500MK","GC501MK","GC553MK","GC554MK","GC587MK","GC589MK","GC624MK","GC683MK","GC684MK","GC732MK","GC733MK","GC736MK","GC800MK","GD039GX","GD040GX","GD041GX","GD042GX","GD043GX","GD045GX","GD047GX","GD048GX","GD081GX","GF488AJ","GH307AS","GH310AS","GH312AS","GH357AS","GH361AS","GH364AS","GH368AS","GH369AS","GH370AS","GH417AS","GH419AS","GH420AS","GH421AS","GH574AR","GH577AS","GH721AR","GM795XJ","GR573DG","GR586DG","GR587DG","GR589DG","GR676DG","GR763DG","GR767DG","GR897DG","GS483AP","GS484AP","GS485AP","GS579AP","GS676AP","GS737AP","GS797AP","GS862AP","GS969AP","GS972AP","GS973AP","GY005MS","GY006MS","GY026MS","GY027MS","GY028MS","GY075MS","GY076MS","GY150MS","GY151MS","GY152MS","GY153MS","GY154MS","GY155MS","GY156MS","GY158MS","GY159MS","GY169MS","GY170MS","GY171MS","GY172MS","HA005ZB","HA095ZB"],
+"Impresa Bacchi Srl": ["DZ673BA","EC798TR","GA949CH","GA950CH","GE380AM","GE570AM","GE571AM","GH622XH","GJ090KV"],
+"M&D S.R.L.": ["FX443SE","FX490SE","FX491SE","FZ861WP","GB136GB","GB137GB","GB138GB","GS741WP","GS743WP","GS744WP","HA585MG","HA586MG","NASTRO_M&D"],
+"MORELLO CARMELO": ["AS123AS","DR606FB","EA400SG","EH705FS","EK121BN","EL272LK","EL274LK","EN227WE","ES400GK","ES401GK","ET820NK","EX268BS","EX884TA","EX885TA","EY915NH","EY921JB","EZ067WC","EZ068WC","EZ069WC","FC346JR","FC366JR","FH284ZA","FH285ZA","FK542EH","FS907RV","FS908RV","GA012FR","GA013FR","GA041FR","GA424AB","GA432AB","GD581MA","GD603MA","GD604MA","GD607MA","GD830YD","GD831YD","GE913YK","GE960YK","GE961YK","GE962YK","GE972XV","GG935DN","GJ833TY","GJ883TY","GM951KA","GM954KA","GT978WL","GX806XK","GX828XK","GX926XK","GY701BR","GY703BR","GY770BT","HB007KH","HB009KH","HB834HT","HB977KK"],
+"MORELLO DOMENICO": ["ES469GK","EW554WN","EY944HM","EZ561SV","FA912MB","FC879CB","FC983CB","FC984CB","FE116DD","FE161DD","FF977HE","FK531EH","FL934VJ","FM971RK","FN051FT","FP432CP","FS311FD","FS875RV","FS951RX","FY039SN","GD846YB","GD857DF","GD910DT","GD914DT","GD926DT","GG904DN","GH850TR","GW179YT","GX857XK","HC949CD"],
+"MOVITER S.r.l.": ["FL920BL","FM183PM","FN116FK","FT082GF","FV785DG","FV786DG","FX252TM","FX253TM","FX439TM","FX924TM","FX934TM","GA099BJ","GA250BJ","GA251BJ","GA682BJ"],
+"NEW GROUP INFRASTRUTTURE S.R.L.": ["FP991KX","GV876AK","GV920AK","HA265BV","HA266BV","HA411BV"],
+"P.M. Trasporti Srl": ["FH761HG","FM024WY","FM330WY","FN824VF","GA105HS","GA402HS"],
+"PARATORI SPA": ["EZ844PD","GD748DF","GZ505CY","GZ506CY","GZ507CY","GZ508CY","GZ509CY","HA112LB","HA730LD","HA732LD","HA735LD","HB326XJ","HB372XJ","HB375XJ"],
+"PICCO BARTOLOMEO S.R.L.": ["CH864GT","GG846YZ","GL656FG"],
+"PM SERVICES S.R.L.": ["DJ935GW","DR579CR","EF270SV","ER528VY","ER529VY","ER865VY","ER866VY","EW134YW","EX059NJ","FB847XK","FD688XH","FH827LD","FH997SP","FJ514HN","FK827NX","FN659WD","FR376BF","GA165BJ","GA230BK","GC245RN","GC866AT","GC899AT","GC900AT","GC996RN","GE002XR","GE474BA","GE489BA","GF105JK","GF106JK","GJ013BR","GJ291BR","GJ378BR","GN210JX","HB220AK","HB221AK","HC015ZN"],
+"PREVE COSTRUZIONI S.P.A": ["FB059JE","FB060JE","FB061JE","FB356JE","FB783JE","FG169HG","FG171HG","FL962MB","FM138RK","HC573ZS","HE978GX"],
+"TESTA SCAVI Srl": ["GG128TL","GP852CC"],
+"TRASPOTER S.r.l.": ["FF110XL","FT072GF","FV547DG","FX313TM","FX440TM","FX852TM","GA258BJ","GA259BJ","GA259BK","GA687BJ"],
+"TRIO S.r.l.": ["GH913CH","GJ192HG","GJ193HG"],
+"TRIZZINO SALVATORE": ["FW052RK","FY082KV","GR076FB"],
+"Truck Rail Container S.p.A.": ["FE901WY","FE904WY","FE905WY","FE906WY","FE930WY","FE931WY","FF851ER","FF852ER","FF855ER","FF856ER","FF931ER","FS992PS","GM815DJ","GM818DJ","GM823DJ","GM826DJ"],
+"Unistrade S.r.l.": ["CB522PF","DX894DM","EK009BK","EL861XE","FB032TA","FF627SM"],
+"VE COSTRUZIONI S.R.L.": ["CW430ZM","DE002NV","FF107JT","FM939SN","GJ908TZ","GN824ZX"],
+"ZENTI TRANSPORT S.r.l.": ["EH408LW","FD260EL","FE968RH","FF840ZH","FG688NM"],
       }
     };
 
@@ -627,20 +677,178 @@
       return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
     }
 
-    function ricalcolaCalendarioESettimane() {
-      const d1 = new Date(document.getElementById("p-data-inizio").value + "T00:00:00");
-      const d2 = new Date(document.getElementById("p-data-fine").value + "T00:00:00");
-      if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
-        const w1 = getIsoWeek(d1);
-        const w2 = getIsoWeek(d2);
-        const y = d2.getFullYear();
-        const cod = `PRE_set[${w1}÷${w2}]_${y}`;
-        document.getElementById("codice-comunicazione-badge").textContent = cod;
+    function formatIsoDate(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function getWeeksInRange(startStr, endStr) {
+      const start = new Date(startStr + "T00:00:00");
+      const end = new Date(endStr + "T00:00:00");
+      if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) return [];
+
+      const monday = new Date(start);
+      const offset = (monday.getDay() + 6) % 7;
+      monday.setDate(monday.getDate() - offset);
+
+      const weeks = [];
+      while (monday <= end) {
+        const days = [];
+        for (let i = 0; i < 7; i++) {
+          const cur = new Date(monday);
+          cur.setDate(monday.getDate() + i);
+          const iso = formatIsoDate(cur);
+          days.push({
+            iso,
+            dayName: DAY_NAMES[i],
+            shortDate: `${cur.getDate()}/${cur.getMonth() + 1}`,
+            inRange: cur >= start && cur <= end
+          });
+        }
+        weeks.push({
+          weekNumber: getIsoWeek(monday),
+          year: monday.getFullYear(),
+          days
+        });
+        monday.setDate(monday.getDate() + 7);
       }
+      return weeks;
+    }
+
+    function catturaValoriCalendarioEsistenti() {
+      const map = {};
+      document.querySelectorAll('input[data-cal-date]').forEach(inp => {
+        const tid = inp.getAttribute("data-cal-trasp");
+        const dt = inp.getAttribute("data-cal-date");
+        if (!map[tid]) map[tid] = {};
+        map[tid][dt] = parseFloat(inp.value) || 0;
+      });
+      return map;
+    }
+
+    function ricalcolaCalendarioESettimane() {
+      const startStr = document.getElementById("p-data-inizio").value;
+      const endStr = document.getElementById("p-data-fine").value;
+      const d1 = new Date(startStr + "T00:00:00");
+      const d2 = new Date(endStr + "T00:00:00");
+      const weeks = getWeeksInRange(startStr, endStr);
+
+      if (!isNaN(d1.getTime()) && !isNaN(d2.getTime()) && weeks.length > 0) {
+        const w1 = weeks[0].weekNumber;
+        const w2 = weeks[weeks.length - 1].weekNumber;
+        const y = d2.getFullYear();
+        document.getElementById("codice-comunicazione-badge").textContent = `PRE_set[${w1}÷${w2}]_${y}`;
+        document.getElementById("settimane-range-badge").textContent =
+          `${weeks.length} ${weeks.length === 1 ? "settimana" : "settimane"} (sett. ${w1}–${w2})`;
+      }
+
+      const existingByTrasp = catturaValoriCalendarioEsistenti();
+      document.querySelectorAll('[id^="trasp-block-"]').forEach(block => {
+        const id = block.id.replace("trasp-block-", "");
+        const prevDays = existingByTrasp[id] || {};
+        const pattern = [];
+        for (let i = 0; i < 7; i++) {
+          const patInp = document.getElementById(`trasp-pat-${id}-${i}`);
+          pattern.push(patInp ? (parseFloat(patInp.value) || 0) : 0);
+        }
+        renderCalendarioPerBlocco(id, weeks, prevDays, pattern);
+      });
+
       ricalcolaTotali();
     }
 
-    function aggiungiBloccoTrasportatore(nomePre = "", viaggiPerGiorno = [20,20,20,20,20,20,0], targheCustom = "") {
+    function renderCalendarioPerBlocco(id, weeks, prevDays = {}, pattern = [20, 20, 20, 20, 20, 20, 0]) {
+      const mcUnit = parseFloat(document.getElementById("p-mc-per-viaggio").value) || 14;
+      const container = document.getElementById(`trasp-cal-${id}`);
+      if (!container) return;
+
+      if (!weeks.length) {
+        container.innerHTML = `<div class="text-xs text-rose-400">Intervallo date non valido.</div>`;
+        return;
+      }
+
+      let html = `
+        <table class="w-full text-[11px] border-collapse border border-slate-800 rounded-lg overflow-hidden">
+          <thead class="bg-slate-900 text-slate-300">
+            <tr>
+              <th class="p-2 text-left border border-slate-800 w-36">Settimana</th>
+              ${DAY_NAMES.map(d => `<th class="p-2 text-center border border-slate-800">${d}</th>`).join("")}
+              <th class="p-2 text-right border border-slate-800 w-20">Viaggi</th>
+              <th class="p-2 text-right border border-slate-800 w-24">Mc</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+      `;
+
+      weeks.forEach(w => {
+        let wkTrips = 0;
+        const cellsHtml = w.days.map((day, dIdx) => {
+          const defaultVal = day.inRange ? (pattern[dIdx] ?? 0) : 0;
+          const val = Object.prototype.hasOwnProperty.call(prevDays, day.iso) ? prevDays[day.iso] : defaultVal;
+          wkTrips += parseFloat(val) || 0;
+          const mcVal = (parseFloat(val) || 0) * mcUnit;
+          const dimCls = day.inRange ? "bg-slate-950/60" : "bg-slate-900/35 opacity-60";
+
+          return `
+            <td class="p-1.5 border border-slate-800 align-top ${dimCls}">
+              <div class="flex items-center justify-between text-[10px] mb-1">
+                <span class="font-bold ${day.inRange ? "text-emerald-300" : "text-slate-500"}">${day.shortDate}</span>
+                <span class="text-slate-400" data-cal-mc-label="${id}-${w.weekNumber}-${dIdx}">${mcVal} mc</span>
+              </div>
+              <input type="number" min="0" value="${val}"
+                data-cal-trasp="${id}"
+                data-cal-date="${day.iso}"
+                data-cal-week="${w.weekNumber}"
+                data-cal-dayidx="${dIdx}"
+                onchange="ricalcolaTotali()"
+                class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-white text-right font-semibold">
+            </td>
+          `;
+        }).join("");
+
+        const wkMc = wkTrips * mcUnit;
+        html += `
+          <tr>
+            <td class="p-2 border border-slate-800 font-bold text-emerald-300 bg-slate-900/50">
+              Settimana n. ${w.weekNumber}/${w.year}
+              <div class="text-[10px] font-normal text-slate-400">${w.days[0].shortDate} – ${w.days[6].shortDate}</div>
+            </td>
+            ${cellsHtml}
+            <td class="p-2 border border-slate-800 text-right font-extrabold text-white" id="wk-viaggi-${id}-${w.weekNumber}">${wkTrips}</td>
+            <td class="p-2 border border-slate-800 text-right font-extrabold text-sky-400" id="wk-mc-${id}-${w.weekNumber}">${wkMc} mc</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+
+    function applicaPatternATutteLeSettimane(id) {
+      const pattern = [];
+      for (let i = 0; i < 7; i++) {
+        const inp = document.getElementById(`trasp-pat-${id}-${i}`);
+        pattern.push(parseFloat(inp.value) || 0);
+      }
+
+      const startStr = document.getElementById("p-data-inizio").value;
+      const endStr = document.getElementById("p-data-fine").value;
+      const weeks = getWeeksInRange(startStr, endStr);
+      const inRangeDates = new Set();
+      weeks.forEach(w => w.days.forEach(d => { if (d.inRange) inRangeDates.add(d.iso); }));
+
+      document.querySelectorAll(`input[data-cal-trasp="${id}"]`).forEach(inp => {
+        const dt = inp.getAttribute("data-cal-date");
+        const dIdx = parseInt(inp.getAttribute("data-cal-dayidx"), 10);
+        inp.value = inRangeDates.has(dt) ? (pattern[dIdx] ?? 0) : 0;
+      });
+
+      ricalcolaTotali();
+    }
+
+    function aggiungiBloccoTrasportatore(nomePre = "", patternSettimanale = [20, 20, 20, 20, 20, 20, 0], targheCustom = "") {
       const id = ++transpCounter;
       const optionsTrasp = dbMds.trasportatori.map(t =>
         `<option value="${t.denominazione.replace(/"/g, '&quot;')}" ${t.denominazione === nomePre ? 'selected' : ''}>${t.denominazione}</option>`
@@ -668,17 +876,31 @@
             <textarea id="trasp-targhe-${id}" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-200">${defaultTarghe}</textarea>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-            ${["Lun","Mar","Mer","Gio","Ven","Sab","Dom"].map((g, idx) => `
-              <div>
-                <label class="block text-[10px] text-slate-400 mb-0.5">${g} (viaggi)</label>
-                <input type="number" min="0" value="${viaggiPerGiorno[idx] ?? 0}" data-trasp-day="${id}" onchange="ricalcolaTotali()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-white">
-              </div>
-            `).join("")}
+          <div class="bg-slate-900/70 border border-slate-800/90 rounded-lg p-2.5 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-[10px] font-bold uppercase text-slate-300">Pattern rapido per giorno della settimana (viaggi)</span>
+              <button type="button" onclick="applicaPatternATutteLeSettimane(${id})" class="px-2.5 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold cursor-pointer">
+                <i class="fa-solid fa-repeat mr-1"></i> Applica a tutte le settimane
+              </button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+              ${DAY_NAMES.map((g, idx) => `
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-0.5">${g}</label>
+                  <input type="number" min="0" id="trasp-pat-${id}-${idx}" value="${patternSettimanale[idx] ?? 0}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white">
+                </div>
+              `).join("")}
+            </div>
           </div>
+
+          <div id="trasp-cal-${id}" class="overflow-x-auto"></div>
         </div>
       `;
       document.getElementById("trasportatori-container").insertAdjacentHTML("beforeend", html);
+
+      const startStr = document.getElementById("p-data-inizio").value;
+      const endStr = document.getElementById("p-data-fine").value;
+      renderCalendarioPerBlocco(id, getWeeksInRange(startStr, endStr), {}, patternSettimanale);
       ricalcolaTotali();
     }
 
@@ -691,9 +913,30 @@
     function ricalcolaTotali() {
       const mcUnit = parseFloat(document.getElementById("p-mc-per-viaggio").value) || 14;
       let totViaggi = 0;
-      document.querySelectorAll('[data-trasp-day]').forEach(inp => {
-        totViaggi += parseFloat(inp.value) || 0;
+
+      const weekTotals = {};
+      document.querySelectorAll('input[data-cal-trasp]').forEach(inp => {
+        const tid = inp.getAttribute("data-cal-trasp");
+        const wk = inp.getAttribute("data-cal-week");
+        const dIdx = inp.getAttribute("data-cal-dayidx");
+        const val = parseFloat(inp.value) || 0;
+        const mcVal = val * mcUnit;
+
+        const lbl = document.querySelector(`[data-cal-mc-label="${tid}-${wk}-${dIdx}"]`);
+        if (lbl) lbl.textContent = `${mcVal} mc`;
+
+        const key = `${tid}-${wk}`;
+        weekTotals[key] = (weekTotals[key] || 0) + val;
+        totViaggi += val;
       });
+
+      Object.entries(weekTotals).forEach(([key, wkTrips]) => {
+        const wViaggiEl = document.getElementById(`wk-viaggi-${key}`);
+        const wMcEl = document.getElementById(`wk-mc-${key}`);
+        if (wViaggiEl) wViaggiEl.textContent = wkTrips;
+        if (wMcEl) wMcEl.textContent = `${wkTrips * mcUnit} mc`;
+      });
+
       const totMc = totViaggi * mcUnit;
       document.getElementById("ui-tot-viaggi").textContent = totViaggi;
       document.getElementById("ui-tot-mc").textContent = `${totMc} mc`;
@@ -775,9 +1018,13 @@
 
     function preparaStampaPreventiva() {
       const mcUnit = parseFloat(document.getElementById("p-mc-per-viaggio").value) || 14;
+      const startStr = document.getElementById("p-data-inizio").value;
+      const endStr = document.getElementById("p-data-fine").value;
+      const weeks = getWeeksInRange(startStr, endStr);
+
       document.getElementById("pdf-cod-com").textContent = document.getElementById("codice-comunicazione-badge").textContent;
-      document.getElementById("pdf-data-da").textContent = document.getElementById("p-data-inizio").value;
-      document.getElementById("pdf-data-a").textContent = document.getElementById("p-data-fine").value;
+      document.getElementById("pdf-data-da").textContent = startStr;
+      document.getElementById("pdf-data-a").textContent = endStr;
 
       document.getElementById("pdf-prod-denom").textContent = document.getElementById("p-prod-denom").value;
       document.getElementById("pdf-prod-dettagli").innerHTML = `
@@ -804,6 +1051,14 @@
         ${document.getElementById("p-dest-piva").value}
       `;
 
+      const dayValMap = {};
+      document.querySelectorAll('input[data-cal-trasp]').forEach(inp => {
+        const tid = inp.getAttribute("data-cal-trasp");
+        const dt = inp.getAttribute("data-cal-date");
+        if (!dayValMap[tid]) dayValMap[tid] = {};
+        dayValMap[tid][dt] = parseFloat(inp.value) || 0;
+      });
+
       const tbody = document.getElementById("pdf-crono-tbody");
       tbody.innerHTML = "";
       const transpNames = [];
@@ -816,20 +1071,38 @@
         const targhe = document.getElementById(`trasp-targhe-${id}`).value;
         if (nome) transpNames.push(nome);
 
-        const days = Array.from(block.querySelectorAll('[data-trasp-day]')).map(i => parseFloat(i.value) || 0);
-        const rowViaggi = days.reduce((a, b) => a + b, 0);
-        const rowMc = rowViaggi * mcUnit;
-        grandViaggi += rowViaggi;
-        grandMc += rowMc;
-
         tbody.innerHTML += `
           <tr>
-            <td><strong>${nome || "Trasportatore"}</strong><br><span style="font-size:5.8pt;">${targhe}</span></td>
-            ${days.map(v => `<td class="prev-num">${v} viaggi<br>${v * mcUnit} mc</td>`).join("")}
-            <td class="prev-num"><strong>${rowViaggi}</strong></td>
-            <td class="prev-num"><strong>${rowMc}</strong></td>
+            <td colspan="10" class="prev-wk-hdr">
+              <strong>${nome || "Trasportatore"}</strong> — <span style="font-weight:400; font-size:5.6pt;">${targhe}</span>
+            </td>
           </tr>
         `;
+
+        weeks.forEach(w => {
+          let wkTrips = 0;
+          const cells = w.days.map(d => {
+            const v = (dayValMap[id] && Object.prototype.hasOwnProperty.call(dayValMap[id], d.iso))
+              ? dayValMap[id][d.iso]
+              : 0;
+            wkTrips += v;
+            const cls = d.inRange ? "prev-num" : "prev-num prev-out-range";
+            return `<td class="${cls}"><span style="font-size:5.4pt; color:#4b5563;">(${d.shortDate})</span><br>${v} viaggi<br>${v * mcUnit} mc</td>`;
+          }).join("");
+
+          const wkMc = wkTrips * mcUnit;
+          grandViaggi += wkTrips;
+          grandMc += wkMc;
+
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>Settimana n. ${w.weekNumber}/${w.year}</strong></td>
+              ${cells}
+              <td class="prev-num"><strong>${wkTrips}</strong></td>
+              <td class="prev-num"><strong>${wkMc}</strong></td>
+            </tr>
+          `;
+        });
       });
 
       document.getElementById("pdf-trasp-elenco").innerHTML = transpNames.map(n => `• ${n}`).join("<br>");
@@ -846,7 +1119,6 @@
     document.addEventListener("DOMContentLoaded", () => {
       popolaSelectDaDatabase();
 
-      // Valori iniziali allineati al caso d'esempio DIPZ -> Novi Ligure / Metabasalti
       document.getElementById("p-sito-prod-denom").value = "Deposito Intermedio Pozzolo (DIPZ)";
       document.getElementById("p-sito-prod-ind").value = "Ex S.S. 211 della Lomellina, s.n.c.";
       document.getElementById("p-sito-prod-cap").value = "15068";
@@ -867,6 +1139,11 @@
       aggiungiBloccoTrasportatore("MORELLO CARMELO", [20, 20, 20, 20, 20, 20, 0]);
       aggiungiBloccoTrasportatore("AUTOSPED G S.p.A.", [20, 20, 20, 20, 20, 20, 0]);
       ricalcolaCalendarioESettimane();
+
+      const initialView = new URLSearchParams(window.location.search).get("view");
+      if (initialView === "database") {
+        switchView("database");
+      }
     });
   </script>
 </body>
