@@ -73,11 +73,11 @@
     <div class="no-print glass-card rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div>
         <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">ID / N. Verbale</label>
-        <input type="text" id="v-id" placeholder="es. VCA-2026-01" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-violet-300 outline-none focus:border-violet-400">
+        <input type="text" id="v-id" readonly title="Generato automaticamente in base alla data e al progressivo storico" class="w-full bg-slate-950/90 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-violet-300 outline-none cursor-default">
       </div>
       <div>
         <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Data e Ora Riunione</label>
-        <input type="datetime-local" id="v-datetime" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-400">
+        <input type="datetime-local" id="v-datetime" onchange="gestisciCambioDataRiunione()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-400">
       </div>
       <div>
         <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Cartella di Archivio</label>
@@ -181,7 +181,7 @@
         <p>
           per i lavori di realizzazione inerenti alla
           <span id="preview-opera" class="font-semibold text-white">Tratta AV/AC “Terzo Valico dei Giovi - Nodo di Genova”</span>
-          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, 
+          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, su
           <span id="preview-modalita" class="font-semibold text-white">piattaforma Microsoft Teams</span>,
           alla quale hanno partecipato le persone di cui al foglio presenze allegato.
         </p>
@@ -275,6 +275,8 @@
       "Addetto di cantiere per l’applicazione del SGA/PMA di cantiere (ASGA/APUT)"
     ];
 
+    let dbRef = null;
+    let storicoVerbali = {};
     let currentLoadKey = null;
     let rowCounter = 0;
     let pdfFirmatoState = {
@@ -285,6 +287,69 @@
       changed: false
     };
     const partecipantePdfMap = {};
+
+    function estraiPartiDataDaInput() {
+      const dtVal = document.getElementById('v-datetime').value;
+      const d = dtVal ? new Date(dtVal) : new Date();
+      if (isNaN(d.getTime())) return estraiPartiDataDaInputFallback();
+      const pad = n => String(n).padStart(2, '0');
+      const anno = String(d.getFullYear());
+      const mese = pad(d.getMonth() + 1);
+      const giorno = pad(d.getDate());
+      return {
+        anno,
+        mese,
+        giorno,
+        dotDate: `${anno}.${mese}.${giorno}`,
+        itDate: `${giorno}/${mese}/${anno}`
+      };
+    }
+
+    function estraiPartiDataDaInputFallback() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const anno = String(d.getFullYear());
+      const mese = pad(d.getMonth() + 1);
+      const giorno = pad(d.getDate());
+      return {
+        anno,
+        mese,
+        giorno,
+        dotDate: `${anno}.${mese}.${giorno}`,
+        itDate: `${giorno}/${mese}/${anno}`
+      };
+    }
+
+    function calcolaProgressivoStorico(excludeKey = null) {
+      let maxNum = 0;
+      Object.keys(storicoVerbali || {}).forEach(key => {
+        if (excludeKey && key === excludeKey) return;
+        const item = storicoVerbali[key] || {};
+        const match = String(key).match(/^VCA-\d{4}\.\d{2}\.\d{2}-(\d+)$/i);
+        if (match) {
+          const n = parseInt(match[1], 10);
+          if (!isNaN(n) && n > maxNum) maxNum = n;
+        } else if (item.tipo === 'coordinamento') {
+          maxNum += 1;
+        }
+      });
+      return String(maxNum + 1).padStart(3, '0');
+    }
+
+    function aggiornaIdVerbaleAutomatico() {
+      const { dotDate } = estraiPartiDataDaInput();
+      const progressivo = calcolaProgressivoStorico(currentLoadKey);
+      document.getElementById('v-id').value = `VCA-${dotDate}-${progressivo}`;
+    }
+
+    function gestisciCambioDataRiunione() {
+      const { itDate } = estraiPartiDataDaInput();
+      if (!currentLoadKey) {
+        document.getElementById('v-data-testo').value = itDate;
+        document.getElementById('v-data-firma').value = itDate;
+      }
+      aggiornaIdVerbaleAutomatico();
+    }
 
     function popolaSelectQualita(valoreSelezionato = "Coordinatore Piano di Utilizzo Terre (CPUT)") {
       const select = document.getElementById('v-qualita-select');
@@ -339,7 +404,7 @@
       document.getElementById('v-datetime').value = localDatetime;
       document.getElementById('v-data-testo').value = dataIt;
       document.getElementById('v-data-firma').value = dataIt;
-      document.getElementById('v-id').value = `VCA-${now.getFullYear()}-${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+      aggiornaIdVerbaleAutomatico();
 
       document.getElementById('v-opera').addEventListener('input', e => {
         document.getElementById('preview-opera').innerText = e.target.value;
@@ -359,9 +424,9 @@
         });
       }
 
-      const db = firebase.database();
+      dbRef = firebase.database();
 
-      db.ref('cartelle').once('value', (snap) => {
+      dbRef.ref('cartelle').once('value', (snap) => {
         const folders = snap.val() || {};
         const select = document.getElementById('v-folder');
         Object.keys(folders).forEach(fKey => {
@@ -379,27 +444,35 @@
       const loadParam = params.get('load');
       if (loadParam) {
         currentLoadKey = loadParam;
-        document.getElementById('v-id').value = loadParam;
-        db.ref('verbali/' + loadParam).once('value', (snap) => {
-          const data = snap.val();
+      }
+
+      dbRef.ref('verbali').once('value', (snap) => {
+        storicoVerbali = snap.val() || {};
+
+        if (currentLoadKey) {
+          const data = storicoVerbali[currentLoadKey];
           if (!data) {
+            aggiornaIdVerbaleAutomatico();
             for (let i = 0; i < 6; i++) aggiungiPartecipante();
             return;
           }
           window._loadedVerbale = data;
-          popolaForm(data);
-        });
-      } else {
-        for (let i = 0; i < 6; i++) aggiungiPartecipante();
-      }
+          popolaForm(data, currentLoadKey);
+        } else {
+          aggiornaIdVerbaleAutomatico();
+          for (let i = 0; i < 6; i++) aggiungiPartecipante();
+        }
+      });
     });
 
-    function popolaForm(data) {
+    function popolaForm(data, loadedKey) {
       if (data.datetime) {
         const d = new Date(data.datetime);
         const pad = n => String(n).padStart(2, '0');
         document.getElementById('v-datetime').value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
       }
+      document.getElementById('v-id').value = loadedKey;
+
       if (data.folderId) document.getElementById('v-folder').value = data.folderId;
       if (data.dataTesto) document.getElementById('v-data-testo').value = data.dataTesto;
       if (data.coordinatore) document.getElementById('v-coordinatore').value = data.coordinatore;
@@ -709,9 +782,10 @@
     }
 
     async function salvaVerbaleCoordinamento() {
+      aggiornaIdVerbaleAutomatico();
       const rawId = (document.getElementById('v-id').value || '').trim();
       if (!rawId) {
-        alert("Inserisci un ID / Numero Verbale prima di salvare.");
+        alert("ID / Numero Verbale non disponibile.");
         return;
       }
 
@@ -817,7 +891,9 @@
           st.changed = false;
         }
 
-        alert("✅ Verbale di Coordinamento Ambientale e firme PDF salvati su Firebase!");
+        storicoVerbali[safeId] = payload;
+
+        alert(`✅ Verbale ${safeId} salvato su Firebase!`);
         if (!currentLoadKey) {
           window.location.href = `verbale_coordinamento.html?load=${encodeURIComponent(safeId)}`;
         }
