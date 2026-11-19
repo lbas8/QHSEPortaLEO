@@ -62,6 +62,14 @@
         font-size: 6.2pt;
         line-height: 1.15;
       }
+      .preventiva-page {
+        page-break-after: always;
+        break-after: page;
+      }
+      .preventiva-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
       .prev-table {
         width: 100%;
         border-collapse: collapse;
@@ -107,7 +115,7 @@
           <i class="fa-solid fa-arrows-rotate mr-1"></i> Aggiorna da Hub
         </button>
         <button type="button" onclick="stampaPreventivaPdf()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white shadow cursor-pointer">
-          <i class="fa-solid fa-file-pdf mr-1"></i> Esporta PDF
+          <i class="fa-solid fa-file-pdf mr-1"></i> Esporta PDF (<span id="btn-pdf-count">0</span>)
         </button>
       </div>
     </div>
@@ -168,29 +176,58 @@
       </div>
     </section>
 
-    <!-- 2. SELEZIONE TRAMITE FLAG DAI 7 HUB -->
+    <!-- 2. ROTTA (1 PARTENZA -> N DESTINAZIONI) & SELEZIONE TRAMITE FLAG DAI 7 HUB -->
     <section class="glass-card rounded-2xl p-5 space-y-5">
       <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300 border-b border-slate-800 pb-3">
-        2. Selezione Informazioni tramite Flag dai 7 Hub
+        2. Sito di Partenza (Menu a Tendina), Destinazioni (Flag = N Preventive) & Dati dai 7 Hub
       </h2>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
-        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
+        <!-- MENU A TENDINA UNIVOCO: SITO DI PARTENZA -->
+        <div class="bg-slate-950/60 border border-emerald-500/30 rounded-xl p-4 space-y-2.5">
           <div class="flex items-center justify-between">
-            <span class="font-black uppercase text-emerald-400">Sito di Partenza / Produzione</span>
+            <span class="font-black uppercase text-emerald-400">
+              Sito di Partenza / Produzione <span class="text-[10px] font-bold text-slate-400">(UNIVOCO)</span>
+            </span>
             <a href="hub_sitiproduzione.html" class="text-[11px] text-emerald-300 hover:underline">Apri Hub 1/7</a>
           </div>
-          <div id="flags-siti-prod" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
+          <select id="select-sito-partenza" onchange="cambiaSitoPartenza(this.value)" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3 py-2.5 text-white font-bold">
+            <option value="">-- Seleziona sito di partenza --</option>
+          </select>
+          <div id="info-sito-partenza" class="text-[11px] text-slate-400 min-h-[1.25rem]"></div>
         </div>
 
-        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <span class="font-black uppercase text-emerald-400">Sito di Destinazione / WBS</span>
-            <a href="hub_sitidestinazione.html" class="text-[11px] text-emerald-300 hover:underline">Apri Hub 4/7</a>
+        <!-- FLAG MULTIPLI: SITI DI DESTINAZIONE / DEPOSITO -->
+        <div class="bg-slate-950/60 border border-emerald-500/30 rounded-xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-black uppercase text-emerald-400">
+              Sito di Destinazione / WBS <span class="text-[10px] font-bold text-slate-400">(FLAG = N PREVENTIVE)</span>
+            </span>
+            <div class="flex items-center gap-2 text-[11px]">
+              <button type="button" onclick="setTuttiFlagsDestinazione(true)" class="text-emerald-300 hover:underline cursor-pointer">Tutti</button>
+              <span class="text-slate-600">|</span>
+              <button type="button" onclick="setTuttiFlagsDestinazione(false)" class="text-slate-400 hover:underline cursor-pointer">Nessuno</button>
+              <a href="hub_sitidestinazione.html" class="text-emerald-300 hover:underline ml-1">Apri Hub 4/7</a>
+            </div>
           </div>
           <div id="flags-siti-dest" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
         </div>
 
+        <!-- RIEPILOGO DINAMICO DELLE N PREVENTIVE (1 PARTENZA -> N DESTINAZIONI) -->
+        <div class="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-4 space-y-2 lg:col-span-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="font-black uppercase text-emerald-300 text-xs">
+              <i class="fa-solid fa-route mr-1.5"></i>
+              Preventive da generare: <span id="conteggio-preventive-n" class="text-sm text-white">0</span>
+            </div>
+            <span id="rotta-sintesi-badge" class="text-[11px] text-slate-300 font-semibold">
+              1 sito di partenza → N siti di destinazione flaggati
+            </span>
+          </div>
+          <ul id="lista-anteprima-preventive" class="grid grid-cols-1 md:grid-cols-2 gap-1.5 text-[11px] text-slate-200 list-disc pl-4"></ul>
+        </div>
+
+        <!-- PRODUTTORE MdS -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="font-black uppercase text-emerald-400">Produttore MdS</span>
@@ -199,6 +236,7 @@
           <div id="flags-produttori" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
         </div>
 
+        <!-- DESTINATARIO MdS -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="font-black uppercase text-emerald-400">Destinatario MdS</span>
@@ -207,6 +245,7 @@
           <div id="flags-destinatari" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
         </div>
 
+        <!-- TIPO DI MATERIALE TRASPORTATO (FLAG LITOLOGIE) -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5 lg:col-span-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="font-black uppercase text-emerald-400">Tipo di Materiale Trasportato (Flag Litologie)</span>
@@ -244,11 +283,11 @@
     <!-- 4. RIEPILOGO & NOTA -->
     <section class="glass-card rounded-2xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
       <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
-        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Viaggi Previsti</div>
+        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Viaggi Previsti (per preventiva)</div>
         <div id="ui-tot-viaggi" class="text-2xl font-black text-emerald-400 mt-1">0</div>
       </div>
       <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
-        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Quantità (mc)</div>
+        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Quantità (mc) (per preventiva)</div>
         <div id="ui-tot-mc" class="text-2xl font-black text-sky-400 mt-1">0 mc</div>
       </div>
       <div>
@@ -258,111 +297,8 @@
     </section>
   </main>
 
-  <!-- FOGLIO DI STAMPA / EXPORT PDF -->
-  <section id="print-preventiva-sheet" aria-hidden="true">
-    <table class="prev-table">
-      <tr>
-        <td colspan="18" class="prev-title">COMUNICAZIONE PREVENTIVA DEI TRASPORTI DEL MESE</td>
-        <td colspan="12" class="prev-center" style="font-weight:700;">Spett.le</td>
-      </tr>
-      <tr>
-        <td colspan="18" class="prev-sub">ai sensi dell'art.11 all.6 del D.M. 161/2012 e del DVA-2014-14640 del 16/05/2014</td>
-        <td colspan="12" class="prev-center" style="font-weight:700;">Ministero dell'Ambiente e della sicurezza Energetica</td>
-      </tr>
-      <tr>
-        <td colspan="18" class="prev-center" style="font-weight:700;">Linea ferroviaria AV/AC Terzo Valico dei Giovi</td>
-        <td colspan="12" class="prev-center">Dipartimento Sviluppo Sostenibile (DiSS) - Direzione Generale Valutazione Ambientale (VA)</td>
-      </tr>
-      <tr>
-        <td colspan="18">Atti autorizzativi del Piano di Utilizzo: DVA-2013-0024380 del 24/10/2013 | DVA-2014-0038413 del 20/11/2014 | DVADEC-2015 del 16/09/2015 | DVA-2016-0000287 del 06/10/2016 | DVADEC-2017-309 del 31/10/2017 e DVADEC-2026-402 del 24/06/2026</td>
-        <td colspan="6" class="prev-center">VA@pec.mite.gov.it</td>
-        <td colspan="6" class="prev-center">per tramite CONSORZIO COCIV: pec@cociv.postecert.it</td>
-      </tr>
-      <tr>
-        <td colspan="18">Proponente del Piano di Utilizzo: Consorzio COCIV - Via R. Bianchi 40 - 16152 GENOVA</td>
-        <td colspan="4"><strong>Comunicazione n.:</strong></td>
-        <td colspan="8" id="pdf-cod-com" style="font-weight:700;"></td>
-      </tr>
-      <tr>
-        <td colspan="6"><strong>PRODUTTORE MdS:</strong></td>
-        <td colspan="12" id="pdf-prod-denom"></td>
-        <td colspan="3"><strong>da</strong></td>
-        <td colspan="4" id="pdf-data-da"></td>
-        <td colspan="2"><strong>a</strong></td>
-        <td colspan="3" id="pdf-data-a"></td>
-      </tr>
-      <tr>
-        <td colspan="15" class="prev-sec-hdr">SITO DI PARTENZA / PRODUZIONE</td>
-        <td colspan="15" class="prev-sec-hdr">SITO DI DESTINAZIONE</td>
-      </tr>
-      <tr>
-        <td colspan="4"><strong>Denominazione:</strong></td>
-        <td colspan="11" id="pdf-sprod-denom"></td>
-        <td colspan="4"><strong>Sito o WBS:</strong></td>
-        <td colspan="11" id="pdf-sdest-wbs"></td>
-      </tr>
-      <tr>
-        <td colspan="4"><strong>Indirizzo:</strong></td>
-        <td colspan="6" id="pdf-sprod-ind"></td>
-        <td colspan="5"><strong>Materiale:</strong> <span id="pdf-mat"></span></td>
-        <td colspan="4"><strong>Indirizzo:</strong></td>
-        <td colspan="11" id="pdf-sdest-ind"></td>
-      </tr>
-      <tr>
-        <td colspan="2"><strong>CAP:</strong></td>
-        <td colspan="3" id="pdf-sprod-cap"></td>
-        <td colspan="3"><strong>Comune:</strong></td>
-        <td colspan="7" id="pdf-sprod-comune"></td>
-        <td colspan="2"><strong>CAP:</strong></td>
-        <td colspan="3" id="pdf-sdest-cap"></td>
-        <td colspan="3"><strong>Comune:</strong></td>
-        <td colspan="7" id="pdf-sdest-comune"></td>
-      </tr>
-      <tr>
-        <td colspan="8" class="prev-sec-hdr">Dati identificativi del produttore</td>
-        <td colspan="14" class="prev-sec-hdr">Dati identificativi dei trasportatori</td>
-        <td colspan="8" class="prev-sec-hdr">Dati identificativi del destinatario</td>
-      </tr>
-      <tr>
-        <td colspan="8" id="pdf-prod-dettagli" style="vertical-align:top;"></td>
-        <td colspan="14" id="pdf-trasp-elenco" style="vertical-align:top;"></td>
-        <td colspan="8" id="pdf-dest-dettagli" style="vertical-align:top;"></td>
-      </tr>
-      <tr>
-        <td colspan="30" class="prev-sec-hdr">CRONOPROGRAMMA DEI TRASPORTI PREVISTI NEL MESE</td>
-      </tr>
-    </table>
-
-    <table class="prev-table" style="margin-top:3px;">
-      <thead>
-        <tr>
-          <th style="width:16%;">SETTIMANA / TRASPORTATORE & TARGHE</th>
-          <th style="width:9.5%;">Lun</th>
-          <th style="width:9.5%;">Mar</th>
-          <th style="width:9.5%;">Mer</th>
-          <th style="width:9.5%;">Gio</th>
-          <th style="width:9.5%;">Ven</th>
-          <th style="width:9.5%;">Sab</th>
-          <th style="width:9.5%;">Dom</th>
-          <th style="width:9%;">Viaggi</th>
-          <th style="width:8.5%;">Mc</th>
-        </tr>
-      </thead>
-      <tbody id="pdf-crono-tbody"></tbody>
-    </table>
-
-    <table class="prev-table" style="margin-top:3px;">
-      <tr>
-        <td colspan="12"><strong>Totale numero di viaggi previsti:</strong></td>
-        <td colspan="3" id="pdf-tot-viaggi" class="prev-num" style="font-weight:700;"></td>
-        <td colspan="12"><strong>Totale quantità di materiale da scavo da trasportare (mc):</strong></td>
-        <td colspan="3" id="pdf-tot-mc" class="prev-num" style="font-weight:700;"></td>
-      </tr>
-      <tr>
-        <td colspan="30" id="pdf-nota" style="font-style:italic;"></td>
-      </tr>
-    </table>
-  </section>
+  <!-- CONTENITORE FOGLI DI STAMPA / EXPORT PDF (UNO PER CIASCUNA DELLE N PREVENTIVE) -->
+  <section id="print-preventiva-sheet" aria-hidden="true"></section>
 
   <script>
     const DAY_NAMES = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
@@ -387,8 +323,10 @@
       targhe_per_azienda: []
     };
 
+    // sito_partenza_idx: indice univoco nel menu a tendina (-1 se nessuno)
+    // siti_destinazione: array di indici flaggati (N destinazioni => N preventive)
     let selectedState = {
-      siti_produzione: [],
+      sito_partenza_idx: -1,
       siti_destinazione: [],
       produttori: [],
       destinatari: [],
@@ -460,8 +398,8 @@
 
       caricaDatiDai7Hub();
 
-      if (!selectedState.siti_produzione.length && hubData.siti_produzione.length) {
-        selectedState.siti_produzione = [0];
+      if (selectedState.sito_partenza_idx < 0 && hubData.siti_produzione.length) {
+        selectedState.sito_partenza_idx = 0;
       }
       if (!selectedState.siti_destinazione.length && hubData.siti_destinazione.length) {
         const idxNovi = hubData.siti_destinazione.findIndex(x => (x.sito_wbs || "").toLowerCase().includes("novi ligure"));
@@ -490,34 +428,121 @@
       }
 
       renderTuttiIFlag();
+      aggiornaAnteprimaPreventiveN();
       sincronizzaBlocchiTrasportatori();
       ricalcolaCalendarioESettimane();
       document.getElementById("hub-sync-status").textContent =
         `Aggiornato: ${hubData.trasportatori.length} trasportatori • ${hubData.materiali.length} litologie`;
     }
 
-    function renderTuttiIFlag() {
-      document.getElementById("flags-siti-prod").innerHTML = hubData.siti_produzione.map((item, idx) => {
-        const checked = selectedState.siti_produzione.includes(idx) ? "checked" : "";
-        return `
-          <label class="flag-item">
-            <input type="checkbox" ${checked} onchange="toggleListFlag('siti_produzione', ${idx}, this.checked)">
-            <span class="truncate font-semibold text-slate-200">${item.denominazione}</span>
-            <span class="ml-auto text-[10px] text-slate-400">${item.comune || ""}</span>
-          </label>
-        `;
-      }).join("");
+    function cambiaSitoPartenza(val) {
+      selectedState.sito_partenza_idx = val === "" ? -1 : parseInt(val, 10);
+      aggiornaAnteprimaPreventiveN();
+    }
 
+    function setTuttiFlagsDestinazione(checked) {
+      selectedState.siti_destinazione = checked
+        ? hubData.siti_destinazione.map((_, idx) => idx)
+        : [];
+      renderFlagsDestinazione();
+      aggiornaAnteprimaPreventiveN();
+    }
+
+    function renderSelectSitoPartenza() {
+      const sel = document.getElementById("select-sito-partenza");
+      const optionsHtml = [`<option value="">-- Seleziona sito di partenza --</option>`].concat(
+        hubData.siti_produzione.map((item, idx) => {
+          const selAttr = selectedState.sito_partenza_idx === idx ? "selected" : "";
+          const comuneTxt = item.comune ? ` (${item.comune})` : "";
+          return `<option value="${idx}" ${selAttr}>${item.denominazione}${comuneTxt}</option>`;
+        })
+      );
+      sel.innerHTML = optionsHtml.join("");
+    }
+
+    function renderFlagsDestinazione() {
       document.getElementById("flags-siti-dest").innerHTML = hubData.siti_destinazione.map((item, idx) => {
         const checked = selectedState.siti_destinazione.includes(idx) ? "checked" : "";
         return `
           <label class="flag-item">
-            <input type="checkbox" ${checked} onchange="toggleListFlag('siti_destinazione', ${idx}, this.checked)">
+            <input type="checkbox" ${checked} onchange="toggleDestinazioneFlag(${idx}, this.checked)">
             <span class="truncate font-semibold text-slate-200">${item.sito_wbs}</span>
             <span class="ml-auto text-[10px] text-slate-400">${item.comune || ""}</span>
           </label>
         `;
       }).join("");
+    }
+
+    function toggleDestinazioneFlag(idx, isChecked) {
+      if (isChecked) {
+        if (!selectedState.siti_destinazione.includes(idx)) selectedState.siti_destinazione.push(idx);
+      } else {
+        selectedState.siti_destinazione = selectedState.siti_destinazione.filter(i => i !== idx);
+      }
+      aggiornaAnteprimaPreventiveN();
+    }
+
+    function getPreventiveDaGenerare() {
+      const partenza = selectedState.sito_partenza_idx >= 0
+        ? hubData.siti_produzione[selectedState.sito_partenza_idx]
+        : null;
+      const destinazioni = selectedState.siti_destinazione
+        .map(idx => ({ idx, data: hubData.siti_destinazione[idx] }))
+        .filter(x => Boolean(x.data));
+
+      if (!partenza || destinazioni.length === 0) return [];
+
+      return destinazioni.map((dest, i) => ({
+        progressivo: i + 1,
+        totale: destinazioni.length,
+        partenza,
+        destinazione: dest.data
+      }));
+    }
+
+    function aggiornaAnteprimaPreventiveN() {
+      const partenza = selectedState.sito_partenza_idx >= 0
+        ? hubData.siti_produzione[selectedState.sito_partenza_idx]
+        : null;
+      const infoEl = document.getElementById("info-sito-partenza");
+      infoEl.textContent = partenza
+        ? `${partenza.indirizzo || ""} — ${partenza.cap || ""} ${partenza.comune || ""}`.trim().replace(/^—\s*|\s*—$/g, "")
+        : "Seleziona un sito di partenza univoco dal menu a tendina.";
+
+      const prevList = getPreventiveDaGenerare();
+      const n = prevList.length;
+      document.getElementById("conteggio-preventive-n").textContent = n;
+      document.getElementById("btn-pdf-count").textContent = n;
+
+      const badgeEl = document.getElementById("rotta-sintesi-badge");
+      const ulEl = document.getElementById("lista-anteprima-preventive");
+      ulEl.innerHTML = "";
+
+      if (!partenza && selectedState.siti_destinazione.length === 0) {
+        badgeEl.textContent = "Scegli 1 sito di partenza e spunta 1 o più destinazioni";
+        return;
+      }
+      if (!partenza) {
+        badgeEl.textContent = `Flaggate ${selectedState.siti_destinazione.length} destinazioni: manca il sito di partenza`;
+        return;
+      }
+      if (n === 0) {
+        badgeEl.textContent = "Spunta almeno una destinazione per generare N preventive";
+        return;
+      }
+
+      badgeEl.textContent = `1 partenza × ${n} destinazioni = ${n} ${n === 1 ? "comunicazione preventiva" : "comunicazioni preventive"}`;
+
+      prevList.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = `Preventiva ${p.progressivo}/${p.totale}: ${p.partenza.denominazione} → ${p.destinazione.sito_wbs}`;
+        ulEl.appendChild(li);
+      });
+    }
+
+    function renderTuttiIFlag() {
+      renderSelectSitoPartenza();
+      renderFlagsDestinazione();
 
       document.getElementById("flags-produttori").innerHTML = hubData.produttori.map((item, idx) => {
         const checked = selectedState.produttori.includes(idx) ? "checked" : "";
@@ -903,57 +928,47 @@
     }
 
     function preparaStampaPreventiva() {
+      const preventive = getPreventiveDaGenerare();
+      if (!preventive.length) {
+        alert("Seleziona un sito di partenza dal menu a tendina e spunta almeno una destinazione.");
+        return false;
+      }
+
       const mcUnit = parseFloat(document.getElementById("p-mc-per-viaggio").value) || 14;
       const startStr = document.getElementById("p-data-inizio").value;
       const endStr = document.getElementById("p-data-fine").value;
       const weeks = getWeeksInRange(startStr, endStr);
+      const codBase = document.getElementById("codice-comunicazione-badge").textContent;
+      const notaTxt = document.getElementById("p-nota").value;
 
-      document.getElementById("pdf-cod-com").textContent = document.getElementById("codice-comunicazione-badge").textContent;
-      document.getElementById("pdf-data-da").textContent = startStr;
-      document.getElementById("pdf-data-a").textContent = endStr;
-
-      const sProdList = selectedState.siti_produzione.map(i => hubData.siti_produzione[i]).filter(Boolean);
-      const sDestList = selectedState.siti_destinazione.map(i => hubData.siti_destinazione[i]).filter(Boolean);
       const prodList = selectedState.produttori.map(i => hubData.produttori[i]).filter(Boolean);
       const destList = selectedState.destinatari.map(i => hubData.destinatari[i]).filter(Boolean);
       const matList = selectedState.materiali.map(i => hubData.materiali[i]).filter(Boolean);
 
-      document.getElementById("pdf-sprod-denom").textContent = sProdList.map(x => x.denominazione).join(" / ");
-      document.getElementById("pdf-sprod-ind").textContent = sProdList.map(x => x.indirizzo).filter(Boolean).join(" / ");
-      document.getElementById("pdf-sprod-cap").textContent = [...new Set(sProdList.map(x => x.cap).filter(Boolean))].join(", ");
-      document.getElementById("pdf-sprod-comune").textContent = [...new Set(sProdList.map(x => x.comune).filter(Boolean))].join(", ");
-
-      document.getElementById("pdf-sdest-wbs").textContent = sDestList.map(x => x.sito_wbs).join(" / ");
-      document.getElementById("pdf-sdest-ind").textContent = sDestList.map(x => x.indirizzo).filter(Boolean).join(" / ");
-      document.getElementById("pdf-sdest-cap").textContent = [...new Set(sDestList.map(x => x.cap).filter(Boolean))].join(", ");
-      document.getElementById("pdf-sdest-comune").textContent = [...new Set(sDestList.map(x => x.comune).filter(Boolean))].join(", ");
-
-      document.getElementById("pdf-mat").textContent = matList.join(", ");
-      document.getElementById("pdf-prod-denom").textContent = prodList.map(x => x.denominazione).join(" / ");
-
-      document.getElementById("pdf-prod-dettagli").innerHTML = prodList.map(p =>
+      const prodDenomHtml = prodList.map(x => x.denominazione).join(" / ");
+      const matHtml = matList.join(", ");
+      const prodDettagliHtml = prodList.map(p =>
         `<strong>${p.denominazione}</strong><br>${p.indirizzo || ""} - CAP ${p.cap || ""} ${p.comune || ""}<br>P.IVA: ${p.piva || ""}`
       ).join("<hr style='margin:2px 0; border:0; border-top:1px dashed #9ca3af;'>");
 
-      document.getElementById("pdf-dest-dettagli").innerHTML = destList.map(d =>
+      const destDettagliHtml = destList.map(d =>
         `<strong>${d.denominazione}</strong><br>${d.indirizzo || ""} - CAP ${d.cap || ""} ${d.comune || ""}<br>P.IVA: ${d.piva || ""}`
       ).join("<hr style='margin:2px 0; border:0; border-top:1px dashed #9ca3af;'>");
 
-      const dayValMap = catturaValoriCalendarioEsistenti();
-      const tbody = document.getElementById("pdf-crono-tbody");
-      tbody.innerHTML = "";
-      let grandViaggi = 0;
-      let grandMc = 0;
-
-      document.getElementById("pdf-trasp-elenco").innerHTML = selectedState.trasportatori.map(nome => {
+      const traspElencoHtml = selectedState.trasportatori.map(nome => {
         const tInfo = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome) || {};
         const plates = selectedState.targhePerAzienda[nome] || [];
         return `• <strong>${nome}</strong> ${tInfo.piva ? `(P.IVA ${tInfo.piva})` : ""}<br><span style="font-size:5.4pt;">Targhe: ${plates.join("; ")}</span>`;
       }).join("<br>");
 
+      const dayValMap = catturaValoriCalendarioEsistenti();
+      let tbodyHtml = "";
+      let grandViaggi = 0;
+      let grandMc = 0;
+
       selectedState.trasportatori.forEach(nome => {
         const plates = selectedState.targhePerAzienda[nome] || [];
-        tbody.innerHTML += `
+        tbodyHtml += `
           <tr>
             <td colspan="10" class="prev-wk-hdr">
               <strong>${nome}</strong> — <span style="font-weight:400; font-size:5.6pt;">${plates.join("; ")}</span>
@@ -976,7 +991,7 @@
           grandViaggi += wkTrips;
           grandMc += wkMc;
 
-          tbody.innerHTML += `
+          tbodyHtml += `
             <tr>
               <td><strong>Settimana n. ${w.weekNumber}/${w.year}</strong></td>
               ${cells}
@@ -987,13 +1002,124 @@
         });
       });
 
-      document.getElementById("pdf-tot-viaggi").textContent = grandViaggi;
-      document.getElementById("pdf-tot-mc").textContent = `${grandMc} mc`;
-      document.getElementById("pdf-nota").textContent = `Nota: ${document.getElementById("p-nota").value}`;
+      const sheetContainer = document.getElementById("print-preventiva-sheet");
+      sheetContainer.innerHTML = preventive.map(prev => {
+        const sp = prev.partenza;
+        const sd = prev.destinazione;
+        const codSuffix = prev.totale > 1 ? ` [${prev.progressivo}/${prev.totale}]` : "";
+        return `
+          <div class="preventiva-page">
+            <table class="prev-table">
+              <tr>
+                <td colspan="18" class="prev-title">COMUNICAZIONE PREVENTIVA DEI TRASPORTI DEL MESE</td>
+                <td colspan="12" class="prev-center" style="font-weight:700;">Spett.le</td>
+              </tr>
+              <tr>
+                <td colspan="18" class="prev-sub">ai sensi dell'art.11 all.6 del D.M. 161/2012 e del DVA-2014-14640 del 16/05/2014</td>
+                <td colspan="12" class="prev-center" style="font-weight:700;">Ministero dell'Ambiente e della sicurezza Energetica</td>
+              </tr>
+              <tr>
+                <td colspan="18" class="prev-center" style="font-weight:700;">Linea ferroviaria AV/AC Terzo Valico dei Giovi</td>
+                <td colspan="12" class="prev-center">Dipartimento Sviluppo Sostenibile (DiSS) - Direzione Generale Valutazione Ambientale (VA)</td>
+              </tr>
+              <tr>
+                <td colspan="18">Atti autorizzativi del Piano di Utilizzo: DVA-2013-0024380 del 24/10/2013 | DVA-2014-0038413 del 20/11/2014 | DVADEC-2015 del 16/09/2015 | DVA-2016-0000287 del 06/10/2016 | DVADEC-2017-309 del 31/10/2017 e DVADEC-2026-402 del 24/06/2026</td>
+                <td colspan="6" class="prev-center">VA@pec.mite.gov.it</td>
+                <td colspan="6" class="prev-center">per tramite CONSORZIO COCIV: pec@cociv.postecert.it</td>
+              </tr>
+              <tr>
+                <td colspan="18">Proponente del Piano di Utilizzo: Consorzio COCIV - Via R. Bianchi 40 - 16152 GENOVA</td>
+                <td colspan="4"><strong>Comunicazione n.:</strong></td>
+                <td colspan="8" style="font-weight:700;">${codBase}${codSuffix}</td>
+              </tr>
+              <tr>
+                <td colspan="6"><strong>PRODUTTORE MdS:</strong></td>
+                <td colspan="12">${prodDenomHtml}</td>
+                <td colspan="3"><strong>da</strong></td>
+                <td colspan="4">${startStr}</td>
+                <td colspan="2"><strong>a</strong></td>
+                <td colspan="3">${endStr}</td>
+              </tr>
+              <tr>
+                <td colspan="15" class="prev-sec-hdr">SITO DI PARTENZA / PRODUZIONE</td>
+                <td colspan="15" class="prev-sec-hdr">SITO DI DESTINAZIONE</td>
+              </tr>
+              <tr>
+                <td colspan="4"><strong>Denominazione:</strong></td>
+                <td colspan="11">${sp.denominazione || ""}</td>
+                <td colspan="4"><strong>Sito o WBS:</strong></td>
+                <td colspan="11">${sd.sito_wbs || ""}</td>
+              </tr>
+              <tr>
+                <td colspan="4"><strong>Indirizzo:</strong></td>
+                <td colspan="6">${sp.indirizzo || ""}</td>
+                <td colspan="5"><strong>Materiale:</strong> ${matHtml}</td>
+                <td colspan="4"><strong>Indirizzo:</strong></td>
+                <td colspan="11">${sd.indirizzo || ""}</td>
+              </tr>
+              <tr>
+                <td colspan="2"><strong>CAP:</strong></td>
+                <td colspan="3">${sp.cap || ""}</td>
+                <td colspan="3"><strong>Comune:</strong></td>
+                <td colspan="7">${sp.comune || ""}</td>
+                <td colspan="2"><strong>CAP:</strong></td>
+                <td colspan="3">${sd.cap || ""}</td>
+                <td colspan="3"><strong>Comune:</strong></td>
+                <td colspan="7">${sd.comune || ""}</td>
+              </tr>
+              <tr>
+                <td colspan="8" class="prev-sec-hdr">Dati identificativi del produttore</td>
+                <td colspan="14" class="prev-sec-hdr">Dati identificativi dei trasportatori</td>
+                <td colspan="8" class="prev-sec-hdr">Dati identificativi del destinatario</td>
+              </tr>
+              <tr>
+                <td colspan="8" style="vertical-align:top;">${prodDettagliHtml}</td>
+                <td colspan="14" style="vertical-align:top;">${traspElencoHtml}</td>
+                <td colspan="8" style="vertical-align:top;">${destDettagliHtml}</td>
+              </tr>
+              <tr>
+                <td colspan="30" class="prev-sec-hdr">CRONOPROGRAMMA DEI TRASPORTI PREVISTI NEL MESE</td>
+              </tr>
+            </table>
+
+            <table class="prev-table" style="margin-top:3px;">
+              <thead>
+                <tr>
+                  <th style="width:16%;">SETTIMANA / TRASPORTATORE & TARGHE</th>
+                  <th style="width:9.5%;">Lun</th>
+                  <th style="width:9.5%;">Mar</th>
+                  <th style="width:9.5%;">Mer</th>
+                  <th style="width:9.5%;">Gio</th>
+                  <th style="width:9.5%;">Ven</th>
+                  <th style="width:9.5%;">Sab</th>
+                  <th style="width:9.5%;">Dom</th>
+                  <th style="width:9%;">Viaggi</th>
+                  <th style="width:8.5%;">Mc</th>
+                </tr>
+              </thead>
+              <tbody>${tbodyHtml}</tbody>
+            </table>
+
+            <table class="prev-table" style="margin-top:3px;">
+              <tr>
+                <td colspan="12"><strong>Totale numero di viaggi previsti:</strong></td>
+                <td colspan="3" class="prev-num" style="font-weight:700;">${grandViaggi}</td>
+                <td colspan="12"><strong>Totale quantità di materiale da scavo da trasportare (mc):</strong></td>
+                <td colspan="3" class="prev-num" style="font-weight:700;">${grandMc} mc</td>
+              </tr>
+              <tr>
+                <td colspan="30" style="font-style:italic;">Nota: ${notaTxt}</td>
+              </tr>
+            </table>
+          </div>
+        `;
+      }).join("");
+
+      return true;
     }
 
     function stampaPreventivaPdf() {
-      preparaStampaPreventiva();
+      if (!preparaStampaPreventiva()) return;
       window.print();
     }
 
