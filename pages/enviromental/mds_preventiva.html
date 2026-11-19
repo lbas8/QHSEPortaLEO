@@ -44,7 +44,7 @@
     @media print {
       @page {
         size: A4 landscape;
-        margin: 6mm;
+        margin: 5mm;
       }
       .no-print { display: none !important; }
       body {
@@ -59,8 +59,8 @@
         width: 100% !important;
         color: #111827 !important;
         background: #ffffff !important;
-        font-size: 6.2pt;
-        line-height: 1.15;
+        font-size: 6pt;
+        line-height: 1.12;
       }
       .preventiva-page {
         page-break-after: always;
@@ -82,9 +82,9 @@
         word-wrap: break-word;
       }
       .prev-title { font-weight: 800; font-size: 8.5pt; text-align: center; }
-      .prev-sub { font-size: 6.6pt; text-align: center; }
+      .prev-sub { font-size: 6.4pt; text-align: center; }
       .prev-sec-hdr { background: #e5e7eb !important; font-weight: 700; text-align: center; }
-      .prev-wk-hdr { background: #f3f4f6 !important; font-weight: 700; }
+      .prev-wk-hdr { background: #f3f4f6 !important; font-weight: 700; text-align: center; }
       .prev-out-range { background: #f9fafb !important; color: #6b7280 !important; }
       .prev-num { text-align: right; font-variant-numeric: tabular-nums; }
       .prev-center { text-align: center; }
@@ -163,11 +163,11 @@
         </div>
         <div>
           <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Data Inizio Trasporti</label>
-          <input type="date" id="p-data-inizio" value="2026-11-02" onchange="ricalcolaCalendarioESettimane()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+          <input type="date" id="p-data-inizio" value="2026-11-02" onchange="ricalcolaCalendarioUnico()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
         </div>
         <div>
           <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Data Fine Trasporti</label>
-          <input type="date" id="p-data-fine" value="2026-11-30" onchange="ricalcolaCalendarioESettimane()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+          <input type="date" id="p-data-fine" value="2026-11-30" onchange="ricalcolaCalendarioUnico()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
         </div>
         <div>
           <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Mc medi per viaggio</label>
@@ -259,15 +259,15 @@
       </div>
     </section>
 
-    <!-- 3. TRASPORTATORI & TARGHE TRAMITE FLAG + CALENDARIO SETTIMANALE -->
-    <section class="glass-card rounded-2xl p-5 space-y-4">
+    <!-- 3. TRASPORTATORI & TARGHE (MESSI DA PARTE) + CALENDARIO SETTIMANALE UNICO -->
+    <section class="glass-card rounded-2xl p-5 space-y-5">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
         <div>
           <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
-            3. Trasportatori & Targhe (Flag) + Cronoprogramma Settimanale
+            3. Trasportatori & Targhe (Flag) + Cronoprogramma Settimanale Unico
           </h2>
           <p class="text-[11px] text-slate-400 mt-0.5">
-            Spunta i trasportatori e le relative targhe dagli Hub 6/7 e 7/7: i blocchi settimanali si aggiornano automaticamente.
+            Trasportatori e targhe sono raggruppati a sinistra; il cronoprogramma settimanale resta unico per tutto il periodo selezionato.
           </p>
         </div>
         <div class="flex items-center gap-3 text-[11px]">
@@ -276,18 +276,49 @@
         </div>
       </div>
 
-      <div id="flags-trasportatori" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-xs max-h-48 overflow-y-auto bg-slate-950/50 border border-slate-800 rounded-xl p-3"></div>
-      <div id="trasportatori-container" class="space-y-4 pt-2"></div>
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start text-xs">
+        <!-- COLONNA SINISTRA: TRASPORTATORI & TARGHE SELEZIONATE -->
+        <div class="xl:col-span-4 bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-black uppercase text-emerald-400">Trasportatori & Targhe</span>
+            <span id="conteggio-trasp-targhe" class="text-[10px] font-bold text-slate-400">0 aziende</span>
+          </div>
+          <div id="flags-trasportatori" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+          <div id="targhe-selezionate-box" class="space-y-2 pt-2 border-t border-slate-800 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- COLONNA DESTRA: CRONOPROGRAMMA SETTIMANALE UNICO -->
+        <div class="xl:col-span-8 bg-slate-950/60 border border-emerald-500/25 rounded-xl p-4 space-y-3">
+          <div class="bg-slate-900/70 border border-slate-800 rounded-lg p-3 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-[10px] font-bold uppercase text-emerald-300">Pattern giornaliero unico (viaggi)</span>
+              <button type="button" onclick="applicaPatternATutteLeSettimane()" class="px-2.5 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold cursor-pointer">
+                <i class="fa-solid fa-repeat mr-1"></i> Applica a tutte le settimane
+              </button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+              ${["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"].map((g, dIdx) => `
+                <div>
+                  <label class="block text-[10px] text-slate-400 mb-0.5">${g}</label>
+                  <input type="number" min="0" id="pat-unico-${dIdx}" value="${dIdx < 6 ? 20 : 0}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white">
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div id="calendario-unico-wrap" class="overflow-x-auto"></div>
+        </div>
+      </div>
     </section>
 
     <!-- 4. RIEPILOGO & NOTA -->
     <section class="glass-card rounded-2xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
       <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
-        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Viaggi Previsti (per preventiva)</div>
+        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Viaggi Previsti</div>
         <div id="ui-tot-viaggi" class="text-2xl font-black text-emerald-400 mt-1">0</div>
       </div>
       <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
-        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Quantità (mc) (per preventiva)</div>
+        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Quantità (mc)</div>
         <div id="ui-tot-mc" class="text-2xl font-black text-sky-400 mt-1">0 mc</div>
       </div>
       <div>
@@ -475,7 +506,8 @@
       destinatari: [],
       materiali: [],
       trasportatori: [],
-      targhePerAzienda: {}
+      targhePerAzienda: {},
+      giorniViaggi: {}
     };
 
     function normalizzaTargheMap(rawTarghe) {
@@ -575,8 +607,9 @@
 
       renderTuttiIFlag();
       aggiornaAnteprimaPreventiveN();
-      sincronizzaBlocchiTrasportatori();
-      ricalcolaCalendarioESettimane();
+      renderTrasportatoriETargheDaParte();
+      ricalcolaCalendarioUnico();
+
       document.getElementById("hub-sync-status").textContent =
         `Aggiornato: ${hubData.siti_produzione.length} siti prod. • ${hubData.siti_destinazione.length} destinazioni • ${hubData.trasportatori.length} trasportatori • ${hubData.materiali.length} litologie`;
     }
@@ -778,8 +811,60 @@
       } else {
         selectedState.trasportatori = selectedState.trasportatori.filter(n => n !== nome);
       }
-      sincronizzaBlocchiTrasportatori();
-      ricalcolaCalendarioESettimane();
+      renderTrasportatoriETargheDaParte();
+    }
+
+    function renderTrasportatoriETargheDaParte() {
+      document.getElementById("conteggio-trasp-targhe").textContent = `${selectedState.trasportatori.length} aziende`;
+      const box = document.getElementById("targhe-selezionate-box");
+
+      if (!selectedState.trasportatori.length) {
+        box.innerHTML = `<div class="text-[11px] text-slate-500">Nessun trasportatore selezionato.</div>`;
+        return;
+      }
+
+      box.innerHTML = selectedState.trasportatori.map(nome => {
+        const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
+        const allPlates = tObj ? tObj.targhe : [];
+        if (!selectedState.targhePerAzienda[nome]) {
+          selectedState.targhePerAzienda[nome] = [...allPlates];
+        }
+        const checkedPlates = selectedState.targhePerAzienda[nome];
+
+        const platesHtml = allPlates.length
+          ? allPlates.map(plate => {
+              const isChecked = checkedPlates.includes(plate) ? "checked" : "";
+              return `
+                <label class="flag-item py-1 px-2 text-[10px]">
+                  <input type="checkbox" ${isChecked} onchange="toggleTargaFlag('${nome.replace(/'/g, "\\'")}', '${plate.replace(/'/g, "\\'")}', this.checked)">
+                  <span class="font-mono text-slate-200">${plate}</span>
+                </label>
+              `;
+            }).join("")
+          : `<span class="text-[10px] text-slate-500">Nessuna targa censita.</span>`;
+
+        return `
+          <div class="bg-slate-900/70 border border-slate-800 rounded-lg p-2.5 space-y-1.5">
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-bold text-emerald-300 truncate">${nome}</span>
+              <span class="text-[10px] text-slate-400 shrink-0">${checkedPlates.length}/${allPlates.length}</span>
+            </div>
+            <div class="flex flex-wrap gap-1">${platesHtml}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function toggleTargaFlag(nome, plate, isChecked) {
+      if (!selectedState.targhePerAzienda[nome]) selectedState.targhePerAzienda[nome] = [];
+      if (isChecked) {
+        if (!selectedState.targhePerAzienda[nome].includes(plate)) {
+          selectedState.targhePerAzienda[nome].push(plate);
+        }
+      } else {
+        selectedState.targhePerAzienda[nome] = selectedState.targhePerAzienda[nome].filter(p => p !== plate);
+      }
+      renderTrasportatoriETargheDaParte();
     }
 
     function applicaMeseRiferimento() {
@@ -792,7 +877,7 @@
       const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       document.getElementById("p-data-inizio").value = fmt(firstDay);
       document.getElementById("p-data-fine").value = fmt(lastDay);
-      ricalcolaCalendarioESettimane();
+      ricalcolaCalendarioUnico();
     }
 
     function getIsoWeek(dateObj) {
@@ -839,121 +924,22 @@
       return weeks;
     }
 
-    function catturaValoriCalendarioEsistenti() {
-      const map = {};
-      document.querySelectorAll('input[data-cal-date]').forEach(inp => {
-        const tName = inp.getAttribute("data-cal-trasp");
-        const dt = inp.getAttribute("data-cal-date");
-        if (!map[tName]) map[tName] = {};
-        map[tName][dt] = parseFloat(inp.value) || 0;
+    function catturaGiorniCalendarioUnico() {
+      const map = { ...selectedState.giorniViaggi };
+      document.querySelectorAll('input[data-unico-date]').forEach(inp => {
+        const dt = inp.getAttribute("data-unico-date");
+        map[dt] = parseFloat(inp.value) || 0;
       });
+      selectedState.giorniViaggi = map;
       return map;
     }
 
-    function sincronizzaBlocchiTrasportatori() {
-      const prevDays = catturaValoriCalendarioEsistenti();
-      const container = document.getElementById("trasportatori-container");
-      const startStr = document.getElementById("p-data-inizio").value;
-      const endStr = document.getElementById("p-data-fine").value;
-      const weeks = getWeeksInRange(startStr, endStr);
-
-      if (!selectedState.trasportatori.length) {
-        container.innerHTML = `<div class="text-xs text-slate-400 bg-slate-950/60 border border-slate-800 rounded-xl p-4">Spunta almeno un trasportatore qui sopra per generare il cronoprogramma settimanale.</div>`;
-        return;
-      }
-
-      container.innerHTML = selectedState.trasportatori.map((nome, idx) => {
-        const safeId = encodeURIComponent(nome);
-        const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
-        const allPlates = tObj ? tObj.targhe : [];
-        if (!selectedState.targhePerAzienda[nome]) {
-          selectedState.targhePerAzienda[nome] = [...allPlates];
-        }
-        const checkedPlates = selectedState.targhePerAzienda[nome];
-
-        const platesFlagsHtml = allPlates.length
-          ? allPlates.map(plate => {
-              const isChecked = checkedPlates.includes(plate) ? "checked" : "";
-              return `
-                <label class="flag-item py-1 px-2 text-[11px]">
-                  <input type="checkbox" ${isChecked} onchange="toggleTargaFlag('${nome.replace(/'/g, "\\'")}', '${plate.replace(/'/g, "\\'")}', this.checked)">
-                  <span class="font-mono text-slate-200">${plate}</span>
-                </label>
-              `;
-            }).join("")
-          : `<span class="text-[11px] text-slate-500">Nessuna targa censita nell'Hub Targhe per questa azienda.</span>`;
-
-        return `
-          <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3 text-xs">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="font-black text-emerald-300 text-sm">#${idx + 1} — ${nome}</div>
-              <div class="flex items-center gap-2">
-                <button type="button" onclick="selezionaTutteTarghe('${nome.replace(/'/g, "\\'")}', true)" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700 text-[10px] font-bold cursor-pointer">Tutte le targhe</button>
-                <button type="button" onclick="selezionaTutteTarghe('${nome.replace(/'/g, "\\'")}', false)" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 border border-slate-700 text-[10px] font-bold cursor-pointer">Nessuna</button>
-              </div>
-            </div>
-
-            <div class="space-y-1">
-              <div class="text-[10px] font-bold uppercase text-slate-400">Flag Targhe Selezionate (${checkedPlates.length}/${allPlates.length})</div>
-              <div class="max-h-28 overflow-y-auto flex flex-wrap gap-1.5 bg-slate-900/60 border border-slate-800 rounded-lg p-2">
-                ${platesFlagsHtml}
-              </div>
-            </div>
-
-            <div class="bg-slate-900/70 border border-slate-800/90 rounded-lg p-2.5 space-y-2">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <span class="text-[10px] font-bold uppercase text-slate-300">Pattern rapido per giorno (viaggi)</span>
-                <button type="button" onclick="applicaPatternATutteLeSettimane('${safeId}')" class="px-2.5 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold cursor-pointer">
-                  <i class="fa-solid fa-repeat mr-1"></i> Applica a tutte le settimane
-                </button>
-              </div>
-              <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-                ${DAY_NAMES.map((g, dIdx) => `
-                  <div>
-                    <label class="block text-[10px] text-slate-400 mb-0.5">${g}</label>
-                    <input type="number" min="0" id="pat-${safeId}-${dIdx}" value="${dIdx < 6 ? 20 : 0}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white">
-                  </div>
-                `).join("")}
-              </div>
-            </div>
-
-            <div id="cal-wrap-${safeId}" class="overflow-x-auto"></div>
-          </div>
-        `;
-      }).join("");
-
-      selectedState.trasportatori.forEach(nome => {
-        const safeId = encodeURIComponent(nome);
-        renderCalendarioPerTrasp(safeId, nome, weeks, prevDays[nome] || {});
-      });
-    }
-
-    function toggleTargaFlag(nome, plate, isChecked) {
-      if (!selectedState.targhePerAzienda[nome]) selectedState.targhePerAzienda[nome] = [];
-      if (isChecked) {
-        if (!selectedState.targhePerAzienda[nome].includes(plate)) {
-          selectedState.targhePerAzienda[nome].push(plate);
-        }
-      } else {
-        selectedState.targhePerAzienda[nome] = selectedState.targhePerAzienda[nome].filter(p => p !== plate);
-      }
-      sincronizzaBlocchiTrasportatori();
-      ricalcolaCalendarioESettimane();
-    }
-
-    function selezionaTutteTarghe(nome, all) {
-      const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
-      selectedState.targhePerAzienda[nome] = all && tObj ? [...tObj.targhe] : [];
-      sincronizzaBlocchiTrasportatori();
-      ricalcolaCalendarioESettimane();
-    }
-
-    function renderCalendarioPerTrasp(safeId, nome, weeks, prevDays = {}) {
+    function renderCalendarioUnico(weeks) {
       const mcUnit = parseFloat(document.getElementById("p-mc-per-viaggio").value) || 14;
-      const wrap = document.getElementById(`cal-wrap-${safeId}`);
-      if (!wrap) return;
-
+      const wrap = document.getElementById("calendario-unico-wrap");
+      const savedDays = catturaGiorniCalendarioUnico();
       const defaultPattern = [20, 20, 20, 20, 20, 20, 0];
+
       let html = `
         <table class="w-full text-[11px] border-collapse border border-slate-800 rounded-lg overflow-hidden">
           <thead class="bg-slate-900 text-slate-300">
@@ -971,7 +957,7 @@
         let wkTrips = 0;
         const cellsHtml = w.days.map((day, dIdx) => {
           const defVal = day.inRange ? defaultPattern[dIdx] : 0;
-          const val = Object.prototype.hasOwnProperty.call(prevDays, day.iso) ? prevDays[day.iso] : defVal;
+          const val = Object.prototype.hasOwnProperty.call(savedDays, day.iso) ? savedDays[day.iso] : defVal;
           wkTrips += parseFloat(val) || 0;
           const mcVal = (parseFloat(val) || 0) * mcUnit;
           const dimCls = day.inRange ? "bg-slate-950/60" : "bg-slate-900/35 opacity-60";
@@ -980,14 +966,12 @@
             <td class="p-1.5 border border-slate-800 align-top ${dimCls}">
               <div class="flex items-center justify-between text-[10px] mb-1">
                 <span class="font-bold ${day.inRange ? "text-emerald-300" : "text-slate-500"}">${day.shortDate}</span>
-                <span class="text-slate-400" data-mc-lbl="${safeId}-${w.weekNumber}-${dIdx}">${mcVal} mc</span>
+                <span class="text-slate-400" data-unico-mc-lbl="${day.iso}">${mcVal} mc</span>
               </div>
               <input type="number" min="0" value="${val}"
-                data-cal-trasp="${nome}"
-                data-cal-safeid="${safeId}"
-                data-cal-date="${day.iso}"
-                data-cal-week="${w.weekNumber}"
-                data-cal-dayidx="${dIdx}"
+                data-unico-date="${day.iso}"
+                data-unico-week="${w.weekNumber}"
+                data-unico-dayidx="${dIdx}"
                 onchange="ricalcolaTotali()"
                 class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-white text-right font-semibold">
             </td>
@@ -1001,8 +985,8 @@
               <div class="text-[10px] font-normal text-slate-400">${w.days[0].shortDate} – ${w.days[6].shortDate}</div>
             </td>
             ${cellsHtml}
-            <td class="p-2 border border-slate-800 text-right font-extrabold text-white" id="wk-v-${safeId}-${w.weekNumber}">${wkTrips}</td>
-            <td class="p-2 border border-slate-800 text-right font-extrabold text-sky-400" id="wk-mc-${safeId}-${w.weekNumber}">${wkTrips * mcUnit} mc</td>
+            <td class="p-2 border border-slate-800 text-right font-extrabold text-white" id="unico-wk-v-${w.weekNumber}">${wkTrips}</td>
+            <td class="p-2 border border-slate-800 text-right font-extrabold text-sky-400" id="unico-wk-mc-${w.weekNumber}">${wkTrips * mcUnit} mc</td>
           </tr>
         `;
       });
@@ -1011,10 +995,10 @@
       wrap.innerHTML = html;
     }
 
-    function applicaPatternATutteLeSettimane(safeId) {
+    function applicaPatternATutteLeSettimane() {
       const pattern = [];
       for (let i = 0; i < 7; i++) {
-        const inp = document.getElementById(`pat-${safeId}-${i}`);
+        const inp = document.getElementById(`pat-unico-${i}`);
         pattern.push(inp ? (parseFloat(inp.value) || 0) : 0);
       }
       const startStr = document.getElementById("p-data-inizio").value;
@@ -1023,15 +1007,17 @@
       const inRange = new Set();
       weeks.forEach(w => w.days.forEach(d => { if (d.inRange) inRange.add(d.iso); }));
 
-      document.querySelectorAll(`input[data-cal-safeid="${safeId}"]`).forEach(inp => {
-        const dt = inp.getAttribute("data-cal-date");
-        const dIdx = parseInt(inp.getAttribute("data-cal-dayidx"), 10);
-        inp.value = inRange.has(dt) ? pattern[dIdx] : 0;
+      document.querySelectorAll('input[data-unico-date]').forEach(inp => {
+        const dt = inp.getAttribute("data-unico-date");
+        const dIdx = parseInt(inp.getAttribute("data-unico-dayidx"), 10);
+        const val = inRange.has(dt) ? pattern[dIdx] : 0;
+        inp.value = val;
+        selectedState.giorniViaggi[dt] = val;
       });
       ricalcolaTotali();
     }
 
-    function ricalcolaCalendarioESettimane() {
+    function ricalcolaCalendarioUnico() {
       const startStr = document.getElementById("p-data-inizio").value;
       const endStr = document.getElementById("p-data-fine").value;
       const weeks = getWeeksInRange(startStr, endStr);
@@ -1044,11 +1030,7 @@
           `${weeks.length} ${weeks.length === 1 ? "settimana" : "settimane"} (sett. ${w1}–${w2})`;
       }
 
-      const prevDays = catturaValoriCalendarioEsistenti();
-      selectedState.trasportatori.forEach(nome => {
-        const safeId = encodeURIComponent(nome);
-        renderCalendarioPerTrasp(safeId, nome, weeks, prevDays[nome] || {});
-      });
+      renderCalendarioUnico(weeks);
       ricalcolaTotali();
     }
 
@@ -1057,23 +1039,22 @@
       let totViaggi = 0;
       const weekTotals = {};
 
-      document.querySelectorAll('input[data-cal-date]').forEach(inp => {
-        const safeId = inp.getAttribute("data-cal-safeid");
-        const wk = inp.getAttribute("data-cal-week");
-        const dIdx = inp.getAttribute("data-cal-dayidx");
+      document.querySelectorAll('input[data-unico-date]').forEach(inp => {
+        const dt = inp.getAttribute("data-unico-date");
+        const wk = inp.getAttribute("data-unico-week");
         const val = parseFloat(inp.value) || 0;
+        selectedState.giorniViaggi[dt] = val;
 
-        const lbl = document.querySelector(`[data-mc-lbl="${safeId}-${wk}-${dIdx}"]`);
+        const lbl = document.querySelector(`[data-unico-mc-lbl="${dt}"]`);
         if (lbl) lbl.textContent = `${val * mcUnit} mc`;
 
-        const key = `${safeId}-${wk}`;
-        weekTotals[key] = (weekTotals[key] || 0) + val;
+        weekTotals[wk] = (weekTotals[wk] || 0) + val;
         totViaggi += val;
       });
 
-      Object.entries(weekTotals).forEach(([key, wkTrips]) => {
-        const vEl = document.getElementById(`wk-v-${key}`);
-        const mcEl = document.getElementById(`wk-mc-${key}`);
+      Object.entries(weekTotals).forEach(([wk, wkTrips]) => {
+        const vEl = document.getElementById(`unico-wk-v-${wk}`);
+        const mcEl = document.getElementById(`unico-wk-mc-${wk}`);
         if (vEl) vEl.textContent = wkTrips;
         if (mcEl) mcEl.textContent = `${wkTrips * mcUnit} mc`;
       });
@@ -1110,53 +1091,51 @@
         `<strong>${d.denominazione}</strong><br>${d.indirizzo || ""} - CAP ${d.cap || ""} ${d.comune || ""}<br>P.IVA: ${d.piva || ""}`
       ).join("<hr style='margin:2px 0; border:0; border-top:1px dashed #9ca3af;'>");
 
-      const traspElencoHtml = selectedState.trasportatori.map(nome => {
+      // Colonna sinistra: Trasportatori & Targhe messi da parte
+      const traspSideHtml = selectedState.trasportatori.map(nome => {
         const tInfo = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome) || {};
         const plates = selectedState.targhePerAzienda[nome] || [];
-        const sedeStr = tInfo.indirizzo_cap_comune ? `<br><span style="font-size:5.2pt; color:#374151;">${tInfo.indirizzo_cap_comune}</span>` : "";
-        return `• <strong>${nome}</strong> ${tInfo.piva ? `(P.IVA ${tInfo.piva})` : ""}${sedeStr}<br><span style="font-size:5.4pt;">Targhe: ${plates.join("; ")}</span>`;
-      }).join("<br>");
+        return `
+          <div style="margin-bottom:4px; padding-bottom:3px; border-bottom:1px dashed #cbd5e1;">
+            <strong>${nome}</strong> ${tInfo.piva ? `(P.IVA ${tInfo.piva})` : ""}<br>
+            <span style="font-size:5.2pt; color:#1f2937;">${plates.join(" - ")}</span>
+          </div>
+        `;
+      }).join("");
 
-      const dayValMap = catturaValoriCalendarioEsistenti();
-      let tbodyHtml = "";
+      const dayMap = catturaGiorniCalendarioUnico();
       let grandViaggi = 0;
       let grandMc = 0;
 
-      selectedState.trasportatori.forEach(nome => {
-        const plates = selectedState.targhePerAzienda[nome] || [];
-        tbodyHtml += `
-          <tr>
-            <td colspan="10" class="prev-wk-hdr">
-              <strong>${nome}</strong> — <span style="font-weight:400; font-size:5.6pt;">${plates.join("; ")}</span>
+      // Colonna destra: Cronoprogramma settimanale UNICO
+      const cronoRowsHtml = weeks.map(w => {
+        let wkTrips = 0;
+        const dayCells = w.days.map(d => {
+          const v = Object.prototype.hasOwnProperty.call(dayMap, d.iso) ? dayMap[d.iso] : 0;
+          wkTrips += v;
+          const cls = d.inRange ? "prev-num" : "prev-num prev-out-range";
+          return `
+            <td class="${cls}">
+              <div style="font-size:5pt; color:#4b5563; text-align:center;">${d.shortDate}</div>
+              <div><strong>${v}</strong> viaggi</div>
+              <div>${v * mcUnit} mc</div>
             </td>
+          `;
+        }).join("");
+
+        const wkMc = wkTrips * mcUnit;
+        grandViaggi += wkTrips;
+        grandMc += wkMc;
+
+        return `
+          <tr>
+            <td style="font-weight:700;">Settimana n. ${w.weekNumber}/${w.year}</td>
+            ${dayCells}
+            <td class="prev-num" style="font-weight:700;">${wkTrips}</td>
+            <td class="prev-num" style="font-weight:700;">${wkMc}</td>
           </tr>
         `;
-
-        weeks.forEach(w => {
-          let wkTrips = 0;
-          const cells = w.days.map(d => {
-            const v = (dayValMap[nome] && Object.prototype.hasOwnProperty.call(dayValMap[nome], d.iso))
-              ? dayValMap[nome][d.iso]
-              : 0;
-            wkTrips += v;
-            const cls = d.inRange ? "prev-num" : "prev-num prev-out-range";
-            return `<td class="${cls}"><span style="font-size:5.4pt; color:#4b5563;">(${d.shortDate})</span><br>${v} viaggi<br>${v * mcUnit} mc</td>`;
-          }).join("");
-
-          const wkMc = wkTrips * mcUnit;
-          grandViaggi += wkTrips;
-          grandMc += wkMc;
-
-          tbodyHtml += `
-            <tr>
-              <td><strong>Settimana n. ${w.weekNumber}/${w.year}</strong></td>
-              ${cells}
-              <td class="prev-num"><strong>${wkTrips}</strong></td>
-              <td class="prev-num"><strong>${wkMc}</strong></td>
-            </tr>
-          `;
-        });
-      });
+      }).join("");
 
       const sheetContainer = document.getElementById("print-preventiva-sheet");
       sheetContainer.innerHTML = preventive.map(prev => {
@@ -1224,14 +1203,14 @@
                 <td colspan="7">${sd.comune || ""}</td>
               </tr>
               <tr>
-                <td colspan="8" class="prev-sec-hdr">Dati identificativi del produttore</td>
-                <td colspan="14" class="prev-sec-hdr">Dati identificativi dei trasportatori</td>
-                <td colspan="8" class="prev-sec-hdr">Dati identificativi del destinatario</td>
+                <td colspan="10" class="prev-sec-hdr">Dati identificativi del produttore</td>
+                <td colspan="10" class="prev-sec-hdr">Dati identificativi del destinatario</td>
+                <td colspan="10" class="prev-sec-hdr">Riepilogo Trasportatori Selezionati</td>
               </tr>
               <tr>
-                <td colspan="8" style="vertical-align:top;">${prodDettagliHtml}</td>
-                <td colspan="14" style="vertical-align:top;">${traspElencoHtml}</td>
-                <td colspan="8" style="vertical-align:top;">${destDettagliHtml}</td>
+                <td colspan="10" style="vertical-align:top;">${prodDettagliHtml}</td>
+                <td colspan="10" style="vertical-align:top;">${destDettagliHtml}</td>
+                <td colspan="10" style="vertical-align:top;">${selectedState.trasportatori.join(" • ")}</td>
               </tr>
               <tr>
                 <td colspan="30" class="prev-sec-hdr">CRONOPROGRAMMA DEI TRASPORTI PREVISTI NEL MESE</td>
@@ -1241,19 +1220,24 @@
             <table class="prev-table" style="margin-top:3px;">
               <thead>
                 <tr>
-                  <th style="width:16%;">SETTIMANA / TRASPORTATORE & TARGHE</th>
-                  <th style="width:9.5%;">Lun</th>
-                  <th style="width:9.5%;">Mar</th>
-                  <th style="width:9.5%;">Mer</th>
-                  <th style="width:9.5%;">Gio</th>
-                  <th style="width:9.5%;">Ven</th>
-                  <th style="width:9.5%;">Sab</th>
-                  <th style="width:9.5%;">Dom</th>
-                  <th style="width:9%;">Viaggi</th>
-                  <th style="width:8.5%;">Mc</th>
+                  <th style="width:24%;">TRASPORTATORE &amp; TARGHE</th>
+                  <th style="width:10%;">SETTIMANA</th>
+                  <th style="width:7.2%;">Lun</th>
+                  <th style="width:7.2%;">Mar</th>
+                  <th style="width:7.2%;">Mer</th>
+                  <th style="width:7.2%;">Gio</th>
+                  <th style="width:7.2%;">Ven</th>
+                  <th style="width:7.2%;">Sab</th>
+                  <th style="width:7.2%;">Dom</th>
+                  <th style="width:4.2%;">Viaggi</th>
+                  <th style="width:4.2%;">Mc</th>
                 </tr>
               </thead>
-              <tbody>${tbodyHtml}</tbody>
+              <tbody>
+                <tr>
+                  <td rowspan="${weeks.length}" style="vertical-align:top;">${traspSideHtml}</td>
+                  ${cronoRowsHtml.replace(/^<tr>/, "")}
+              </tbody>
             </table>
 
             <table class="prev-table" style="margin-top:3px;">
