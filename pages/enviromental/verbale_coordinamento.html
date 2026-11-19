@@ -28,7 +28,7 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 12mm 12mm 34mm 12mm;
+        margin: 10mm 12mm 20mm 12mm;
       }
 
       .no-print {
@@ -46,29 +46,34 @@
       #print-doc-sheet {
         display: block !important;
         width: 100% !important;
-        padding-bottom: 20mm !important;
+        padding-bottom: 10mm !important;
         color: #111827 !important;
         background: #ffffff !important;
+      }
+
+      .doc-header-repeat {
+        display: table-header-group;
+        width: 100%;
       }
 
       .doc-header-grid {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 10px;
-        font-size: 9pt;
+        margin-bottom: 7px;
+        font-size: 8.8pt;
       }
 
       .doc-header-grid td,
       .doc-header-grid th {
         border: 1px solid #4b5563;
-        padding: 5px 8px;
+        padding: 4px 7px;
         vertical-align: middle;
       }
 
       .doc-logo-img {
         width: 92%;
-        max-width: 195px;
-        max-height: 68px;
+        max-width: 190px;
+        max-height: 62px;
         height: auto;
         object-fit: contain;
         image-rendering: -webkit-optimize-contrast;
@@ -78,11 +83,11 @@
 
       .doc-title-box {
         text-align: center;
-        margin: 8px 0 12px 0;
+        margin: 5px 0 9px 0;
       }
 
       .doc-title-main {
-        font-size: 13pt;
+        font-size: 12.5pt;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.4px;
@@ -91,33 +96,33 @@
       }
 
       .doc-title-sub {
-        font-size: 10.5pt;
+        font-size: 10pt;
         font-weight: 600;
         color: #1f2937;
         margin: 2px 0 0 0;
       }
 
       .doc-body-text {
-        font-size: 10pt;
-        line-height: 1.48;
+        font-size: 9.8pt;
+        line-height: 1.42;
         color: #111827;
       }
 
       .doc-output-box {
         white-space: pre-wrap;
         word-break: break-word;
-        font-size: 9.8pt;
-        line-height: 1.45;
+        font-size: 9.5pt;
+        line-height: 1.4;
         color: #111827;
-        margin: 6px 0 12px 0;
+        margin: 4px 0 8px 0;
       }
 
       .doc-presenze-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 6px;
-        margin-bottom: 10px;
-        font-size: 9.5pt;
+        margin-top: 4px;
+        margin-bottom: 7px;
+        font-size: 9.2pt;
       }
 
       .doc-presenze-table th {
@@ -126,12 +131,12 @@
         font-weight: 700;
         text-align: left;
         border: 1px solid #4b5563;
-        padding: 5px 8px;
+        padding: 4px 7px;
       }
 
       .doc-presenze-table td {
         border: 1px solid #6b7280;
-        padding: 5px 8px;
+        padding: 4px 7px;
         vertical-align: middle;
       }
 
@@ -141,8 +146,8 @@
       }
 
       .doc-firma-img {
-        max-height: 32px;
-        max-width: 130px;
+        max-height: 28px;
+        max-width: 120px;
         object-fit: contain;
         display: inline-block;
         vertical-align: middle;
@@ -152,16 +157,16 @@
         width: 100%;
         border-collapse: collapse;
         border-top: 1px solid #9ca3af;
-        margin-top: 8px;
-        margin-bottom: 10px;
-        font-size: 8.8pt;
+        margin-top: 5px;
+        margin-bottom: 4px;
+        font-size: 8.6pt;
         break-inside: avoid;
         page-break-inside: avoid;
       }
 
       .doc-closing-grid td {
         border: none;
-        padding: 5px 8px 3px 0;
+        padding: 3px 8px 2px 0;
         vertical-align: middle;
       }
 
@@ -172,9 +177,10 @@
         right: 0;
         border-top: 1px solid #9ca3af;
         background: #ffffff !important;
-        padding-top: 6px;
-        font-size: 7.4pt;
-        line-height: 1.32;
+        padding-top: 3px;
+        padding-bottom: 1px;
+        font-size: 7pt;
+        line-height: 1.22;
         color: #374151;
       }
 
@@ -185,13 +191,13 @@
 
       .doc-footer-table td {
         border: none;
-        padding: 0 6px 0 0;
+        padding: 0 5px 0 0;
         vertical-align: middle;
       }
 
       .doc-footer-mark {
-        height: 54px;
-        max-height: 54px;
+        height: 32px;
+        max-height: 32px;
         width: auto;
         object-fit: contain;
         image-rendering: -webkit-optimize-contrast;
@@ -465,36 +471,44 @@
 
   <!-- LAYOUT DEDICATO ALLA STAMPA / EXPORT PDF (MODELLO TERZO VALICO AV/AC) -->
   <section id="print-doc-sheet" aria-hidden="true">
-    <table class="doc-header-grid">
-      <tr>
-        <td rowspan="2" id="doc-logo-cell" style="width: 26%; text-align: center; padding: 4px 6px;">
-          <img id="doc-logo-img" src="../../assets/img/logowb.jpg" alt="Logo" class="doc-logo-img" onerror="this.style.display='none'; document.getElementById('doc-logo-text-fallback').style.display='block';">
-          <div id="doc-logo-text-fallback" style="display: none;">
-            <div style="font-size: 7.5pt; font-weight: 700; color: #374151;">GENERAL CONTRACTOR</div>
-            <div style="font-size: 13pt; font-weight: 900; letter-spacing: 0.5px; color: #111827; line-height: 1.1;">webuild</div>
-            <div style="font-size: 7.5pt; color: #4b5563; margin-top: 2px;">Terzo Valico AV/AC</div>
-          </div>
-        </td>
-        <td colspan="2" style="text-align: center; font-weight: 800; font-size: 10pt; width: 44%;">
-          TRATTA AV/AC TERZO VALICO DEI GIOVI
-        </td>
-        <td style="width: 15%; text-align: center; font-weight: 700;">LOTTO WBS</td>
-        <td style="width: 15%; text-align: center; font-weight: 700;">DATA</td>
-      </tr>
-      <tr>
-        <td style="text-align: center; font-weight: 700; width: 22%;">Sistema di gestione ambientale</td>
-        <td style="text-align: center; font-weight: 800; width: 22%;">VERBALE DI RIUNIONE COORDINAMENTO</td>
-        <td id="doc-wbs" style="text-align: center; font-weight: 600;">DT1-DT2</td>
-        <td id="doc-data-top" style="text-align: center; font-weight: 600;"></td>
-      </tr>
-      <tr>
-        <td colspan="3" style="font-size: 8pt; color: #4b5563;">
-          Cod. Verbale: <span id="doc-id" style="font-weight: 700; color: #111827;"></span>
-        </td>
-        <td colspan="2" id="doc-allegato" style="text-align: center; font-weight: 800; font-size: 8.5pt;">
-          ALLEGATO 2
-        </td>
-      </tr>
+    <table class="doc-header-repeat">
+      <thead>
+        <tr>
+          <td>
+            <table class="doc-header-grid">
+              <tr>
+                <td rowspan="2" id="doc-logo-cell" style="width: 26%; text-align: center; padding: 3px 6px;">
+                  <img id="doc-logo-img" src="../../assets/img/logowb.jpg" alt="Logo" class="doc-logo-img" onerror="this.style.display='none'; document.getElementById('doc-logo-text-fallback').style.display='block';">
+                  <div id="doc-logo-text-fallback" style="display: none;">
+                    <div style="font-size: 7.5pt; font-weight: 700; color: #374151;">GENERAL CONTRACTOR</div>
+                    <div style="font-size: 13pt; font-weight: 900; letter-spacing: 0.5px; color: #111827; line-height: 1.1;">webuild</div>
+                    <div style="font-size: 7.5pt; color: #4b5563; margin-top: 2px;">Terzo Valico AV/AC</div>
+                  </div>
+                </td>
+                <td colspan="2" style="text-align: center; font-weight: 800; font-size: 9.8pt; width: 44%;">
+                  TRATTA AV/AC TERZO VALICO DEI GIOVI
+                </td>
+                <td style="width: 15%; text-align: center; font-weight: 700;">LOTTO WBS</td>
+                <td style="width: 15%; text-align: center; font-weight: 700;">DATA</td>
+              </tr>
+              <tr>
+                <td style="text-align: center; font-weight: 700; width: 22%;">Sistema di gestione ambientale</td>
+                <td style="text-align: center; font-weight: 800; width: 22%;">VERBALE DI RIUNIONE COORDINAMENTO</td>
+                <td id="doc-wbs" style="text-align: center; font-weight: 600;">DT1-DT2</td>
+                <td id="doc-data-top" style="text-align: center; font-weight: 600;"></td>
+              </tr>
+              <tr>
+                <td colspan="3" style="font-size: 7.8pt; color: #4b5563;">
+                  Cod. Verbale: <span id="doc-id" style="font-weight: 700; color: #111827;"></span>
+                </td>
+                <td colspan="2" id="doc-allegato" style="text-align: center; font-weight: 800; font-size: 8.2pt;">
+                  ALLEGATO 2
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </thead>
     </table>
 
     <div class="doc-title-box">
@@ -503,10 +517,10 @@
     </div>
 
     <div class="doc-body-text">
-      <p style="margin: 0 0 6px 0;">
+      <p style="margin: 0 0 4px 0;">
         In data odierna <span id="doc-data-testo" style="font-weight: 600;"></span> il sottoscritto:
       </p>
-      <p style="margin: 0 0 8px 0;">
+      <p style="margin: 0 0 6px 0;">
         <span id="doc-coordinatore" style="font-weight: 700;"></span>
         in qualità di <span id="doc-qualita" style="font-weight: 600;"></span>
         per i lavori di realizzazione inerenti la <span id="doc-opera" style="font-weight: 600;"></span>
@@ -515,12 +529,12 @@
         alla quale hanno partecipato le persone di cui al foglio presenze allegato.
       </p>
 
-      <p style="margin: 10px 0 4px 0; font-weight: 700;">
+      <p style="margin: 7px 0 3px 0; font-weight: 700;">
         Si riassumono nel seguito gli output della riunione:
       </p>
       <div id="doc-output" class="doc-output-box"></div>
 
-      <p style="margin: 10px 0 8px 0;">
+      <p style="margin: 7px 0 5px 0;">
         In relazione a quanto discusso e convenuto in questa riunione, i partecipanti dovranno procedere a specifica attività per quanto di loro competenza. Copia del presente verbale è trasmesso a mezzo mail a tutti i partecipanti.
       </p>
     </div>
@@ -536,7 +550,7 @@
       <tbody id="doc-presenze-tbody"></tbody>
     </table>
 
-    <div id="doc-note-wrap" class="doc-body-text" style="margin-bottom: 8px;">
+    <div id="doc-note-wrap" class="doc-body-text" style="margin-bottom: 5px;">
       <strong>Note:</strong> <span id="doc-note"></span>
     </div>
 
@@ -558,19 +572,19 @@
     <footer class="doc-print-footer">
       <table class="doc-footer-table">
         <tr>
-          <td style="width: 66px; text-align: center;">
+          <td style="width: 44px; text-align: center;">
             <img id="doc-footer-emas" src="../../assets/img/emas.jpg" alt="EMAS" class="doc-footer-mark" onerror="this.style.display='none';">
           </td>
-          <td style="width: 66px; text-align: center; padding-right: 12px;">
+          <td style="width: 44px; text-align: center; padding-right: 16px;">
             <img id="doc-footer-dnv" src="../../assets/img/dnv.jpg" alt="DNV ISO 14001" class="doc-footer-mark" onerror="this.style.display='none';">
           </td>
-          <td style="width: 44%; padding-left: 4px;">
+          <td style="width: 45%; padding-left: 6px;">
             <div style="font-weight: 700; color: #1f2937;">Consorzio Cociv</div>
             <div>Sede legale e Ufficio Tecnico Amministrativo</div>
             <div>Via Renata Bianchi, 40 - 16152 Genova</div>
             <div>T 010 4218711 - F 010 4218708</div>
           </td>
-          <td style="width: 38%; text-align: left;">
+          <td style="width: 39%; text-align: left;">
             <div>P.IVA, C.F. e N. Iscr. Registro Imprese Genova 03299440101</div>
             <div>R.E.A. Genova 332670</div>
             <div>pec@cociv.postecert.it</div>
