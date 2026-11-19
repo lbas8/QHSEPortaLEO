@@ -16,6 +16,28 @@
       background: rgba(15, 22, 36, 0.88);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
+    .flag-item {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 0.6rem;
+      background: rgba(9, 13, 22, 0.85);
+      border: 1px solid rgba(51, 65, 85, 0.75);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .flag-item:hover {
+      border-color: rgba(16, 185, 129, 0.55);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .flag-item input[type="checkbox"] {
+      accent-color: #10b981;
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
 
     #print-preventiva-sheet { display: none; }
 
@@ -51,41 +73,18 @@
         vertical-align: middle;
         word-wrap: break-word;
       }
-      .prev-title {
-        font-weight: 800;
-        font-size: 8.5pt;
-        text-align: center;
-      }
-      .prev-sub {
-        font-size: 6.6pt;
-        text-align: center;
-      }
-      .prev-sec-hdr {
-        background: #e5e7eb !important;
-        font-weight: 700;
-        text-align: center;
-      }
-      .prev-wk-hdr {
-        background: #f3f4f6 !important;
-        font-weight: 700;
-      }
-      .prev-out-range {
-        background: #f9fafb !important;
-        color: #6b7280 !important;
-      }
-      .prev-num {
-        text-align: right;
-        font-variant-numeric: tabular-nums;
-      }
-      .prev-center {
-        text-align: center;
-      }
+      .prev-title { font-weight: 800; font-size: 8.5pt; text-align: center; }
+      .prev-sub { font-size: 6.6pt; text-align: center; }
+      .prev-sec-hdr { background: #e5e7eb !important; font-weight: 700; text-align: center; }
+      .prev-wk-hdr { background: #f3f4f6 !important; font-weight: 700; }
+      .prev-out-range { background: #f9fafb !important; color: #6b7280 !important; }
+      .prev-num { text-align: right; font-variant-numeric: tabular-nums; }
+      .prev-center { text-align: center; }
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white" data-settore="E">
 
-  <!-- HEADER -->
   <header class="no-print w-full bg-[#090d16]/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-3">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
@@ -97,18 +96,15 @@
           <h1 class="font-black text-sm sm:text-base text-white uppercase tracking-wide">
             Comunicazione Preventiva Trasporti MdS
           </h1>
-          <p class="text-[11px] text-emerald-400 font-semibold">
-            Art. 11 All. 6 D.M. 161/2012 & DVA-2014-14640 — Terzo Valico dei Giovi
+          <p id="hub-sync-status" class="text-[11px] text-emerald-400 font-semibold">
+            Collegato ai 7 Hub Modulari (localStorage + db_preventive.json)
           </p>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" onclick="switchView('preventiva')" id="tab-btn-preventiva" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white border border-emerald-400/40 cursor-pointer">
-          <i class="fa-solid fa-file-lines mr-1"></i> Compila Preventiva
-        </button>
-        <button type="button" onclick="switchView('database')" id="tab-btn-database" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 cursor-pointer">
-          <i class="fa-solid fa-database mr-1 text-emerald-400"></i> Database MdS
+        <button type="button" onclick="ricaricaDagliHub()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700 cursor-pointer">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Aggiorna da Hub
         </button>
         <button type="button" onclick="stampaPreventivaPdf()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white shadow cursor-pointer">
           <i class="fa-solid fa-file-pdf mr-1"></i> Esporta PDF
@@ -117,198 +113,152 @@
     </div>
   </header>
 
-  <!-- CONTENUTO PRINCIPALE -->
   <main class="no-print flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
 
-    <!-- VISTA 1: COMPILAZIONE PREVENTIVA -->
-    <div id="view-preventiva" class="space-y-6">
-
-      <!-- DATI GENERALI & PERIODO -->
-      <section class="glass-card rounded-2xl p-5 space-y-4 border-t-2 border-emerald-500">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-          <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
-            1. Estremi Comunicazione & Periodo di Riferimento
-          </h2>
-          <div class="flex items-center gap-2">
-            <span id="settimane-range-badge" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-700">
-              5 settimane
-            </span>
-            <span id="codice-comunicazione-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-              PRE_set[45÷49]_2026
-            </span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Data Inizio Trasporti</label>
-            <input type="date" id="p-data-inizio" value="2026-11-02" onchange="ricalcolaCalendarioESettimane()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Data Fine Trasporti</label>
-            <input type="date" id="p-data-fine" value="2026-11-30" onchange="ricalcolaCalendarioESettimane()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Mese / Anno di Riferimento</label>
-            <input type="text" id="p-mese-rif" value="novembre-26" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Mc medi per viaggio</label>
-            <input type="number" id="p-mc-per-viaggio" value="14" min="1" step="0.5" onchange="ricalcolaTotali()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
-          </div>
-        </div>
-      </section>
-
-      <!-- SITI, MATERIALE, PRODUTTORE & DESTINATARIO -->
-      <section class="glass-card rounded-2xl p-5 space-y-5">
-        <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300 border-b border-slate-800 pb-3">
-          2. Siti, Materiale, Produttore e Destinatario
+    <!-- 1. MESE DI RIFERIMENTO & PERIODO -->
+    <section class="glass-card rounded-2xl p-5 space-y-4 border-t-2 border-emerald-500">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
+          1. Selezione Mese di Riferimento & Periodo
         </h2>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
-          <!-- Sito di partenza / produzione -->
-          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="font-black uppercase text-emerald-400">Sito di Partenza / Produzione</span>
-              <select id="sel-sito-prod" onchange="applicaSitoProduzione()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white max-w-[230px]">
-                <option value="">-- Seleziona da DB --</option>
-              </select>
-            </div>
-            <input type="text" id="p-sito-prod-denom" placeholder="Denominazione sito" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            <input type="text" id="p-sito-prod-ind" placeholder="Indirizzo" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            <div class="grid grid-cols-2 gap-2">
-              <input type="text" id="p-sito-prod-cap" placeholder="CAP" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-              <input type="text" id="p-sito-prod-comune" placeholder="Comune" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            </div>
-          </div>
-
-          <!-- Sito di destinazione / WBS -->
-          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="font-black uppercase text-emerald-400">Sito di Destinazione / WBS</span>
-              <select id="sel-sito-dest" onchange="applicaSitoDestinazione()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white max-w-[230px]">
-                <option value="">-- Seleziona da DB --</option>
-              </select>
-            </div>
-            <input type="text" id="p-sito-dest-wbs" placeholder="Sito o WBS" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            <input type="text" id="p-sito-dest-ind" placeholder="Indirizzo" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            <div class="grid grid-cols-2 gap-2">
-              <input type="text" id="p-sito-dest-cap" placeholder="CAP" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-              <input type="text" id="p-sito-dest-comune" placeholder="Comune" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            </div>
-          </div>
-
-          <!-- Produttore -->
-          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="font-black uppercase text-emerald-400">Produttore del Materiale da Scavo</span>
-              <select id="sel-produttore" onchange="applicaProduttore()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white max-w-[230px]">
-                <option value="">-- Seleziona da DB --</option>
-              </select>
-            </div>
-            <input type="text" id="p-prod-denom" placeholder="Denominazione produttore" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            <input type="text" id="p-prod-ind" placeholder="Indirizzo" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            <div class="grid grid-cols-3 gap-2">
-              <input type="text" id="p-prod-cap" placeholder="CAP" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-              <input type="text" id="p-prod-comune" placeholder="Comune" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-              <input type="text" id="p-prod-piva" placeholder="Partita IVA" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            </div>
-          </div>
-
-          <!-- Destinatario & Materiale -->
-          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="font-black uppercase text-emerald-400">Destinatario & Tipo Materiale</span>
-              <select id="sel-destinatario" onchange="applicaDestinatario()" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white max-w-[230px]">
-                <option value="">-- Seleziona da DB --</option>
-              </select>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <select id="sel-materiale" onchange="document.getElementById('p-materiale').value = this.value" class="bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-white">
-                <option value="">-- Litologia da DB --</option>
-              </select>
-              <input type="text" id="p-materiale" placeholder="Tipo di materiale trasportato" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            </div>
-            <input type="text" id="p-dest-denom" placeholder="Denominazione destinatario" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            <div class="grid grid-cols-3 gap-2">
-              <input type="text" id="p-dest-ind" placeholder="Indirizzo" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-              <input type="text" id="p-dest-cap" placeholder="CAP" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-              <input type="text" id="p-dest-piva" placeholder="P.IVA / Comune" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-white">
-            </div>
-          </div>
+        <div class="flex items-center gap-2">
+          <span id="settimane-range-badge" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-700">
+            5 settimane
+          </span>
+          <span id="codice-comunicazione-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            PRE_set[45÷49]_2026
+          </span>
         </div>
-      </section>
+      </div>
 
-      <!-- TRASPORTATORI & CALENDARIO SETTIMANALE COMPLETO -->
-      <section class="glass-card rounded-2xl p-5 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-          <div>
-            <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
-              3. Trasportatori, Targhe & Calendario Mensile Settimanale
-            </h2>
-            <p class="text-[11px] text-slate-400 mt-0.5">
-              Compilazione per singola settimana e data del mese. Puoi anche applicare un pattern settimanale (Lun–Dom) a tutte le settimane.
-            </p>
-          </div>
-          <button type="button" onclick="aggiungiBloccoTrasportatore()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer">
-            <i class="fa-solid fa-plus mr-1"></i> Aggiungi Trasportatore
-          </button>
-        </div>
-
-        <div id="trasportatori-container" class="space-y-4"></div>
-      </section>
-
-      <!-- RIEPILOGO & NOTA -->
-      <section class="glass-card rounded-2xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
-          <div class="text-[10px] font-bold uppercase text-slate-400">Totale Viaggi Previsti</div>
-          <div id="ui-tot-viaggi" class="text-2xl font-black text-emerald-400 mt-1">0</div>
-        </div>
-        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
-          <div class="text-[10px] font-bold uppercase text-slate-400">Totale Quantità (mc)</div>
-          <div id="ui-tot-mc" class="text-2xl font-black text-sky-400 mt-1">0 mc</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-xs">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Mese di Riferimento</label>
+          <select id="sel-mese-rif" onchange="applicaMeseRiferimento()" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-white font-bold">
+            <option value="01">Gennaio</option>
+            <option value="02">Febbraio</option>
+            <option value="03">Marzo</option>
+            <option value="04">Aprile</option>
+            <option value="05">Maggio</option>
+            <option value="06">Giugno</option>
+            <option value="07">Luglio</option>
+            <option value="08">Agosto</option>
+            <option value="09">Settembre</option>
+            <option value="10">Ottobre</option>
+            <option value="11" selected>Novembre</option>
+            <option value="12">Dicembre</option>
+          </select>
         </div>
         <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Nota Finale</label>
-          <textarea id="p-nota" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">Laddove le suddette previsioni non dovessero essere rispettate se ne darà riscontro nella comunicazione cumulativa rettificata</textarea>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Anno</label>
+          <input type="number" id="sel-anno-rif" value="2026" min="2020" max="2035" onchange="applicaMeseRiferimento()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
         </div>
-      </section>
-    </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Data Inizio Trasporti</label>
+          <input type="date" id="p-data-inizio" value="2026-11-02" onchange="ricalcolaCalendarioESettimane()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Data Fine Trasporti</label>
+          <input type="date" id="p-data-fine" value="2026-11-30" onchange="ricalcolaCalendarioESettimane()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Mc medi per viaggio</label>
+          <input type="number" id="p-mc-per-viaggio" value="14" min="1" step="0.5" onchange="ricalcolaTotali()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+      </div>
+    </section>
 
-    <!-- VISTA 2: DATABASE MdS INTEGRABILE -->
-    <div id="view-database" class="hidden space-y-6">
-      <section class="glass-card rounded-2xl p-5 space-y-4 border-t-2 border-emerald-500">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
-          <div>
-            <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
-              Database MdS — Gestione & Integrazione Anagrafiche
-            </h2>
-            <p class="text-xs text-slate-400 mt-0.5">
-              Aggiungi nuovi siti, produttori, destinatari, trasportatori o targhe. Le modifiche si salvano in locale e su Firebase (se configurato).
-            </p>
+    <!-- 2. SELEZIONE TRAMITE FLAG DAI 7 HUB -->
+    <section class="glass-card rounded-2xl p-5 space-y-5">
+      <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300 border-b border-slate-800 pb-3">
+        2. Selezione Informazioni tramite Flag dai 7 Hub
+      </h2>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-black uppercase text-emerald-400">Sito di Partenza / Produzione</span>
+            <a href="hub_sitiproduzione.html" class="text-[11px] text-emerald-300 hover:underline">Apri Hub 1/7</a>
           </div>
-          <div class="flex flex-wrap gap-2">
-            <select id="db-sezione-select" onchange="renderDbTable()" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white">
-              <option value="siti_produzione">Siti di Produzione</option>
-              <option value="produttori">Produttori</option>
-              <option value="materiali">Tipi di Materiale</option>
-              <option value="siti_destinazione">Siti di Destinazione / WBS</option>
-              <option value="destinatari">Destinatari</option>
-              <option value="trasportatori">Trasportatori</option>
-              <option value="targhe">Targhe per Trasportatore</option>
-            </select>
-            <button type="button" onclick="aggiungiVoceDatabase()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Nuova Voce
-            </button>
-          </div>
+          <div id="flags-siti-prod" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
         </div>
 
-        <div id="db-table-wrap" class="overflow-x-auto border border-slate-800 rounded-xl"></div>
-      </section>
-    </div>
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-black uppercase text-emerald-400">Sito di Destinazione / WBS</span>
+            <a href="hub_sitidestinazione.html" class="text-[11px] text-emerald-300 hover:underline">Apri Hub 4/7</a>
+          </div>
+          <div id="flags-siti-dest" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
+        </div>
+
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-black uppercase text-emerald-400">Produttore MdS</span>
+            <a href="hub_produttori.html" class="text-[11px] text-emerald-300 hover:underline">Apri Hub 2/7</a>
+          </div>
+          <div id="flags-produttori" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
+        </div>
+
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-black uppercase text-emerald-400">Destinatario MdS</span>
+            <a href="hub_destinatari.html" class="text-[11px] text-emerald-300 hover:underline">Apri Hub 5/7</a>
+          </div>
+          <div id="flags-destinatari" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
+        </div>
+
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5 lg:col-span-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-black uppercase text-emerald-400">Tipo di Materiale Trasportato (Flag Litologie)</span>
+            <div class="flex items-center gap-3">
+              <input type="text" id="filtro-materiali-flag" oninput="renderFlagMateriali()" placeholder="Filtra litologia..." class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-[11px] text-white">
+              <a href="hub_materiali.html" class="text-[11px] text-emerald-300 hover:underline">Apri Hub 3/7</a>
+            </div>
+          </div>
+          <div id="flags-materiali" class="max-h-36 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TRASPORTATORI & TARGHE TRAMITE FLAG + CALENDARIO SETTIMANALE -->
+    <section class="glass-card rounded-2xl p-5 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
+            3. Trasportatori & Targhe (Flag) + Cronoprogramma Settimanale
+          </h2>
+          <p class="text-[11px] text-slate-400 mt-0.5">
+            Spunta i trasportatori e le relative targhe dagli Hub 6/7 e 7/7: i blocchi settimanali si aggiornano automaticamente.
+          </p>
+        </div>
+        <div class="flex items-center gap-3 text-[11px]">
+          <a href="hub_trasportatori.html" class="text-emerald-300 hover:underline">Hub Trasportatori (6/7)</a>
+          <a href="hub_targhe.html" class="text-emerald-300 hover:underline">Hub Targhe (7/7)</a>
+        </div>
+      </div>
+
+      <div id="flags-trasportatori" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-xs max-h-48 overflow-y-auto bg-slate-950/50 border border-slate-800 rounded-xl p-3"></div>
+      <div id="trasportatori-container" class="space-y-4 pt-2"></div>
+    </section>
+
+    <!-- 4. RIEPILOGO & NOTA -->
+    <section class="glass-card rounded-2xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+      <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Viaggi Previsti</div>
+        <div id="ui-tot-viaggi" class="text-2xl font-black text-emerald-400 mt-1">0</div>
+      </div>
+      <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4">
+        <div class="text-[10px] font-bold uppercase text-slate-400">Totale Quantità (mc)</div>
+        <div id="ui-tot-mc" class="text-2xl font-black text-sky-400 mt-1">0 mc</div>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Nota Finale</label>
+        <textarea id="p-nota" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">Laddove le suddette previsioni non dovessero essere rispettate se ne darà riscontro nella comunicazione cumulativa rettificata</textarea>
+      </div>
+    </section>
   </main>
 
-  <!-- FOGLIO DI STAMPA / EXPORT PDF (FORMATO CONFORME AL PDF ALLEGATO) -->
+  <!-- FOGLIO DI STAMPA / EXPORT PDF -->
   <section id="print-preventiva-sheet" aria-hidden="true">
     <table class="prev-table">
       <tr>
@@ -415,258 +365,254 @@
   </section>
 
   <script>
-    const STORAGE_KEY = "qhse_mds_database_v1";
     const DAY_NAMES = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
-
-    const INITIAL_DB = {
-      siti_produzione: [
-        { denominazione: "Deposito Intermedio Pozzolo (DIPZ)", indirizzo: "Ex S.S. 211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)", note: "" },
-        { denominazione: "Interconnessione", indirizzo: "Ex S.S. 211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)", note: "" },
-        { denominazione: "Gerbidi", indirizzo: "Ex S.S. 211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)", note: "" },
-        { denominazione: "Novi Ligure", indirizzo: "S.P. 153 Strada Cassano, s.n.c.", cap: "15067", comune: "Novi Ligure (AL)", note: "" },
-        { denominazione: "Castagnola", indirizzo: "Località Casazze Superiori, s.n.c.", cap: "15060", comune: "Fraconalto (AL)", note: "" },
-        { denominazione: "Fegino", indirizzo: "Via Castel Morrone, s.n.c.", cap: "16161", comune: "Genova (GE)", note: "" },
-        { denominazione: "Polcevera", indirizzo: "", cap: "16161", comune: "Genova (GE)", note: "" },
-        { denominazione: "S.P. 163 della Castagnola (WBS NV13.2 - Zona 3)", indirizzo: "S.P. 163, s.n.c.", cap: "15060", comune: "Fraconalto (AL)", note: "" },
-        { denominazione: "Novi Ligure (COP7)", indirizzo: "S.P. 35ter Pieve di Novi Ligure, s.n.c.", cap: "15067", comune: "Novi Ligure (AL)", note: "" },
-        { denominazione: "Novi Ligure (COP7) presso Libarna (COP5)", indirizzo: "Via Liverno, s.n.c.", cap: "15069", comune: "Serravalle Scrivia (AL)", note: "" },
-        { denominazione: "Pernigotti presso Libarna (COP5)", indirizzo: "c/o Via Liverno, s.n.c.", cap: "15069", comune: "Serravalle Scrivia (AL)", note: "" },
-        { denominazione: "Libarna (COP5)", indirizzo: "c/o Via Liverno, s.n.c.", cap: "15069", comune: "Serravalle Scrivia (AL)", note: "" },
-        { denominazione: "Pernigotti [TRVB]", indirizzo: "Via dell'Argicoltura, s.n.c.", cap: "15067", comune: "Novi Ligure (AL)", note: "" },
-        { denominazione: "Novi Ligure (COP7)", indirizzo: "Strada Cappellazza, s.n.c.", cap: "15069", comune: "Serravalle Scrivia (AL)", note: "DEPOSITO INTERMEDIO" }
-      ],
-      produttori: [
-        { denominazione: "Consorzio COCIV", indirizzo: "Via Renata Bianchi, 9", cap: "16152", comune: "Genova (GE)", piva: "03299440101" },
-        { denominazione: "Consorzio Tunnel Giovi", indirizzo: "Via A.M. Adorni, 1", cap: "43121", comune: "Parma (PR)", piva: "02852220348" },
-        { denominazione: "CMP S.r.l.", indirizzo: "Via alla stazione di San Quirico, 70", cap: "16163", comune: "Genova (GE)", piva: "01957970997" },
-        { denominazione: "Polistrade S.p.A.", indirizzo: "Via Pier Paolo Pasolini, 18", cap: "50013", comune: "Campi Bisenzio (FI)", piva: "00752930487" },
-        { denominazione: "Seli Overseas S.p.A.", indirizzo: "Via Giulio Vincenzo Bona, 120", cap: "00156", comune: "Roma (RM)", piva: "03299440101" },
-        { denominazione: "Cipa S.p.A.", indirizzo: "Via Casa Rosa, 33", cap: "80063", comune: "Piano di Sorrento (NA)", piva: "1392551212" }
-      ],
-      materiali: [
-        "Arenarie", "Arenarie di Serravalle", "Argille", "Argille di Lugagnano", "Argille di Ortovero",
-        "Argilliti", "Argilliti a Palombini", "Argilloscisti di Costagiutta", "Argilloscisti di Murta",
-        "Argilloscisti filladici", "Argilloscisti neri", "Basalti dell'unità Timone Teiolo", "Calcari",
-        "Calcari di Gallaneto", "Calcari dolomitici", "Cloritoscisti", "Conglomerati di Cassano Spinola",
-        "Dolomie", "Dolomie di Monte Gazzo", "Formazione di Cassano Spinola", "Formazione di Costa Areasa",
-        "Formazione di Costa Montada", "Formazione di Molare", "Formazione di Rigoroso", "Formazione di Serravalle",
-        "Ghiaia e/o ciottoli", "Ghiaio terro limoso", "Marne", "Marne di Cessole", "Marne di Costa Areasa",
-        "Marne di Sant'Agata", "Marne di Sant'Agata Fossili", "Materiale di riporto", "Melange Tettonico",
-        "Membro di Rio Maggiore", "Metabasalti", "Metabasalti di M. Figogna", "Metacalcari", "Metagabbri",
-        "Metagabbri del M. Figogna", "Metaoficalci", "Metargilliti", "Metargilliti a Palombini",
-        "Metasedimenti", "Metasedimenti della Madonna della Guardia", "Metasedimenti silicei", "Milonite",
-        "Oficalci", "Pietre verdi", "Sabbia", "Sabbie e/o ghiaie", "Scisti ofiolitici", "Serpentiniti",
-        "Terreno limoso", "Terreno superficiale", "Terreno vegetale"
-      ],
-      siti_destinazione: [
-        { sito_wbs: "Cava Castellaro - DP02", indirizzo: "S.P.6 Via Cravasco", cap: "16044", comune: "Campomorone (GE)" },
-        { sito_wbs: "Interconnessione", indirizzo: "Ex S.S.211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)" },
-        { sito_wbs: "Gerbidi", indirizzo: "Ex S.S.211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)" },
-        { sito_wbs: "Novi Ligure", indirizzo: "Strada Cassano SP153", cap: "15067", comune: "Novi Ligure (AL)" },
-        { sito_wbs: "Deposito Intermedio Pozzolo (DIPZ)", indirizzo: "Ex S.S.211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)" },
-        { sito_wbs: "Cascina Romanellotta - DP22", indirizzo: "Ex S.S.211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)" },
-        { sito_wbs: "EX Cava Cementir Voltaggio - DP04", indirizzo: "Località Ferriera Vecchia, s.n.c.", cap: "15060", comune: "Voltaggio (AL)" },
-        { sito_wbs: "Cascina Venezia", indirizzo: "Via Enrico Fermi, s.n.c.", cap: "27058", comune: "Casei Gerola (PV)" },
-        { sito_wbs: "Cascina Vassuria - DP9D", indirizzo: "S.P. 35bis s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)" },
-        { sito_wbs: "Cascina Guendalina - DP98", indirizzo: "Strada dei Molini, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)" },
-        { sito_wbs: "Deposito Intermedio C.na Romanellotta (DICR)", indirizzo: "Ex S.S.211 della Lomellina, s.n.c.", cap: "15068", comune: "Pozzolo Formigaro (AL)" },
-        { sito_wbs: "Cava Vecchie Fornaci - DP91", indirizzo: "Via alle Vecchie Fornaci, s.n.c.", cap: "16162", comune: "Genova (GE)" },
-        { sito_wbs: "Deposito Intermedio Cantiere Operativo Fegino - COL2", indirizzo: "Via Castel Morrone, s.n.c.", cap: "16161", comune: "Genova (GE)" },
-        { sito_wbs: "Deposito Intermedio Libarna (DILIB)", indirizzo: "Via Liverno, s.n.c.", cap: "15069", comune: "Serravalle Scrivia (AL)" }
-      ],
-      destinatari: [
-        { denominazione: "ATI Edilmac S.r.l. - Heidelberg Materials Italia Calcestruzzi S.p.A.", indirizzo: "Via Trento, 16", cap: "24020", comune: "Gorle (BG)", piva: "00217080167" },
-        { denominazione: "Allara S.p.A.", indirizzo: "Strada Frassineto Po, 42", cap: "15033", comune: "Casale Monferrato (AL)", piva: "00414250068" },
-        { denominazione: "Rito Soc. Agricola S.r.l.", indirizzo: "Via Fermi, 4", cap: "27055", comune: "Rivanazzano Terme (PV)", piva: "01423820180" },
-        { denominazione: "Consorzio COCIV", indirizzo: "Via Renata Bianchi, 9", cap: "16152", comune: "Genova (GE)", piva: "03299440101" },
-        { denominazione: "Picco Bartolomeo S.r.l.", indirizzo: "Via Materno Garibaldi, 9", cap: "14100", comune: "Asti (AT)", piva: "01280650050" },
-        { denominazione: "Consorzio Stabile 3 Emme s.c.a.r.l.", indirizzo: "Via Paolo Emilio, 32", cap: "00162", comune: "Roma (RM)", piva: "06934780963" }
-      ],
-      trasportatori: [
-        { denominazione: "ATI  - Portalupi Carlo Impresa Spa", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "ATI POLISTRADE-TERRA UOMINI AMBIENTE", indirizzo_cap_comune: "Via Pier Paolo Pasolini, 18 - 50013 - Campi Bisenzio (FI)", piva: "00752930487" },
-        { denominazione: "AUTOSPED G S.p.A.", indirizzo_cap_comune: "Viale Europa, 25 - 15053 - Castelnuovo Scrivia (AL)", piva: "153880067" },
-        { denominazione: "AUTOTRASPORTI PENSIERO S.r.l.", indirizzo_cap_comune: "Via Stalingrado, 50 - 17014 - Cairo Montenotte (SV)", piva: "01371970094" },
-        { denominazione: "BERTINI S.R.L.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "CAR Trasporti S.r.l.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "CARNOVALE COSTRUZIONI S.R.L.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "Cart Soc. Coop. a r. l.", indirizzo_cap_comune: "Via Piazza Barbarino, 10/3 - 16149 - Genova (GE)", piva: "03222230108" },
-        { denominazione: "Cave Sinni S.r.l.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "CIPA S.p.A.", indirizzo_cap_comune: "Via Casa Rosa, 33 - 80063 - Piano di Sorrento (NA)", piva: "1392551212" },
-        { denominazione: "CONSORZIO COCIV", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "CONSORZIO TUNNEL GIOVI", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "Costruttori S.p.A.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "DIMOTER S.r.l.", indirizzo_cap_comune: "Via Gambalera, 99 - 15122 - Alessandria (AL)", piva: "02610480069" },
-        { denominazione: "ECAM S.R.L.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "Eurocav S.C.AR.L.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "EUROSCAVI S.r.l.", indirizzo_cap_comune: "Via Rosario Russo, 19 - 95010 - Santa Venerina (CT)", piva: "04263220966" },
-        { denominazione: "Eurotrasporti Srl", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "GERMANI S.P.A.", indirizzo_cap_comune: "Via Volta, 8 - 25010 - S. Zeno Naviglio (BS)", piva: "01147940173" },
-        { denominazione: "Impresa Bacchi Srl", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "IMPRESA MANELLI SPA", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "M&D S.R.L.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "MORELLO CARMELO", indirizzo_cap_comune: "Via Tangenziale Est Ticino, 2 - 28068 - Romentino (NO)", piva: "08365830960" },
-        { denominazione: "MORELLO DOMENICO", indirizzo_cap_comune: "Strada Manin, 2 - 28100 - Novara (NO)", piva: "02423660808" },
-        { denominazione: "MOVITER S.r.l.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "NEW GROUP INFRASTRUTTURE S.R.L.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "P.M. Trasporti Srl", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "PARATORI SPA", indirizzo_cap_comune: "Strada Bosco Marengo,14 - 15067 - Novi Ligure (AL)", piva: "01572720991" },
-        { denominazione: "PICCO BARTOLOMEO S.R.L.", indirizzo_cap_comune: "Via Bertolotti, 7 - 10121 - Torino (TO)", piva: "1280650050" },
-        { denominazione: "PM SERVICES S.R.L.", indirizzo_cap_comune: "Via Marconi, 6/B - 24060 - Bagnatica (BG)", piva: "04069190165" },
-        { denominazione: "PREVE COSTRUZIONI S.P.A", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "TESTA SCAVI Srl", indirizzo_cap_comune: "Via Malta, 5/9 - 16121 - Genova (GE)", piva: "02274830062" },
-        { denominazione: "TRASPOTER S.r.l.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "TRIO S.r.l.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "TRIZZINO SALVATORE", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "Truck Rail Container S.p.A.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "Unistrade S.r.l.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "VE COSTRUZIONI S.R.L.", indirizzo_cap_comune: "", piva: "" },
-        { denominazione: "ZENTI TRANSPORT S.r.l.", indirizzo_cap_comune: "Via Industria, 37/39 - 25030 - Torbole e Casaglia (BS)", piva: "02703810982" }
-      ],
-      targhe_per_azienda: {
-"ATI  - Portalupi Carlo Impresa Spa": ["FD133ZW","FV218CR","FV219CR"],
-"ATI POLISTRADE-TERRA UOMINI AMBIENTE": ["GW722JW"],
-"AUTOSPED G S.p.A.": ["EG348GS","EG461GS","EL912FS","EL913FS","EP620ZW","ES271GK","ES377GK","EW270FK","EZ004WC","EZ005WC","EZ008WC","EZ014WC","EZ020WC","EZ021WC","EZ187WC","EZ188WC","EZ189WC","EZ191WC","EZ921RD","EZ922RD","EZ939RD","EZ940RD","EZ941RD","FB913HX","FB917HX","FB918HX","FB966HX","FB967HX","FB968HX","FB969HX","FC828JM","FF853ER","FF857ER","FF929ER","FF930ER","FF932ER","FF933ER","FF934ER","FN896AM","FN957AM","FV270CR","FV271CR","FV272CR","FV273CR","FV274CR","FV275CR","FV276CR","FX117SR","FX118SR","FX190SR","FX191SR","FX192SR","FX193SR","FX194SR","FX195SR","FX196SR","FX282SR","FX283SR","FX284SR","FX285SR","FY247RN","FY248RN","FY249RN","FY283SR","FY352RN","FY353RN","FY354RN","FY355RN","FY356RN","GA255HS","GA256HS","GA257HS","GA430HS","GA431HS","GA432HS","GA433HS","GA434HS","GA452HS","GA454HS","GA899BJ","GB957HR","GB958HR","GB959HR","GB960HR","GC226LS","GC227LS","GC228LS","GC228ZX","GF106JA","GF107JA","GF108JA","GF109JA","GF110JA","GF111JA","GF282JA","GG029TL","GG030TL","GG031TL","GG032TL","GG033TL","GG034TL","GG125TL","GG126TL","GG177TL","GG178TL","GG179TL","GG180TL","GG229TK","GG684TK","GL057DL","GL059DL","GL060DL","GL061DL","GL062DL","GL063DL","GL067DL","GL128DL","GL904DN","GL921DL","GM807DJ","GN225JA","GN240JA","GN241JA","GN242JA","GN243JA","GN245JA","GV524DC","GW112SL","GW334SM","GW884JW","GW885JW","GW892JW","GZ851CY","GZ925CY"],
-"AUTOTRASPORTI PENSIERO S.r.l.": ["DF673AP","DF905AP","EH700FS","FL050KH","FV087LV","FW004DP","FW060DP","GA052VZ","GA089VZ","GA928WA","GB896VH","GE951ME","GJ747SW","GJ770SW","GJ860SW","GX633SJ","GX635SJ","HB862JD","HC465HZ"],
-"BERTINI S.R.L.": ["B93A631EC03612048","B93A63IEV03511366","EF061RD","FE019HZ","GH095FF","GJ986ZD"],
-"CAR Trasporti S.r.l.": ["ES179FL","FJ914EG","FX758NN"],
-"CARNOVALE COSTRUZIONI S.R.L.": ["FT996XG","FX734NN","FX735NN","FX920NN","HC929YF"],
-"Cart Soc. Coop. a r. l.": ["ED448FG","EF252YE","EF436YE","FC653JM","FW601MV","GC701DP","GC702DP","GK969CT","GZ834LE"],
-"Cave Sinni S.r.l.": ["EX922ZV","EY068KB","FA883ST","FA884ST"],
-"CIPA S.p.A.": ["GB802JL"],
-"CONSORZIO TUNNEL GIOVI": ["GX195VV","NASTRO"],
-"Costruttori S.p.A.": ["GD057LZ","GE291HP","GM728CC","GS179DJ"],
-"DIMOTER S.r.l.": ["FC880CB","FM972RK","FP748KN","GG901DN","GH879TR"],
-"ECAM S.R.L.": ["EX784HR","FR885PV","FY960YC","GD169NV","GF079HV","GF080HV","GJ017ZC","GJ979ZD","GR062FB","GR095FB"],
-"Eurocav S.C.AR.L.": ["DF965AP","DF966AP","EM760SK","FD104LJ","FP030WY","FV068LV","GB898HR"],
-"EUROSCAVI S.r.l.": ["DT516HT","EL501ZZ","EM831GA","FH883AP","FH942AP","FW141XA","FY762GE","FZ841JT","GB119ZC","GB949ZE","GG742LZ","GG743LZ","GJ890FZ","GP420ES","GT956VT","GW310KD"],
-"Eurotrasporti Srl": ["DF373JR","FB889XB","FT642SY"],
-"GERMANI S.P.A.": ["FH950BR","FJ639CN","FJ640CN","FJ641CN","FJ642CN","FJ643CN","FJ644CN","FJ645CN","FJ646CN","FJ647CN","FJ687CN","FJ689CN","FJ690CN","FK929YW","FK930YW","FK931YW","FK932YW","FK933YW","FL099YH","FL100YH","FL101YH","FL114YH","FL115YH","FL116YH","FL212YH","FT083GZ","FT084GZ","FT085GZ","FT105GZ","FT106GZ","FT107GZ","FT150GZ","FT151GZ","FT304GZ","FT306GZ","FT307GZ","FT308GZ","FT957JH","FT983JH","FV590JE","FV591JE","FV592JE","FV753JH","FV754JH","FV755JH","FV756JH","FV865JH","FV866JH","FV867JH","FV868JH","FV870JH","FV904JH","FV905JH","FV906JH","FV907JH","FV908JH","FV956JH","FV957JH","FV958JH","FV960JH","FV981JH","FV982JH","FV983JH","FV984JH","FV985JH","FW214SK","FW215SK","FW216SK","FW250SK","FW251SK","FW252SK","FW253SK","FW254SK","FW338SK","FW339SK","FW340SK","FZ152MD","FZ251MD","FZ913MC","GA138LY","GA139LY","GA140LY","GA141LY","GA142LY","GA143LY","GA144LY","GC500MK","GC501MK","GC553MK","GC554MK","GC587MK","GC589MK","GC624MK","GC683MK","GC684MK","GC732MK","GC733MK","GC736MK","GC800MK","GD039GX","GD040GX","GD041GX","GD042GX","GD043GX","GD045GX","GD047GX","GD048GX","GD081GX","GF488AJ","GH307AS","GH310AS","GH312AS","GH357AS","GH361AS","GH364AS","GH368AS","GH369AS","GH370AS","GH417AS","GH419AS","GH420AS","GH421AS","GH574AR","GH577AS","GH721AR","GM795XJ","GR573DG","GR586DG","GR587DG","GR589DG","GR676DG","GR763DG","GR767DG","GR897DG","GS483AP","GS484AP","GS485AP","GS579AP","GS676AP","GS737AP","GS797AP","GS862AP","GS969AP","GS972AP","GS973AP","GY005MS","GY006MS","GY026MS","GY027MS","GY028MS","GY075MS","GY076MS","GY150MS","GY151MS","GY152MS","GY153MS","GY154MS","GY155MS","GY156MS","GY158MS","GY159MS","GY169MS","GY170MS","GY171MS","GY172MS","HA005ZB","HA095ZB"],
-"Impresa Bacchi Srl": ["DZ673BA","EC798TR","GA949CH","GA950CH","GE380AM","GE570AM","GE571AM","GH622XH","GJ090KV"],
-"M&D S.R.L.": ["FX443SE","FX490SE","FX491SE","FZ861WP","GB136GB","GB137GB","GB138GB","GS741WP","GS743WP","GS744WP","HA585MG","HA586MG","NASTRO_M&D"],
-"MORELLO CARMELO": ["AS123AS","DR606FB","EA400SG","EH705FS","EK121BN","EL272LK","EL274LK","EN227WE","ES400GK","ES401GK","ET820NK","EX268BS","EX884TA","EX885TA","EY915NH","EY921JB","EZ067WC","EZ068WC","EZ069WC","FC346JR","FC366JR","FH284ZA","FH285ZA","FK542EH","FS907RV","FS908RV","GA012FR","GA013FR","GA041FR","GA424AB","GA432AB","GD581MA","GD603MA","GD604MA","GD607MA","GD830YD","GD831YD","GE913YK","GE960YK","GE961YK","GE962YK","GE972XV","GG935DN","GJ833TY","GJ883TY","GM951KA","GM954KA","GT978WL","GX806XK","GX828XK","GX926XK","GY701BR","GY703BR","GY770BT","HB007KH","HB009KH","HB834HT","HB977KK"],
-"MORELLO DOMENICO": ["ES469GK","EW554WN","EY944HM","EZ561SV","FA912MB","FC879CB","FC983CB","FC984CB","FE116DD","FE161DD","FF977HE","FK531EH","FL934VJ","FM971RK","FN051FT","FP432CP","FS311FD","FS875RV","FS951RX","FY039SN","GD846YB","GD857DF","GD910DT","GD914DT","GD926DT","GG904DN","GH850TR","GW179YT","GX857XK","HC949CD"],
-"MOVITER S.r.l.": ["FL920BL","FM183PM","FN116FK","FT082GF","FV785DG","FV786DG","FX252TM","FX253TM","FX439TM","FX924TM","FX934TM","GA099BJ","GA250BJ","GA251BJ","GA682BJ"],
-"NEW GROUP INFRASTRUTTURE S.R.L.": ["FP991KX","GV876AK","GV920AK","HA265BV","HA266BV","HA411BV"],
-"P.M. Trasporti Srl": ["FH761HG","FM024WY","FM330WY","FN824VF","GA105HS","GA402HS"],
-"PARATORI SPA": ["EZ844PD","GD748DF","GZ505CY","GZ506CY","GZ507CY","GZ508CY","GZ509CY","HA112LB","HA730LD","HA732LD","HA735LD","HB326XJ","HB372XJ","HB375XJ"],
-"PICCO BARTOLOMEO S.R.L.": ["CH864GT","GG846YZ","GL656FG"],
-"PM SERVICES S.R.L.": ["DJ935GW","DR579CR","EF270SV","ER528VY","ER529VY","ER865VY","ER866VY","EW134YW","EX059NJ","FB847XK","FD688XH","FH827LD","FH997SP","FJ514HN","FK827NX","FN659WD","FR376BF","GA165BJ","GA230BK","GC245RN","GC866AT","GC899AT","GC900AT","GC996RN","GE002XR","GE474BA","GE489BA","GF105JK","GF106JK","GJ013BR","GJ291BR","GJ378BR","GN210JX","HB220AK","HB221AK","HC015ZN"],
-"PREVE COSTRUZIONI S.P.A": ["FB059JE","FB060JE","FB061JE","FB356JE","FB783JE","FG169HG","FG171HG","FL962MB","FM138RK","HC573ZS","HE978GX"],
-"TESTA SCAVI Srl": ["GG128TL","GP852CC"],
-"TRASPOTER S.r.l.": ["FF110XL","FT072GF","FV547DG","FX313TM","FX440TM","FX852TM","GA258BJ","GA259BJ","GA259BK","GA687BJ"],
-"TRIO S.r.l.": ["GH913CH","GJ192HG","GJ193HG"],
-"TRIZZINO SALVATORE": ["FW052RK","FY082KV","GR076FB"],
-"Truck Rail Container S.p.A.": ["FE901WY","FE904WY","FE905WY","FE906WY","FE930WY","FE931WY","FF851ER","FF852ER","FF855ER","FF856ER","FF931ER","FS992PS","GM815DJ","GM818DJ","GM823DJ","GM826DJ"],
-"Unistrade S.r.l.": ["CB522PF","DX894DM","EK009BK","EL861XE","FB032TA","FF627SM"],
-"VE COSTRUZIONI S.R.L.": ["CW430ZM","DE002NV","FF107JT","FM939SN","GJ908TZ","GN824ZX"],
-"ZENTI TRANSPORT S.r.l.": ["EH408LW","FD260EL","FE968RH","FF840ZH","FG688NM"],
-      }
+    const UNIFIED_STORAGE_KEY = "qhse_mds_database_v1";
+    const SUB_KEYS = {
+      siti_produzione: "qhse_mds_sub_siti_produzione",
+      produttori: "qhse_mds_sub_produttori",
+      materiali: "qhse_mds_sub_materiali",
+      siti_destinazione: "qhse_mds_sub_siti_destinazione",
+      destinatari: "qhse_mds_sub_destinatari",
+      trasportatori: "qhse_mds_sub_trasportatori",
+      targhe_per_azienda: "qhse_mds_sub_targhe_per_azienda"
     };
 
-    let dbMds = loadDbMds();
-    let transpCounter = 0;
+    let hubData = {
+      siti_produzione: [],
+      produttori: [],
+      materiali: [],
+      siti_destinazione: [],
+      destinatari: [],
+      trasportatori: [],
+      targhe_per_azienda: []
+    };
 
-    function loadDbMds() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) return JSON.parse(raw);
-      } catch (_) {}
-      return JSON.parse(JSON.stringify(INITIAL_DB));
+    let selectedState = {
+      siti_produzione: [],
+      siti_destinazione: [],
+      produttori: [],
+      destinatari: [],
+      materiali: [],
+      trasportatori: [],
+      targhePerAzienda: {}
+    };
+
+    function normalizzaTargheMap(rawTarghe) {
+      if (Array.isArray(rawTarghe)) {
+        return rawTarghe.map(item => ({
+          azienda: item.azienda || "",
+          targhe: Array.isArray(item.targhe) ? item.targhe : []
+        }));
+      }
+      if (rawTarghe && typeof rawTarghe === "object") {
+        return Object.entries(rawTarghe).map(([azienda, targhe]) => ({
+          azienda,
+          targhe: Array.isArray(targhe) ? targhe : []
+        }));
+      }
+      return [];
     }
 
-    function saveDbMds() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dbMds));
-      popolaSelectDaDatabase();
-      if (typeof firebase !== "undefined" && firebase.apps && firebase.apps.length) {
-        firebase.database().ref("mds_database").set(dbMds).catch(() => {});
+    function caricaDatiDai7Hub() {
+      let unified = {};
+      try {
+        const uRaw = localStorage.getItem(UNIFIED_STORAGE_KEY);
+        if (uRaw) unified = JSON.parse(uRaw);
+      } catch (_) {}
+
+      const readSub = (key) => {
+        try {
+          const sRaw = localStorage.getItem(SUB_KEYS[key]);
+          if (sRaw) return JSON.parse(sRaw);
+        } catch (_) {}
+        return unified[key] || null;
+      };
+
+      const sp = readSub("siti_produzione");
+      const pr = readSub("produttori");
+      const mt = readSub("materiali");
+      const sd = readSub("siti_destinazione");
+      const de = readSub("destinatari");
+      const tr = readSub("trasportatori");
+      const ta = readSub("targhe_per_azienda");
+
+      if (sp) hubData.siti_produzione = sp;
+      if (pr) hubData.produttori = pr;
+      if (mt) hubData.materiali = mt;
+      if (sd) hubData.siti_destinazione = sd;
+      if (de) hubData.destinatari = de;
+      if (tr) hubData.trasportatori = tr;
+      if (ta) hubData.targhe_per_azienda = normalizzaTargheMap(ta);
+    }
+
+    async function ricaricaDagliHub() {
+      try {
+        const res = await fetch("db_preventive.json", { cache: "no-store" });
+        if (res.ok) {
+          const jsonDb = await res.json();
+          Object.keys(SUB_KEYS).forEach(k => {
+            if (jsonDb[k] && !localStorage.getItem(SUB_KEYS[k])) {
+              hubData[k] = k === "targhe_per_azienda" ? normalizzaTargheMap(jsonDb[k]) : jsonDb[k];
+            }
+          });
+        }
+      } catch (_) {}
+
+      caricaDatiDai7Hub();
+
+      if (!selectedState.siti_produzione.length && hubData.siti_produzione.length) {
+        selectedState.siti_produzione = [0];
+      }
+      if (!selectedState.siti_destinazione.length && hubData.siti_destinazione.length) {
+        const idxNovi = hubData.siti_destinazione.findIndex(x => (x.sito_wbs || "").toLowerCase().includes("novi ligure"));
+        selectedState.siti_destinazione = [idxNovi >= 0 ? idxNovi : 0];
+      }
+      if (!selectedState.produttori.length && hubData.produttori.length) {
+        selectedState.produttori = [0];
+      }
+      if (!selectedState.destinatari.length && hubData.destinatari.length) {
+        const idxCociv = hubData.destinatari.findIndex(x => (x.denominazione || "").toLowerCase().includes("cociv"));
+        selectedState.destinatari = [idxCociv >= 0 ? idxCociv : 0];
+      }
+      if (!selectedState.materiali.length && hubData.materiali.length) {
+        const idxMeta = hubData.materiali.findIndex(m => String(m).toLowerCase().includes("metabasalti"));
+        selectedState.materiali = [idxMeta >= 0 ? idxMeta : 0];
+      }
+      if (!selectedState.trasportatori.length) {
+        ["MORELLO CARMELO", "AUTOSPED G S.p.A."].forEach(nome => {
+          const match = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome);
+          if (match) {
+            selectedState.trasportatori.push(match.denominazione);
+            const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
+            selectedState.targhePerAzienda[match.denominazione] = tObj ? [...tObj.targhe] : [];
+          }
+        });
+      }
+
+      renderTuttiIFlag();
+      sincronizzaBlocchiTrasportatori();
+      ricalcolaCalendarioESettimane();
+      document.getElementById("hub-sync-status").textContent =
+        `Aggiornato: ${hubData.trasportatori.length} trasportatori • ${hubData.materiali.length} litologie`;
+    }
+
+    function renderTuttiIFlag() {
+      document.getElementById("flags-siti-prod").innerHTML = hubData.siti_produzione.map((item, idx) => {
+        const checked = selectedState.siti_produzione.includes(idx) ? "checked" : "";
+        return `
+          <label class="flag-item">
+            <input type="checkbox" ${checked} onchange="toggleListFlag('siti_produzione', ${idx}, this.checked)">
+            <span class="truncate font-semibold text-slate-200">${item.denominazione}</span>
+            <span class="ml-auto text-[10px] text-slate-400">${item.comune || ""}</span>
+          </label>
+        `;
+      }).join("");
+
+      document.getElementById("flags-siti-dest").innerHTML = hubData.siti_destinazione.map((item, idx) => {
+        const checked = selectedState.siti_destinazione.includes(idx) ? "checked" : "";
+        return `
+          <label class="flag-item">
+            <input type="checkbox" ${checked} onchange="toggleListFlag('siti_destinazione', ${idx}, this.checked)">
+            <span class="truncate font-semibold text-slate-200">${item.sito_wbs}</span>
+            <span class="ml-auto text-[10px] text-slate-400">${item.comune || ""}</span>
+          </label>
+        `;
+      }).join("");
+
+      document.getElementById("flags-produttori").innerHTML = hubData.produttori.map((item, idx) => {
+        const checked = selectedState.produttori.includes(idx) ? "checked" : "";
+        return `
+          <label class="flag-item">
+            <input type="checkbox" ${checked} onchange="toggleListFlag('produttori', ${idx}, this.checked)">
+            <span class="truncate font-semibold text-slate-200">${item.denominazione}</span>
+            <span class="ml-auto text-[10px] text-slate-400">P.IVA ${item.piva || "-"}</span>
+          </label>
+        `;
+      }).join("");
+
+      document.getElementById("flags-destinatari").innerHTML = hubData.destinatari.map((item, idx) => {
+        const checked = selectedState.destinatari.includes(idx) ? "checked" : "";
+        return `
+          <label class="flag-item">
+            <input type="checkbox" ${checked} onchange="toggleListFlag('destinatari', ${idx}, this.checked)">
+            <span class="truncate font-semibold text-slate-200">${item.denominazione}</span>
+            <span class="ml-auto text-[10px] text-slate-400">${item.comune || ""}</span>
+          </label>
+        `;
+      }).join("");
+
+      renderFlagMateriali();
+      renderFlagTrasportatori();
+    }
+
+    function renderFlagMateriali() {
+      const q = (document.getElementById("filtro-materiali-flag").value || "").toLowerCase().trim();
+      document.getElementById("flags-materiali").innerHTML = hubData.materiali
+        .map((mat, idx) => ({ mat, idx }))
+        .filter(x => !q || String(x.mat).toLowerCase().includes(q))
+        .map(x => {
+          const checked = selectedState.materiali.includes(x.idx) ? "checked" : "";
+          return `
+            <label class="flag-item">
+              <input type="checkbox" ${checked} onchange="toggleListFlag('materiali', ${x.idx}, this.checked)">
+              <span class="truncate text-slate-200">${x.mat}</span>
+            </label>
+          `;
+        }).join("");
+    }
+
+    function renderFlagTrasportatori() {
+      document.getElementById("flags-trasportatori").innerHTML = hubData.trasportatori.map(t => {
+        const nome = (t.denominazione || "").trim();
+        const checked = selectedState.trasportatori.includes(nome) ? "checked" : "";
+        const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
+        const numTarghe = tObj ? tObj.targhe.length : 0;
+        return `
+          <label class="flag-item">
+            <input type="checkbox" ${checked} onchange="toggleTrasportatoreFlag('${nome.replace(/'/g, "\\'")}', this.checked)">
+            <span class="truncate font-semibold text-slate-200">${nome}</span>
+            <span class="ml-auto text-[10px] text-emerald-400 font-bold">${numTarghe} targhe</span>
+          </label>
+        `;
+      }).join("");
+    }
+
+    function toggleListFlag(key, idx, isChecked) {
+      const arr = selectedState[key];
+      if (isChecked) {
+        if (!arr.includes(idx)) arr.push(idx);
+      } else {
+        selectedState[key] = arr.filter(i => i !== idx);
       }
     }
 
-    function switchView(view) {
-      const isPrev = view === "preventiva";
-      document.getElementById("view-preventiva").classList.toggle("hidden", !isPrev);
-      document.getElementById("view-database").classList.toggle("hidden", isPrev);
-      document.getElementById("tab-btn-preventiva").className = isPrev
-        ? "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white border border-emerald-400/40 cursor-pointer"
-        : "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 cursor-pointer";
-      document.getElementById("tab-btn-database").className = !isPrev
-        ? "px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white border border-emerald-400/40 cursor-pointer"
-        : "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 cursor-pointer";
-      if (!isPrev) renderDbTable();
+    function toggleTrasportatoreFlag(nome, isChecked) {
+      if (isChecked) {
+        if (!selectedState.trasportatori.includes(nome)) {
+          selectedState.trasportatori.push(nome);
+          if (!selectedState.targhePerAzienda[nome]) {
+            const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
+            selectedState.targhePerAzienda[nome] = tObj ? [...tObj.targhe] : [];
+          }
+        }
+      } else {
+        selectedState.trasportatori = selectedState.trasportatori.filter(n => n !== nome);
+      }
+      sincronizzaBlocchiTrasportatori();
+      ricalcolaCalendarioESettimane();
     }
 
-    function popolaSelectDaDatabase() {
-      const sProd = document.getElementById("sel-sito-prod");
-      sProd.innerHTML = '<option value="">-- Seleziona da DB --</option>';
-      dbMds.siti_produzione.forEach((x, idx) => {
-        sProd.innerHTML += `<option value="${idx}">${x.denominazione}</option>`;
-      });
+    function applicaMeseRiferimento() {
+      const meseStr = document.getElementById("sel-mese-rif").value;
+      const anno = parseInt(document.getElementById("sel-anno-rif").value, 10) || 2026;
+      const meseIdx = parseInt(meseStr, 10) - 1;
+      const firstDay = new Date(anno, meseIdx, 1);
+      const lastDay = new Date(anno, meseIdx + 1, 0);
 
-      const sDest = document.getElementById("sel-sito-dest");
-      sDest.innerHTML = '<option value="">-- Seleziona da DB --</option>';
-      dbMds.siti_destinazione.forEach((x, idx) => {
-        sDest.innerHTML += `<option value="${idx}">${x.sito_wbs}</option>`;
-      });
-
-      const sProdut = document.getElementById("sel-produttore");
-      sProdut.innerHTML = '<option value="">-- Seleziona da DB --</option>';
-      dbMds.produttori.forEach((x, idx) => {
-        sProdut.innerHTML += `<option value="${idx}">${x.denominazione}</option>`;
-      });
-
-      const sDestin = document.getElementById("sel-destinatario");
-      sDestin.innerHTML = '<option value="">-- Seleziona da DB --</option>';
-      dbMds.destinatari.forEach((x, idx) => {
-        sDestin.innerHTML += `<option value="${idx}">${x.denominazione}</option>`;
-      });
-
-      const sMat = document.getElementById("sel-materiale");
-      sMat.innerHTML = '<option value="">-- Litologia da DB --</option>';
-      dbMds.materiali.forEach(m => {
-        sMat.innerHTML += `<option value="${m}">${m}</option>`;
-      });
-    }
-
-    function applicaSitoProduzione() {
-      const idx = document.getElementById("sel-sito-prod").value;
-      if (idx === "") return;
-      const item = dbMds.siti_produzione[idx];
-      document.getElementById("p-sito-prod-denom").value = item.denominazione || "";
-      document.getElementById("p-sito-prod-ind").value = item.indirizzo || "";
-      document.getElementById("p-sito-prod-cap").value = item.cap || "";
-      document.getElementById("p-sito-prod-comune").value = item.comune || "";
-    }
-
-    function applicaSitoDestinazione() {
-      const idx = document.getElementById("sel-sito-dest").value;
-      if (idx === "") return;
-      const item = dbMds.siti_destinazione[idx];
-      document.getElementById("p-sito-dest-wbs").value = item.sito_wbs || "";
-      document.getElementById("p-sito-dest-ind").value = item.indirizzo || "";
-      document.getElementById("p-sito-dest-cap").value = item.cap || "";
-      document.getElementById("p-sito-dest-comune").value = item.comune || "";
-    }
-
-    function applicaProduttore() {
-      const idx = document.getElementById("sel-produttore").value;
-      if (idx === "") return;
-      const item = dbMds.produttori[idx];
-      document.getElementById("p-prod-denom").value = item.denominazione || "";
-      document.getElementById("p-prod-ind").value = item.indirizzo || "";
-      document.getElementById("p-prod-cap").value = item.cap || "";
-      document.getElementById("p-prod-comune").value = item.comune || "";
-      document.getElementById("p-prod-piva").value = item.piva || "";
-    }
-
-    function applicaDestinatario() {
-      const idx = document.getElementById("sel-destinatario").value;
-      if (idx === "") return;
-      const item = dbMds.destinatari[idx];
-      document.getElementById("p-dest-denom").value = item.denominazione || "";
-      document.getElementById("p-dest-ind").value = item.indirizzo || "";
-      document.getElementById("p-dest-cap").value = item.cap || "";
-      document.getElementById("p-dest-piva").value = `${item.comune || ""} - P.IVA ${item.piva || ""}`.trim();
+      const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      document.getElementById("p-data-inizio").value = fmt(firstDay);
+      document.getElementById("p-data-fine").value = fmt(lastDay);
+      ricalcolaCalendarioESettimane();
     }
 
     function getIsoWeek(dateObj) {
@@ -678,10 +624,7 @@
     }
 
     function formatIsoDate(dateObj) {
-      const y = dateObj.getFullYear();
-      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-      const d = String(dateObj.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
+      return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
     }
 
     function getWeeksInRange(startStr, endStr) {
@@ -699,9 +642,8 @@
         for (let i = 0; i < 7; i++) {
           const cur = new Date(monday);
           cur.setDate(monday.getDate() + i);
-          const iso = formatIsoDate(cur);
           days.push({
-            iso,
+            iso: formatIsoDate(cur),
             dayName: DAY_NAMES[i],
             shortDate: `${cur.getDate()}/${cur.getMonth() + 1}`,
             inRange: cur >= start && cur <= end
@@ -720,55 +662,118 @@
     function catturaValoriCalendarioEsistenti() {
       const map = {};
       document.querySelectorAll('input[data-cal-date]').forEach(inp => {
-        const tid = inp.getAttribute("data-cal-trasp");
+        const tName = inp.getAttribute("data-cal-trasp");
         const dt = inp.getAttribute("data-cal-date");
-        if (!map[tid]) map[tid] = {};
-        map[tid][dt] = parseFloat(inp.value) || 0;
+        if (!map[tName]) map[tName] = {};
+        map[tName][dt] = parseFloat(inp.value) || 0;
       });
       return map;
     }
 
-    function ricalcolaCalendarioESettimane() {
+    function sincronizzaBlocchiTrasportatori() {
+      const prevDays = catturaValoriCalendarioEsistenti();
+      const container = document.getElementById("trasportatori-container");
       const startStr = document.getElementById("p-data-inizio").value;
       const endStr = document.getElementById("p-data-fine").value;
-      const d1 = new Date(startStr + "T00:00:00");
-      const d2 = new Date(endStr + "T00:00:00");
       const weeks = getWeeksInRange(startStr, endStr);
 
-      if (!isNaN(d1.getTime()) && !isNaN(d2.getTime()) && weeks.length > 0) {
-        const w1 = weeks[0].weekNumber;
-        const w2 = weeks[weeks.length - 1].weekNumber;
-        const y = d2.getFullYear();
-        document.getElementById("codice-comunicazione-badge").textContent = `PRE_set[${w1}÷${w2}]_${y}`;
-        document.getElementById("settimane-range-badge").textContent =
-          `${weeks.length} ${weeks.length === 1 ? "settimana" : "settimane"} (sett. ${w1}–${w2})`;
-      }
-
-      const existingByTrasp = catturaValoriCalendarioEsistenti();
-      document.querySelectorAll('[id^="trasp-block-"]').forEach(block => {
-        const id = block.id.replace("trasp-block-", "");
-        const prevDays = existingByTrasp[id] || {};
-        const pattern = [];
-        for (let i = 0; i < 7; i++) {
-          const patInp = document.getElementById(`trasp-pat-${id}-${i}`);
-          pattern.push(patInp ? (parseFloat(patInp.value) || 0) : 0);
-        }
-        renderCalendarioPerBlocco(id, weeks, prevDays, pattern);
-      });
-
-      ricalcolaTotali();
-    }
-
-    function renderCalendarioPerBlocco(id, weeks, prevDays = {}, pattern = [20, 20, 20, 20, 20, 20, 0]) {
-      const mcUnit = parseFloat(document.getElementById("p-mc-per-viaggio").value) || 14;
-      const container = document.getElementById(`trasp-cal-${id}`);
-      if (!container) return;
-
-      if (!weeks.length) {
-        container.innerHTML = `<div class="text-xs text-rose-400">Intervallo date non valido.</div>`;
+      if (!selectedState.trasportatori.length) {
+        container.innerHTML = `<div class="text-xs text-slate-400 bg-slate-950/60 border border-slate-800 rounded-xl p-4">Spunta almeno un trasportatore qui sopra per generare il cronoprogramma settimanale.</div>`;
         return;
       }
 
+      container.innerHTML = selectedState.trasportatori.map((nome, idx) => {
+        const safeId = encodeURIComponent(nome);
+        const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
+        const allPlates = tObj ? tObj.targhe : [];
+        if (!selectedState.targhePerAzienda[nome]) {
+          selectedState.targhePerAzienda[nome] = [...allPlates];
+        }
+        const checkedPlates = selectedState.targhePerAzienda[nome];
+
+        const platesFlagsHtml = allPlates.length
+          ? allPlates.map(plate => {
+              const isChecked = checkedPlates.includes(plate) ? "checked" : "";
+              return `
+                <label class="flag-item py-1 px-2 text-[11px]">
+                  <input type="checkbox" ${isChecked} onchange="toggleTargaFlag('${nome.replace(/'/g, "\\'")}', '${plate.replace(/'/g, "\\'")}', this.checked)">
+                  <span class="font-mono text-slate-200">${plate}</span>
+                </label>
+              `;
+            }).join("")
+          : `<span class="text-[11px] text-slate-500">Nessuna targa censita nell'Hub Targhe per questa azienda.</span>`;
+
+        return `
+          <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3 text-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="font-black text-emerald-300 text-sm">#${idx + 1} — ${nome}</div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="selezionaTutteTarghe('${nome.replace(/'/g, "\\'")}', true)" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-slate-700 text-[10px] font-bold cursor-pointer">Tutte le targhe</button>
+                <button type="button" onclick="selezionaTutteTarghe('${nome.replace(/'/g, "\\'")}', false)" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-400 border border-slate-700 text-[10px] font-bold cursor-pointer">Nessuna</button>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <div class="text-[10px] font-bold uppercase text-slate-400">Flag Targhe Selezionate (${checkedPlates.length}/${allPlates.length})</div>
+              <div class="max-h-28 overflow-y-auto flex flex-wrap gap-1.5 bg-slate-900/60 border border-slate-800 rounded-lg p-2">
+                ${platesFlagsHtml}
+              </div>
+            </div>
+
+            <div class="bg-slate-900/70 border border-slate-800/90 rounded-lg p-2.5 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-[10px] font-bold uppercase text-slate-300">Pattern rapido per giorno (viaggi)</span>
+                <button type="button" onclick="applicaPatternATutteLeSettimane('${safeId}')" class="px-2.5 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold cursor-pointer">
+                  <i class="fa-solid fa-repeat mr-1"></i> Applica a tutte le settimane
+                </button>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+                ${DAY_NAMES.map((g, dIdx) => `
+                  <div>
+                    <label class="block text-[10px] text-slate-400 mb-0.5">${g}</label>
+                    <input type="number" min="0" id="pat-${safeId}-${dIdx}" value="${dIdx < 6 ? 20 : 0}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white">
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+
+            <div id="cal-wrap-${safeId}" class="overflow-x-auto"></div>
+          </div>
+        `;
+      }).join("");
+
+      selectedState.trasportatori.forEach(nome => {
+        const safeId = encodeURIComponent(nome);
+        renderCalendarioPerTrasp(safeId, nome, weeks, prevDays[nome] || {});
+      });
+    }
+
+    function toggleTargaFlag(nome, plate, isChecked) {
+      if (!selectedState.targhePerAzienda[nome]) selectedState.targhePerAzienda[nome] = [];
+      if (isChecked) {
+        if (!selectedState.targhePerAzienda[nome].includes(plate)) {
+          selectedState.targhePerAzienda[nome].push(plate);
+        }
+      } else {
+        selectedState.targhePerAzienda[nome] = selectedState.targhePerAzienda[nome].filter(p => p !== plate);
+      }
+      sincronizzaBlocchiTrasportatori();
+      ricalcolaCalendarioESettimane();
+    }
+
+    function selezionaTutteTarghe(nome, all) {
+      const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
+      selectedState.targhePerAzienda[nome] = all && tObj ? [...tObj.targhe] : [];
+      sincronizzaBlocchiTrasportatori();
+      ricalcolaCalendarioESettimane();
+    }
+
+    function renderCalendarioPerTrasp(safeId, nome, weeks, prevDays = {}) {
+      const mcUnit = parseFloat(document.getElementById("p-mc-per-viaggio").value) || 14;
+      const wrap = document.getElementById(`cal-wrap-${safeId}`);
+      if (!wrap) return;
+
+      const defaultPattern = [20, 20, 20, 20, 20, 20, 0];
       let html = `
         <table class="w-full text-[11px] border-collapse border border-slate-800 rounded-lg overflow-hidden">
           <thead class="bg-slate-900 text-slate-300">
@@ -785,8 +790,8 @@
       weeks.forEach(w => {
         let wkTrips = 0;
         const cellsHtml = w.days.map((day, dIdx) => {
-          const defaultVal = day.inRange ? (pattern[dIdx] ?? 0) : 0;
-          const val = Object.prototype.hasOwnProperty.call(prevDays, day.iso) ? prevDays[day.iso] : defaultVal;
+          const defVal = day.inRange ? defaultPattern[dIdx] : 0;
+          const val = Object.prototype.hasOwnProperty.call(prevDays, day.iso) ? prevDays[day.iso] : defVal;
           wkTrips += parseFloat(val) || 0;
           const mcVal = (parseFloat(val) || 0) * mcUnit;
           const dimCls = day.inRange ? "bg-slate-950/60" : "bg-slate-900/35 opacity-60";
@@ -795,10 +800,11 @@
             <td class="p-1.5 border border-slate-800 align-top ${dimCls}">
               <div class="flex items-center justify-between text-[10px] mb-1">
                 <span class="font-bold ${day.inRange ? "text-emerald-300" : "text-slate-500"}">${day.shortDate}</span>
-                <span class="text-slate-400" data-cal-mc-label="${id}-${w.weekNumber}-${dIdx}">${mcVal} mc</span>
+                <span class="text-slate-400" data-mc-lbl="${safeId}-${w.weekNumber}-${dIdx}">${mcVal} mc</span>
               </div>
               <input type="number" min="0" value="${val}"
-                data-cal-trasp="${id}"
+                data-cal-trasp="${nome}"
+                data-cal-safeid="${safeId}"
                 data-cal-date="${day.iso}"
                 data-cal-week="${w.weekNumber}"
                 data-cal-dayidx="${dIdx}"
@@ -808,7 +814,6 @@
           `;
         }).join("");
 
-        const wkMc = wkTrips * mcUnit;
         html += `
           <tr>
             <td class="p-2 border border-slate-800 font-bold text-emerald-300 bg-slate-900/50">
@@ -816,204 +821,85 @@
               <div class="text-[10px] font-normal text-slate-400">${w.days[0].shortDate} – ${w.days[6].shortDate}</div>
             </td>
             ${cellsHtml}
-            <td class="p-2 border border-slate-800 text-right font-extrabold text-white" id="wk-viaggi-${id}-${w.weekNumber}">${wkTrips}</td>
-            <td class="p-2 border border-slate-800 text-right font-extrabold text-sky-400" id="wk-mc-${id}-${w.weekNumber}">${wkMc} mc</td>
+            <td class="p-2 border border-slate-800 text-right font-extrabold text-white" id="wk-v-${safeId}-${w.weekNumber}">${wkTrips}</td>
+            <td class="p-2 border border-slate-800 text-right font-extrabold text-sky-400" id="wk-mc-${safeId}-${w.weekNumber}">${wkTrips * mcUnit} mc</td>
           </tr>
         `;
       });
 
       html += `</tbody></table>`;
-      container.innerHTML = html;
+      wrap.innerHTML = html;
     }
 
-    function applicaPatternATutteLeSettimane(id) {
+    function applicaPatternATutteLeSettimane(safeId) {
       const pattern = [];
       for (let i = 0; i < 7; i++) {
-        const inp = document.getElementById(`trasp-pat-${id}-${i}`);
-        pattern.push(parseFloat(inp.value) || 0);
+        const inp = document.getElementById(`pat-${safeId}-${i}`);
+        pattern.push(inp ? (parseFloat(inp.value) || 0) : 0);
       }
-
       const startStr = document.getElementById("p-data-inizio").value;
       const endStr = document.getElementById("p-data-fine").value;
       const weeks = getWeeksInRange(startStr, endStr);
-      const inRangeDates = new Set();
-      weeks.forEach(w => w.days.forEach(d => { if (d.inRange) inRangeDates.add(d.iso); }));
+      const inRange = new Set();
+      weeks.forEach(w => w.days.forEach(d => { if (d.inRange) inRange.add(d.iso); }));
 
-      document.querySelectorAll(`input[data-cal-trasp="${id}"]`).forEach(inp => {
+      document.querySelectorAll(`input[data-cal-safeid="${safeId}"]`).forEach(inp => {
         const dt = inp.getAttribute("data-cal-date");
         const dIdx = parseInt(inp.getAttribute("data-cal-dayidx"), 10);
-        inp.value = inRangeDates.has(dt) ? (pattern[dIdx] ?? 0) : 0;
+        inp.value = inRange.has(dt) ? pattern[dIdx] : 0;
       });
-
       ricalcolaTotali();
     }
 
-    function aggiungiBloccoTrasportatore(nomePre = "", patternSettimanale = [20, 20, 20, 20, 20, 20, 0], targheCustom = "") {
-      const id = ++transpCounter;
-      const optionsTrasp = dbMds.trasportatori.map(t =>
-        `<option value="${t.denominazione.replace(/"/g, '&quot;')}" ${t.denominazione === nomePre ? 'selected' : ''}>${t.denominazione}</option>`
-      ).join("");
-
-      const defaultTarghe = targheCustom || (nomePre && dbMds.targhe_per_azienda[nomePre] ? dbMds.targhe_per_azienda[nomePre].join("; ") : "");
-
-      const html = `
-        <div id="trasp-block-${id}" class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 space-y-3 text-xs">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2 flex-grow">
-              <span class="font-bold text-emerald-400">#${id}</span>
-              <select id="trasp-sel-${id}" onchange="onSelectTrasportatore(${id})" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-white font-semibold">
-                <option value="">-- Seleziona trasportatore --</option>
-                ${optionsTrasp}
-              </select>
-            </div>
-            <button type="button" onclick="document.getElementById('trasp-block-${id}').remove(); ricalcolaTotali();" class="text-rose-400 hover:text-rose-300 px-2 py-1 cursor-pointer">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
-
-          <div>
-            <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Targhe Automezzi</label>
-            <textarea id="trasp-targhe-${id}" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-200">${defaultTarghe}</textarea>
-          </div>
-
-          <div class="bg-slate-900/70 border border-slate-800/90 rounded-lg p-2.5 space-y-2">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="text-[10px] font-bold uppercase text-slate-300">Pattern rapido per giorno della settimana (viaggi)</span>
-              <button type="button" onclick="applicaPatternATutteLeSettimane(${id})" class="px-2.5 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold cursor-pointer">
-                <i class="fa-solid fa-repeat mr-1"></i> Applica a tutte le settimane
-              </button>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-              ${DAY_NAMES.map((g, idx) => `
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-0.5">${g}</label>
-                  <input type="number" min="0" id="trasp-pat-${id}-${idx}" value="${patternSettimanale[idx] ?? 0}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white">
-                </div>
-              `).join("")}
-            </div>
-          </div>
-
-          <div id="trasp-cal-${id}" class="overflow-x-auto"></div>
-        </div>
-      `;
-      document.getElementById("trasportatori-container").insertAdjacentHTML("beforeend", html);
-
+    function ricalcolaCalendarioESettimane() {
       const startStr = document.getElementById("p-data-inizio").value;
       const endStr = document.getElementById("p-data-fine").value;
-      renderCalendarioPerBlocco(id, getWeeksInRange(startStr, endStr), {}, patternSettimanale);
-      ricalcolaTotali();
-    }
+      const weeks = getWeeksInRange(startStr, endStr);
+      if (weeks.length > 0) {
+        const w1 = weeks[0].weekNumber;
+        const w2 = weeks[weeks.length - 1].weekNumber;
+        const y = new Date(endStr + "T00:00:00").getFullYear();
+        document.getElementById("codice-comunicazione-badge").textContent = `PRE_set[${w1}÷${w2}]_${y}`;
+        document.getElementById("settimane-range-badge").textContent =
+          `${weeks.length} ${weeks.length === 1 ? "settimana" : "settimane"} (sett. ${w1}–${w2})`;
+      }
 
-    function onSelectTrasportatore(id) {
-      const nome = document.getElementById(`trasp-sel-${id}`).value;
-      const targheArr = dbMds.targhe_per_azienda[nome] || [];
-      document.getElementById(`trasp-targhe-${id}`).value = targheArr.join("; ");
+      const prevDays = catturaValoriCalendarioEsistenti();
+      selectedState.trasportatori.forEach(nome => {
+        const safeId = encodeURIComponent(nome);
+        renderCalendarioPerTrasp(safeId, nome, weeks, prevDays[nome] || {});
+      });
+      ricalcolaTotali();
     }
 
     function ricalcolaTotali() {
       const mcUnit = parseFloat(document.getElementById("p-mc-per-viaggio").value) || 14;
       let totViaggi = 0;
-
       const weekTotals = {};
-      document.querySelectorAll('input[data-cal-trasp]').forEach(inp => {
-        const tid = inp.getAttribute("data-cal-trasp");
+
+      document.querySelectorAll('input[data-cal-date]').forEach(inp => {
+        const safeId = inp.getAttribute("data-cal-safeid");
         const wk = inp.getAttribute("data-cal-week");
         const dIdx = inp.getAttribute("data-cal-dayidx");
         const val = parseFloat(inp.value) || 0;
-        const mcVal = val * mcUnit;
 
-        const lbl = document.querySelector(`[data-cal-mc-label="${tid}-${wk}-${dIdx}"]`);
-        if (lbl) lbl.textContent = `${mcVal} mc`;
+        const lbl = document.querySelector(`[data-mc-lbl="${safeId}-${wk}-${dIdx}"]`);
+        if (lbl) lbl.textContent = `${val * mcUnit} mc`;
 
-        const key = `${tid}-${wk}`;
+        const key = `${safeId}-${wk}`;
         weekTotals[key] = (weekTotals[key] || 0) + val;
         totViaggi += val;
       });
 
       Object.entries(weekTotals).forEach(([key, wkTrips]) => {
-        const wViaggiEl = document.getElementById(`wk-viaggi-${key}`);
-        const wMcEl = document.getElementById(`wk-mc-${key}`);
-        if (wViaggiEl) wViaggiEl.textContent = wkTrips;
-        if (wMcEl) wMcEl.textContent = `${wkTrips * mcUnit} mc`;
+        const vEl = document.getElementById(`wk-v-${key}`);
+        const mcEl = document.getElementById(`wk-mc-${key}`);
+        if (vEl) vEl.textContent = wkTrips;
+        if (mcEl) mcEl.textContent = `${wkTrips * mcUnit} mc`;
       });
 
-      const totMc = totViaggi * mcUnit;
       document.getElementById("ui-tot-viaggi").textContent = totViaggi;
-      document.getElementById("ui-tot-mc").textContent = `${totMc} mc`;
-    }
-
-    function renderDbTable() {
-      const sec = document.getElementById("db-sezione-select").value;
-      const wrap = document.getElementById("db-table-wrap");
-
-      if (sec === "materiali") {
-        wrap.innerHTML = `
-          <table class="w-full text-left text-xs border-collapse">
-            <thead class="bg-slate-950 text-slate-300"><tr><th class="p-3">Litologia / Tipo Materiale</th><th class="p-3 w-20">Azioni</th></tr></thead>
-            <tbody class="divide-y divide-slate-800">
-              ${dbMds.materiali.map((m, i) => `
-                <tr>
-                  <td class="p-2"><input type="text" value="${m.replace(/"/g,'&quot;')}" onchange="dbMds.materiali[${i}]=this.value; saveDbMds();" class="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1 text-white"></td>
-                  <td class="p-2 text-center"><button onclick="dbMds.materiali.splice(${i},1); saveDbMds(); renderDbTable();" class="text-rose-400 cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`;
-        return;
-      }
-
-      if (sec === "targhe") {
-        const entries = Object.entries(dbMds.targhe_per_azienda);
-        wrap.innerHTML = `
-          <table class="w-full text-left text-xs border-collapse">
-            <thead class="bg-slate-950 text-slate-300"><tr><th class="p-3 w-1/3">Trasportatore</th><th class="p-3">Targhe (separate da ;)</th></tr></thead>
-            <tbody class="divide-y divide-slate-800">
-              ${entries.map(([az, list]) => `
-                <tr>
-                  <td class="p-2 font-semibold text-emerald-300">${az}</td>
-                  <td class="p-2"><input type="text" value="${list.join("; ").replace(/"/g,'&quot;')}" onchange="dbMds.targhe_per_azienda['${az.replace(/'/g,"\\'")}']=this.value.split(/[;,]+/).map(s=>s.trim()).filter(Boolean); saveDbMds();" class="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1 text-white"></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>`;
-        return;
-      }
-
-      const rows = dbMds[sec] || [];
-      const cols = rows.length ? Object.keys(rows[0]) : ["denominazione"];
-      wrap.innerHTML = `
-        <table class="w-full text-left text-xs border-collapse">
-          <thead class="bg-slate-950 text-slate-300">
-            <tr>${cols.map(c => `<th class="p-3 uppercase">${c}</th>`).join("")}<th class="p-3 w-16"></th></tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800">
-            ${rows.map((r, rIdx) => `
-              <tr>
-                ${cols.map(c => `<td class="p-2"><input type="text" value="${String(r[c] ?? "").replace(/"/g,'&quot;')}" onchange="dbMds['${sec}'][${rIdx}]['${c}']=this.value; saveDbMds();" class="w-full bg-slate-900 border border-slate-800 rounded px-2 py-1 text-white"></td>`).join("")}
-                <td class="p-2 text-center"><button onclick="dbMds['${sec}'].splice(${rIdx},1); saveDbMds(); renderDbTable();" class="text-rose-400 cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>`;
-    }
-
-    function aggiungiVoceDatabase() {
-      const sec = document.getElementById("db-sezione-select").value;
-      if (sec === "materiali") {
-        dbMds.materiali.unshift("Nuovo materiale");
-      } else if (sec === "targhe") {
-        const nome = prompt("Nome trasportatore:");
-        if (!nome) return;
-        if (!dbMds.targhe_per_azienda[nome]) dbMds.targhe_per_azienda[nome] = [];
-      } else if (sec === "siti_destinazione") {
-        dbMds.siti_destinazione.unshift({ sito_wbs: "", indirizzo: "", cap: "", comune: "" });
-      } else if (sec === "trasportatori") {
-        dbMds.trasportatori.unshift({ denominazione: "", indirizzo_cap_comune: "", piva: "" });
-      } else {
-        dbMds[sec].unshift({ denominazione: "", indirizzo: "", cap: "", comune: "", piva: "" });
-      }
-      saveDbMds();
-      renderDbTable();
+      document.getElementById("ui-tot-mc").textContent = `${totViaggi * mcUnit} mc`;
     }
 
     function preparaStampaPreventiva() {
@@ -1026,55 +912,51 @@
       document.getElementById("pdf-data-da").textContent = startStr;
       document.getElementById("pdf-data-a").textContent = endStr;
 
-      document.getElementById("pdf-prod-denom").textContent = document.getElementById("p-prod-denom").value;
-      document.getElementById("pdf-prod-dettagli").innerHTML = `
-        <strong>${document.getElementById("p-prod-denom").value}</strong><br>
-        ${document.getElementById("p-prod-ind").value}<br>
-        CAP ${document.getElementById("p-prod-cap").value} - ${document.getElementById("p-prod-comune").value}<br>
-        P.IVA: ${document.getElementById("p-prod-piva").value}
-      `;
+      const sProdList = selectedState.siti_produzione.map(i => hubData.siti_produzione[i]).filter(Boolean);
+      const sDestList = selectedState.siti_destinazione.map(i => hubData.siti_destinazione[i]).filter(Boolean);
+      const prodList = selectedState.produttori.map(i => hubData.produttori[i]).filter(Boolean);
+      const destList = selectedState.destinatari.map(i => hubData.destinatari[i]).filter(Boolean);
+      const matList = selectedState.materiali.map(i => hubData.materiali[i]).filter(Boolean);
 
-      document.getElementById("pdf-sprod-denom").textContent = document.getElementById("p-sito-prod-denom").value;
-      document.getElementById("pdf-sprod-ind").textContent = document.getElementById("p-sito-prod-ind").value;
-      document.getElementById("pdf-sprod-cap").textContent = document.getElementById("p-sito-prod-cap").value;
-      document.getElementById("pdf-sprod-comune").textContent = document.getElementById("p-sito-prod-comune").value;
-      document.getElementById("pdf-mat").textContent = document.getElementById("p-materiale").value;
+      document.getElementById("pdf-sprod-denom").textContent = sProdList.map(x => x.denominazione).join(" / ");
+      document.getElementById("pdf-sprod-ind").textContent = sProdList.map(x => x.indirizzo).filter(Boolean).join(" / ");
+      document.getElementById("pdf-sprod-cap").textContent = [...new Set(sProdList.map(x => x.cap).filter(Boolean))].join(", ");
+      document.getElementById("pdf-sprod-comune").textContent = [...new Set(sProdList.map(x => x.comune).filter(Boolean))].join(", ");
 
-      document.getElementById("pdf-sdest-wbs").textContent = document.getElementById("p-sito-dest-wbs").value;
-      document.getElementById("pdf-sdest-ind").textContent = document.getElementById("p-sito-dest-ind").value;
-      document.getElementById("pdf-sdest-cap").textContent = document.getElementById("p-sito-dest-cap").value;
-      document.getElementById("pdf-sdest-comune").textContent = document.getElementById("p-sito-dest-comune").value;
+      document.getElementById("pdf-sdest-wbs").textContent = sDestList.map(x => x.sito_wbs).join(" / ");
+      document.getElementById("pdf-sdest-ind").textContent = sDestList.map(x => x.indirizzo).filter(Boolean).join(" / ");
+      document.getElementById("pdf-sdest-cap").textContent = [...new Set(sDestList.map(x => x.cap).filter(Boolean))].join(", ");
+      document.getElementById("pdf-sdest-comune").textContent = [...new Set(sDestList.map(x => x.comune).filter(Boolean))].join(", ");
 
-      document.getElementById("pdf-dest-dettagli").innerHTML = `
-        <strong>${document.getElementById("p-dest-denom").value}</strong><br>
-        ${document.getElementById("p-dest-ind").value} - CAP ${document.getElementById("p-dest-cap").value}<br>
-        ${document.getElementById("p-dest-piva").value}
-      `;
+      document.getElementById("pdf-mat").textContent = matList.join(", ");
+      document.getElementById("pdf-prod-denom").textContent = prodList.map(x => x.denominazione).join(" / ");
 
-      const dayValMap = {};
-      document.querySelectorAll('input[data-cal-trasp]').forEach(inp => {
-        const tid = inp.getAttribute("data-cal-trasp");
-        const dt = inp.getAttribute("data-cal-date");
-        if (!dayValMap[tid]) dayValMap[tid] = {};
-        dayValMap[tid][dt] = parseFloat(inp.value) || 0;
-      });
+      document.getElementById("pdf-prod-dettagli").innerHTML = prodList.map(p =>
+        `<strong>${p.denominazione}</strong><br>${p.indirizzo || ""} - CAP ${p.cap || ""} ${p.comune || ""}<br>P.IVA: ${p.piva || ""}`
+      ).join("<hr style='margin:2px 0; border:0; border-top:1px dashed #9ca3af;'>");
 
+      document.getElementById("pdf-dest-dettagli").innerHTML = destList.map(d =>
+        `<strong>${d.denominazione}</strong><br>${d.indirizzo || ""} - CAP ${d.cap || ""} ${d.comune || ""}<br>P.IVA: ${d.piva || ""}`
+      ).join("<hr style='margin:2px 0; border:0; border-top:1px dashed #9ca3af;'>");
+
+      const dayValMap = catturaValoriCalendarioEsistenti();
       const tbody = document.getElementById("pdf-crono-tbody");
       tbody.innerHTML = "";
-      const transpNames = [];
       let grandViaggi = 0;
       let grandMc = 0;
 
-      document.querySelectorAll('[id^="trasp-block-"]').forEach(block => {
-        const id = block.id.replace("trasp-block-", "");
-        const nome = document.getElementById(`trasp-sel-${id}`).value;
-        const targhe = document.getElementById(`trasp-targhe-${id}`).value;
-        if (nome) transpNames.push(nome);
+      document.getElementById("pdf-trasp-elenco").innerHTML = selectedState.trasportatori.map(nome => {
+        const tInfo = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome) || {};
+        const plates = selectedState.targhePerAzienda[nome] || [];
+        return `• <strong>${nome}</strong> ${tInfo.piva ? `(P.IVA ${tInfo.piva})` : ""}<br><span style="font-size:5.4pt;">Targhe: ${plates.join("; ")}</span>`;
+      }).join("<br>");
 
+      selectedState.trasportatori.forEach(nome => {
+        const plates = selectedState.targhePerAzienda[nome] || [];
         tbody.innerHTML += `
           <tr>
             <td colspan="10" class="prev-wk-hdr">
-              <strong>${nome || "Trasportatore"}</strong> — <span style="font-weight:400; font-size:5.6pt;">${targhe}</span>
+              <strong>${nome}</strong> — <span style="font-weight:400; font-size:5.6pt;">${plates.join("; ")}</span>
             </td>
           </tr>
         `;
@@ -1082,8 +964,8 @@
         weeks.forEach(w => {
           let wkTrips = 0;
           const cells = w.days.map(d => {
-            const v = (dayValMap[id] && Object.prototype.hasOwnProperty.call(dayValMap[id], d.iso))
-              ? dayValMap[id][d.iso]
+            const v = (dayValMap[nome] && Object.prototype.hasOwnProperty.call(dayValMap[nome], d.iso))
+              ? dayValMap[nome][d.iso]
               : 0;
             wkTrips += v;
             const cls = d.inRange ? "prev-num" : "prev-num prev-out-range";
@@ -1105,7 +987,6 @@
         });
       });
 
-      document.getElementById("pdf-trasp-elenco").innerHTML = transpNames.map(n => `• ${n}`).join("<br>");
       document.getElementById("pdf-tot-viaggi").textContent = grandViaggi;
       document.getElementById("pdf-tot-mc").textContent = `${grandMc} mc`;
       document.getElementById("pdf-nota").textContent = `Nota: ${document.getElementById("p-nota").value}`;
@@ -1117,33 +998,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      popolaSelectDaDatabase();
-
-      document.getElementById("p-sito-prod-denom").value = "Deposito Intermedio Pozzolo (DIPZ)";
-      document.getElementById("p-sito-prod-ind").value = "Ex S.S. 211 della Lomellina, s.n.c.";
-      document.getElementById("p-sito-prod-cap").value = "15068";
-      document.getElementById("p-sito-prod-comune").value = "Pozzolo Formigaro (AL)";
-
-      document.getElementById("p-sito-dest-wbs").value = "Novi Ligure";
-      document.getElementById("p-sito-dest-ind").value = "Strada Cassano SP153";
-      document.getElementById("p-sito-dest-cap").value = "15067";
-      document.getElementById("p-sito-dest-comune").value = "Novi Ligure (AL)";
-
-      document.getElementById("p-materiale").value = "Metabasalti";
-      document.getElementById("p-prod-denom").value = "Cossi Costruzioni - Lotto 2 Fegino";
-      document.getElementById("p-dest-denom").value = "CONSORZIO COCIV";
-      document.getElementById("p-dest-ind").value = "VIA R. BIANCHI, 40";
-      document.getElementById("p-dest-cap").value = "16152";
-      document.getElementById("p-dest-piva").value = "GENOVA (GE) - P.IVA 03299440101";
-
-      aggiungiBloccoTrasportatore("MORELLO CARMELO", [20, 20, 20, 20, 20, 20, 0]);
-      aggiungiBloccoTrasportatore("AUTOSPED G S.p.A.", [20, 20, 20, 20, 20, 20, 0]);
-      ricalcolaCalendarioESettimane();
-
-      const initialView = new URLSearchParams(window.location.search).get("view");
-      if (initialView === "database") {
-        switchView("database");
-      }
+      ricaricaDagliHub();
     });
   </script>
 </body>
