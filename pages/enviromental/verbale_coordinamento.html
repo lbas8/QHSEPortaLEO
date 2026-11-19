@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verbale Coordinamento Ambientale — Portale QHSE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f8fafc; }
+    .glass-card {
+      background: rgba(18, 24, 38, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background-color: #ffffff !important; color: #0f172a !important; }
+      .print-sheet {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+      }
+      input, textarea, select {
+        background: transparent !important;
+        color: #0f172a !important;
+        border-color: #94a3b8 !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-violet-500 selection:text-white" data-settore="E">
+
+  <!-- HEADER -->
+  <header class="no-print w-full bg-slate-900/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50 px-4 sm:px-8 py-3 shadow-lg">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="verbaliarchivio.html" class="flex items-center gap-2 px-3 py-2 bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition no-underline">
+          <i class="fa-solid fa-arrow-left text-violet-400"></i>
+          <span>Archivio</span>
+        </a>
+        <div>
+          <h1 class="font-black text-sm sm:text-base text-white uppercase tracking-wide leading-none">Verbale di Coordinamento Ambientale</h1>
+          <p class="text-[11px] text-violet-400 font-semibold mt-1">Attuazione Sistema Gestione Ambientale UNI EN ISO 14001</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+          <i class="fa-solid fa-print text-sky-400"></i> Stampa / PDF
+        </button>
+        <button onclick="salvaVerbaleCoordinamento()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition cursor-pointer">
+          <i class="fa-solid fa-floppy-disk"></i> Salva Verbale
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
+
+    <!-- BARRA ID & CARTELLA -->
+    <div class="no-print glass-card rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">ID / N. Verbale</label>
+        <input type="text" id="v-id" placeholder="es. VCA-2026-01" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-violet-300 outline-none focus:border-violet-400">
+      </div>
+      <div>
+        <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Data e Ora Riunione</label>
+        <input type="datetime-local" id="v-datetime" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-400">
+      </div>
+      <div>
+        <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Cartella di Archivio</label>
+        <select id="v-folder" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-400">
+          <option value="">-- Da Classificare --</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SCHEDA VERBALE ISO 14001 -->
+    <section class="print-sheet glass-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+
+      <!-- TITOLO MODELLO -->
+      <div class="text-center border-b border-slate-700/80 pb-5 space-y-1">
+        <h2 class="text-lg sm:text-xl font-black uppercase tracking-wide text-white">
+          Verbale Riunione di Coordinamento Ambientale
+        </h2>
+        <p class="text-xs sm:text-sm font-semibold text-violet-300">
+          (Attuazione Sistema Gestione Ambientale UNI EN ISO 14001)
+        </p>
+      </div>
+
+      <!-- INTESTAZIONE NARRATIVA MODIFICABILE -->
+      <div class="text-xs sm:text-sm leading-relaxed text-slate-200 space-y-3">
+        <p>
+          In data odierna,
+          <input type="text" id="v-data-testo" placeholder="gg/mm/aaaa" class="inline-block w-32 bg-slate-950/80 border-b border-slate-600 px-2 py-0.5 text-xs sm:text-sm font-semibold text-white outline-none focus:border-violet-400">
+          il sottoscritto:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-950/50 border border-slate-800 rounded-xl p-4">
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Nominativo Coordinatore / Sottoscritto</label>
+            <input type="text" id="v-coordinatore" placeholder="Ing. Nome Cognome" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+          </div>
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">In qualità di</label>
+            <input type="text" id="v-qualita" value="Coordinatore del piano utilizzo terre (CPUT)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+          </div>
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Opera / Tratta</label>
+            <input type="text" id="v-opera" value="Tratta AV/AC “Terzo Valico dei Giovi - Nodo di Genova”" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+          </div>
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Modalità / Piattaforma</label>
+            <input type="text" id="v-modalita" value="piattaforma Microsoft Teams" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+          </div>
+        </div>
+
+        <p>
+          per i lavori di realizzazione inerenti alla
+          <span id="preview-opera" class="font-semibold text-white">Tratta AV/AC “Terzo Valico dei Giovi - Nodo di Genova”</span>
+          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, su
+          <span id="preview-modalita" class="font-semibold text-white">piattaforma Microsoft Teams</span>,
+          alla quale hanno partecipato le persone di cui al foglio presenze allegato.
+        </p>
+      </div>
+
+      <!-- OUTPUT DELLA RIUNIONE -->
+      <div class="space-y-2">
+        <label for="v-output" class="block text-xs sm:text-sm font-bold text-white">
+          Si riassumono nel seguito gli output della riunione:
+        </label>
+        <textarea id="v-output" rows="10" placeholder="Riassumere qui gli output, le decisioni e gli esiti della riunione di coordinamento ambientale..." class="w-full bg-slate-950/70 border border-slate-700 rounded-xl p-4 text-xs sm:text-sm text-slate-100 leading-relaxed outline-none focus:border-violet-400"></textarea>
+      </div>
+
+      <!-- CHIUSURA E TRASMISSIONE -->
+      <p class="text-xs sm:text-sm leading-relaxed text-slate-300">
+        In relazione a quanto discusso e convenuto in questa riunione, i partecipanti dovranno procedere a specifica attività per quanto di loro competenza. Copia del presente verbale è trasmesso a mezzo mail a tutti i partecipanti.
+      </p>
+
+      <!-- FOGLIO PRESENZE -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black uppercase tracking-wider text-violet-400">
+            Foglio Presenze Partecipanti
+          </h3>
+          <button type="button" onclick="aggiungiPartecipante()" class="no-print bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer">
+            <i class="fa-solid fa-user-plus text-violet-400"></i> Aggiungi Partecipante
+          </button>
+        </div>
+
+        <div class="overflow-x-auto border border-slate-800 rounded-xl">
+          <table class="w-full text-left text-xs sm:text-sm border-collapse">
+            <thead class="bg-slate-950 text-slate-300 font-bold">
+              <tr>
+                <th class="p-3 border-b border-r border-slate-800 w-1/2">Nome e Cognome</th>
+                <th class="p-3 border-b border-slate-800 w-1/2">Mansione</th>
+                <th class="no-print p-3 border-b border-l border-slate-800 w-12 text-center"></th>
+              </tr>
+            </thead>
+            <tbody id="presenze-tbody" class="divide-y divide-slate-800/80 bg-slate-900/40"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- NOTE, DATA E FIRMA -->
+      <div class="space-y-6 pt-2">
+        <div>
+          <label for="v-note" class="block text-xs font-black uppercase tracking-wider text-slate-400 mb-1.5">Note:</label>
+          <textarea id="v-note" rows="3" placeholder="Eventuali note aggiuntive..." class="w-full bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-slate-100 outline-none focus:border-violet-400"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-800/80">
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Data</label>
+            <input type="text" id="v-data-firma" placeholder="gg/mm/aaaa" class="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+          </div>
+          <div>
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Firma</label>
+            <input type="text" id="v-firma" placeholder="Firma / Nominativo" class="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="no-print w-full border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-5xl mx-auto px-4">
+      <p>© 2026 Terzo Valico dei Giovi — Direzione Lavori & Gestione Ambientale QHSE</p>
+    </div>
+  </footer>
+
+  <script src="../../header.js"></script>
+  <script>
+    let currentLoadKey = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const localDatetime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const dataIt = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+
+      document.getElementById('v-datetime').value = localDatetime;
+      document.getElementById('v-data-testo').value = dataIt;
+      document.getElementById('v-data-firma').value = dataIt;
+      document.getElementById('v-id').value = `VCA-${now.getFullYear()}-${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+
+      document.getElementById('v-opera').addEventListener('input', e => {
+        document.getElementById('preview-opera').innerText = e.target.value;
+      });
+      document.getElementById('v-modalita').addEventListener('input', e => {
+        document.getElementById('preview-modalita').innerText = e.target.value;
+      });
+
+      if (typeof firebase === 'undefined') {
+        for (let i = 0; i < 6; i++) aggiungiPartecipante();
+        return;
+      }
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp({
+          databaseURL: "https://vstvg-1f2f6-default-rtdb.europe-west1.firebasedatabase.app"
+        });
+      }
+
+      const db = firebase.database();
+
+      db.ref('cartelle').once('value', (snap) => {
+        const folders = snap.val() || {};
+        const select = document.getElementById('v-folder');
+        Object.keys(folders).forEach(fKey => {
+          const opt = document.createElement('option');
+          opt.value = fKey;
+          opt.textContent = folders[fKey].nome || fKey;
+          select.appendChild(opt);
+        });
+        if (currentLoadKey && window._loadedVerbale && window._loadedVerbale.folderId) {
+          select.value = window._loadedVerbale.folderId;
+        }
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      const loadParam = params.get('load');
+      if (loadParam) {
+        currentLoadKey = loadParam;
+        document.getElementById('v-id').value = loadParam;
+        db.ref('verbali/' + loadParam).once('value', (snap) => {
+          const data = snap.val();
+          if (!data) {
+            for (let i = 0; i < 6; i++) aggiungiPartecipante();
+            return;
+          }
+          window._loadedVerbale = data;
+          popolaForm(data);
+        });
+      } else {
+        for (let i = 0; i < 6; i++) aggiungiPartecipante();
+      }
+    });
+
+    function popolaForm(data) {
+      if (data.datetime) {
+        const d = new Date(data.datetime);
+        const pad = n => String(n).padStart(2, '0');
+        document.getElementById('v-datetime').value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+      if (data.folderId) {
+        document.getElementById('v-folder').value = data.folderId;
+      }
+      if (data.dataTesto) document.getElementById('v-data-testo').value = data.dataTesto;
+      if (data.coordinatore) document.getElementById('v-coordinatore').value = data.coordinatore;
+      if (data.qualita) document.getElementById('v-qualita').value = data.qualita;
+      if (data.opera) {
+        document.getElementById('v-opera').value = data.opera;
+        document.getElementById('preview-opera').innerText = data.opera;
+      }
+      if (data.modalita) {
+        document.getElementById('v-modalita').value = data.modalita;
+        document.getElementById('preview-modalita').innerText = data.modalita;
+      }
+      if (data.outputRiunione) document.getElementById('v-output').value = data.outputRiunione;
+      if (data.note) document.getElementById('v-note').value = data.note;
+      if (data.dataFirma) document.getElementById('v-data-firma').value = data.dataFirma;
+      if (data.firma) document.getElementById('v-firma').value = data.firma;
+
+      const tbody = document.getElementById('presenze-tbody');
+      tbody.innerHTML = '';
+      if (Array.isArray(data.partecipanti) && data.partecipanti.length > 0) {
+        data.partecipanti.forEach(p => aggiungiPartecipante(p.nome || '', p.mansione || ''));
+      } else {
+        for (let i = 0; i < 6; i++) aggiungiPartecipante();
+      }
+    }
+
+    function aggiungiPartecipante(nome = '', mansione = '') {
+      const tbody = document.getElementById('presenze-tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="p-1.5 border-r border-slate-800">
+          <input type="text" value="${nome.replace(/"/g, '&quot;')}" placeholder="Nome e Cognome" class="p-nome w-full bg-transparent px-2 py-1 text-xs sm:text-sm text-white outline-none focus:bg-slate-950/70 rounded">
+        </td>
+        <td class="p-1.5">
+          <input type="text" value="${mansione.replace(/"/g, '&quot;')}" placeholder="Mansione / Ruolo" class="p-mansione w-full bg-transparent px-2 py-1 text-xs sm:text-sm text-white outline-none focus:bg-slate-950/70 rounded">
+        </td>
+        <td class="no-print p-1.5 border-l border-slate-800 text-center">
+          <button type="button" onclick="this.closest('tr').remove()" class="text-slate-500 hover:text-rose-400 px-1.5 py-1 transition cursor-pointer" title="Rimuovi riga">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function salvaVerbaleCoordinamento() {
+      const rawId = (document.getElementById('v-id').value || '').trim();
+      if (!rawId) {
+        alert("Inserisci un ID / Numero Verbale prima di salvare.");
+        return;
+      }
+
+      const safeId = rawId.replace(/[.#$/[\]]/g, "_");
+      const dtVal = document.getElementById('v-datetime').value;
+      const timestamp = dtVal ? new Date(dtVal).getTime() : Date.now();
+      const folderId = document.getElementById('v-folder').value;
+
+      const partecipanti = [];
+      document.querySelectorAll('#presenze-tbody tr').forEach(tr => {
+        const nome = (tr.querySelector('.p-nome')?.value || '').trim();
+        const mansione = (tr.querySelector('.p-mansione')?.value || '').trim();
+        if (nome || mansione) {
+          partecipanti.push({ nome, mansione });
+        }
+      });
+
+      const payload = {
+        tipo: 'coordinamento',
+        datetime: timestamp,
+        dataTesto: document.getElementById('v-data-testo').value.trim(),
+        coordinatore: document.getElementById('v-coordinatore').value.trim(),
+        qualita: document.getElementById('v-qualita').value.trim(),
+        opera: document.getElementById('v-opera').value.trim(),
+        modalita: document.getElementById('v-modalita').value.trim(),
+        cantiere: document.getElementById('v-opera').value.trim(),
+        area: document.getElementById('v-modalita').value.trim(),
+        outputRiunione: document.getElementById('v-output').value,
+        note: document.getElementById('v-note').value,
+        dataFirma: document.getElementById('v-data-firma').value.trim(),
+        firma: document.getElementById('v-firma').value.trim(),
+        partecipanti
+      };
+
+      if (folderId) {
+        payload.folderId = folderId;
+      }
+
+      const ref = firebase.database().ref('verbali/' + safeId);
+      const saveOp = folderId
+        ? ref.update(payload)
+        : ref.update(payload).then(() => ref.child('folderId').remove());
+
+      saveOp.then(() => {
+        alert("✅ Verbale di Coordinamento Ambientale salvato su Firebase!");
+        if (!currentLoadKey) {
+          window.location.href = `verbale_coordinamento.html?load=${encodeURIComponent(safeId)}`;
+        }
+      }).catch(err => {
+        alert("Errore durante il salvataggio: " + err.message);
+      });
+    }
+  </script>
+</body>
+</html>
