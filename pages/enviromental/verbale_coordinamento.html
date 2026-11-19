@@ -33,6 +33,8 @@
         background: transparent !important;
         color: #0f172a !important;
         border-color: #94a3b8 !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
       }
     }
   </style>
@@ -162,9 +164,10 @@
             <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Nominativo Coordinatore / Sottoscritto</label>
             <input type="text" id="v-coordinatore" placeholder="Ing. Nome Cognome" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
           </div>
-          <div>
-            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">In qualità di</label>
-            <input type="text" id="v-qualita" value="Coordinatore del piano utilizzo terre (CPUT)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400">
+          <div class="space-y-1.5">
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400">In qualità di</label>
+            <select id="v-qualita-select" onchange="gestisciCambioQualita()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-white outline-none focus:border-violet-400 cursor-pointer"></select>
+            <input type="text" id="v-qualita-custom" placeholder="Specifica ruolo / mansione..." class="hidden w-full bg-slate-950 border border-violet-500/50 rounded-lg px-3 py-1.5 text-xs sm:text-sm text-violet-200 outline-none focus:border-violet-400">
           </div>
           <div>
             <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Opera / Tratta</label>
@@ -213,8 +216,8 @@
           <table class="w-full text-left text-xs sm:text-sm border-collapse">
             <thead class="bg-slate-950 text-slate-300 font-bold">
               <tr>
-                <th class="p-3 border-b border-r border-slate-800 w-1/2">Nome e Cognome</th>
-                <th class="p-3 border-b border-slate-800 w-1/2">Mansione</th>
+                <th class="p-3 border-b border-r border-slate-800 w-2/5">Nome e Cognome</th>
+                <th class="p-3 border-b border-slate-800 w-3/5">Mansione</th>
                 <th class="no-print p-3 border-b border-l border-slate-800 w-12 text-center"></th>
               </tr>
             </thead>
@@ -254,6 +257,21 @@
 
   <script src="../../header.js"></script>
   <script>
+    const MANSIONI_PREDEFINITE = [
+      "Direzione Generale (DG)",
+      "Direzione di Tronco (DT)",
+      "Direzione Tecnologie e armamento (DTA)",
+      "Direzione di Cantiere (DC)",
+      "Direzione di Cava (DCa)",
+      "Direzioni Operative Tecnologie (DOT) e Armamento (DOA)",
+      "Responsabile del Sistema di Gestione Ambientale (RSGA) e Rappresentante della Direzione (RD) ai sensi del Regolamento EMAS",
+      "Referente di Gestione del Monitoraggio (RPMA)",
+      "Coordinatore SGA/PMA di Tronco (CSGA) e Responsabile del Controllo Operativo del SGA (RCO-SGA)",
+      "Assistente Coordinatore SGA/PMA di Tronco (ACSGA)",
+      "Coordinatore Piano di Utilizzo Terre (CPUT)",
+      "Addetto di cantiere per l’applicazione del SGA/PMA di cantiere (ASGA/APUT)"
+    ];
+
     let currentLoadKey = null;
     let pdfFirmatoState = {
       presente: false,
@@ -263,7 +281,51 @@
       changed: false
     };
 
+    function popolaSelectQualita(valoreSelezionato = "Coordinatore Piano di Utilizzo Terre (CPUT)") {
+      const select = document.getElementById('v-qualita-select');
+      const customInput = document.getElementById('v-qualita-custom');
+      const isPredefinita = MANSIONI_PREDEFINITE.includes(valoreSelezionato);
+      const isCustom = Boolean(valoreSelezionato) && !isPredefinita;
+
+      select.innerHTML = '';
+      MANSIONI_PREDEFINITE.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        if (valoreSelezionato === m) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      const optCustom = document.createElement('option');
+      optCustom.value = '__CUSTOM__';
+      optCustom.textContent = 'Altra mansione (specifica)...';
+      if (isCustom) optCustom.selected = true;
+      select.appendChild(optCustom);
+
+      if (isCustom) {
+        customInput.value = valoreSelezionato;
+        customInput.classList.remove('hidden');
+      } else {
+        customInput.value = '';
+        customInput.classList.add('hidden');
+      }
+    }
+
+    function gestisciCambioQualita() {
+      const select = document.getElementById('v-qualita-select');
+      const customInput = document.getElementById('v-qualita-custom');
+      if (select.value === '__CUSTOM__') {
+        customInput.classList.remove('hidden');
+        customInput.focus();
+      } else {
+        customInput.classList.add('hidden');
+        customInput.value = '';
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+      popolaSelectQualita("Coordinatore Piano di Utilizzo Terre (CPUT)");
+
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
       const localDatetime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
@@ -336,7 +398,7 @@
       if (data.folderId) document.getElementById('v-folder').value = data.folderId;
       if (data.dataTesto) document.getElementById('v-data-testo').value = data.dataTesto;
       if (data.coordinatore) document.getElementById('v-coordinatore').value = data.coordinatore;
-      if (data.qualita) document.getElementById('v-qualita').value = data.qualita;
+      if (data.qualita) popolaSelectQualita(data.qualita);
       if (data.opera) {
         document.getElementById('v-opera').value = data.opera;
         document.getElementById('preview-opera').innerText = data.opera;
@@ -485,17 +547,42 @@
       aggiornaUiPdf();
     }
 
+    function gestisciCambioMansione(selectEl) {
+      const customInput = selectEl.closest('td').querySelector('.p-mansione-custom');
+      if (!customInput) return;
+      if (selectEl.value === '__CUSTOM__') {
+        customInput.classList.remove('hidden');
+        customInput.focus();
+      } else {
+        customInput.classList.add('hidden');
+        customInput.value = '';
+      }
+    }
+
     function aggiungiPartecipante(nome = '', mansione = '') {
       const tbody = document.getElementById('presenze-tbody');
+      const isPredefinita = MANSIONI_PREDEFINITE.includes(mansione);
+      const isCustom = Boolean(mansione) && !isPredefinita;
+
+      let optionsHtml = `<option value="">-- Seleziona mansione --</option>`;
+      MANSIONI_PREDEFINITE.forEach(m => {
+        const selected = mansione === m ? 'selected' : '';
+        optionsHtml += `<option value="${m.replace(/"/g, '&quot;')}" ${selected}>${m}</option>`;
+      });
+      optionsHtml += `<option value="__CUSTOM__" ${isCustom ? 'selected' : ''}>Altra mansione (specifica)...</option>`;
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td class="p-1.5 border-r border-slate-800">
+        <td class="p-1.5 border-r border-slate-800 align-top">
           <input type="text" value="${nome.replace(/"/g, '&quot;')}" placeholder="Nome e Cognome" class="p-nome w-full bg-transparent px-2 py-1 text-xs sm:text-sm text-white outline-none focus:bg-slate-950/70 rounded">
         </td>
-        <td class="p-1.5">
-          <input type="text" value="${mansione.replace(/"/g, '&quot;')}" placeholder="Mansione / Ruolo" class="p-mansione w-full bg-transparent px-2 py-1 text-xs sm:text-sm text-white outline-none focus:bg-slate-950/70 rounded">
+        <td class="p-1.5 align-top space-y-1.5">
+          <select onchange="gestisciCambioMansione(this)" class="p-mansione-select w-full bg-slate-950/80 border border-slate-800 rounded-lg px-2 py-1 text-xs sm:text-sm text-white outline-none focus:border-violet-400 cursor-pointer">
+            ${optionsHtml}
+          </select>
+          <input type="text" value="${isCustom ? mansione.replace(/"/g, '&quot;') : ''}" placeholder="Digita mansione personalizzata..." class="p-mansione-custom ${isCustom ? '' : 'hidden'} w-full bg-slate-950 border border-violet-500/50 rounded-lg px-2 py-1 text-xs sm:text-sm text-violet-200 outline-none focus:border-violet-400">
         </td>
-        <td class="no-print p-1.5 border-l border-slate-800 text-center">
+        <td class="no-print p-1.5 border-l border-slate-800 text-center align-top">
           <button type="button" onclick="this.closest('tr').remove()" class="text-slate-500 hover:text-rose-400 px-1.5 py-1 transition cursor-pointer" title="Rimuovi riga">
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -521,10 +608,16 @@
         const timestamp = dtVal ? new Date(dtVal).getTime() : Date.now();
         const folderId = document.getElementById('v-folder').value;
 
+        const qualitaSel = document.getElementById('v-qualita-select').value;
+        const qualitaCustom = document.getElementById('v-qualita-custom').value.trim();
+        const qualitaFinale = qualitaSel === '__CUSTOM__' ? qualitaCustom : qualitaSel;
+
         const partecipanti = [];
         document.querySelectorAll('#presenze-tbody tr').forEach(tr => {
           const nome = (tr.querySelector('.p-nome')?.value || '').trim();
-          const mansione = (tr.querySelector('.p-mansione')?.value || '').trim();
+          const selVal = tr.querySelector('.p-mansione-select')?.value || '';
+          const customVal = (tr.querySelector('.p-mansione-custom')?.value || '').trim();
+          const mansione = selVal === '__CUSTOM__' ? customVal : selVal;
           if (nome || mansione) {
             partecipanti.push({ nome, mansione });
           }
@@ -535,7 +628,7 @@
           datetime: timestamp,
           dataTesto: document.getElementById('v-data-testo').value.trim(),
           coordinatore: document.getElementById('v-coordinatore').value.trim(),
-          qualita: document.getElementById('v-qualita').value.trim(),
+          qualita: qualitaFinale,
           opera: document.getElementById('v-opera').value.trim(),
           modalita: document.getElementById('v-modalita').value.trim(),
           cantiere: document.getElementById('v-opera').value.trim(),
