@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Archivio Verbali di Sopralluogo — Portale QHSE</title>
+  <title>Archivio Verbali — Portale QHSE</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -41,11 +41,12 @@
             <i class="fa-solid fa-folder-tree text-xl"></i>
           </div>
           <div>
-            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Archivio Verbali di Sopralluogo</h1>
-            <p class="text-[11px] text-sky-400 font-semibold mt-1">Quarto Valico dei Giovi — VICOC</p>
+            <h1 class="font-black text-base sm:text-lg text-white tracking-wide uppercase leading-none">Archivio Verbali Ambientali</h1>
+            <p class="text-[11px] text-sky-400 font-semibold mt-1">Sopralluoghi & Coordinamento ISO 14001 — Terzo Valico dei Giovi</p>
           </div>
         </div>
       </div>
+
       <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
         <button onclick="esportaVerbaliExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition cursor-pointer">
           <i class="fa-solid fa-file-excel"></i> Esporta Excel (.xlsx)
@@ -53,9 +54,29 @@
         <button onclick="createNewFolder()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
           <i class="fa-solid fa-folder-plus text-amber-400"></i> Nuova Cartella
         </button>
-        <a href="verbale.html" class="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition">
-          <i class="fa-solid fa-plus"></i> Nuovo Verbale
-        </a>
+
+        <!-- DROPDOWN NUOVO VERBALE -->
+        <div class="relative" id="new-verbale-dropdown">
+          <button onclick="toggleNewVerbaleMenu(event)" class="bg-sky-600 hover:bg-sky-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow transition cursor-pointer">
+            <i class="fa-solid fa-plus"></i> Nuovo Verbale <i class="fa-solid fa-chevron-down text-[10px] ml-0.5"></i>
+          </button>
+          <div id="new-verbale-menu" class="hidden absolute right-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1.5 z-50">
+            <a href="verbale.html" class="flex items-start gap-3 px-4 py-2.5 text-xs text-slate-200 hover:bg-slate-800 transition no-underline">
+              <i class="fa-solid fa-magnifying-glass-location text-sky-400 mt-0.5"></i>
+              <div>
+                <div class="font-bold text-white">Verbale di Sopralluogo</div>
+                <div class="text-[10px] text-slate-400">Verifica in cantiere / area operativa</div>
+              </div>
+            </a>
+            <a href="verbale_coordinamento.html" class="flex items-start gap-3 px-4 py-2.5 text-xs text-slate-200 hover:bg-slate-800 transition no-underline border-t border-slate-800/80">
+              <i class="fa-solid fa-people-group text-violet-400 mt-0.5"></i>
+              <div>
+                <div class="font-bold text-white">Coordinamento Ambientale</div>
+                <div class="text-[10px] text-slate-400">Riunione SGA UNI EN ISO 14001 / CPUT</div>
+              </div>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -65,12 +86,17 @@
 
     <!-- PARTE SUPERIORE: TABELLA EXCEL DINAMICA -->
     <div class="space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
           <i class="fa-solid fa-table text-sky-400"></i> Tabella Sincronizzata Verbali (Registro Live)
         </h3>
-        <div class="flex items-center gap-2">
-          <input type="text" id="filter-search-verbali" oninput="filtraTabellaVerbali()" placeholder="Cerca cantiere, area, ID verbale..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-sky-400 w-64">
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="filter-tipo-verbale" onchange="filtraTabellaVerbali()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 outline-none focus:border-sky-400 font-semibold cursor-pointer">
+            <option value="ALL">Tutte le tipologie</option>
+            <option value="sopralluogo">Sopralluogo</option>
+            <option value="coordinamento">Coordinamento Ambientale</option>
+          </select>
+          <input type="text" id="filter-search-verbali" oninput="filtraTabellaVerbali()" placeholder="Cerca cantiere, area, coordinatore, ID..." class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-sky-400 w-64">
           <span id="verbali-counter" class="text-xs text-slate-500">Caricamento...</span>
         </div>
       </div>
@@ -81,16 +107,17 @@
             <thead class="bg-slate-950 text-slate-400 font-black uppercase text-[10px] border-b border-slate-800 sticky top-0 z-10">
               <tr>
                 <th class="p-3.5">ID / N. Verbale</th>
+                <th class="p-3.5">Tipologia</th>
                 <th class="p-3.5">Data & Ora</th>
-                <th class="p-3.5">Cantiere</th>
-                <th class="p-3.5">Area di Lavoro</th>
+                <th class="p-3.5">Cantiere / Contesto</th>
+                <th class="p-3.5">Area / Modalità</th>
                 <th class="p-3.5">Cartella di Archivio</th>
                 <th class="p-3.5 text-center">Azioni Rapide</th>
               </tr>
             </thead>
             <tbody id="tabella-verbali-body" class="divide-y divide-slate-800/60">
               <tr>
-                <td colspan="6" class="p-6 text-center text-slate-500 italic">Caricamento dati verbali dal Cloud...</td>
+                <td colspan="7" class="p-6 text-center text-slate-500 italic">Caricamento dati verbali dal Cloud...</td>
               </tr>
             </tbody>
           </table>
@@ -105,7 +132,7 @@
           <h3 class="text-sm font-black uppercase tracking-wider text-sky-400 flex items-center gap-2">
             <i class="fa-solid fa-folder-tree"></i> Gestione Cartelle e Smistamento Verbali
           </h3>
-          <p class="text-xs text-slate-400">Organizza i verbali di sopralluogo spostandoli all'interno delle cartelle personalizzate.</p>
+          <p class="text-xs text-slate-400">Organizza i verbali di sopralluogo e di coordinamento spostandoli all'interno delle cartelle personalizzate.</p>
         </div>
       </div>
 
@@ -148,6 +175,14 @@
     let allVerbali = {};
 
     document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener("click", (e) => {
+        const dropdown = document.getElementById("new-verbale-dropdown");
+        const menu = document.getElementById("new-verbale-menu");
+        if (dropdown && menu && !dropdown.contains(e.target)) {
+          menu.classList.add("hidden");
+        }
+      });
+
       if (typeof firebase === 'undefined') {
         console.error("Firebase non caricato.");
         return;
@@ -161,7 +196,6 @@
 
       const db = firebase.database();
 
-      // Sincronizzazione in tempo reale verbali e cartelle
       db.ref('verbali').on('value', (snapshot) => {
         allVerbali = snapshot.val() || {};
         aggiornaInterfaccia();
@@ -173,8 +207,32 @@
       });
     });
 
+    function toggleNewVerbaleMenu(event) {
+      event.stopPropagation();
+      const menu = document.getElementById("new-verbale-menu");
+      if (menu) menu.classList.toggle("hidden");
+    }
+
+    function getTipoVerbale(verbale) {
+      return verbale && verbale.tipo === 'coordinamento' ? 'coordinamento' : 'sopralluogo';
+    }
+
+    function getEditUrl(vKey, verbale) {
+      const basePage = getTipoVerbale(verbale) === 'coordinamento'
+        ? 'verbale_coordinamento.html'
+        : 'verbale.html';
+      return `${basePage}?load=${encodeURIComponent(vKey)}`;
+    }
+
+    function getTipoBadgeHtml(tipo) {
+      if (tipo === 'coordinamento') {
+        return `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-500/15 text-violet-300 border border-violet-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-people-group"></i> Coordinamento</span>`;
+      }
+      return `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-magnifying-glass-location"></i> Sopralluogo</span>`;
+    }
+
     function createNewFolder() {
-      const folderName = prompt("Inserisci il nome della nuova cartella (es. Cantiere Cravasco, Verbali Novembre):");
+      const folderName = prompt("Inserisci il nome della nuova cartella (es. Cantiere Cravasco, Coordinamenti Novembre):");
       if (!folderName) return;
       const folderId = folderName.trim().replace(/[.#$/[\]]/g, "_");
       
@@ -225,28 +283,36 @@
       const keys = Object.keys(allVerbali);
       if (keys.length === 0) {
         counter.innerText = "0 verbali registrati";
-        tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500 italic">Nessun verbale di sopralluogo registrato.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500 italic">Nessun verbale registrato.</td></tr>';
         return;
       }
 
-      counter.innerText = `${keys.length} ${keys.length === 1 ? 'verbale in archivio' : 'verbali in archivio'}`;
       tbody.innerHTML = '';
 
       keys.sort((a, b) => (allVerbali[b].datetime || 0) - (allVerbali[a].datetime || 0)).forEach(vKey => {
         const verbale = allVerbali[vKey];
-        const dateStr = verbale.datetime ? new Date(verbale.datetime).toLocaleString() : 'Data N.D.';
+        const tipo = getTipoVerbale(verbale);
+        const dateStr = verbale.datetime ? new Date(verbale.datetime).toLocaleString('it-IT') : 'Data N.D.';
         const nomeCartella = verbale.folderId && allFolders[verbale.folderId] ? allFolders[verbale.folderId].nome : 'Non Classificato';
+        const contestoPrincipale = tipo === 'coordinamento'
+          ? (verbale.coordinatore || verbale.cantiere || 'Coordinamento CPUT')
+          : (verbale.cantiere || '-');
+        const dettaglioSecondario = tipo === 'coordinamento'
+          ? (verbale.modalita || 'Microsoft Teams')
+          : (verbale.area || '-');
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-900/80 transition";
+        tr.dataset.tipo = tipo;
         tr.innerHTML = `
           <td class="p-3.5 font-bold text-sky-400">${vKey}</td>
+          <td class="p-3.5">${getTipoBadgeHtml(tipo)}</td>
           <td class="p-3.5 text-slate-300">${dateStr}</td>
-          <td class="p-3.5 font-semibold text-white">${verbale.cantiere || '-'}</td>
-          <td class="p-3.5 text-slate-300">${verbale.area || '-'}</td>
+          <td class="p-3.5 font-semibold text-white">${contestoPrincipale}</td>
+          <td class="p-3.5 text-slate-300">${dettaglioSecondario}</td>
           <td class="p-3.5 font-bold text-amber-400">${nomeCartella}</td>
           <td class="p-3.5 text-center space-x-1">
-            <a href="verbale.html?load=${encodeURIComponent(vKey)}" class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600/35 text-sky-300 border border-sky-500/40 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 transition">
+            <a href="${getEditUrl(vKey, verbale)}" class="px-2.5 py-1 bg-sky-600/20 hover:bg-sky-600/35 text-sky-300 border border-sky-500/40 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 transition no-underline">
               <i class="fa-solid fa-eye"></i> Apri
             </a>
             <button onclick="deleteVerbale('${vKey}')" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600/35 text-rose-400 border border-rose-500/40 rounded-lg text-[10px] font-bold cursor-pointer">
@@ -256,6 +322,8 @@
         `;
         tbody.appendChild(tr);
       });
+
+      filtraTabellaVerbali();
     }
 
     function renderArchivioCartelle() {
@@ -319,7 +387,8 @@
     }
 
     function createVerbaleCard(vKey, verbale, folderKeys) {
-      const dateStr = verbale.datetime ? new Date(verbale.datetime).toLocaleString() : 'Data N.D.';
+      const tipo = getTipoVerbale(verbale);
+      const dateStr = verbale.datetime ? new Date(verbale.datetime).toLocaleString('it-IT') : 'Data N.D.';
       
       let folderOptions = `<option value="">-- Sposta in cartella --</option>`;
       if (verbale.folderId) {
@@ -331,15 +400,20 @@
         }
       });
 
+      const dettagliHtml = tipo === 'coordinamento'
+        ? `Coordinatore: <strong class="text-slate-200">${verbale.coordinatore || 'N.D.'}</strong> | Modalità: <strong class="text-slate-200">${verbale.modalita || 'Microsoft Teams'}</strong> | <i class="fa-regular fa-clock"></i> ${dateStr}`
+        : `Cantiere: <strong class="text-slate-200">${verbale.cantiere || 'N.D.'}</strong> | Area: <strong class="text-slate-200">${verbale.area || 'N.D.'}</strong> | <i class="fa-regular fa-clock"></i> ${dateStr}`;
+
       const div = document.createElement('div');
       div.className = "flex flex-wrap md:flex-nowrap justify-between items-center p-3.5 bg-slate-900/90 border border-slate-800 rounded-xl hover:border-slate-700 gap-3 transition shadow-sm text-xs";
       div.innerHTML = `
         <div class="flex-1 min-w-[200px]">
-          <div class="font-bold text-white flex items-center gap-1.5">
-            <i class="fa-regular fa-file-lines text-sky-400"></i> ${vKey}
+          <div class="font-bold text-white flex flex-wrap items-center gap-2">
+            <span><i class="fa-regular fa-file-lines text-sky-400 mr-1"></i> ${vKey}</span>
+            ${getTipoBadgeHtml(tipo)}
           </div>
-          <div class="text-[11px] text-slate-400 mt-0.5">
-            Cantiere: <strong class="text-slate-200">${verbale.cantiere || 'N.D.'}</strong> | Area: <strong class="text-slate-200">${verbale.area || 'N.D.'}</strong> | <i class="fa-regular fa-clock"></i> ${dateStr}
+          <div class="text-[11px] text-slate-400 mt-1">
+            ${dettagliHtml}
           </div>
         </div>
 
@@ -348,7 +422,7 @@
             ${folderOptions}
           </select>
           
-          <a href="verbale.html?load=${encodeURIComponent(vKey)}" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap shadow">
+          <a href="${getEditUrl(vKey, verbale)}" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition whitespace-nowrap shadow no-underline">
             <i class="fa-solid fa-eye"></i> Apri
           </a>
 
@@ -373,14 +447,25 @@
     }
 
     function filtraTabellaVerbali() {
-      const query = document.getElementById('filter-search-verbali').value.toLowerCase();
+      const query = (document.getElementById('filter-search-verbali').value || '').toLowerCase();
+      const tipoFiltro = document.getElementById('filter-tipo-verbale').value;
       const tbody = document.getElementById('tabella-verbali-body');
-      const rows = tbody.getElementsByTagName('tr');
+      const counter = document.getElementById('verbali-counter');
+      const rows = Array.from(tbody.getElementsByTagName('tr'));
 
-      Array.from(rows).forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(query) ? '' : 'none';
+      let visibili = 0;
+      rows.forEach(row => {
+        if (!row.dataset.tipo) return;
+        const matchTipo = tipoFiltro === 'ALL' || row.dataset.tipo === tipoFiltro;
+        const matchTesto = row.innerText.toLowerCase().includes(query);
+        const show = matchTipo && matchTesto;
+        row.style.display = show ? '' : 'none';
+        if (show) visibili++;
       });
+
+      if (counter && Object.keys(allVerbali).length > 0) {
+        counter.innerText = `${visibili} ${visibili === 1 ? 'verbale visibile' : 'verbali visibili'}`;
+      }
     }
 
     function esportaVerbaliExcel() {
@@ -392,21 +477,28 @@
       
       const datiExcel = keys.map(vKey => {
         const verbale = allVerbali[vKey];
+        const tipo = getTipoVerbale(verbale);
         const nomeCartella = verbale.folderId && allFolders[verbale.folderId] ? allFolders[verbale.folderId].nome : 'Non Classificato';
+        const partecipantiStr = Array.isArray(verbale.partecipanti)
+          ? verbale.partecipanti.map(p => `${p.nome || ''} (${p.mansione || ''})`).filter(s => s.trim() !== '()').join('; ')
+          : '-';
+
         return {
           "ID / N. Verbale": vKey,
-          "Data & Ora": verbale.datetime ? new Date(verbale.datetime).toLocaleString() : '-',
-          "Cantiere": verbale.cantiere || '-',
-          "Area di Lavoro": verbale.area || '-',
+          "Tipologia": tipo === 'coordinamento' ? 'Coordinamento Ambientale (ISO 14001)' : 'Sopralluogo',
+          "Data & Ora": verbale.datetime ? new Date(verbale.datetime).toLocaleString('it-IT') : '-',
+          "Cantiere / Coordinatore": tipo === 'coordinamento' ? (verbale.coordinatore || '-') : (verbale.cantiere || '-'),
+          "Area / Modalità": tipo === 'coordinamento' ? (verbale.modalita || '-') : (verbale.area || '-'),
           "Cartella Archivio": nomeCartella,
-          "Note / Osservazioni": verbale.note || '-'
+          "Output / Note": verbale.outputRiunione || verbale.note || '-',
+          "Partecipanti": partecipantiStr
         };
       });
 
       const worksheet = XLSX.utils.json_to_sheet(datiExcel);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Archivio Verbali");
-      XLSX.writeFile(workbook, "Archivio_Verbali_Sopralluogo_Terzo_Valico.xlsx");
+      XLSX.writeFile(workbook, "Archivio_Verbali_Terzo_Valico.xlsx");
     }
   </script>
 </body>
