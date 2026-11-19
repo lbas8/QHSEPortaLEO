@@ -105,7 +105,7 @@
             Comunicazione Preventiva Trasporti MdS
           </h1>
           <p id="hub-sync-status" class="text-[11px] text-emerald-400 font-semibold">
-            Collegato ai 7 Hub Modulari (localStorage + db_preventive.json)
+            Collegato ai 7 Hub Modulari (localStorage + default Hub 1/7)
           </p>
         </div>
       </div>
@@ -313,6 +313,24 @@
       targhe_per_azienda: "qhse_mds_sub_targhe_per_azienda"
     };
 
+    // Fallback allineato a hub_sitiproduzione.html (Foglio 1/7 — SITO_DI_PRODUZIONE)
+    const DEFAULT_SITI_PRODUZIONE = [
+      {"denominazione": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
+      {"denominazione": "Interconnessione", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
+      {"denominazione": "Gerbidi", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
+      {"denominazione": "Novi Ligure", "indirizzo": "S.P. 153 Strada Cassano, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""},
+      {"denominazione": "Castagnola", "indirizzo": "Località Casazze Superiori, s.n.c.", "cap": "15060", "comune": "Fraconalto (AL)", "note": ""},
+      {"denominazione": "Fegino", "indirizzo": "Via Castel Morrone, s.n.c.", "cap": "16161", "comune": "Genova (GE)", "note": ""},
+      {"denominazione": "Polcevera", "indirizzo": "", "cap": "16161", "comune": "Genova (GE)", "note": ""},
+      {"denominazione": "S.P. 163 della Castagnola (WBS NV13.2 - Zona 3)", "indirizzo": "S.P. 163, s.n.c.", "cap": "15060", "comune": "Fraconalto (AL)", "note": ""},
+      {"denominazione": "Novi Ligure (COP7)", "indirizzo": "S.P. 35ter Pieve di Novi Ligure, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""},
+      {"denominazione": "Novi Ligure (COP7) presso Libarna (COP5)", "indirizzo": "Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": ""},
+      {"denominazione": "Pernigotti presso Libarna (COP5)", "indirizzo": "c/o Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": ""},
+      {"denominazione": "Libarna (COP5)", "indirizzo": "c/o Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": ""},
+      {"denominazione": "Pernigotti [TRVB]", "indirizzo": "Via dell'Argicoltura, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""},
+      {"denominazione": "Novi Ligure (COP7)", "indirizzo": "Strada Cappellazza, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": "DEPOSITO INTERMEDIO"}
+    ];
+
     let hubData = {
       siti_produzione: [],
       produttori: [],
@@ -323,8 +341,6 @@
       targhe_per_azienda: []
     };
 
-    // sito_partenza_idx: indice univoco nel menu a tendina (-1 se nessuno)
-    // siti_destinazione: array di indici flaggati (N destinazioni => N preventive)
     let selectedState = {
       sito_partenza_idx: -1,
       siti_destinazione: [],
@@ -374,7 +390,10 @@
       const tr = readSub("trasportatori");
       const ta = readSub("targhe_per_azienda");
 
-      if (sp) hubData.siti_produzione = sp;
+      hubData.siti_produzione = (Array.isArray(sp) && sp.length)
+        ? sp
+        : JSON.parse(JSON.stringify(DEFAULT_SITI_PRODUZIONE));
+
       if (pr) hubData.produttori = pr;
       if (mt) hubData.materiali = mt;
       if (sd) hubData.siti_destinazione = sd;
@@ -432,7 +451,7 @@
       sincronizzaBlocchiTrasportatori();
       ricalcolaCalendarioESettimane();
       document.getElementById("hub-sync-status").textContent =
-        `Aggiornato: ${hubData.trasportatori.length} trasportatori • ${hubData.materiali.length} litologie`;
+        `Aggiornato: ${hubData.siti_produzione.length} siti prod. • ${hubData.trasportatori.length} trasportatori • ${hubData.materiali.length} litologie`;
     }
 
     function cambiaSitoPartenza(val) {
@@ -452,9 +471,10 @@
       const sel = document.getElementById("select-sito-partenza");
       const optionsHtml = [`<option value="">-- Seleziona sito di partenza --</option>`].concat(
         hubData.siti_produzione.map((item, idx) => {
+          const denom = typeof item === "string" ? item : (item.denominazione || "");
+          const comune = typeof item === "object" && item.comune ? ` (${item.comune})` : "";
           const selAttr = selectedState.sito_partenza_idx === idx ? "selected" : "";
-          const comuneTxt = item.comune ? ` (${item.comune})` : "";
-          return `<option value="${idx}" ${selAttr}>${item.denominazione}${comuneTxt}</option>`;
+          return `<option value="${idx}" ${selAttr}>${denom}${comune}</option>`;
         })
       );
       sel.innerHTML = optionsHtml.join("");
@@ -483,9 +503,13 @@
     }
 
     function getPreventiveDaGenerare() {
-      const partenza = selectedState.sito_partenza_idx >= 0
+      const rawPartenza = selectedState.sito_partenza_idx >= 0
         ? hubData.siti_produzione[selectedState.sito_partenza_idx]
         : null;
+      const partenza = typeof rawPartenza === "string"
+        ? { denominazione: rawPartenza, indirizzo: "", cap: "", comune: "", note: "" }
+        : rawPartenza;
+
       const destinazioni = selectedState.siti_destinazione
         .map(idx => ({ idx, data: hubData.siti_destinazione[idx] }))
         .filter(x => Boolean(x.data));
@@ -501,9 +525,13 @@
     }
 
     function aggiornaAnteprimaPreventiveN() {
-      const partenza = selectedState.sito_partenza_idx >= 0
+      const rawPartenza = selectedState.sito_partenza_idx >= 0
         ? hubData.siti_produzione[selectedState.sito_partenza_idx]
         : null;
+      const partenza = typeof rawPartenza === "string"
+        ? { denominazione: rawPartenza, indirizzo: "", cap: "", comune: "" }
+        : rawPartenza;
+
       const infoEl = document.getElementById("info-sito-partenza");
       infoEl.textContent = partenza
         ? `${partenza.indirizzo || ""} — ${partenza.cap || ""} ${partenza.comune || ""}`.trim().replace(/^—\s*|\s*—$/g, "")
