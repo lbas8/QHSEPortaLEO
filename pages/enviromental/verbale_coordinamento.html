@@ -28,7 +28,7 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 12mm 12mm 32mm 12mm;
+        margin: 12mm 12mm 34mm 12mm;
       }
 
       .no-print {
@@ -46,22 +46,9 @@
       #print-doc-sheet {
         display: block !important;
         width: 100% !important;
-        padding-bottom: 18mm !important;
+        padding-bottom: 20mm !important;
         color: #111827 !important;
         background: #ffffff !important;
-      }
-
-      .doc-print-shell {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .doc-print-thead {
-        display: table-header-group;
-      }
-
-      .doc-print-tbody {
-        display: table-row-group;
       }
 
       .doc-header-grid {
@@ -129,7 +116,7 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 6px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         font-size: 9.5pt;
       }
 
@@ -154,8 +141,8 @@
       }
 
       .doc-firma-img {
-        max-height: 36px;
-        max-width: 140px;
+        max-height: 32px;
+        max-width: 130px;
         object-fit: contain;
         display: inline-block;
         vertical-align: middle;
@@ -164,16 +151,17 @@
       .doc-closing-grid {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 12px;
-        margin-bottom: 18px;
-        font-size: 9.5pt;
+        border-top: 1px solid #9ca3af;
+        margin-top: 8px;
+        margin-bottom: 10px;
+        font-size: 8.8pt;
         break-inside: avoid;
         page-break-inside: avoid;
       }
 
       .doc-closing-grid td {
-        border: 1px solid #4b5563;
-        padding: 6px 8px;
+        border: none;
+        padding: 5px 8px 3px 0;
         vertical-align: middle;
       }
 
@@ -477,107 +465,93 @@
 
   <!-- LAYOUT DEDICATO ALLA STAMPA / EXPORT PDF (MODELLO TERZO VALICO AV/AC) -->
   <section id="print-doc-sheet" aria-hidden="true">
-    <table class="doc-print-shell">
-      <thead class="doc-print-thead">
+    <table class="doc-header-grid">
+      <tr>
+        <td rowspan="2" id="doc-logo-cell" style="width: 26%; text-align: center; padding: 4px 6px;">
+          <img id="doc-logo-img" src="../../assets/img/logowb.jpg" alt="Logo" class="doc-logo-img" onerror="this.style.display='none'; document.getElementById('doc-logo-text-fallback').style.display='block';">
+          <div id="doc-logo-text-fallback" style="display: none;">
+            <div style="font-size: 7.5pt; font-weight: 700; color: #374151;">GENERAL CONTRACTOR</div>
+            <div style="font-size: 13pt; font-weight: 900; letter-spacing: 0.5px; color: #111827; line-height: 1.1;">webuild</div>
+            <div style="font-size: 7.5pt; color: #4b5563; margin-top: 2px;">Terzo Valico AV/AC</div>
+          </div>
+        </td>
+        <td colspan="2" style="text-align: center; font-weight: 800; font-size: 10pt; width: 44%;">
+          TRATTA AV/AC TERZO VALICO DEI GIOVI
+        </td>
+        <td style="width: 15%; text-align: center; font-weight: 700;">LOTTO WBS</td>
+        <td style="width: 15%; text-align: center; font-weight: 700;">DATA</td>
+      </tr>
+      <tr>
+        <td style="text-align: center; font-weight: 700; width: 22%;">Sistema di gestione ambientale</td>
+        <td style="text-align: center; font-weight: 800; width: 22%;">VERBALE DI RIUNIONE COORDINAMENTO</td>
+        <td id="doc-wbs" style="text-align: center; font-weight: 600;">DT1-DT2</td>
+        <td id="doc-data-top" style="text-align: center; font-weight: 600;"></td>
+      </tr>
+      <tr>
+        <td colspan="3" style="font-size: 8pt; color: #4b5563;">
+          Cod. Verbale: <span id="doc-id" style="font-weight: 700; color: #111827;"></span>
+        </td>
+        <td colspan="2" id="doc-allegato" style="text-align: center; font-weight: 800; font-size: 8.5pt;">
+          ALLEGATO 2
+        </td>
+      </tr>
+    </table>
+
+    <div class="doc-title-box">
+      <h2 class="doc-title-main">VERBALE RIUNIONE DI COORDINAMENTO AMBIENTALE</h2>
+      <p class="doc-title-sub">(Attuazione Sistema Gestione Ambientale UNI EN ISO 14001)</p>
+    </div>
+
+    <div class="doc-body-text">
+      <p style="margin: 0 0 6px 0;">
+        In data odierna <span id="doc-data-testo" style="font-weight: 600;"></span> il sottoscritto:
+      </p>
+      <p style="margin: 0 0 8px 0;">
+        <span id="doc-coordinatore" style="font-weight: 700;"></span>
+        in qualità di <span id="doc-qualita" style="font-weight: 600;"></span>
+        per i lavori di realizzazione inerenti la <span id="doc-opera" style="font-weight: 600;"></span>
+        ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, 
+        <span id="doc-modalita" style="font-weight: 600;"></span>,
+        alla quale hanno partecipato le persone di cui al foglio presenze allegato.
+      </p>
+
+      <p style="margin: 10px 0 4px 0; font-weight: 700;">
+        Si riassumono nel seguito gli output della riunione:
+      </p>
+      <div id="doc-output" class="doc-output-box"></div>
+
+      <p style="margin: 10px 0 8px 0;">
+        In relazione a quanto discusso e convenuto in questa riunione, i partecipanti dovranno procedere a specifica attività per quanto di loro competenza. Copia del presente verbale è trasmesso a mezzo mail a tutti i partecipanti.
+      </p>
+    </div>
+
+    <table class="doc-presenze-table">
+      <thead>
         <tr>
-          <td>
-            <table class="doc-header-grid">
-              <tr>
-                <td rowspan="2" id="doc-logo-cell" style="width: 26%; text-align: center; padding: 4px 6px;">
-                  <img id="doc-logo-img" src="../../assets/img/logowb.jpg" alt="Logo" class="doc-logo-img" onerror="this.style.display='none'; document.getElementById('doc-logo-text-fallback').style.display='block';">
-                  <div id="doc-logo-text-fallback" style="display: none;">
-                    <div style="font-size: 7.5pt; font-weight: 700; color: #374151;">GENERAL CONTRACTOR</div>
-                    <div style="font-size: 13pt; font-weight: 900; letter-spacing: 0.5px; color: #111827; line-height: 1.1;">webuild</div>
-                    <div style="font-size: 7.5pt; color: #4b5563; margin-top: 2px;">Terzo Valico AV/AC</div>
-                  </div>
-                </td>
-                <td colspan="2" style="text-align: center; font-weight: 800; font-size: 10pt; width: 44%;">
-                  TRATTA AV/AC TERZO VALICO DEI GIOVI
-                </td>
-                <td style="width: 15%; text-align: center; font-weight: 700;">LOTTO WBS</td>
-                <td style="width: 15%; text-align: center; font-weight: 700;">DATA</td>
-              </tr>
-              <tr>
-                <td style="text-align: center; font-weight: 700; width: 22%;">Sistema di gestione ambientale</td>
-                <td style="text-align: center; font-weight: 800; width: 22%;">VERBALE DI RIUNIONE COORDINAMENTO</td>
-                <td id="doc-wbs" style="text-align: center; font-weight: 600;">DT1-DT2</td>
-                <td id="doc-data-top" style="text-align: center; font-weight: 600;"></td>
-              </tr>
-              <tr>
-                <td colspan="3" style="font-size: 8pt; color: #4b5563;">
-                  Cod. Verbale: <span id="doc-id" style="font-weight: 700; color: #111827;"></span>
-                </td>
-                <td colspan="2" id="doc-allegato" style="text-align: center; font-weight: 800; font-size: 8.5pt;">
-                  ALLEGATO 2
-                </td>
-              </tr>
-            </table>
-          </td>
+          <th style="width: 30%;">Nome e Cognome</th>
+          <th style="width: 46%;">Mansione</th>
+          <th style="width: 24%;">Firma</th>
         </tr>
       </thead>
+      <tbody id="doc-presenze-tbody"></tbody>
+    </table>
 
-      <tbody class="doc-print-tbody">
-        <tr>
-          <td>
-            <div class="doc-title-box">
-              <h2 class="doc-title-main">VERBALE RIUNIONE DI COORDINAMENTO AMBIENTALE</h2>
-              <p class="doc-title-sub">(Attuazione Sistema Gestione Ambientale UNI EN ISO 14001)</p>
-            </div>
+    <div id="doc-note-wrap" class="doc-body-text" style="margin-bottom: 8px;">
+      <strong>Note:</strong> <span id="doc-note"></span>
+    </div>
 
-            <div class="doc-body-text">
-              <p style="margin: 0 0 6px 0;">
-                In data odierna <span id="doc-data-testo" style="font-weight: 600;"></span> il sottoscritto:
-              </p>
-              <p style="margin: 0 0 8px 0;">
-                <span id="doc-coordinatore" style="font-weight: 700;"></span>
-                in qualità di <span id="doc-qualita" style="font-weight: 600;"></span>
-                per i lavori di realizzazione inerenti la <span id="doc-opera" style="font-weight: 600;"></span>
-                ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, 
-                <span id="doc-modalita" style="font-weight: 600;"></span>,
-                alla quale hanno partecipato le persone di cui al foglio presenze allegato.
-              </p>
-
-              <p style="margin: 10px 0 4px 0; font-weight: 700;">
-                Si riassumono nel seguito gli output della riunione:
-              </p>
-              <div id="doc-output" class="doc-output-box"></div>
-
-              <p style="margin: 10px 0 8px 0;">
-                In relazione a quanto discusso e convenuto in questa riunione, i partecipanti dovranno procedere a specifica attività per quanto di loro competenza. Copia del presente verbale è trasmesso a mezzo mail a tutti i partecipanti.
-              </p>
-            </div>
-
-            <table class="doc-presenze-table">
-              <thead>
-                <tr>
-                  <th style="width: 30%;">Nome e Cognome</th>
-                  <th style="width: 46%;">Mansione</th>
-                  <th style="width: 24%;">Firma</th>
-                </tr>
-              </thead>
-              <tbody id="doc-presenze-tbody"></tbody>
-            </table>
-
-            <div id="doc-note-wrap" class="doc-body-text" style="margin-bottom: 10px;">
-              <strong>Note:</strong> <span id="doc-note"></span>
-            </div>
-
-            <table class="doc-closing-grid">
-              <tr>
-                <td style="width: 22%;"><strong>LOTTO WBS:</strong> <span id="doc-wbs-bottom"></span></td>
-                <td style="width: 25%;"><strong>DATA:</strong> <span id="doc-data-bottom"></span></td>
-                <td style="width: 53%;">
-                  <strong>FIRMA:</strong>
-                  <span id="doc-firma-wrap" style="margin-left: 6px;">
-                    <img id="doc-firma-img" src="" alt="Firma" class="doc-firma-img" style="display: none;">
-                    <span id="doc-firma-testo"></span>
-                  </span>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </tbody>
+    <table class="doc-closing-grid">
+      <tr>
+        <td style="width: 22%;"><strong>LOTTO WBS:</strong> <span id="doc-wbs-bottom"></span></td>
+        <td style="width: 24%;"><strong>DATA:</strong> <span id="doc-data-bottom"></span></td>
+        <td style="width: 54%;">
+          <strong>FIRMA:</strong>
+          <span id="doc-firma-wrap" style="margin-left: 6px;">
+            <img id="doc-firma-img" src="" alt="Firma" class="doc-firma-img" style="display: none;">
+            <span id="doc-firma-testo"></span>
+          </span>
+        </td>
+      </tr>
     </table>
 
     <!-- FOOTER UFFICIALE STAMPA / PDF -->
