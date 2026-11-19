@@ -87,7 +87,7 @@
       </div>
     </div>
 
-    <!-- BOX UFFICIALIZZAZIONE PDF FIRMATO -->
+    <!-- BOX UFFICIALIZZAZIONE PDF FIRMATO GENERALE -->
     <div class="no-print glass-card rounded-2xl p-4 sm:p-5 border border-emerald-500/25 space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex items-start gap-3">
@@ -102,7 +102,7 @@
               </span>
             </div>
             <p class="text-[11px] text-slate-400 mt-0.5">
-              Carica la scansione o il PDF firmato dai partecipanti per rendere ufficiale e protocollato il verbale (max 8 MB).
+              Carica la scansione o il PDF firmato complessivo per rendere ufficiale il verbale (max 8 MB).
             </p>
           </div>
         </div>
@@ -115,7 +115,6 @@
         </div>
       </div>
 
-      <!-- DETTAGLIO FILE ALLEGATO (VISIBILE SE PRESENTE) -->
       <div id="pdf-attached-bar" class="hidden flex flex-wrap items-center justify-between gap-3 bg-slate-950/90 border border-emerald-500/30 rounded-xl px-4 py-2.5 text-xs">
         <div class="flex items-center gap-2.5 min-w-0">
           <i class="fa-solid fa-file-pdf text-rose-400 text-base shrink-0"></i>
@@ -182,7 +181,7 @@
         <p>
           per i lavori di realizzazione inerenti alla
           <span id="preview-opera" class="font-semibold text-white">Tratta AV/AC “Terzo Valico dei Giovi - Nodo di Genova”</span>
-          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, 
+          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, su
           <span id="preview-modalita" class="font-semibold text-white">piattaforma Microsoft Teams</span>,
           alla quale hanno partecipato le persone di cui al foglio presenze allegato.
         </p>
@@ -203,10 +202,13 @@
 
       <!-- FOGLIO PRESENZE -->
       <div class="space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-black uppercase tracking-wider text-violet-400">
-            Foglio Presenze Partecipanti
-          </h3>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-xs font-black uppercase tracking-wider text-violet-400">
+              Foglio Presenze Partecipanti
+            </h3>
+            <p class="no-print text-[11px] text-slate-400">Puoi allegare un file .PDF di firma per ciascun partecipante (max 4 MB).</p>
+          </div>
           <button type="button" onclick="aggiungiPartecipante()" class="no-print bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer">
             <i class="fa-solid fa-user-plus text-violet-400"></i> Aggiungi Partecipante
           </button>
@@ -216,9 +218,10 @@
           <table class="w-full text-left text-xs sm:text-sm border-collapse">
             <thead class="bg-slate-950 text-slate-300 font-bold">
               <tr>
-                <th class="p-3 border-b border-r border-slate-800 w-2/5">Nome e Cognome</th>
-                <th class="p-3 border-b border-slate-800 w-3/5">Mansione</th>
-                <th class="no-print p-3 border-b border-l border-slate-800 w-12 text-center"></th>
+                <th class="p-3 border-b border-r border-slate-800 w-1/4">Nome e Cognome</th>
+                <th class="p-3 border-b border-r border-slate-800 w-2/5">Mansione</th>
+                <th class="p-3 border-b border-slate-800 w-1/4">Firma (.PDF)</th>
+                <th class="no-print p-3 border-b border-l border-slate-800 w-10 text-center"></th>
               </tr>
             </thead>
             <tbody id="presenze-tbody" class="divide-y divide-slate-800/80 bg-slate-900/40"></tbody>
@@ -273,6 +276,7 @@
     ];
 
     let currentLoadKey = null;
+    let rowCounter = 0;
     let pdfFirmatoState = {
       presente: false,
       nome: '',
@@ -280,6 +284,7 @@
       base64: null,
       changed: false
     };
+    const partecipantePdfMap = {};
 
     function popolaSelectQualita(valoreSelezionato = "Coordinatore Piano di Utilizzo Terre (CPUT)") {
       const select = document.getElementById('v-qualita-select');
@@ -426,7 +431,7 @@
       const tbody = document.getElementById('presenze-tbody');
       tbody.innerHTML = '';
       if (Array.isArray(data.partecipanti) && data.partecipanti.length > 0) {
-        data.partecipanti.forEach(p => aggiungiPartecipante(p.nome || '', p.mansione || ''));
+        data.partecipanti.forEach(p => aggiungiPartecipante(p.nome || '', p.mansione || '', p));
       } else {
         for (let i = 0; i < 6; i++) aggiungiPartecipante();
       }
@@ -488,7 +493,7 @@
     async function recuperaBase64Pdf() {
       if (pdfFirmatoState.base64) return pdfFirmatoState.base64;
       if (!currentLoadKey) return null;
-      const snap = await firebase.database().ref('verbali_allegati_pdf/' + currentLoadKey).once('value');
+      const snap = await firebase.database().ref('verbali_allegati_pdf/' + currentLoadKey + '/generale').once('value');
       const val = snap.val();
       if (val && val.base64) {
         pdfFirmatoState.base64 = val.base64;
@@ -515,8 +520,7 @@
         alert("Impossibile recuperare il file PDF allegato.");
         return;
       }
-      const url = base64ToBlobUrl(b64);
-      window.open(url, '_blank');
+      window.open(base64ToBlobUrl(b64), '_blank');
     }
 
     async function scaricaPdfFirmato() {
@@ -525,9 +529,8 @@
         alert("Impossibile recuperare il file PDF allegato.");
         return;
       }
-      const url = base64ToBlobUrl(b64);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = base64ToBlobUrl(b64);
       a.download = pdfFirmatoState.nome || 'Verbale_Coordinamento_Firmato.pdf';
       document.body.appendChild(a);
       a.click();
@@ -559,10 +562,19 @@
       }
     }
 
-    function aggiungiPartecipante(nome = '', mansione = '') {
+    function aggiungiPartecipante(nome = '', mansione = '', datiExtra = null) {
       const tbody = document.getElementById('presenze-tbody');
+      const uid = `row_${++rowCounter}`;
       const isPredefinita = MANSIONI_PREDEFINITE.includes(mansione);
       const isCustom = Boolean(mansione) && !isPredefinita;
+
+      partecipantePdfMap[uid] = {
+        presente: Boolean(datiExtra && datiExtra.pdfPresente),
+        nome: (datiExtra && datiExtra.pdfNome) || '',
+        size: (datiExtra && datiExtra.pdfSize) || 0,
+        base64: null,
+        changed: false
+      };
 
       let optionsHtml = `<option value="">-- Seleziona mansione --</option>`;
       MANSIONI_PREDEFINITE.forEach(m => {
@@ -572,23 +584,128 @@
       optionsHtml += `<option value="__CUSTOM__" ${isCustom ? 'selected' : ''}>Altra mansione (specifica)...</option>`;
 
       const tr = document.createElement('tr');
+      tr.dataset.uid = uid;
       tr.innerHTML = `
         <td class="p-1.5 border-r border-slate-800 align-top">
           <input type="text" value="${nome.replace(/"/g, '&quot;')}" placeholder="Nome e Cognome" class="p-nome w-full bg-transparent px-2 py-1 text-xs sm:text-sm text-white outline-none focus:bg-slate-950/70 rounded">
         </td>
-        <td class="p-1.5 align-top space-y-1.5">
+        <td class="p-1.5 border-r border-slate-800 align-top space-y-1.5">
           <select onchange="gestisciCambioMansione(this)" class="p-mansione-select w-full bg-slate-950/80 border border-slate-800 rounded-lg px-2 py-1 text-xs sm:text-sm text-white outline-none focus:border-violet-400 cursor-pointer">
             ${optionsHtml}
           </select>
           <input type="text" value="${isCustom ? mansione.replace(/"/g, '&quot;') : ''}" placeholder="Digita mansione personalizzata..." class="p-mansione-custom ${isCustom ? '' : 'hidden'} w-full bg-slate-950 border border-violet-500/50 rounded-lg px-2 py-1 text-xs sm:text-sm text-violet-200 outline-none focus:border-violet-400">
         </td>
+        <td class="p-1.5 align-top">
+          <div class="no-print flex flex-col gap-1">
+            <input type="file" id="file_${uid}" accept="application/pdf,.pdf" class="hidden" onchange="gestisciUploadPdfPartecipante('${uid}', event)">
+            <label for="file_${uid}" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-[11px] font-bold text-emerald-300 inline-flex items-center justify-center gap-1.5 cursor-pointer transition">
+              <i class="fa-solid fa-file-arrow-up"></i>
+              <span class="p-pdf-btn-text">${partecipantePdfMap[uid].presente ? 'Sostituisci PDF' : 'Carica PDF'}</span>
+            </label>
+            <div class="p-pdf-info ${partecipantePdfMap[uid].presente ? '' : 'hidden'} flex items-center justify-between gap-1 bg-slate-950/90 border border-emerald-500/30 rounded-lg px-2 py-1 text-[10px]">
+              <button type="button" onclick="apriPdfPartecipante('${uid}')" class="text-sky-300 hover:underline truncate text-left font-semibold cursor-pointer" title="${(partecipantePdfMap[uid].nome || '').replace(/"/g, '&quot;')}">
+                <i class="fa-solid fa-file-pdf text-rose-400 mr-1"></i><span class="p-pdf-name">${partecipantePdfMap[uid].nome || 'Firma.pdf'}</span>
+              </button>
+              <button type="button" onclick="rimuoviPdfPartecipante('${uid}')" class="text-rose-400 hover:text-rose-300 px-1 cursor-pointer" title="Rimuovi PDF firma">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+          <span class="hidden print:inline text-xs">${partecipantePdfMap[uid].presente ? 'Allegato PDF (' + (partecipantePdfMap[uid].nome || 'Firma.pdf') + ')' : '-'}</span>
+        </td>
         <td class="no-print p-1.5 border-l border-slate-800 text-center align-top">
-          <button type="button" onclick="this.closest('tr').remove()" class="text-slate-500 hover:text-rose-400 px-1.5 py-1 transition cursor-pointer" title="Rimuovi riga">
+          <button type="button" onclick="rimuoviRigaPartecipante(this, '${uid}')" class="text-slate-500 hover:text-rose-400 px-1.5 py-1 transition cursor-pointer" title="Rimuovi riga">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </td>
       `;
       tbody.appendChild(tr);
+    }
+
+    function rimuoviRigaPartecipante(btn, uid) {
+      delete partecipantePdfMap[uid];
+      btn.closest('tr').remove();
+    }
+
+    function aggiornaUiPdfPartecipante(uid) {
+      const tr = document.querySelector(`#presenze-tbody tr[data-uid="${uid}"]`);
+      const st = partecipantePdfMap[uid];
+      if (!tr || !st) return;
+
+      const btnText = tr.querySelector('.p-pdf-btn-text');
+      const infoBox = tr.querySelector('.p-pdf-info');
+      const nameSpan = tr.querySelector('.p-pdf-name');
+
+      if (st.presente) {
+        btnText.innerText = 'Sostituisci PDF';
+        nameSpan.innerText = st.nome || 'Firma.pdf';
+        infoBox.classList.remove('hidden');
+      } else {
+        btnText.innerText = 'Carica PDF';
+        infoBox.classList.add('hidden');
+      }
+    }
+
+    function gestisciUploadPdfPartecipante(uid, event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert("Seleziona esclusivamente un file in formato .PDF.");
+        event.target.value = '';
+        return;
+      }
+
+      const maxBytes = 4 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        alert("Il PDF della firma supera il limite consigliato di 4 MB per singolo partecipante.");
+        event.target.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        partecipantePdfMap[uid] = {
+          presente: true,
+          nome: file.name,
+          size: file.size,
+          base64: e.target.result,
+          changed: true
+        };
+        aggiornaUiPdfPartecipante(uid);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function apriPdfPartecipante(uid) {
+      const st = partecipantePdfMap[uid];
+      if (!st || !st.presente) return;
+
+      if (!st.base64 && currentLoadKey) {
+        const snap = await firebase.database().ref('verbali_allegati_pdf/' + currentLoadKey + '/partecipanti/' + uid).once('value');
+        const val = snap.val();
+        if (val && val.base64) st.base64 = val.base64;
+      }
+
+      if (!st.base64) {
+        alert("Impossibile recuperare il PDF della firma. Assicurati di aver salvato il verbale.");
+        return;
+      }
+      window.open(base64ToBlobUrl(st.base64), '_blank');
+    }
+
+    function rimuoviPdfPartecipante(uid) {
+      if (!partecipantePdfMap[uid]) return;
+      partecipantePdfMap[uid] = {
+        presente: false,
+        nome: '',
+        size: 0,
+        base64: null,
+        changed: true
+      };
+      const fileInput = document.getElementById('file_' + uid);
+      if (fileInput) fileInput.value = '';
+      aggiornaUiPdfPartecipante(uid);
     }
 
     async function salvaVerbaleCoordinamento() {
@@ -613,13 +730,27 @@
         const qualitaFinale = qualitaSel === '__CUSTOM__' ? qualitaCustom : qualitaSel;
 
         const partecipanti = [];
+        let haPdfPartecipanti = false;
+
         document.querySelectorAll('#presenze-tbody tr').forEach(tr => {
+          const uid = tr.dataset.uid;
           const nome = (tr.querySelector('.p-nome')?.value || '').trim();
           const selVal = tr.querySelector('.p-mansione-select')?.value || '';
           const customVal = (tr.querySelector('.p-mansione-custom')?.value || '').trim();
           const mansione = selVal === '__CUSTOM__' ? customVal : selVal;
-          if (nome || mansione) {
-            partecipanti.push({ nome, mansione });
+          const pdfSt = partecipantePdfMap[uid] || { presente: false, nome: '', size: 0 };
+
+          if (pdfSt.presente) haPdfPartecipanti = true;
+
+          if (nome || mansione || pdfSt.presente) {
+            partecipanti.push({
+              uid,
+              nome,
+              mansione,
+              pdfPresente: Boolean(pdfSt.presente),
+              pdfNome: pdfSt.presente ? pdfSt.nome : '',
+              pdfSize: pdfSt.presente ? pdfSt.size : 0
+            });
           }
         });
 
@@ -638,7 +769,7 @@
           dataFirma: document.getElementById('v-data-firma').value.trim(),
           firma: document.getElementById('v-firma').value.trim(),
           partecipanti,
-          pdfFirmatoPresente: pdfFirmatoState.presente,
+          pdfFirmatoPresente: Boolean(pdfFirmatoState.presente || haPdfPartecipanti),
           pdfFirmatoNome: pdfFirmatoState.presente ? pdfFirmatoState.nome : '',
           pdfFirmatoSize: pdfFirmatoState.presente ? pdfFirmatoState.size : 0
         };
@@ -653,22 +784,40 @@
           await ref.child('folderId').remove();
         }
 
-        const pdfRef = firebase.database().ref('verbali_allegati_pdf/' + safeId);
+        const baseAllegatiRef = firebase.database().ref('verbali_allegati_pdf/' + safeId);
+
         if (pdfFirmatoState.changed) {
           if (pdfFirmatoState.presente && pdfFirmatoState.base64) {
-            await pdfRef.set({
+            await baseAllegatiRef.child('generale').set({
               nome: pdfFirmatoState.nome,
               size: pdfFirmatoState.size,
               base64: pdfFirmatoState.base64,
               updatedAt: Date.now()
             });
           } else if (!pdfFirmatoState.presente) {
-            await pdfRef.remove();
+            await baseAllegatiRef.child('generale').remove();
           }
           pdfFirmatoState.changed = false;
         }
 
-        alert("✅ Verbale di Coordinamento Ambientale salvato su Firebase!");
+        for (const uid of Object.keys(partecipantePdfMap)) {
+          const st = partecipantePdfMap[uid];
+          if (!st || !st.changed) continue;
+          const pRef = baseAllegatiRef.child('partecipanti/' + uid);
+          if (st.presente && st.base64) {
+            await pRef.set({
+              nome: st.nome,
+              size: st.size,
+              base64: st.base64,
+              updatedAt: Date.now()
+            });
+          } else if (!st.presente) {
+            await pRef.remove();
+          }
+          st.changed = false;
+        }
+
+        alert("✅ Verbale di Coordinamento Ambientale e firme PDF salvati su Firebase!");
         if (!currentLoadKey) {
           window.location.href = `verbale_coordinamento.html?load=${encodeURIComponent(safeId)}`;
         }
