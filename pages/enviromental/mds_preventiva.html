@@ -105,7 +105,7 @@
             Comunicazione Preventiva Trasporti MdS
           </h1>
           <p id="hub-sync-status" class="text-[11px] text-emerald-400 font-semibold">
-            Collegato ai 7 Hub Modulari (localStorage + fallback Hub 1–7)
+            Collegato ai 7 Hub Modulari (localStorage + database vigenti)
           </p>
         </div>
       </div>
@@ -313,6 +313,7 @@
       targhe_per_azienda: "qhse_mds_sub_targhe_per_azienda"
     };
 
+    // Foglio 1/7 — SITO_DI_PRODUZIONE
     const DEFAULT_SITI_PRODUZIONE = [
       {"denominazione": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
       {"denominazione": "Interconnessione", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
@@ -330,35 +331,131 @@
       {"denominazione": "Novi Ligure (COP7)", "indirizzo": "Strada Cappellazza, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": "DEPOSITO INTERMEDIO"}
     ];
 
-    const DEFAULT_SITI_DESTINAZIONE = [
-      {"sito_wbs": "Novi Ligure (Deposito / WBS)", "indirizzo": "S.P. 153 Strada Cassano, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)"},
-      {"sito_wbs": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
-      {"sito_wbs": "Libarna (COP5)", "indirizzo": "Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)"}
-    ];
-
+    // Foglio 2/7 — Dati_identif_del_produttore
     const DEFAULT_PRODUTTORI = [
-      {"denominazione": "Consorzio COCIV", "indirizzo": "Via R. Bianchi 40", "cap": "16152", "comune": "Genova (GE)", "piva": ""}
+      {"denominazione": "Consorzio COCIV", "indirizzo": "Via Renata Bianchi, 9", "cap": "16152", "comune": "Genova (GE)", "piva": "3299440101"},
+      {"denominazione": "Consorzio Tunnel Giovi", "indirizzo": "Via A.M. Adorni, 1", "cap": "43121", "comune": "Parma (PR)", "piva": "2852220348"},
+      {"denominazione": "CMP S.r.l.", "indirizzo": "Via alla stazione di San Quirico, 70", "cap": "16163", "comune": "Genova (GE)", "piva": "1957970997"},
+      {"denominazione": "Polistrade S.p.A.", "indirizzo": "Via Pier Paolo Pasolini, 18", "cap": "50013", "comune": "Campi Bisenzio (FI)", "piva": "752930487"},
+      {"denominazione": "Seli Overseas S.p.A.", "indirizzo": "Via Giulio Vincenzo Bona, 120", "cap": "156", "comune": "Roma (RM)", "piva": "3299440101"},
+      {"denominazione": "Cipa S.p.A.", "indirizzo": "Via Casa Rosa, 33", "cap": "80063", "comune": "Piano di Sorrento (NA)", "piva": "1392551212"}
     ];
 
-    const DEFAULT_DESTINATARI = [
-      {"denominazione": "Consorzio COCIV", "indirizzo": "Via R. Bianchi 40", "cap": "16152", "comune": "Genova (GE)", "piva": ""}
-    ];
-
+    // Foglio 3/7 — Tipo_di_materiale_trasportato
     const DEFAULT_MATERIALI = [
-      "Metabasalti",
-      "Calcari / Marne",
-      "Terra e rocce da scavo",
-      "Ghiaie e sabbie"
+      "Arenarie", "Arenarie di Serravalle", "Argille", "Argille di Lugagnano", "Argille di Ortovero", "Argilliti", "Argilliti a Palombini", "Argilloscisti di Costagiutta", "Argilloscisti di Murta", "Argilloscisti filladici", "Argilloscisti neri", "Basalti dell'unità Timone Teiolo", "Calcari", "Calcari di Gallaneto", "Calcari dolomitici", "Cloritoscisti", "Conglomerati di Cassano Spinola", "Dolomie", "Dolomie di Monte Gazzo", "Formazione di Cassano Spinola", "Formazione di Costa Areasa", "Formazione di Costa Montada", "Formazione di Molare", "Formazione di Rigoroso", "Formazione di Serravalle", "Ghiaia e/o ciottoli", "Ghiaio terro limoso", "Marne", "Marne di Cessole", "Marne di Costa Areasa", "Marne di Sant'Agata", "Marne di Sant'Agata Fossili", "Materiale di riporto", "Melange Tettonico", "Membro di Rio Maggiore", "Metabasalti", "Metabasalti di M. Figogna", "Metacalcari", "Metagabbri", "Metagabbri del M. Figogna", "Metaoficalci", "Metargilliti", "Metargilliti a Palombini", "Metasedimenti", "Metasedimenti della Madonna della Guardia", "Metasedimenti silicei", "Milonite", "Oficalci", "Pietre verdi", "Sabbia", "Sabbie e/o ghiaie", "Scisti ofiolitici", "Serpentiniti", "Terreno limoso", "Terreno superficiale", "Terreno vegetale"
     ];
 
+    // Foglio 4/7 — SITO_DI_DESTINAZIONE
+    const DEFAULT_SITI_DESTINAZIONE = [
+      {"sito_wbs": "Cava Castellaro - DP02", "indirizzo": "S.P.6 Via Cravasco", "cap": "16044", "comune": "Campomorone (GE)"},
+      {"sito_wbs": "Interconnessione", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "Gerbidi", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "Novi Ligure", "indirizzo": "Strada Cassano SP153", "cap": "15067", "comune": "Novi Ligure (AL)"},
+      {"sito_wbs": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "Cascina Romanellotta - DP22", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "EX Cava Cementir Voltaggio - DP04", "indirizzo": "Località Ferriera Vecchia, s.n.c.", "cap": "15060", "comune": "Voltaggio (AL)"},
+      {"sito_wbs": "Cascina Venezia", "indirizzo": "Via Enrico Fermi, s.n.c.", "cap": "27058", "comune": "Casei Gerola (PV)"},
+      {"sito_wbs": "Cascina Vassuria - DP9D", "indirizzo": "S.P. 35bis s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "Cascina Guendalina - DP98", "indirizzo": "Strada dei Molini, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "Deposito Intermedio C.na Romanellotta (DICR)", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "Cava Vecchie Fornaci - DP91", "indirizzo": "Via alle Vecchie Fornaci, s.n.c.", "cap": "16162", "comune": "Genova (GE)"},
+      {"sito_wbs": "Deposito Intermedio Cantiere Operativo Fegino - COL2", "indirizzo": "Via Castel Morrone, s.n.c.", "cap": "16161", "comune": "Genova (GE)"},
+      {"sito_wbs": "Deposito Intermedio Libarna (DILIB)", "indirizzo": "Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)"}
+    ];
+
+    // Foglio 5/7 — Dati_identif_del_destinatario
+    const DEFAULT_DESTINATARI = [
+      {"denominazione": "ATI Edilmac S.r.l. - Heidelberg Materials Italia Calcestruzzi S.p.A.", "indirizzo": "Via Trento, 16", "cap": "24020", "comune": "Gorle (BG)", "piva": "217080167"},
+      {"denominazione": "Allara S.p.A.", "indirizzo": "Strada Frassineto Po, 42", "cap": "15033", "comune": "Casale Monferrato (AL)", "piva": "414250068"},
+      {"denominazione": "Rito Soc. Agricola S.r.l.", "indirizzo": "Via Fermi, 4", "cap": "27055", "comune": "Rivanazzano Terme (PV)", "piva": "1423820180"},
+      {"denominazione": "Consorzio COCIV", "indirizzo": "Via Renata Bianchi, 9", "cap": "16152", "comune": "Genova (GE)", "piva": "3299440101"},
+      {"denominazione": "Picco Bartolomeo S.r.l.", "indirizzo": "Via Materno Garibaldi, 9", "cap": "14100", "comune": "Asti (AT)", "piva": "1280650050"},
+      {"denominazione": "Consorzio Stabile 3 Emme s.c.a.r.l.", "indirizzo": "Via Paolo Emilio, 32", "cap": "162", "comune": "Roma (RM)", "piva": "6934780963"}
+    ];
+
+    // Foglio 6/7 — Dati_identi_dei_trasportatori
     const DEFAULT_TRASPORTATORI = [
-      {"denominazione": "MORELLO CARMELO", "piva": ""},
-      {"denominazione": "AUTOSPED G S.p.A.", "piva": ""}
+      {"denominazione": "ATI  - Portalupi Carlo Impresa Spa", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "ATI POLISTRADE-TERRA UOMINI AMBIENTE", "indirizzo_cap_comune": "Via Pier Paolo Pasolini, 18 - 50013 - Campi Bisenzio (FI)", "piva": "752930487"},
+      {"denominazione": "AUTOSPED G S.p.A.", "indirizzo_cap_comune": "Viale Europa, 25 - 15053 - Castelnuovo Scrivia (AL)", "piva": "153880067"},
+      {"denominazione": "AUTOTRASPORTI PENSIERO S.r.l.", "indirizzo_cap_comune": "Via Stalingrado, 50 - 17014 - Cairo Montenotte (SV)", "piva": "1371970094"},
+      {"denominazione": "BERTINI S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "CAR Trasporti S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "CARNOVALE COSTRUZIONI S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "Cart Soc. Coop. a r. l.", "indirizzo_cap_comune": "Via Piazza Barbarino, 10/3 - 16149 - Genova (GE)", "piva": "3222230108"},
+      {"denominazione": "Cave Sinni S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "CIPA S.p.A.", "indirizzo_cap_comune": "Via Casa Rosa, 33 - 80063 - Piano di Sorrento (NA)", "piva": "1392551212"},
+      {"denominazione": "CONSORZIO COCIV", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "CONSORZIO TUNNEL GIOVI", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "Costruttori S.p.A.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "DIMOTER S.r.l.", "indirizzo_cap_comune": "Via Gambalera, 99 - 15122 - Alessandria (AL)", "piva": "2610480069"},
+      {"denominazione": "ECAM S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "Eurocav S.C.AR.L.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "EUROSCAVI S.r.l.", "indirizzo_cap_comune": "Via Rosario Russo, 19 - 95010 - Santa Venerina (CT)", "piva": "4263220966"},
+      {"denominazione": "Eurotrasporti Srl", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "GERMANI S.P.A.", "indirizzo_cap_comune": "Via Volta, 8 - 25010 - S. Zeno Naviglio (BS)", "piva": "1147940173"},
+      {"denominazione": "Impresa Bacchi Srl", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "IMPRESA MANELLI SPA", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "M&D S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "MORELLO CARMELO", "indirizzo_cap_comune": "Via Tangenziale Est Ticino, 2 - 28068 - Romentino (NO)", "piva": "8365830960"},
+      {"denominazione": "MORELLO DOMENICO", "indirizzo_cap_comune": "Strada Manin, 2 - 28100 - Novara (NO)", "piva": "2423660808"},
+      {"denominazione": "MOVITER S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "NEW GROUP INFRASTRUTTURE S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "P.M. Trasporti Srl", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "PARATORI SPA", "indirizzo_cap_comune": "Strada Bosco Marengo,14 - 15067 - Novi Ligure (AL)", "piva": "1572720991"},
+      {"denominazione": "PICCO BARTOLOMEO S.R.L.", "indirizzo_cap_comune": "Via Bertolotti, 7 - 10121 - Torino (TO)", "piva": "1280650050"},
+      {"denominazione": "PM SERVICES S.R.L.", "indirizzo_cap_comune": "Via Marconi, 6/B - 24060 - Bagnatica (BG)", "piva": "4069190165"},
+      {"denominazione": "PREVE COSTRUZIONI S.P.A", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "TESTA SCAVI Srl", "indirizzo_cap_comune": "Via Malta, 5/9 - 16121 - Genova (GE)", "piva": "2274830062"},
+      {"denominazione": "TRASPOTER S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "TRIO S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "TRIZZINO SALVATORE", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "Truck Rail Container S.p.A.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "Unistrade S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "VE COSTRUZIONI S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
+      {"denominazione": "ZENTI TRANSPORT S.r.l.", "indirizzo_cap_comune": "Via Industria, 37/39 - 25030 - Torbole e Casaglia (BS)", "piva": "2703810982"}
     ];
 
+    // Foglio 7/7 — Targhe_Autorizzate
     const DEFAULT_TARGHE_PER_AZIENDA = [
-      {"azienda": "MORELLO CARMELO", "targhe": []},
-      {"azienda": "AUTOSPED G S.p.A.", "targhe": []}
+      {"azienda": "ATI  - Portalupi Carlo Impresa Spa", "targhe": ["FD133ZW", "FV218CR", "FV219CR"]},
+      {"azienda": "ATI POLISTRADE-TERRA UOMINI AMBIENTE", "targhe": ["GW722JW"]},
+      {"azienda": "AUTOSPED G S.p.A.", "targhe": ["EG348GS", "EG461GS", "EL912FS", "EL913FS", "EP620ZW", "ES271GK", "ES377GK", "EW270FK", "EZ004WC", "EZ005WC", "EZ008WC", "EZ014WC", "EZ020WC", "EZ021WC", "EZ187WC", "EZ188WC", "EZ189WC", "EZ191WC", "EZ921RD", "EZ922RD", "EZ939RD", "EZ940RD", "EZ941RD", "FB913HX", "FB917HX", "FB918HX", "FB966HX", "FB967HX", "FB968HX", "FB969HX", "FC828JM", "FF853ER", "FF857ER", "FF929ER", "FF930ER", "FF932ER", "FF933ER", "FF934ER", "FN896AM", "FN957AM", "FV270CR", "FV271CR", "FV272CR", "FV273CR", "FV274CR", "FV275CR", "FV276CR", "FX117SR", "FX118SR", "FX190SR", "FX191SR", "FX192SR", "FX193SR", "FX194SR", "FX195SR", "FX196SR", "FX282SR", "FX283SR", "FX284SR", "FX285SR", "FY247RN", "FY248RN", "FY249RN", "FY283SR", "FY352RN", "FY353RN", "FY354RN", "FY355RN", "FY356RN", "GA255HS", "GA256HS", "GA257HS", "GA430HS", "GA431HS", "GA432HS", "GA433HS", "GA434HS", "GA452HS", "GA454HS", "GA899BJ", "GB957HR", "GB958HR", "GB959HR", "GB960HR", "GC226LS", "GC227LS", "GC228LS", "GC228ZX", "GF106JA", "GF107JA", "GF108JA", "GF109JA", "GF110JA", "GF111JA", "GF282JA", "GG029TL", "GG030TL", "GG031TL", "GG032TL", "GG033TL", "GG034TL", "GG125TL", "GG126TL", "GG177TL", "GG178TL", "GG179TL", "GG180TL", "GG229TK", "GG684TK", "GL057DL", "GL059DL", "GL060DL", "GL061DL", "GL062DL", "GL063DL", "GL067DL", "GL128DL", "GL904DN", "GL921DL", "GM807DJ", "GN225JA", "GN240JA", "GN241JA", "GN242JA", "GN243JA", "GN245JA", "GV524DC", "GW112SL", "GW334SM", "GW884JW", "GW885JW", "GW892JW", "GZ851CY", "GZ925CY"]},
+      {"azienda": "AUTOTRASPORTI PENSIERO S.r.l.", "targhe": ["DF673AP", "DF905AP", "EH700FS", "FL050KH", "FV087LV", "FW004DP", "FW060DP", "GA052VZ", "GA089VZ", "GA928WA", "GB896VH", "GE951ME", "GJ747SW", "GJ770SW", "GJ860SW", "GX633SJ", "GX635SJ", "HB862JD", "HC465HZ"]},
+      {"azienda": "BERTINI S.R.L.", "targhe": ["B93A631EC03612048", "B93A63IEV03511366", "EF061RD", "FE019HZ", "GH095FF", "GJ986ZD"]},
+      {"azienda": "CAR Trasporti S.r.l.", "targhe": ["ES179FL", "FJ914EG", "FX758NN"]},
+      {"azienda": "CARNOVALE COSTRUZIONI S.R.L.", "targhe": ["FT996XG", "FX734NN", "FX735NN", "FX920NN", "HC929YF"]},
+      {"azienda": "Cart Soc. Coop. a r. l.", "targhe": ["ED448FG", "EF252YE", "EF436YE", "FC653JM", "FW601MV", "GC701DP", "GC702DP", "GK969CT", "GZ834LE"]},
+      {"azienda": "Cave Sinni S.r.l.", "targhe": ["EX922ZV", "EY068KB", "FA883ST", "FA884ST"]},
+      {"azienda": "CIPA S.p.A.", "targhe": ["GB802JL"]},
+      {"azienda": "CONSORZIO TUNNEL GIOVI", "targhe": ["GX195VV", "NASTRO"]},
+      {"azienda": "Costruttori S.p.A.", "targhe": ["GD057LZ", "GE291HP", "GM728CC", "GS179DJ"]},
+      {"azienda": "DIMOTER S.r.l.", "targhe": ["FC880CB", "FM972RK", "FP748KN", "GG901DN", "GH879TR"]},
+      {"azienda": "ECAM S.R.L.", "targhe": ["EX784HR", "FR885PV", "FY960YC", "GD169NV", "GF079HV", "GF080HV", "GJ017ZC", "GJ979ZD", "GR062FB", "GR095FB"]},
+      {"azienda": "Eurocav S.C.AR.L.", "targhe": ["DF965AP", "DF966AP", "EM760SK", "FD104LJ", "FP030WY", "FV068LV", "GB898HR"]},
+      {"azienda": "EUROSCAVI S.r.l.", "targhe": ["DT516HT", "EL501ZZ", "EM831GA", "FH883AP", "FH942AP", "FW141XA", "FY762GE", "FZ841JT", "GB119ZC", "GB949ZE", "GG742LZ", "GG743LZ", "GJ890FZ", "GP420ES", "GT956VT", "GW310KD"]},
+      {"azienda": "Eurotrasporti Srl", "targhe": ["DF373JR", "FB889XB", "FT642SY"]},
+      {"azienda": "GERMANI S.P.A.", "targhe": ["FH950BR", "FJ639CN", "FJ640CN", "FJ641CN", "FJ642CN", "FJ643CN", "FJ644CN", "FJ645CN", "FJ646CN", "FJ647CN", "FJ687CN", "FJ689CN", "FJ690CN", "FK929YW", "FK930YW", "FK931YW", "FK932YW", "FK933YW", "FL099YH", "FL100YH", "FL101YH", "FL114YH", "FL115YH", "FL116YH", "FL212YH", "FT083GZ", "FT084GZ", "FT085GZ", "FT105GZ", "FT106GZ", "FT107GZ", "FT150GZ", "FT151GZ", "FT304GZ", "FT306GZ", "FT307GZ", "FT308GZ", "FT957JH", "FT983JH", "FV590JE", "FV591JE", "FV592JE", "FV753JH", "FV754JH", "FV755JH", "FV756JH", "FV865JH", "FV866JH", "FV867JH", "FV868JH", "FV870JH", "FV904JH", "FV905JH", "FV906JH", "FV907JH", "FV908JH", "FV956JH", "FV957JH", "FV958JH", "FV960JH", "FV981JH", "FV982JH", "FV983JH", "FV984JH", "FV985JH", "FW214SK", "FW215SK", "FW216SK", "FW250SK", "FW251SK", "FW252SK", "FW253SK", "FW254SK", "FW338SK", "FW339SK", "FW340SK", "FZ152MD", "FZ251MD", "FZ913MC", "GA138LY", "GA139LY", "GA140LY", "GA141LY", "GA142LY", "GA143LY", "GA144LY", "GC500MK", "GC501MK", "GC553MK", "GC554MK", "GC587MK", "GC589MK", "GC624MK", "GC683MK", "GC684MK", "GC732MK", "GC733MK", "GC736MK", "GC800MK", "GD039GX", "GD040GX", "GD041GX", "GD042GX", "GD043GX", "GD045GX", "GD047GX", "GD048GX", "GD081GX", "GF488AJ", "GH307AS", "GH310AS", "GH312AS", "GH357AS", "GH361AS", "GH364AS", "GH368AS", "GH369AS", "GH370AS", "GH417AS", "GH419AS", "GH420AS", "GH421AS", "GH574AR", "GH577AS", "GH721AR", "GM795XJ", "GR573DG", "GR586DG", "GR587DG", "GR589DG", "GR676DG", "GR763DG", "GR767DG", "GR897DG", "GS483AP", "GS484AP", "GS485AP", "GS579AP", "GS676AP", "GS737AP", "GS797AP", "GS862AP", "GS969AP", "GS972AP", "GS973AP", "GY005MS", "GY006MS", "GY026MS", "GY027MS", "GY028MS", "GY075MS", "GY076MS", "GY150MS", "GY151MS", "GY152MS", "GY153MS", "GY154MS", "GY155MS", "GY156MS", "GY158MS", "GY159MS", "GY169MS", "GY170MS", "GY171MS", "GY172MS", "HA005ZB", "HA095ZB"]},
+      {"azienda": "Impresa Bacchi Srl", "targhe": ["DZ673BA", "EC798TR", "GA949CH", "GA950CH", "GE380AM", "GE570AM", "GE571AM", "GH622XH", "GJ090KV"]},
+      {"azienda": "M&D S.R.L.", "targhe": ["FX443SE", "FX490SE", "FX491SE", "FZ861WP", "GB136GB", "GB137GB", "GB138GB", "GS741WP", "GS743WP", "GS744WP", "HA585MG", "HA586MG", "NASTRO_M&D"]},
+      {"azienda": "MORELLO CARMELO", "targhe": ["AS123AS", "DR606FB", "EA400SG", "EH705FS", "EK121BN", "EL272LK", "EL274LK", "EN227WE", "ES400GK", "ES401GK", "ET820NK", "EX268BS", "EX884TA", "EX885TA", "EY915NH", "EY921JB", "EZ067WC", "EZ068WC", "EZ069WC", "FC346JR", "FC366JR", "FH284ZA", "FH285ZA", "FK542EH", "FS907RV", "FS908RV", "GA012FR", "GA013FR", "GA041FR", "GA424AB", "GA432AB", "GD581MA", "GD603MA", "GD604MA", "GD607MA", "GD830YD", "GD831YD", "GE913YK", "GE960YK", "GE961YK", "GE962YK", "GE972XV", "GG935DN", "GJ833TY", "GJ883TY", "GM951KA", "GM954KA", "GT978WL", "GX806XK", "GX828XK", "GX926XK", "GY701BR", "GY703BR", "GY770BT", "HB007KH", "HB009KH", "HB834HT", "HB977KK"]},
+      {"azienda": "MORELLO DOMENICO", "targhe": ["ES469GK", "EW554WN", "EY944HM", "EZ561SV", "FA912MB", "FC879CB", "FC983CB", "FC984CB", "FE116DD", "FE161DD", "FF977HE", "FK531EH", "FL934VJ", "FM971RK", "FN051FT", "FP432CP", "FS311FD", "FS875RV", "FS951RX", "FY039SN", "GD846YB", "GD857DF", "GD910DT", "GD914DT", "GD926DT", "GG904DN", "GH850TR", "GW179YT", "GX857XK", "HC949CD"]},
+      {"azienda": "MOVITER S.r.l.", "targhe": ["FL920BL", "FM183PM", "FN116FK", "FT082GF", "FV785DG", "FV786DG", "FX252TM", "FX253TM", "FX439TM", "FX924TM", "FX934TM", "GA099BJ", "GA250BJ", "GA251BJ", "GA682BJ"]},
+      {"azienda": "NEW GROUP INFRASTRUTTURE S.R.L.", "targhe": ["FP991KX", "GV876AK", "GV920AK", "HA265BV", "HA266BV", "HA411BV"]},
+      {"azienda": "P.M. Trasporti Srl", "targhe": ["FH761HG", "FM024WY", "FM330WY", "FN824VF", "GA105HS", "GA402HS"]},
+      {"azienda": "PARATORI SPA", "targhe": ["EZ844PD", "GD748DF", "GZ505CY", "GZ506CY", "GZ507CY", "GZ508CY", "GZ509CY", "HA112LB", "HA730LD", "HA732LD", "HA735LD", "HB326XJ", "HB372XJ", "HB375XJ"]},
+      {"azienda": "PICCO BARTOLOMEO S.R.L.", "targhe": ["CH864GT", "GG846YZ", "GL656FG"]},
+      {"azienda": "PM SERVICES S.R.L.", "targhe": ["DJ935GW", "DR579CR", "EF270SV", "ER528VY", "ER529VY", "ER865VY", "ER866VY", "EW134YW", "EX059NJ", "FB847XK", "FD688XH", "FH827LD", "FH997SP", "FJ514HN", "FK827NX", "FN659WD", "FR376BF", "GA165BJ", "GA230BK", "GC245RN", "GC866AT", "GC899AT", "GC900AT", "GC996RN", "GE002XR", "GE474BA", "GE489BA", "GF105JK", "GF106JK", "GJ013BR", "GJ291BR", "GJ378BR", "GN210JX", "HB220AK", "HB221AK", "HC015ZN"]},
+      {"azienda": "PREVE COSTRUZIONI S.P.A", "targhe": ["FB059JE", "FB060JE", "FB061JE", "FB356JE", "FB783JE", "FG169HG", "FG171HG", "FL962MB", "FM138RK", "HC573ZS", "HE978GX"]},
+      {"azienda": "TESTA SCAVI Srl", "targhe": ["GG128TL", "GP852CC"]},
+      {"azienda": "TRASPOTER S.r.l.", "targhe": ["FF110XL", "FT072GF", "FV547DG", "FX313TM", "FX440TM", "FX852TM", "GA258BJ", "GA259BJ", "GA259BK", "GA687BJ"]},
+      {"azienda": "TRIO S.r.l.", "targhe": ["GH913CH", "GJ192HG", "GJ193HG"]},
+      {"azienda": "TRIZZINO SALVATORE", "targhe": ["FW052RK", "FY082KV", "GR076FB"]},
+      {"azienda": "Truck Rail Container S.p.A.", "targhe": ["FE901WY", "FE904WY", "FE905WY", "FE906WY", "FE930WY", "FE931WY", "FF851ER", "FF852ER", "FF855ER", "FF856ER", "FF931ER", "FS992PS", "GM815DJ", "GM818DJ", "GM823DJ", "GM826DJ"]},
+      {"azienda": "Unistrade S.r.l.", "targhe": ["CB522PF", "DX894DM", "EK009BK", "EL861XE", "FB032TA", "FF627SM"]},
+      {"azienda": "VE COSTRUZIONI S.R.L.", "targhe": ["CW430ZM", "DE002NV", "FF107JT", "FM939SN", "GJ908TZ", "GN824ZX"]},
+      {"azienda": "ZENTI TRANSPORT S.r.l.", "targhe": ["EH408LW", "FD260EL", "FE968RH", "FF840ZH", "FG688NM"]}
     ];
 
     let hubData = {
@@ -454,7 +551,8 @@
         selectedState.siti_destinazione = [idxNovi >= 0 ? idxNovi : 0];
       }
       if (!selectedState.produttori.length && hubData.produttori.length) {
-        selectedState.produttori = [0];
+        const idxCociv = hubData.produttori.findIndex(x => (x.denominazione || "").toLowerCase().includes("cociv"));
+        selectedState.produttori = [idxCociv >= 0 ? idxCociv : 0];
       }
       if (!selectedState.destinatari.length && hubData.destinatari.length) {
         const idxCociv = hubData.destinatari.findIndex(x => (x.denominazione || "").toLowerCase().includes("cociv"));
@@ -1015,7 +1113,8 @@
       const traspElencoHtml = selectedState.trasportatori.map(nome => {
         const tInfo = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome) || {};
         const plates = selectedState.targhePerAzienda[nome] || [];
-        return `• <strong>${nome}</strong> ${tInfo.piva ? `(P.IVA ${tInfo.piva})` : ""}<br><span style="font-size:5.4pt;">Targhe: ${plates.join("; ")}</span>`;
+        const sedeStr = tInfo.indirizzo_cap_comune ? `<br><span style="font-size:5.2pt; color:#374151;">${tInfo.indirizzo_cap_comune}</span>` : "";
+        return `• <strong>${nome}</strong> ${tInfo.piva ? `(P.IVA ${tInfo.piva})` : ""}${sedeStr}<br><span style="font-size:5.4pt;">Targhe: ${plates.join("; ")}</span>`;
       }).join("<br>");
 
       const dayValMap = catturaValoriCalendarioEsistenti();
