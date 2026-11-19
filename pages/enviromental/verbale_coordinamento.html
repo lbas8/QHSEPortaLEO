@@ -28,7 +28,7 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 12mm 12mm 28mm 12mm;
+        margin: 12mm 12mm 30mm 12mm;
       }
 
       .no-print {
@@ -46,7 +46,7 @@
       #print-doc-sheet {
         display: block !important;
         width: 100% !important;
-        padding-bottom: 16mm !important;
+        padding-bottom: 18mm !important;
         color: #111827 !important;
         background: #ffffff !important;
       }
@@ -66,14 +66,14 @@
       }
 
       .doc-logo-img {
-        max-height: 52px;
-        max-width: 150px;
-        width: auto;
+        width: 92%;
+        max-width: 195px;
+        max-height: 68px;
         height: auto;
         object-fit: contain;
         image-rendering: -webkit-optimize-contrast;
         display: block;
-        margin: 2px auto;
+        margin: 0 auto;
       }
 
       .doc-title-box {
@@ -189,8 +189,8 @@
       }
 
       .doc-footer-mark {
-        height: 44px;
-        max-height: 44px;
+        height: 54px;
+        max-height: 54px;
         width: auto;
         object-fit: contain;
         image-rendering: -webkit-optimize-contrast;
@@ -383,7 +383,7 @@
         <p>
           per i lavori di realizzazione inerenti alla
           <span id="preview-opera" class="font-semibold text-white">Tratta AV/AC “Terzo Valico dei Giovi - Nodo di Genova”</span>
-          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, su
+          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, 
           <span id="preview-modalita" class="font-semibold text-white">piattaforma Microsoft Teams</span>,
           alla quale hanno partecipato le persone di cui al foglio presenze allegato.
         </p>
@@ -466,7 +466,7 @@
   <section id="print-doc-sheet" aria-hidden="true">
     <table class="doc-header-grid">
       <tr>
-        <td rowspan="2" id="doc-logo-cell" style="width: 25%; text-align: center;">
+        <td rowspan="2" id="doc-logo-cell" style="width: 26%; text-align: center; padding: 4px 6px;">
           <img id="doc-logo-img" src="../../assets/img/logowb.jpg" alt="Logo" class="doc-logo-img" onerror="this.style.display='none'; document.getElementById('doc-logo-text-fallback').style.display='block';">
           <div id="doc-logo-text-fallback" style="display: none;">
             <div style="font-size: 7.5pt; font-weight: 700; color: #374151;">GENERAL CONTRACTOR</div>
@@ -474,15 +474,15 @@
             <div style="font-size: 7.5pt; color: #4b5563; margin-top: 2px;">Terzo Valico AV/AC</div>
           </div>
         </td>
-        <td colspan="2" style="text-align: center; font-weight: 800; font-size: 10pt; width: 45%;">
+        <td colspan="2" style="text-align: center; font-weight: 800; font-size: 10pt; width: 44%;">
           TRATTA AV/AC TERZO VALICO DEI GIOVI
         </td>
         <td style="width: 15%; text-align: center; font-weight: 700;">LOTTO WBS</td>
         <td style="width: 15%; text-align: center; font-weight: 700;">DATA</td>
       </tr>
       <tr>
-        <td style="text-align: center; font-weight: 700; width: 22.5%;">Sistema di gestione ambientale</td>
-        <td style="text-align: center; font-weight: 800; width: 22.5%;">VERBALE DI RIUNIONE COORDINAMENTO</td>
+        <td style="text-align: center; font-weight: 700; width: 22%;">Sistema di gestione ambientale</td>
+        <td style="text-align: center; font-weight: 800; width: 22%;">VERBALE DI RIUNIONE COORDINAMENTO</td>
         <td id="doc-wbs" style="text-align: center; font-weight: 600;">DT1-DT2</td>
         <td id="doc-data-top" style="text-align: center; font-weight: 600;"></td>
       </tr>
@@ -509,7 +509,7 @@
         <span id="doc-coordinatore" style="font-weight: 700;"></span>
         in qualità di <span id="doc-qualita" style="font-weight: 600;"></span>
         per i lavori di realizzazione inerenti la <span id="doc-opera" style="font-weight: 600;"></span>
-        ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, 
+        ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, su
         <span id="doc-modalita" style="font-weight: 600;"></span>,
         alla quale hanno partecipato le persone di cui al foglio presenze allegato.
       </p>
@@ -557,19 +557,19 @@
     <footer class="doc-print-footer">
       <table class="doc-footer-table">
         <tr>
-          <td style="width: 54px; text-align: center;">
+          <td style="width: 66px; text-align: center;">
             <img id="doc-footer-emas" src="../../assets/img/emas.jpg" alt="EMAS" class="doc-footer-mark" onerror="this.style.display='none';">
           </td>
-          <td style="width: 54px; text-align: center;">
+          <td style="width: 66px; text-align: center; padding-right: 12px;">
             <img id="doc-footer-dnv" src="../../assets/img/dnv.jpg" alt="DNV ISO 14001" class="doc-footer-mark" onerror="this.style.display='none';">
           </td>
-          <td style="width: 45%; padding-left: 4px;">
+          <td style="width: 44%; padding-left: 4px;">
             <div style="font-weight: 700; color: #1f2937;">Consorzio Cociv</div>
             <div>Sede legale e Ufficio Tecnico Amministrativo</div>
             <div>Via Renata Bianchi, 40 - 16152 Genova</div>
             <div>T 010 4218711 - F 010 4218708</div>
           </td>
-          <td style="width: 41%; text-align: left;">
+          <td style="width: 38%; text-align: left;">
             <div>P.IVA, C.F. e N. Iscr. Registro Imprese Genova 03299440101</div>
             <div>R.E.A. Genova 332670</div>
             <div>pec@cociv.postecert.it</div>
