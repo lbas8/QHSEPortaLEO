@@ -20,21 +20,126 @@
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
+
+    #print-doc-sheet {
+      display: none;
+    }
+
     @media print {
-      .no-print { display: none !important; }
-      body { background-color: #ffffff !important; color: #0f172a !important; }
-      .print-sheet {
-        background: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
-        box-shadow: none !important;
+      @page {
+        size: A4 portrait;
+        margin: 12mm;
       }
-      input, textarea, select {
-        background: transparent !important;
-        color: #0f172a !important;
-        border-color: #94a3b8 !important;
-        appearance: none !important;
-        -webkit-appearance: none !important;
+
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        background-color: #ffffff !important;
+        color: #111827 !important;
+        font-family: 'Inter', Arial, sans-serif !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      #print-doc-sheet {
+        display: block !important;
+        width: 100% !important;
+        color: #111827 !important;
+        background: #ffffff !important;
+      }
+
+      .doc-header-grid {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 14px;
+        font-size: 9pt;
+      }
+
+      .doc-header-grid td,
+      .doc-header-grid th {
+        border: 1px solid #4b5563;
+        padding: 5px 8px;
+        vertical-align: middle;
+      }
+
+      .doc-title-box {
+        text-align: center;
+        margin: 10px 0 14px 0;
+      }
+
+      .doc-title-main {
+        font-size: 13pt;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #111827;
+        margin: 0;
+      }
+
+      .doc-title-sub {
+        font-size: 10.5pt;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 2px 0 0 0;
+      }
+
+      .doc-body-text {
+        font-size: 10pt;
+        line-height: 1.48;
+        color: #111827;
+      }
+
+      .doc-output-box {
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 9.8pt;
+        line-height: 1.45;
+        color: #111827;
+        margin: 8px 0 14px 0;
+      }
+
+      .doc-presenze-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+        margin-bottom: 14px;
+        font-size: 9.5pt;
+      }
+
+      .doc-presenze-table th {
+        background-color: #f3f4f6 !important;
+        color: #111827 !important;
+        font-weight: 700;
+        text-align: left;
+        border: 1px solid #4b5563;
+        padding: 6px 8px;
+      }
+
+      .doc-presenze-table td {
+        border: 1px solid #6b7280;
+        padding: 5px 8px;
+        vertical-align: top;
+      }
+
+      .doc-presenze-table tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .doc-closing-grid {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        font-size: 9.5pt;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .doc-closing-grid td {
+        border: 1px solid #4b5563;
+        padding: 6px 8px;
       }
     }
   </style>
@@ -56,7 +161,7 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+        <button onclick="stampaDocumentoUfficiale()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
           <i class="fa-solid fa-print text-sky-400"></i> Stampa / PDF
         </button>
         <button id="btn-salva" onclick="salvaVerbaleCoordinamento()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition cursor-pointer">
@@ -67,10 +172,10 @@
   </header>
 
   <!-- CONTENUTO PRINCIPALE -->
-  <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
+  <main class="no-print flex-grow max-w-5xl w-full mx-auto px-4 sm:px-8 py-8 space-y-6">
 
-    <!-- BARRA ID & CARTELLA -->
-    <div class="no-print glass-card rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- BARRA ID, DATA, WBS & CARTELLA -->
+    <div class="glass-card rounded-2xl p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       <div>
         <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">ID / N. Verbale</label>
         <input type="text" id="v-id" readonly title="Generato automaticamente in base alla data e al progressivo storico" class="w-full bg-slate-950/90 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-violet-300 outline-none cursor-default">
@@ -78,6 +183,14 @@
       <div>
         <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Data e Ora Riunione</label>
         <input type="datetime-local" id="v-datetime" onchange="gestisciCambioDataRiunione()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-400">
+      </div>
+      <div>
+        <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Lotto WBS</label>
+        <input type="text" id="v-wbs" value="DT1-DT2" placeholder="es. DT1-DT2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-400">
+      </div>
+      <div>
+        <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Allegato</label>
+        <input type="text" id="v-allegato" value="ALLEGATO 2" placeholder="es. ALLEGATO 2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-violet-400">
       </div>
       <div>
         <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Cartella di Archivio</label>
@@ -88,7 +201,7 @@
     </div>
 
     <!-- BOX UFFICIALIZZAZIONE PDF FIRMATO GENERALE -->
-    <div class="no-print glass-card rounded-2xl p-4 sm:p-5 border border-emerald-500/25 space-y-3">
+    <div class="glass-card rounded-2xl p-4 sm:p-5 border border-emerald-500/25 space-y-3">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex items-start gap-3">
           <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
@@ -138,7 +251,7 @@
     </div>
 
     <!-- SCHEDA VERBALE ISO 14001 -->
-    <section class="print-sheet glass-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
+    <section class="glass-card rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
 
       <!-- TITOLO MODELLO -->
       <div class="text-center border-b border-slate-700/80 pb-5 space-y-1">
@@ -181,7 +294,7 @@
         <p>
           per i lavori di realizzazione inerenti alla
           <span id="preview-opera" class="font-semibold text-white">Tratta AV/AC “Terzo Valico dei Giovi - Nodo di Genova”</span>
-          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, 
+          ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, su
           <span id="preview-modalita" class="font-semibold text-white">piattaforma Microsoft Teams</span>,
           alla quale hanno partecipato le persone di cui al foglio presenze allegato.
         </p>
@@ -207,9 +320,9 @@
             <h3 class="text-xs font-black uppercase tracking-wider text-violet-400">
               Foglio Presenze Partecipanti
             </h3>
-            <p class="no-print text-[11px] text-slate-400">Puoi allegare un file .PDF di firma per ciascun partecipante (max 4 MB).</p>
+            <p class="text-[11px] text-slate-400">Puoi allegare un file .PDF di firma per ciascun partecipante (max 4 MB).</p>
           </div>
-          <button type="button" onclick="aggiungiPartecipante()" class="no-print bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer">
+          <button type="button" onclick="aggiungiPartecipante()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition cursor-pointer">
             <i class="fa-solid fa-user-plus text-violet-400"></i> Aggiungi Partecipante
           </button>
         </div>
@@ -221,7 +334,7 @@
                 <th class="p-3 border-b border-r border-slate-800 w-1/4">Nome e Cognome</th>
                 <th class="p-3 border-b border-r border-slate-800 w-2/5">Mansione</th>
                 <th class="p-3 border-b border-slate-800 w-1/4">Firma (.PDF)</th>
-                <th class="no-print p-3 border-b border-l border-slate-800 w-10 text-center"></th>
+                <th class="p-3 border-b border-l border-slate-800 w-10 text-center"></th>
               </tr>
             </thead>
             <tbody id="presenze-tbody" class="divide-y divide-slate-800/80 bg-slate-900/40"></tbody>
@@ -250,6 +363,88 @@
 
     </section>
   </main>
+
+  <!-- LAYOUT DEDICATO ALLA STAMPA / EXPORT PDF (MODELLO TERZO VALICO AV/AC) -->
+  <section id="print-doc-sheet" aria-hidden="true">
+    <table class="doc-header-grid">
+      <tr>
+        <td rowspan="2" style="width: 22%;">
+          <div style="font-size: 7.5pt; font-weight: 700; color: #374151;">GENERAL CONTRACTOR</div>
+          <div style="font-size: 13pt; font-weight: 900; letter-spacing: 0.5px; color: #111827; line-height: 1.1;">webuild</div>
+          <div style="font-size: 7.5pt; color: #4b5563; margin-top: 2px;">Terzo Valico AV/AC</div>
+        </td>
+        <td colspan="2" style="text-align: center; font-weight: 800; font-size: 10pt; width: 48%;">
+          TRATTA AV/AC TERZO VALICO DEI GIOVI
+        </td>
+        <td style="width: 15%; text-align: center; font-weight: 700;">LOTTO WBS</td>
+        <td style="width: 15%; text-align: center; font-weight: 700;">DATA</td>
+      </tr>
+      <tr>
+        <td style="text-align: center; font-weight: 700; width: 24%;">Sistema di gestione ambientale</td>
+        <td style="text-align: center; font-weight: 800; width: 24%;">VERBALE DI RIUNIONE COORDINAMENTO</td>
+        <td id="doc-wbs" style="text-align: center; font-weight: 600;">DT1-DT2</td>
+        <td id="doc-data-top" style="text-align: center; font-weight: 600;"></td>
+      </tr>
+      <tr>
+        <td colspan="3" style="font-size: 8pt; color: #4b5563;">
+          Cod. Verbale: <span id="doc-id" style="font-weight: 700; color: #111827;"></span>
+        </td>
+        <td colspan="2" id="doc-allegato" style="text-align: center; font-weight: 800; font-size: 8.5pt;">
+          ALLEGATO 2
+        </td>
+      </tr>
+    </table>
+
+    <div class="doc-title-box">
+      <h2 class="doc-title-main">VERBALE RIUNIONE DI COORDINAMENTO AMBIENTALE</h2>
+      <p class="doc-title-sub">(Attuazione Sistema Gestione Ambientale UNI EN ISO 14001)</p>
+    </div>
+
+    <div class="doc-body-text">
+      <p style="margin: 0 0 6px 0;">
+        In data odierna <span id="doc-data-testo" style="font-weight: 600;"></span> il sottoscritto:
+      </p>
+      <p style="margin: 0 0 8px 0;">
+        <span id="doc-coordinatore" style="font-weight: 700;"></span>
+        in qualità di <span id="doc-qualita" style="font-weight: 600;"></span>
+        per i lavori di realizzazione inerenti la <span id="doc-opera" style="font-weight: 600;"></span>
+        ha indetto ed attuato una riunione di coordinamento ambientale dei lavori, su
+        <span id="doc-modalita" style="font-weight: 600;"></span>,
+        alla quale hanno partecipato le persone di cui al foglio presenze allegato.
+      </p>
+
+      <p style="margin: 10px 0 4px 0; font-weight: 700;">
+        Si riassumono nel seguito gli output della riunione:
+      </p>
+      <div id="doc-output" class="doc-output-box"></div>
+
+      <p style="margin: 10px 0 8px 0;">
+        In relazione a quanto discusso e convenuto in questa riunione, i partecipanti dovranno procedere a specifica attività per quanto di loro competenza. Copia del presente verbale è trasmesso a mezzo mail a tutti i partecipanti.
+      </p>
+    </div>
+
+    <table class="doc-presenze-table">
+      <thead>
+        <tr>
+          <th style="width: 38%;">Nome e Cognome</th>
+          <th style="width: 62%;">Mansione</th>
+        </tr>
+      </thead>
+      <tbody id="doc-presenze-tbody"></tbody>
+    </table>
+
+    <div id="doc-note-wrap" class="doc-body-text" style="margin-bottom: 10px;">
+      <strong>Note:</strong> <span id="doc-note"></span>
+    </div>
+
+    <table class="doc-closing-grid">
+      <tr>
+        <td style="width: 25%;"><strong>LOTTO WBS:</strong> <span id="doc-wbs-bottom"></span></td>
+        <td style="width: 30%;"><strong>DATA:</strong> <span id="doc-data-bottom"></span></td>
+        <td style="width: 45%;"><strong>FIRMA:</strong> <span id="doc-firma"></span></td>
+      </tr>
+    </table>
+  </section>
 
   <!-- FOOTER -->
   <footer class="no-print w-full border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
@@ -393,6 +588,80 @@
       }
     }
 
+    function preparaDocumentoStampa() {
+      const { itDate } = estraiPartiDataDaInput();
+      const idVal = (document.getElementById('v-id').value || '').trim();
+      const wbsVal = (document.getElementById('v-wbs').value || '').trim();
+      const allegatoVal = (document.getElementById('v-allegato').value || '').trim();
+      const dataTestoVal = (document.getElementById('v-data-testo').value || itDate).trim();
+      const coordinatoreVal = (document.getElementById('v-coordinatore').value || '').trim();
+
+      const qualitaSel = document.getElementById('v-qualita-select').value;
+      const qualitaCustom = (document.getElementById('v-qualita-custom').value || '').trim();
+      const qualitaVal = qualitaSel === '__CUSTOM__' ? qualitaCustom : qualitaSel;
+
+      const operaVal = (document.getElementById('v-opera').value || '').trim();
+      const modalitaVal = (document.getElementById('v-modalita').value || '').trim();
+      const outputVal = document.getElementById('v-output').value || '';
+      const noteVal = (document.getElementById('v-note').value || '').trim();
+      const dataFirmaVal = (document.getElementById('v-data-firma').value || dataTestoVal).trim();
+      const firmaVal = (document.getElementById('v-firma').value || coordinatoreVal).trim();
+
+      document.getElementById('doc-id').innerText = idVal;
+      document.getElementById('doc-wbs').innerText = wbsVal;
+      document.getElementById('doc-wbs-bottom').innerText = wbsVal;
+      document.getElementById('doc-data-top').innerText = dataTestoVal;
+      document.getElementById('doc-data-bottom').innerText = dataFirmaVal;
+      document.getElementById('doc-allegato').innerText = allegatoVal;
+      document.getElementById('doc-data-testo').innerText = dataTestoVal;
+      document.getElementById('doc-coordinatore').innerText = coordinatoreVal;
+      document.getElementById('doc-qualita').innerText = qualitaVal;
+      document.getElementById('doc-opera').innerText = operaVal;
+      document.getElementById('doc-modalita').innerText = modalitaVal;
+      document.getElementById('doc-output').innerText = outputVal;
+      document.getElementById('doc-firma').innerText = firmaVal;
+
+      const noteWrap = document.getElementById('doc-note-wrap');
+      if (noteVal) {
+        noteWrap.style.display = 'block';
+        document.getElementById('doc-note').innerText = noteVal;
+      } else {
+        noteWrap.style.display = 'none';
+      }
+
+      const docTbody = document.getElementById('doc-presenze-tbody');
+      docTbody.innerHTML = '';
+
+      let hasRows = false;
+      document.querySelectorAll('#presenze-tbody tr').forEach(tr => {
+        const nome = (tr.querySelector('.p-nome')?.value || '').trim();
+        const selVal = tr.querySelector('.p-mansione-select')?.value || '';
+        const customVal = (tr.querySelector('.p-mansione-custom')?.value || '').trim();
+        const mansione = selVal === '__CUSTOM__' ? customVal : selVal;
+
+        if (nome || mansione) {
+          hasRows = true;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${nome}</td>
+            <td>${mansione}</td>
+          `;
+          docTbody.appendChild(row);
+        }
+      });
+
+      if (!hasRows) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `<td colspan="2" style="color: #6b7280; font-style: italic;">Nessun partecipante registrato</td>`;
+        docTbody.appendChild(emptyRow);
+      }
+    }
+
+    function stampaDocumentoUfficiale() {
+      preparaDocumentoStampa();
+      window.print();
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       popolaSelectQualita("Coordinatore Piano di Utilizzo Terre (CPUT)");
 
@@ -473,6 +742,8 @@
       }
       document.getElementById('v-id').value = loadedKey;
 
+      if (data.wbs) document.getElementById('v-wbs').value = data.wbs;
+      if (data.allegato) document.getElementById('v-allegato').value = data.allegato;
       if (data.folderId) document.getElementById('v-folder').value = data.folderId;
       if (data.dataTesto) document.getElementById('v-data-testo').value = data.dataTesto;
       if (data.coordinatore) document.getElementById('v-coordinatore').value = data.coordinatore;
@@ -669,7 +940,7 @@
           <input type="text" value="${isCustom ? mansione.replace(/"/g, '&quot;') : ''}" placeholder="Digita mansione personalizzata..." class="p-mansione-custom ${isCustom ? '' : 'hidden'} w-full bg-slate-950 border border-violet-500/50 rounded-lg px-2 py-1 text-xs sm:text-sm text-violet-200 outline-none focus:border-violet-400">
         </td>
         <td class="p-1.5 align-top">
-          <div class="no-print flex flex-col gap-1">
+          <div class="flex flex-col gap-1">
             <input type="file" id="file_${uid}" accept="application/pdf,.pdf" class="hidden" onchange="gestisciUploadPdfPartecipante('${uid}', event)">
             <label for="file_${uid}" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-[11px] font-bold text-emerald-300 inline-flex items-center justify-center gap-1.5 cursor-pointer transition">
               <i class="fa-solid fa-file-arrow-up"></i>
@@ -684,9 +955,8 @@
               </button>
             </div>
           </div>
-          <span class="hidden print:inline text-xs">${partecipantePdfMap[uid].presente ? 'Allegato PDF (' + (partecipantePdfMap[uid].nome || 'Firma.pdf') + ')' : '-'}</span>
         </td>
-        <td class="no-print p-1.5 border-l border-slate-800 text-center align-top">
+        <td class="p-1.5 border-l border-slate-800 text-center align-top">
           <button type="button" onclick="rimuoviRigaPartecipante(this, '${uid}')" class="text-slate-500 hover:text-rose-400 px-1.5 py-1 transition cursor-pointer" title="Rimuovi riga">
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -831,6 +1101,8 @@
         const payload = {
           tipo: 'coordinamento',
           datetime: timestamp,
+          wbs: document.getElementById('v-wbs').value.trim(),
+          allegato: document.getElementById('v-allegato').value.trim(),
           dataTesto: document.getElementById('v-data-testo').value.trim(),
           coordinatore: document.getElementById('v-coordinatore').value.trim(),
           qualita: qualitaFinale,
