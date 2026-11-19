@@ -264,10 +264,22 @@
       }
     }
 
-    function deleteVerbale(vKey) {
+function deleteVerbale(vKey) {
       if (confirm(`Vuoi eliminare definitivamente il verbale "${vKey}"?`)) {
         firebase.database().ref('verbali/' + vKey).remove();
+        firebase.database().ref('verbali_allegati_pdf/' + vKey).remove();
       }
+    }
+
+    function getTipoBadgeHtml(tipo, isFirmato = false) {
+      const firmaBadge = isFirmato
+        ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 inline-flex items-center gap-1 ml-1" title="PDF Firmato Ufficiale allegato"><i class="fa-solid fa-file-signature"></i> Firmato PDF</span>`
+        : '';
+
+      if (tipo === 'coordinamento') {
+        return `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-500/15 text-violet-300 border border-violet-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-people-group"></i> Coordinamento</span>${firmaBadge}`;
+      }
+      return `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-500/15 text-sky-300 border border-sky-500/30 inline-flex items-center gap-1"><i class="fa-solid fa-magnifying-glass-location"></i> Sopralluogo</span>${firmaBadge}`;
     }
 
     function aggiornaInterfaccia() {
