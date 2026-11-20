@@ -49,7 +49,6 @@
       flex-shrink: 0;
     }
 
-    /* CALENDARIO MENSILE CON "+" IN ALTO A DESTRA */
     .cal-day-cell {
       position: relative;
       min-height: 78px;
@@ -93,18 +92,17 @@
       transform: scale(1.06);
     }
 
-    /* STAMPA FORMAT RETT_0.PDF */
     #print-rett0-sheet { display: none; }
 
     @media print {
       @page {
         size: A4 portrait;
-        margin: 6mm;
+        margin: 5mm;
       }
       .no-print { display: none !important; }
       body {
         background: #ffffff !important;
-        color: #111827 !important;
+        color: #000000 !important;
         margin: 0 !important;
         padding: 0 !important;
         font-family: Arial, sans-serif !important;
@@ -114,10 +112,10 @@
       #print-rett0-sheet {
         display: block !important;
         width: 100% !important;
-        color: #111827 !important;
+        color: #000000 !important;
         background: #ffffff !important;
-        font-size: 7.2pt;
-        line-height: 1.22;
+        font-size: 7.4pt;
+        line-height: 1.24;
       }
       .rett0-page {
         page-break-after: always;
@@ -130,32 +128,39 @@
       .r0-table {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed;
         margin-bottom: 4px;
       }
       .r0-table th, .r0-table td {
-        border: 1px solid #374151;
-        padding: 3px 5px;
-        vertical-align: top;
+        border: 1.2px solid #111827;
+        padding: 3px 6px;
+        vertical-align: middle;
+        word-wrap: break-word;
       }
       .r0-hdr-dark {
-        background: #6b7280 !important;
+        background: #5b6d7c !important;
         color: #ffffff !important;
         font-weight: 800;
         text-align: center;
-        font-size: 6.8pt;
+        font-size: 7.1pt;
+        letter-spacing: 0.2px;
       }
       .r0-hdr-light {
-        background: #d1d5db !important;
-        color: #111827 !important;
+        background: #cfd5dc !important;
+        color: #000000 !important;
         font-weight: 800;
         text-align: center;
-        font-size: 6.8pt;
+        font-size: 7.1pt;
       }
       .r0-sub-gray {
         background: #e5e7eb !important;
+        color: #000000 !important;
         font-weight: 700;
         text-align: center;
-        font-size: 6.4pt;
+        font-size: 6.7pt;
+      }
+      .r0-line {
+        margin: 1px 0;
       }
     }
   </style>
@@ -190,7 +195,7 @@
 
   <main class="no-print flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-5 space-y-5">
 
-    <!-- BANNER SUPERIORE COME WIREFRAME -->
+    <!-- BANNER SUPERIORE -->
     <section class="wire-banner rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2 text-white font-black tracking-wide uppercase text-sm sm:text-base">
         <span>RETTIFICATA A ZERO</span>
@@ -251,7 +256,7 @@
 
       </div>
 
-      <!-- COLONNA DESTRA: 7 HUB TRAMITE FLAG (EREDITATI / MODIFICABILI) -->
+      <!-- COLONNA DESTRA: 7 HUB TRAMITE FLAG -->
       <div class="lg:col-span-7 space-y-3 text-xs">
 
         <div class="wire-hub-box space-y-2">
@@ -315,7 +320,7 @@
     </section>
   </main>
 
-  <!-- AVVISO / MODALE "CREA RETTIFICATA A ZERO" EREDITATA DALLA PREVENTIVA -->
+  <!-- AVVISO / MODALE "CREA RETTIFICATA A ZERO" -->
   <div id="modal-rett-zero" class="no-print fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-[#0b1220] border border-cyan-400/40 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
@@ -372,6 +377,7 @@
     ];
     const MONTH_NAMES_LOWER = MONTH_NAMES.map(m => m.toLowerCase());
     const FULL_DAY_NAMES = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"];
+    const CAP_DAY_NAMES = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
 
     const UNIFIED_STORAGE_KEY = "qhse_mds_database_v1";
     const PREVENTIVA_MEMORY_KEY = "qhse_mds_preventiva_memoria_v1";
@@ -388,8 +394,8 @@
     };
 
     const DEFAULT_SITI_PRODUZIONE = [
-      {"denominazione": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
       {"denominazione": "Castagnola", "indirizzo": "Località Casazze Superiori, s.n.c.", "cap": "15060", "comune": "Fraconalto (AL)", "note": ""},
+      {"denominazione": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
       {"denominazione": "Novi Ligure", "indirizzo": "S.P. 153 Strada Cassano, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""}
     ];
 
@@ -431,7 +437,7 @@
     let prevMemory = null;
     let rettificheDocs = [];
     let currentCalYear = 2026;
-    let currentCalMonthIdx = 10; // novembre
+    let currentCalMonthIdx = 10;
     let activeModalIso = null;
 
     let selectedHubFlags = {
@@ -520,10 +526,14 @@
       }
 
       if (!selectedHubFlags.trasportatori.length && hubData.trasportatori.length) {
-        const nome0 = hubData.trasportatori[0].denominazione;
-        selectedHubFlags.trasportatori = [nome0];
-        const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome0.trim());
-        selectedHubFlags.targhePerAzienda[nome0] = tObj ? [...tObj.targhe] : [];
+        ["MORELLO CARMELO", "AUTOSPED G S.p.A."].forEach(nome => {
+          const found = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome);
+          if (found) {
+            selectedHubFlags.trasportatori.push(found.denominazione);
+            const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
+            selectedHubFlags.targhePerAzienda[found.denominazione] = tObj ? [...tObj.targhe] : [];
+          }
+        });
       }
 
       try {
@@ -638,7 +648,7 @@
       const dayOfWeekIdx = (d.getDay() + 6) % 7;
       const weekNum = getIsoWeek(d);
       const yr = d.getFullYear();
-      const estesa = `${FULL_DAY_NAMES[dayOfWeekIdx]} ${d.getDate()} ${MONTH_NAMES_LOWER[d.getMonth()]} ${yr}`;
+      const estesa = `${CAP_DAY_NAMES[dayOfWeekIdx]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${yr}`;
       const codiceRet = `RET_set ${weekNum}/${yr} - gg ${dayOfWeekIdx + 1}`;
 
       const giorniPrev = (prevMemory && prevMemory.selectedState && prevMemory.selectedState.giorniViaggi) ? prevMemory.selectedState.giorniViaggi : {};
@@ -695,7 +705,7 @@
       const dayOfWeekIdx = (d.getDay() + 6) % 7;
       const weekNum = getIsoWeek(d);
       const yr = d.getFullYear();
-      const estesa = `${FULL_DAY_NAMES[dayOfWeekIdx]} ${d.getDate()} ${MONTH_NAMES_LOWER[d.getMonth()]} ${yr}`;
+      const estesa = `${CAP_DAY_NAMES[dayOfWeekIdx]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${yr}`;
       const codiceRet = `RET_set ${weekNum}/${yr} - gg ${dayOfWeekIdx + 1}`;
 
       const prodIdx = parseInt(document.getElementById("modal-sel-prod").value, 10) || 0;
@@ -759,7 +769,7 @@
       wrap.innerHTML = rettificheDocs.map(doc => `
         <div class="bg-slate-900/90 border border-amber-500/35 rounded-xl p-3 space-y-1.5">
           <div class="flex items-center justify-between gap-2">
-            <span class="font-extrabold text-amber-300 text-[11px] capitalize">${doc.dataEstesa}</span>
+            <span class="font-extrabold text-amber-300 text-[11px]">${doc.dataEstesa}</span>
             <span class="text-[10px] font-mono text-cyan-300">${doc.codiceRet}</span>
           </div>
           <div class="text-[11px] font-bold text-white">
@@ -893,6 +903,13 @@
       }).join("");
     }
 
+    function formatIndirizzoCapComune(obj) {
+      if (!obj) return "";
+      const parts = [obj.indirizzo, obj.cap, obj.comune].filter(Boolean);
+      if (parts.length >= 3) return `${parts[0]} - ${parts[1]} - ${parts[2]}`;
+      return parts.join(" - ");
+    }
+
     function buildRett0Html(doc) {
       const prod = doc.produttore || {};
       const sp = doc.sitoProduzione || {};
@@ -900,36 +917,38 @@
       const dest = doc.destinatario || {};
       const traspList = doc.trasportatori && doc.trasportatori.length
         ? doc.trasportatori
-        : [{ denominazione: "Tutti i trasportatori", indirizzo_cap_comune: "", piva: "" }];
+        : [{ denominazione: "", indirizzo_cap_comune: "", piva: "" }];
 
       const traspRowsHtml = traspList.map(t => `
         <tr>
-          <td><strong>${t.denominazione || ""}</strong></td>
-          <td>${t.indirizzo_cap_comune || ""}</td>
-          <td>${t.piva || ""}</td>
+          <td style="width:36%;"><strong>${t.denominazione || ""}</strong></td>
+          <td style="width:46%;">${t.indirizzo_cap_comune || ""}</td>
+          <td style="width:18%;">${t.piva || ""}</td>
         </tr>
       `).join("");
 
       return `
         <div class="rett0-page">
+          <!-- INTESTAZIONE SUPERIORE A 3 COLONNE -->
           <table class="r0-table">
             <tr>
-              <td style="width:24%; text-align:center; font-weight:700; text-transform:capitalize;">${doc.dataEstesa}</td>
+              <td style="width:24%; text-align:center; font-weight:700; font-size:7.6pt;">${doc.dataEstesa}</td>
               <td style="width:52%; text-align:center;">
-                <div style="font-weight:800; font-size:9pt;">COMUNICAZIONE RETTIFICATA DEI TRASPORTI GIORNALIERI</div>
-                <div style="font-size:6.5pt;">ai sensi dell'art.11 all.6 del D.M. 161/2012 e del DVA-2014-14640 del 16/05/2014</div>
+                <div style="font-weight:800; font-size:9.2pt; line-height:1.15;">COMUNICAZIONE RETTIFICATA DEI TRASPORTI<br>GIORNALIERI</div>
+                <div style="font-size:6.6pt; margin-top:1px;">ai sensi dell'art.11 all.6 del D.M. 161/2012 e del DVA-2014-14640 del 16/05/2014</div>
               </td>
-              <td style="width:24%; text-align:center; font-weight:800; font-size:7pt;">${doc.codiceRet}</td>
+              <td style="width:24%; text-align:center; font-weight:800; font-size:7.5pt;">${doc.codiceRet}</td>
             </tr>
             <tr>
-              <td colspan="3" style="text-align:center;">
-                <div style="font-weight:700;">Lavori di realizzazione della Linea Ferroviaria AV/AC Terzo Valico dei Giovi</div>
-                <div style="font-size:6.2pt;">Atti autorizzativi del Piano di Utilizzo: DVA-2013-24380 del 24/10/2013, DVA-2014-38413 del 20/11/2014, DVADEC-2015-325 del 16/09/2015, DVA-2016-287 del 06/10/2016, DVADEC-309 del 31/10/2017</div>
-                <div style="font-weight:700; font-size:6.4pt;">Proponente del Piano di Utilizzo: Consorzio COCIV - Via R. Bianchi 40 - 16152 GENOVA</div>
+              <td colspan="3" style="text-align:center; padding:3px 6px;">
+                <div style="font-weight:700; font-size:7.6pt;">Lavori di realizzazione della Linea Ferroviaria AV/AC Terzo Valico dei Giovi</div>
+                <div style="font-size:6.4pt;">Atti autorizzativi del Piano di Utilizzo: DVA-2013-24380 del 24/10/2013, DVA-2014-38413 del 20/11/2014, DVADEC-2015-325 del 16/09/2015, DVA-2016-287 del 06/10/2016, DVADEC-309 del 31/10/2017</div>
+                <div style="font-weight:700; font-size:7pt; margin-top:1px;">Proponente del Piano di Utilizzo: Consorzio COCIV - Via R. Bianchi 40 - 16152 GENOVA</div>
               </td>
             </tr>
           </table>
 
+          <!-- ESECUTORE & CANTIERE TV -->
           <table class="r0-table">
             <tr>
               <td style="width:68%;" class="r0-hdr-dark">ESECUTORE DEGLI SCAVI CHE REDIGE LA COMUNICAZIONE RETTIFICATA</td>
@@ -937,38 +956,40 @@
             </tr>
             <tr>
               <td style="height:20px;"></td>
-              <td style="text-align:center; font-weight:700;">${sp.denominazione || ""}</td>
+              <td style="text-align:center; font-weight:700; font-size:7.8pt;">${sp.denominazione || ""}</td>
             </tr>
           </table>
 
+          <!-- PRODUTTORE & SITO DI PRODUZIONE -->
           <table class="r0-table">
             <tr><td colspan="2" class="r0-hdr-dark">PRODUTTORE</td></tr>
             <tr><td colspan="2" class="r0-sub-gray">Dati identificativi del produttore/esecutore degli scavi</td></tr>
             <tr>
-              <td colspan="2">
-                <div><strong>Denominazione:</strong> ${prod.denominazione || ""}</div>
-                <div><strong>Indirizzo/CAP/Comune:</strong> ${[prod.indirizzo, prod.cap, prod.comune].filter(Boolean).join(" - ")}</div>
-                <div><strong>Partita IVA:</strong> ${prod.piva || ""}</div>
+              <td colspan="2" style="padding:4px 6px;">
+                <div class="r0-line"><strong>Denominazione:</strong> ${prod.denominazione || ""}</div>
+                <div class="r0-line"><strong>Indirizzo/CAP/Comune:</strong> ${formatIndirizzoCapComune(prod)}</div>
+                <div class="r0-line"><strong>Partita IVA:</strong> ${prod.piva || ""}</div>
               </td>
             </tr>
             <tr><td colspan="2" class="r0-hdr-light">SITO DI PRODUZIONE DEL MATERIALE DA SCAVO</td></tr>
             <tr>
-              <td style="width:62%;"><strong>Denominazione:</strong> ${sp.denominazione || ""}</td>
-              <td style="width:38%;"><strong>WBS:</strong> ${sp.wbs || sd.sito_wbs || ""}</td>
+              <td style="width:52%;"><strong>Denominazione:</strong> ${sp.denominazione || ""}</td>
+              <td style="width:48%;"><strong>WBS:</strong> ${sp.wbs || sd.sito_wbs || ""}</td>
             </tr>
             <tr>
-              <td colspan="2"><strong>Indirizzo/CAP/Comune:</strong> ${[sp.indirizzo, sp.cap, sp.comune].filter(Boolean).join(" - ")}</td>
+              <td colspan="2"><strong>Indirizzo/CAP/Comune:</strong> ${formatIndirizzoCapComune(sp)}</td>
             </tr>
           </table>
 
+          <!-- RICEVENTE & SITO DI DESTINAZIONE -->
           <table class="r0-table">
-            <tr><td colspan="2" class="r0-hdr-light">RICEVENTE</td></tr>
+            <tr><td colspan="2" class="r0-hdr-dark">RICEVENTE</td></tr>
             <tr><td colspan="2" class="r0-sub-gray">Dati identificativi del destinatario/riutilizzatore del materiale da scavo</td></tr>
             <tr>
-              <td colspan="2">
-                <div><strong>Denominazione:</strong> ${dest.denominazione || ""}</div>
-                <div><strong>Indirizzo/CAP/Comune:</strong> ${[dest.indirizzo, dest.cap, dest.comune].filter(Boolean).join(" - ")}</div>
-                <div><strong>Partita IVA:</strong> ${dest.piva || ""}</div>
+              <td colspan="2" style="padding:4px 6px;">
+                <div class="r0-line"><strong>Denominazione:</strong> ${dest.denominazione || ""}</div>
+                <div class="r0-line"><strong>Indirizzo/CAP/Comune:</strong> ${formatIndirizzoCapComune(dest)}</div>
+                <div class="r0-line"><strong>Partita IVA:</strong> ${dest.piva || ""}</div>
               </td>
             </tr>
             <tr><td colspan="2" class="r0-hdr-light">SITO DI DESTINAZIONE DEL MATERIALE DA SCAVO</td></tr>
@@ -976,49 +997,51 @@
               <td colspan="2"><strong>Sito o WBS:</strong> ${sd.sito_wbs || ""}</td>
             </tr>
             <tr>
-              <td colspan="2"><strong>Indirizzo/CAP/Comune:</strong> ${[sd.indirizzo, sd.cap, sd.comune].filter(Boolean).join(" - ")}</td>
+              <td colspan="2"><strong>Indirizzo/CAP/Comune:</strong> ${formatIndirizzoCapComune(sd)}</td>
             </tr>
           </table>
 
+          <!-- TRASPORTATORI -->
           <table class="r0-table">
-            <tr><td colspan="3" class="r0-hdr-light">TRASPORTATORI</td></tr>
+            <tr><td colspan="3" class="r0-hdr-dark">TRASPORTATORI</td></tr>
             <tr><td colspan="3" class="r0-sub-gray">Dati identificativi dei trasportatori del materiale da scavo</td></tr>
             <tr class="r0-sub-gray">
-              <td style="width:40%;">Denominazione:</td>
-              <td style="width:42%;">Indirizzo/CAP:</td>
+              <td style="width:36%;">Denominazione:</td>
+              <td style="width:46%;">Indirizzo/CAP:</td>
               <td style="width:18%;">Partita IVA:</td>
             </tr>
             ${traspRowsHtml}
           </table>
 
+          <!-- CONSUNTIVO DEI TRASPORTI ARRIVATI A DESTINAZIONE NELLA GIORNATA -->
           <table class="r0-table">
             <tr>
-              <td colspan="4" class="r0-hdr-light">CONSUNTIVO DEI TRASPORTI ARRIVATI A DESTINAZIONE NELLA GIORNATA</td>
+              <td colspan="4" class="r0-hdr-dark">CONSUNTIVO DEI TRASPORTI ARRIVATI A DESTINAZIONE NELLA GIORNATA</td>
             </tr>
             <tr>
-              <td colspan="2" style="width:55%; font-style:italic; font-size:6.4pt;">
+              <td colspan="2" style="width:54%; font-style:italic; font-size:6.8pt;">
                 Di seguito sono indicati i dati di rettifica a consuntivo, come da DDT, dei viaggi indicati nella comunicazione preventiva
               </td>
-              <td colspan="2" style="width:45%; text-align:center;">
-                <div style="font-size:6.3pt;">Consuntivo trasporti della giornata</div>
-                <div style="font-weight:700; text-transform:capitalize;">${doc.dataEstesa}</div>
-                <div style="font-weight:800;">${doc.codiceRet}</div>
+              <td colspan="2" style="width:46%; text-align:center;">
+                <div style="font-size:6.6pt;">Consuntivo trasporti della giornata</div>
+                <div style="font-weight:700; font-size:7.4pt;">${doc.dataEstesa}</div>
+                <div style="font-weight:800; font-size:7.4pt;">${doc.codiceRet}</div>
               </td>
             </tr>
             <tr class="r0-sub-gray">
-              <td style="width:25%;">Targa del veicolo</td>
-              <td style="width:25%;">N. DDT</td>
-              <td style="width:25%;">1. DDT</td>
-              <td style="width:25%;">Quantità</td>
+              <td style="width:27%;">Targa del veicolo</td>
+              <td style="width:27%;">N. DDT</td>
+              <td style="width:23%;">1. DDT</td>
+              <td style="width:23%;">Quantità</td>
             </tr>
             <tr>
-              <td style="height:26px;"></td>
+              <td style="height:22px;"></td>
               <td></td>
-              <td rowspan="2" style="text-align:center; vertical-align:middle; font-weight:700;">0,0</td>
+              <td rowspan="2" style="text-align:center; vertical-align:middle; font-weight:700; font-size:7.6pt;">0,0</td>
               <td></td>
             </tr>
             <tr>
-              <td colspan="2" style="text-align:center; font-size:6.6pt; padding:6px;">
+              <td colspan="2" style="text-align:center; font-size:6.9pt; padding:6px 8px;">
                 Nella presente giornata, diversamente da quanto indicato nella comunicazione preventiva,<br>
                 dal suddetto sito di produzione al suddetto sito di destinazione<br>
                 lo scrivente esecutore non ha conferito materiale da scavo con nessun trasportatore.
@@ -1026,12 +1049,12 @@
               <td></td>
             </tr>
             <tr>
-              <td colspan="2" style="font-weight:700;">N. totale di viaggi eseguiti</td>
-              <td colspan="2" style="text-align:center; font-weight:800;">0</td>
+              <td colspan="2" style="font-weight:700; font-size:7.3pt;">N. totale di viaggi eseguiti</td>
+              <td colspan="2" style="text-align:center; font-weight:800; font-size:7.6pt;">0</td>
             </tr>
             <tr>
-              <td colspan="2" style="font-weight:700;">Quantità di materiale trasportato a destinazione:</td>
-              <td colspan="2" style="text-align:center; font-weight:800;">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mc</td>
+              <td colspan="2" style="font-weight:700; font-size:7.3pt;">Quantità di materiale trasportato a destinazione:</td>
+              <td colspan="2" style="text-align:center; font-weight:800; font-size:7.6pt;">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mc</td>
             </tr>
           </table>
         </div>
