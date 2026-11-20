@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rettificata a Zero — MDS HUB</title>
+  <title>Rettificata a Zero da Preventiva — MDS HUB</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -51,7 +51,7 @@
 
     .cal-day-cell {
       position: relative;
-      min-height: 78px;
+      min-height: 82px;
       border: 1px solid #e2e8f0;
       padding: 4px;
       display: flex;
@@ -143,7 +143,6 @@
         font-weight: 800;
         text-align: center;
         font-size: 7.1pt;
-        letter-spacing: 0.2px;
       }
       .r0-hdr-light {
         background: #cfd5dc !important;
@@ -158,9 +157,6 @@
         font-weight: 700;
         text-align: center;
         font-size: 6.7pt;
-      }
-      .r0-line {
-        margin: 1px 0;
       }
     }
   </style>
@@ -178,16 +174,13 @@
           <i class="fa-solid fa-calendar-days mr-1"></i> Preventive
         </a>
         <span id="sync-status-lbl" class="text-[11px] text-cyan-300 font-semibold">
-          Eredità attiva da Preventive in memoria
+          Base: Preventiva di partenza
         </span>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" onclick="apriAvvisoCreazione(oggiIso)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow cursor-pointer">
-          <i class="fa-solid fa-plus mr-1"></i> Nuova Rettificata a Zero
-        </button>
         <button type="button" onclick="stampaTutteRettifiche()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white shadow cursor-pointer">
-          <i class="fa-solid fa-file-pdf mr-1"></i> Stampa Format RETT_0 (<span id="badge-rett-count">0</span>)
+          <i class="fa-solid fa-file-pdf mr-1"></i> Stampa Rettificate (<span id="badge-rett-count">0</span>)
         </button>
       </div>
     </div>
@@ -200,7 +193,7 @@
       <div class="flex flex-wrap items-center gap-2 text-white font-black tracking-wide uppercase text-sm sm:text-base">
         <span>RETTIFICATA A ZERO</span>
         <span class="text-xs font-bold text-cyan-100 normal-case">
-          — clicca il <strong>+</strong> su un giorno per creare la rettificata a zero dalla tratta programmata
+          — parte dai viaggi preventivati del giorno nella preventiva selezionata e li rettifica a zero
         </span>
       </div>
       <div class="flex items-center gap-2 text-xs">
@@ -210,13 +203,55 @@
       </div>
     </section>
 
-    <!-- GRIGLIA PRINCIPALE: SINISTRA CALENDARIO CON "+" & ELENCO RETTIFICHE | DESTRA 7 HUB TRAMITE FLAG -->
+    <!-- DOCUMENTO DI PREVENTIVA DI PARTENZA (BASE OBBLIGATORIA) -->
+    <section class="bg-[#0b1220] border border-emerald-500/35 rounded-2xl p-4 space-y-3 text-xs">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+            Documento di Partenza
+          </span>
+          <h2 class="text-sm font-black uppercase text-white">Preventiva di Riferimento</h2>
+        </div>
+        <span id="base-prev-meta" class="text-[11px] font-mono text-cyan-300"></span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
+        <div class="lg:col-span-5">
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">
+            Seleziona la preventiva creata da cui partire
+          </label>
+          <select id="select-preventiva-base" onchange="cambiaPreventivaBase(this.value)" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-white font-bold">
+          </select>
+        </div>
+
+        <div id="base-prev-summary" class="lg:col-span-7 bg-slate-950/85 border border-slate-800 rounded-xl p-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+          <div>
+            <div class="text-[9px] uppercase text-slate-400">Tratta Preventivata</div>
+            <div id="sum-tratta" class="font-bold text-white truncate">-</div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase text-slate-400">Viaggi Preventivati</div>
+            <div id="sum-viaggi-prev" class="font-extrabold text-emerald-300">0</div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase text-slate-400">Mc Preventivati</div>
+            <div id="sum-mc-prev" class="font-extrabold text-sky-300">0 mc</div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase text-slate-400">Residuo Post-Rettifica</div>
+            <div id="sum-residuo" class="font-extrabold text-amber-300">0 v • 0 mc</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRIGLIA PRINCIPALE: SINISTRA CALENDARIO CON "+" & RETTIFICHE | DESTRA DATI EREDITATI DA PREVENTIVA -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
       <!-- COLONNA SINISTRA -->
       <div class="lg:col-span-5 space-y-4">
 
-        <!-- CALENDARIO MENSILE DINAMICO CON "+" IN ALTO A DESTRA -->
+        <!-- CALENDARIO MENSILE CON I VIAGGI PREVENTIVATI E "+" IN ALTO A DESTRA -->
         <div class="bg-white text-slate-800 rounded-xl border border-slate-300 shadow-lg overflow-hidden">
           <div class="bg-slate-100 border-b border-slate-200 px-3 py-2 flex items-center justify-between">
             <button type="button" onclick="spostaMese(-1)" class="w-7 h-7 rounded bg-white border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer">
@@ -241,7 +276,7 @@
           <div id="cal-month-grid" class="grid grid-cols-7 text-xs"></div>
         </div>
 
-        <!-- ELENCO DELLE RETTIFICATE A ZERO CREATE -->
+        <!-- ELENCO RETTIFICHE A ZERO GENERATE DALLA PREVENTIVA -->
         <div class="bg-slate-950/85 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <span class="font-black uppercase text-[11px] text-amber-300">
@@ -256,62 +291,61 @@
 
       </div>
 
-      <!-- COLONNA DESTRA: 7 HUB TRAMITE FLAG -->
+      <!-- COLONNA DESTRA: CONTENUTO EREDITATO DALLA PREVENTIVA DI PARTENZA -->
       <div class="lg:col-span-7 space-y-3 text-xs">
 
         <div class="wire-hub-box space-y-2">
           <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_produttori.html&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">riferimenti del produttore del Materiale da Scavo tramite flag</div>
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">Produttore del Materiale da Scavo</div>
           </div>
           <div id="flags-produttori" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
         </div>
 
         <div class="wire-hub-box space-y-2">
           <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_sitiproduzione.html&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">riferimenti del sito di produzione del Materiale da Scavo tramite flag</div>
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">Sito di Produzione del Materiale da Scavo</div>
           </div>
           <div id="flags-siti-prod" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
         </div>
 
         <div class="wire-hub-box space-y-2">
           <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_sitidestinazione.html&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">riferimenti dei siti di destino del Materiale da Scavo tramite flag</div>
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">Siti di Destino del Materiale da Scavo</div>
           </div>
           <div id="flags-siti-dest" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
         </div>
 
         <div class="wire-hub-box space-y-2">
           <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_destinatari.html&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">riferimenti del Gestore del sito di destino del Materiale da Scavo tramite flag</div>
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">Destinatario / Gestore del Sito di Destino</div>
           </div>
           <div id="flags-destinatari" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
         </div>
 
         <div class="wire-hub-box space-y-2">
           <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_materiali.html&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">riferimenti dei Materiali da Scavo trasportati (litologie)</div>
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">Materiali da Scavo (Litologie)</div>
           </div>
           <div id="flags-materiali" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 pr-1"></div>
         </div>
 
         <div class="wire-hub-box space-y-2">
           <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_trasportatori.html&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">riferimenti dei Trasportatori (sede legale)</div>
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">Trasportatori Previsti nella Preventiva</div>
           </div>
           <div id="flags-trasportatori" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
         </div>
 
         <div class="wire-hub-box space-y-2">
           <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_targhe.html&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">riferimenti delle targhe dei mezzi autorizzati...</div>
-            <div class="font-semibold text-cyan-100 text-[11px]">Direttamente correlato al Trasportatore flaggato</div>
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">Targhe Autorizzate dei Trasportatori Flaggati</div>
           </div>
           <div id="targhe-correlate-box" class="max-h-32 overflow-y-auto space-y-1.5 pr-1"></div>
         </div>
@@ -320,7 +354,7 @@
     </section>
   </main>
 
-  <!-- AVVISO / MODALE "CREA RETTIFICATA A ZERO" -->
+  <!-- AVVISO / MODALE "CREA RETTIFICATA A ZERO" PARTENDO DAI VIAGGI PREVENTIVATI -->
   <div id="modal-rett-zero" class="no-print fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-[#0b1220] border border-cyan-400/40 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
@@ -336,7 +370,8 @@
         </button>
       </div>
 
-      <div id="modal-ereditata-box" class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 space-y-1.5 text-[11px]"></div>
+      <!-- BASE VIAGGI PREVENTIVATI QUEL GIORNO -->
+      <div id="modal-ereditata-box" class="bg-slate-950/90 border border-emerald-500/35 rounded-xl p-3 space-y-1.5 text-[11px]"></div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
@@ -351,7 +386,7 @@
 
       <div>
         <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">
-          Trasportatori coinvolti (non hanno effettuato trasporti)
+          Trasportatori coinvolti (non hanno effettuato trasporti in quel giorno)
         </label>
         <div id="modal-trasp-list" class="max-h-28 overflow-y-auto space-y-1 bg-slate-950/70 border border-slate-800 rounded-lg p-2"></div>
       </div>
@@ -367,7 +402,7 @@
     </div>
   </div>
 
-  <!-- CONTENITORE DI STAMPA FORMAT RETT_0.PDF -->
+  <!-- CONTENITORE DI STAMPA -->
   <section id="print-rett0-sheet" aria-hidden="true"></section>
 
   <script>
@@ -376,11 +411,11 @@
       "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"
     ];
     const MONTH_NAMES_LOWER = MONTH_NAMES.map(m => m.toLowerCase());
-    const FULL_DAY_NAMES = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"];
     const CAP_DAY_NAMES = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
 
     const UNIFIED_STORAGE_KEY = "qhse_mds_database_v1";
     const PREVENTIVA_MEMORY_KEY = "qhse_mds_preventiva_memoria_v1";
+    const PREVENTIVA_ARCHIVE_KEY = "qhse_mds_preventive_archivio_v1";
     const RETT_ZERO_DOCS_KEY = "qhse_mds_rett_zero_docs_v1";
 
     const SUB_KEYS = {
@@ -434,7 +469,8 @@
       targhe_per_azienda: []
     };
 
-    let prevMemory = null;
+    let preventiveBaseList = [];
+    let activePrevBase = null;
     let rettificheDocs = [];
     let currentCalYear = 2026;
     let currentCalMonthIdx = 10;
@@ -480,6 +516,15 @@
       return [];
     }
 
+    function parseMeseAnno(str) {
+      const now = new Date();
+      if (!str) return { year: now.getFullYear(), monthIdx: now.getMonth() };
+      const parts = String(str).trim().split(/\s+/);
+      const mIdx = MONTH_NAMES_LOWER.indexOf((parts[0] || "").toLowerCase());
+      const yr = parseInt(parts[1], 10) || now.getFullYear();
+      return { year: yr, monthIdx: mIdx >= 0 ? mIdx : now.getMonth() };
+    }
+
     function inizializzaDati() {
       let unified = {};
       try {
@@ -502,39 +547,65 @@
       hubData.trasportatori = readSub("trasportatori") || DEFAULT_TRASPORTATORI;
       hubData.targhe_per_azienda = normalizzaTargheMap(readSub("targhe_per_azienda") || DEFAULT_TARGHE_PER_AZIENDA);
 
+      let archivio = [];
       try {
-        prevMemory = JSON.parse(localStorage.getItem(PREVENTIVA_MEMORY_KEY) || "null");
-      } catch (_) {
-        prevMemory = null;
+        archivio = JSON.parse(localStorage.getItem(PREVENTIVA_ARCHIVE_KEY) || "[]") || [];
+      } catch (_) {}
+
+      let mem = null;
+      try {
+        mem = JSON.parse(localStorage.getItem(PREVENTIVA_MEMORY_KEY) || "null");
+      } catch (_) {}
+
+      const baseDocs = [];
+      if (Array.isArray(archivio) && archivio.length) {
+        archivio.forEach(item => {
+          const parsed = parseMeseAnno(item.meseAnno);
+          const sameAsMem = mem && `${MONTH_NAMES[(parseInt(mem.mese || "11", 10) || 11) - 1]} ${mem.anno || 2026}` === item.meseAnno;
+          baseDocs.push({
+            id: String(item.id),
+            codice: item.codice || "PRE_MESE",
+            meseAnno: item.meseAnno || `${MONTH_NAMES[parsed.monthIdx]} ${parsed.year}`,
+            year: parsed.year,
+            monthIdx: parsed.monthIdx,
+            mcPerViaggio: mem?.mcPerViaggio || 14,
+            rotte: item.rotte || "",
+            salvatoIl: item.salvatoIl || "",
+            giorniViaggi: (sameAsMem && mem.selectedState?.giorniViaggi) ? { ...mem.selectedState.giorniViaggi } : {},
+            viaggiGiornoDefault: mem?.viaggiGiorno || 20,
+            selectedState: sameAsMem ? mem.selectedState : null
+          });
+        });
       }
 
-      if (prevMemory) {
-        currentCalYear = parseInt(prevMemory.anno, 10) || 2026;
-        currentCalMonthIdx = (parseInt(prevMemory.mese || "11", 10) || 11) - 1;
-        if (prevMemory.selectedState) {
-          const st = prevMemory.selectedState;
-          if (Array.isArray(st.siti_produzione) && st.siti_produzione.length) selectedHubFlags.siti_produzione = [...st.siti_produzione];
-          if (Array.isArray(st.siti_destinazione) && st.siti_destinazione.length) selectedHubFlags.siti_destinazione = [...st.siti_destinazione];
-          if (Array.isArray(st.produttori) && st.produttori.length) selectedHubFlags.produttori = [...st.produttori];
-          if (Array.isArray(st.destinatari) && st.destinatari.length) selectedHubFlags.destinatari = [...st.destinatari];
-          if (Array.isArray(st.materiali) && st.materiali.length) selectedHubFlags.materiali = [...st.materiali];
-          if (Array.isArray(st.trasportatori) && st.trasportatori.length) {
-            selectedHubFlags.trasportatori = [...st.trasportatori];
-            selectedHubFlags.targhePerAzienda = JSON.parse(JSON.stringify(st.targhePerAzienda || {}));
-          }
+      if (mem && mem.selectedState) {
+        const y = parseInt(mem.anno, 10) || 2026;
+        const mIdx = (parseInt(mem.mese || "11", 10) || 11) - 1;
+        const label = `${MONTH_NAMES[mIdx]} ${y}`;
+        const existing = baseDocs.find(d => d.meseAnno === label);
+        if (existing) {
+          existing.giorniViaggi = { ...(mem.selectedState.giorniViaggi || {}) };
+          existing.mcPerViaggio = mem.mcPerViaggio || 14;
+          existing.viaggiGiornoDefault = mem.viaggiGiorno || 20;
+          existing.selectedState = mem.selectedState;
+        } else {
+          baseDocs.unshift({
+            id: "preventiva-attiva",
+            codice: `PRE_${MONTH_NAMES[mIdx].slice(0, 3).toUpperCase()}_${y}`,
+            meseAnno: label,
+            year: y,
+            monthIdx: mIdx,
+            mcPerViaggio: mem.mcPerViaggio || 14,
+            rotte: "Preventiva di partenza in memoria",
+            salvatoIl: "Memoria attiva",
+            giorniViaggi: { ...(mem.selectedState.giorniViaggi || {}) },
+            viaggiGiornoDefault: mem.viaggiGiorno || 20,
+            selectedState: mem.selectedState
+          });
         }
       }
 
-      if (!selectedHubFlags.trasportatori.length && hubData.trasportatori.length) {
-        ["MORELLO CARMELO", "AUTOSPED G S.p.A."].forEach(nome => {
-          const found = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome);
-          if (found) {
-            selectedHubFlags.trasportatori.push(found.denominazione);
-            const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
-            selectedHubFlags.targhePerAzienda[found.denominazione] = tObj ? [...tObj.targhe] : [];
-          }
-        });
-      }
+      preventiveBaseList = baseDocs;
 
       try {
         rettificheDocs = JSON.parse(localStorage.getItem(RETT_ZERO_DOCS_KEY) || "[]") || [];
@@ -542,11 +613,110 @@
         rettificheDocs = [];
       }
 
+      popolaSelettorePreventivaBase(preventiveBaseList[0]?.id || null);
+      renderListaRettificate();
+      aggiornaBadgeConteggi();
+    }
+
+    function popolaSelettorePreventivaBase(targetId) {
+      const sel = document.getElementById("select-preventiva-base");
+      if (!preventiveBaseList.length) {
+        sel.innerHTML = `<option value="">Nessuna preventiva trovata — crea prima una preventiva</option>`;
+        activePrevBase = null;
+        renderRiepilogoBase();
+        renderFlagsDestra();
+        renderTargheCorrelate();
+        renderCalendario();
+        return;
+      }
+
+      sel.innerHTML = preventiveBaseList.map(p =>
+        `<option value="${p.id}">${p.codice} — ${p.meseAnno} (${p.salvatoIl || "Preventiva"})</option>`
+      ).join("");
+
+      const chosenId = targetId && preventiveBaseList.some(p => p.id === targetId)
+        ? targetId
+        : preventiveBaseList[0].id;
+      sel.value = chosenId;
+      cambiaPreventivaBase(chosenId);
+    }
+
+    function cambiaPreventivaBase(id) {
+      activePrevBase = preventiveBaseList.find(p => p.id === id) || null;
+      if (!activePrevBase) return;
+
+      currentCalYear = activePrevBase.year;
+      currentCalMonthIdx = activePrevBase.monthIdx;
+
+      if (activePrevBase.selectedState) {
+        const st = activePrevBase.selectedState;
+        if (Array.isArray(st.siti_produzione) && st.siti_produzione.length) selectedHubFlags.siti_produzione = [...st.siti_produzione];
+        if (Array.isArray(st.siti_destinazione) && st.siti_destinazione.length) selectedHubFlags.siti_destinazione = [...st.siti_destinazione];
+        if (Array.isArray(st.produttori) && st.produttori.length) selectedHubFlags.produttori = [...st.produttori];
+        if (Array.isArray(st.destinatari) && st.destinatari.length) selectedHubFlags.destinatari = [...st.destinatari];
+        if (Array.isArray(st.materiali) && st.materiali.length) selectedHubFlags.materiali = [...st.materiali];
+        if (Array.isArray(st.trasportatori) && st.trasportatori.length) {
+          selectedHubFlags.trasportatori = [...st.trasportatori];
+          selectedHubFlags.targhePerAzienda = JSON.parse(JSON.stringify(st.targhePerAzienda || {}));
+        }
+      }
+
+      document.getElementById("base-prev-meta").textContent =
+        `Documento sorgente: ${activePrevBase.codice} • ${activePrevBase.meseAnno}`;
+
+      renderRiepilogoBase();
       renderFlagsDestra();
       renderTargheCorrelate();
       renderCalendario();
-      renderListaRettificate();
-      aggiornaBadgeConteggi();
+    }
+
+    function getViaggiPreventivatiGiorno(iso) {
+      if (!activePrevBase) return 0;
+      const map = activePrevBase.giorniViaggi || {};
+      if (Object.prototype.hasOwnProperty.call(map, iso)) {
+        return parseFloat(map[iso]) || 0;
+      }
+      const d = new Date(iso + "T00:00:00");
+      const dayIdx = (d.getDay() + 6) % 7;
+      return dayIdx < 6 ? (parseFloat(activePrevBase.viaggiGiornoDefault) || 20) : 0;
+    }
+
+    function renderRiepilogoBase() {
+      if (!activePrevBase) {
+        document.getElementById("sum-tratta").textContent = "-";
+        document.getElementById("sum-viaggi-prev").textContent = "0";
+        document.getElementById("sum-mc-prev").textContent = "0 mc";
+        document.getElementById("sum-residuo").textContent = "0 v • 0 mc";
+        return;
+      }
+
+      const mcUnit = activePrevBase.mcPerViaggio || 14;
+      const lastDay = new Date(activePrevBase.year, activePrevBase.monthIdx + 1, 0).getDate();
+
+      let totPrevTrips = 0;
+      let totZeroTrips = 0;
+      const zeroIsoSet = new Set(
+        rettificheDocs.filter(r => r.preventivaId === activePrevBase.id).map(r => r.iso)
+      );
+
+      for (let d = 1; d <= lastDay; d++) {
+        const iso = formatIsoDate(new Date(activePrevBase.year, activePrevBase.monthIdx, d));
+        const trips = getViaggiPreventivatiGiorno(iso);
+        totPrevTrips += trips;
+        if (zeroIsoSet.has(iso)) totZeroTrips += trips;
+      }
+
+      const sp = hubData.siti_produzione[selectedHubFlags.siti_produzione[0]];
+      const sd = hubData.siti_destinazione[selectedHubFlags.siti_destinazione[0]];
+      const spName = typeof sp === "string" ? sp : (sp?.denominazione || "");
+      const sdName = sd?.sito_wbs || "";
+      const trattaTxt = activePrevBase.rotte || `${spName} → ${sdName}`;
+
+      const resTrips = Math.max(0, totPrevTrips - totZeroTrips);
+      document.getElementById("sum-tratta").textContent = trattaTxt;
+      document.getElementById("sum-viaggi-prev").textContent = `${totPrevTrips}`;
+      document.getElementById("sum-mc-prev").textContent = `${totPrevTrips * mcUnit} mc`;
+      document.getElementById("sum-residuo").textContent = `${resTrips} v • ${resTrips * mcUnit} mc`;
     }
 
     function spostaMese(delta) {
@@ -590,20 +760,19 @@
     function renderCalendario() {
       document.getElementById("cal-header-title").textContent = `${MONTH_NAMES_LOWER[currentCalMonthIdx]} ${currentCalYear}`;
       const cells = getMonthGridDays(currentCalYear, currentCalMonthIdx);
-      const giorniPrev = (prevMemory && prevMemory.selectedState && prevMemory.selectedState.giorniViaggi) ? prevMemory.selectedState.giorniViaggi : {};
-      const mcUnit = prevMemory?.mcPerViaggio || 14;
+      const mcUnit = activePrevBase?.mcPerViaggio || 14;
 
       const spIdx = selectedHubFlags.siti_produzione[0];
       const spObj = typeof spIdx === "number" ? hubData.siti_produzione[spIdx] : null;
-      const siglaTag = spObj ? (typeof spObj === "string" ? spObj : (spObj.denominazione || "Tratta")) : "Tratta";
+      const siglaTag = spObj ? (typeof spObj === "string" ? spObj : (spObj.denominazione || "Prev.")) : "Prev.";
 
       const zeroByDate = new Set(rettificheDocs.map(r => r.iso));
 
       document.getElementById("cal-month-grid").innerHTML = cells.map(c => {
         const isZero = c.inMonth && zeroByDate.has(c.iso);
         const isCurrent = c.iso === oggiIso;
-        const trips = c.inMonth ? (parseFloat(giorniPrev[c.iso]) || 0) : 0;
-        const mc = trips * mcUnit;
+        const tripsPrev = c.inMonth ? getViaggiPreventivatiGiorno(c.iso) : 0;
+        const mcPrev = tripsPrev * mcUnit;
 
         const cls = [
           "cal-day-cell",
@@ -615,18 +784,18 @@
         const numColor = c.dayOfWeekIdx === 6 ? "text-rose-500" : (c.inMonth ? "text-slate-700" : "text-slate-300");
 
         const plusBtnHtml = c.inMonth
-          ? `<button type="button" class="cal-plus-btn" title="Crea rettificata a zero" onclick="event.stopPropagation(); apriAvvisoCreazione('${c.iso}')">+</button>`
+          ? `<button type="button" class="cal-plus-btn" title="Crea rettificata a zero dai viaggi preventivati" onclick="event.stopPropagation(); apriAvvisoCreazione('${c.iso}')">+</button>`
           : `<span></span>`;
 
         let pillHtml = "";
         if (isZero) {
           pillHtml = `<div class="mt-1 rounded bg-amber-200 border-l-2 border-amber-600 px-1 py-0.5 text-[9px] font-extrabold text-amber-950 leading-tight">
-            RETT. A ZERO (0)
+            RETT. A 0 (era ${tripsPrev}v)
           </div>`;
-        } else if (c.inMonth && trips > 0) {
+        } else if (c.inMonth && tripsPrev > 0) {
           pillHtml = `<div class="mt-1 rounded bg-sky-100 border-l-2 border-sky-600 px-1 py-0.5 text-[9px] text-slate-800 leading-tight">
             <div class="font-bold truncate">${siglaTag}</div>
-            <div class="font-extrabold text-sky-900">${trips}v • ${mc}mc</div>
+            <div class="font-extrabold text-sky-900">Prev: ${tripsPrev}v • ${mcPrev}mc</div>
           </div>`;
         }
 
@@ -643,6 +812,11 @@
     }
 
     function apriAvvisoCreazione(iso) {
+      if (!activePrevBase) {
+        alert("Seleziona o crea prima una preventiva di partenza.");
+        return;
+      }
+
       activeModalIso = iso;
       const d = new Date(iso + "T00:00:00");
       const dayOfWeekIdx = (d.getDay() + 6) % 7;
@@ -651,18 +825,18 @@
       const estesa = `${CAP_DAY_NAMES[dayOfWeekIdx]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${yr}`;
       const codiceRet = `RET_set ${weekNum}/${yr} - gg ${dayOfWeekIdx + 1}`;
 
-      const giorniPrev = (prevMemory && prevMemory.selectedState && prevMemory.selectedState.giorniViaggi) ? prevMemory.selectedState.giorniViaggi : {};
-      const mcUnit = prevMemory?.mcPerViaggio || 14;
-      const prevTrips = parseFloat(giorniPrev[iso]) || 0;
+      const mcUnit = activePrevBase.mcPerViaggio || 14;
+      const prevTrips = getViaggiPreventivatiGiorno(iso);
       const prevMc = prevTrips * mcUnit;
 
       document.getElementById("modal-rett-title").textContent = `Crea rettificata a zero — ${estesa}`;
-      document.getElementById("modal-rett-codice").textContent = `Codice: ${codiceRet} (${iso})`;
+      document.getElementById("modal-rett-codice").textContent =
+        `Da preventiva: ${activePrevBase.codice} • Codice rettifica: ${codiceRet}`;
 
       document.getElementById("modal-ereditata-box").innerHTML = `
-        <div class="font-extrabold text-emerald-300">Dati ereditati dalla preventiva:</div>
-        <div class="text-slate-300">Programmazione del giorno: <strong>${prevTrips} viaggi</strong> (<strong>${prevMc} mc</strong>) → sarà rettificata a <strong>0,0 / 0 mc</strong>.</div>
-        <div class="text-slate-400">Viene indicato che in quel giorno, nella tratta selezionata, i trasportatori non hanno effettuato trasporti.</div>
+        <div class="font-extrabold text-emerald-300">Base dalla preventiva (${activePrevBase.codice}):</div>
+        <div class="text-white">Viaggi preventivati nel giorno: <strong>${prevTrips} viaggi</strong> (<strong>${prevMc} mc</strong>)</div>
+        <div class="text-amber-300 font-bold">Rettifica applicata: <strong>0 viaggi / 0,0 mc</strong> (giornata senza conferimento materiale da scavo).</div>
       `;
 
       const selProd = document.getElementById("modal-sel-prod");
@@ -700,13 +874,17 @@
     }
 
     function confermaCreaRettificataZero() {
-      if (!activeModalIso) return;
+      if (!activeModalIso || !activePrevBase) return;
       const d = new Date(activeModalIso + "T00:00:00");
       const dayOfWeekIdx = (d.getDay() + 6) % 7;
       const weekNum = getIsoWeek(d);
       const yr = d.getFullYear();
       const estesa = `${CAP_DAY_NAMES[dayOfWeekIdx]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${yr}`;
       const codiceRet = `RET_set ${weekNum}/${yr} - gg ${dayOfWeekIdx + 1}`;
+
+      const mcUnit = activePrevBase.mcPerViaggio || 14;
+      const prevTrips = getViaggiPreventivatiGiorno(activeModalIso);
+      const prevMc = prevTrips * mcUnit;
 
       const prodIdx = parseInt(document.getElementById("modal-sel-prod").value, 10) || 0;
       const destIdx = parseInt(document.getElementById("modal-sel-dest").value, 10) || 0;
@@ -737,7 +915,12 @@
       });
 
       const docItem = {
-        id: `${activeModalIso}__${prodObj.denominazione}__${destObj.sito_wbs}__${Date.now()}`,
+        id: `${activePrevBase.id}__${activeModalIso}__${Date.now()}`,
+        preventivaId: activePrevBase.id,
+        preventivaCodice: activePrevBase.codice,
+        preventivaMeseAnno: activePrevBase.meseAnno,
+        viaggiPreventivati: prevTrips,
+        mcPreventivati: prevMc,
         iso: activeModalIso,
         dataEstesa: estesa,
         codiceRet,
@@ -754,6 +937,7 @@
       localStorage.setItem(RETT_ZERO_DOCS_KEY, JSON.stringify(rettificheDocs));
 
       chiudiAvvisoCreazione();
+      renderRiepilogoBase();
       renderCalendario();
       renderListaRettificate();
       aggiornaBadgeConteggi();
@@ -772,11 +956,11 @@
             <span class="font-extrabold text-amber-300 text-[11px]">${doc.dataEstesa}</span>
             <span class="text-[10px] font-mono text-cyan-300">${doc.codiceRet}</span>
           </div>
+          <div class="text-[10px] text-emerald-300 font-semibold">
+            Da preventiva: ${doc.preventivaCodice || "PRE"} (erano ${doc.viaggiPreventivati ?? 0} viaggi / ${doc.mcPreventivati ?? 0} mc → 0)
+          </div>
           <div class="text-[11px] font-bold text-white">
             ${doc.sitoProduzione.denominazione} → ${doc.sitoDestinazione.sito_wbs}
-          </div>
-          <div class="text-[10px] text-slate-400">
-            Trasportatori: ${doc.trasportatori.map(t => t.denominazione).join(", ") || "Tutti i trasportatori"}
           </div>
           <div class="flex items-center justify-end gap-2 pt-1">
             <button type="button" onclick="stampaSingolaRettifica('${doc.id}')" class="px-2.5 py-1 rounded bg-sky-600/25 hover:bg-sky-600/40 text-sky-200 border border-sky-500/40 text-[10px] font-bold cursor-pointer">
@@ -793,6 +977,7 @@
     function eliminaRettifica(id) {
       rettificheDocs = rettificheDocs.filter(r => r.id !== id);
       localStorage.setItem(RETT_ZERO_DOCS_KEY, JSON.stringify(rettificheDocs));
+      renderRiepilogoBase();
       renderCalendario();
       renderListaRettificate();
       aggiornaBadgeConteggi();
@@ -801,6 +986,7 @@
     function svuotaRettifiche() {
       rettificheDocs = [];
       localStorage.removeItem(RETT_ZERO_DOCS_KEY);
+      renderRiepilogoBase();
       renderCalendario();
       renderListaRettificate();
       aggiornaBadgeConteggi();
@@ -869,6 +1055,7 @@
       } else {
         selectedHubFlags[key] = selectedHubFlags[key].filter(i => i !== idx);
       }
+      renderRiepilogoBase();
       if (key === "siti_produzione") renderCalendario();
     }
 
@@ -888,7 +1075,7 @@
     function renderTargheCorrelate() {
       const box = document.getElementById("targhe-correlate-box");
       if (!selectedHubFlags.trasportatori.length) {
-        box.innerHTML = `<div class="text-[11px] text-cyan-100/70 text-center">Flagga un trasportatore per vedere le targhe associate.</div>`;
+        box.innerHTML = `<div class="text-[11px] text-cyan-100/70 text-center">Nessun trasportatore selezionato nella preventiva.</div>`;
         return;
       }
 
@@ -929,26 +1116,24 @@
 
       return `
         <div class="rett0-page">
-          <!-- INTESTAZIONE SUPERIORE A 3 COLONNE -->
           <table class="r0-table">
             <tr>
-              <td style="width:24%; text-align:center; font-weight:700; font-size:7.6pt;">${doc.dataEstesa}</td>
+              <td style="width:24%; text-align:center; font-weight:700;">${doc.dataEstesa}</td>
               <td style="width:52%; text-align:center;">
-                <div style="font-weight:800; font-size:9.2pt; line-height:1.15;">COMUNICAZIONE RETTIFICATA DEI TRASPORTI<br>GIORNALIERI</div>
-                <div style="font-size:6.6pt; margin-top:1px;">ai sensi dell'art.11 all.6 del D.M. 161/2012 e del DVA-2014-14640 del 16/05/2014</div>
+                <div style="font-weight:800; font-size:9pt;">COMUNICAZIONE RETTIFICATA DEI TRASPORTI GIORNALIERI</div>
+                <div style="font-size:6.5pt;">ai sensi dell'art.11 all.6 del D.M. 161/2012 e del DVA-2014-14640 del 16/05/2014</div>
               </td>
-              <td style="width:24%; text-align:center; font-weight:800; font-size:7.5pt;">${doc.codiceRet}</td>
+              <td style="width:24%; text-align:center; font-weight:800;">${doc.codiceRet}</td>
             </tr>
             <tr>
-              <td colspan="3" style="text-align:center; padding:3px 6px;">
-                <div style="font-weight:700; font-size:7.6pt;">Lavori di realizzazione della Linea Ferroviaria AV/AC Terzo Valico dei Giovi</div>
-                <div style="font-size:6.4pt;">Atti autorizzativi del Piano di Utilizzo: DVA-2013-24380 del 24/10/2013, DVA-2014-38413 del 20/11/2014, DVADEC-2015-325 del 16/09/2015, DVA-2016-287 del 06/10/2016, DVADEC-309 del 31/10/2017</div>
-                <div style="font-weight:700; font-size:7pt; margin-top:1px;">Proponente del Piano di Utilizzo: Consorzio COCIV - Via R. Bianchi 40 - 16152 GENOVA</div>
+              <td colspan="3" style="text-align:center;">
+                <div style="font-weight:700;">Rif. Comunicazione Preventiva di partenza: ${doc.preventivaCodice || "-"} (preventivati ${doc.viaggiPreventivati ?? 0} viaggi / ${doc.mcPreventivati ?? 0} mc)</div>
+                <div style="font-weight:700;">Lavori di realizzazione della Linea Ferroviaria AV/AC Terzo Valico dei Giovi</div>
+                <div style="font-weight:700;">Proponente del Piano di Utilizzo: Consorzio COCIV - Via R. Bianchi 40 - 16152 GENOVA</div>
               </td>
             </tr>
           </table>
 
-          <!-- ESECUTORE & CANTIERE TV -->
           <table class="r0-table">
             <tr>
               <td style="width:68%;" class="r0-hdr-dark">ESECUTORE DEGLI SCAVI CHE REDIGE LA COMUNICAZIONE RETTIFICATA</td>
@@ -956,19 +1141,18 @@
             </tr>
             <tr>
               <td style="height:20px;"></td>
-              <td style="text-align:center; font-weight:700; font-size:7.8pt;">${sp.denominazione || ""}</td>
+              <td style="text-align:center; font-weight:700;">${sp.denominazione || ""}</td>
             </tr>
           </table>
 
-          <!-- PRODUTTORE & SITO DI PRODUZIONE -->
           <table class="r0-table">
             <tr><td colspan="2" class="r0-hdr-dark">PRODUTTORE</td></tr>
             <tr><td colspan="2" class="r0-sub-gray">Dati identificativi del produttore/esecutore degli scavi</td></tr>
             <tr>
-              <td colspan="2" style="padding:4px 6px;">
-                <div class="r0-line"><strong>Denominazione:</strong> ${prod.denominazione || ""}</div>
-                <div class="r0-line"><strong>Indirizzo/CAP/Comune:</strong> ${formatIndirizzoCapComune(prod)}</div>
-                <div class="r0-line"><strong>Partita IVA:</strong> ${prod.piva || ""}</div>
+              <td colspan="2">
+                <div><strong>Denominazione:</strong> ${prod.denominazione || ""}</div>
+                <div><strong>Indirizzo/CAP/Comune:</strong> ${formatIndirizzoCapComune(prod)}</div>
+                <div><strong>Partita IVA:</strong> ${prod.piva || ""}</div>
               </td>
             </tr>
             <tr><td colspan="2" class="r0-hdr-light">SITO DI PRODUZIONE DEL MATERIALE DA SCAVO</td></tr>
@@ -981,15 +1165,14 @@
             </tr>
           </table>
 
-          <!-- RICEVENTE & SITO DI DESTINAZIONE -->
           <table class="r0-table">
             <tr><td colspan="2" class="r0-hdr-dark">RICEVENTE</td></tr>
             <tr><td colspan="2" class="r0-sub-gray">Dati identificativi del destinatario/riutilizzatore del materiale da scavo</td></tr>
             <tr>
-              <td colspan="2" style="padding:4px 6px;">
-                <div class="r0-line"><strong>Denominazione:</strong> ${dest.denominazione || ""}</div>
-                <div class="r0-line"><strong>Indirizzo/CAP/Comune:</strong> ${formatIndirizzoCapComune(dest)}</div>
-                <div class="r0-line"><strong>Partita IVA:</strong> ${dest.piva || ""}</div>
+              <td colspan="2">
+                <div><strong>Denominazione:</strong> ${dest.denominazione || ""}</div>
+                <div><strong>Indirizzo/CAP/Comune:</strong> ${formatIndirizzoCapComune(dest)}</div>
+                <div><strong>Partita IVA:</strong> ${dest.piva || ""}</div>
               </td>
             </tr>
             <tr><td colspan="2" class="r0-hdr-light">SITO DI DESTINAZIONE DEL MATERIALE DA SCAVO</td></tr>
@@ -1001,47 +1184,45 @@
             </tr>
           </table>
 
-          <!-- TRASPORTATORI -->
           <table class="r0-table">
             <tr><td colspan="3" class="r0-hdr-dark">TRASPORTATORI</td></tr>
             <tr><td colspan="3" class="r0-sub-gray">Dati identificativi dei trasportatori del materiale da scavo</td></tr>
             <tr class="r0-sub-gray">
-              <td style="width:36%;">Denominazione:</td>
-              <td style="width:46%;">Indirizzo/CAP:</td>
-              <td style="width:18%;">Partita IVA:</td>
+              <td>Denominazione:</td>
+              <td>Indirizzo/CAP:</td>
+              <td>Partita IVA:</td>
             </tr>
             ${traspRowsHtml}
           </table>
 
-          <!-- CONSUNTIVO DEI TRASPORTI ARRIVATI A DESTINAZIONE NELLA GIORNATA -->
           <table class="r0-table">
             <tr>
               <td colspan="4" class="r0-hdr-dark">CONSUNTIVO DEI TRASPORTI ARRIVATI A DESTINAZIONE NELLA GIORNATA</td>
             </tr>
             <tr>
-              <td colspan="2" style="width:54%; font-style:italic; font-size:6.8pt;">
+              <td colspan="2" style="width:54%; font-style:italic;">
                 Di seguito sono indicati i dati di rettifica a consuntivo, come da DDT, dei viaggi indicati nella comunicazione preventiva
               </td>
               <td colspan="2" style="width:46%; text-align:center;">
-                <div style="font-size:6.6pt;">Consuntivo trasporti della giornata</div>
-                <div style="font-weight:700; font-size:7.4pt;">${doc.dataEstesa}</div>
-                <div style="font-weight:800; font-size:7.4pt;">${doc.codiceRet}</div>
+                <div>Consuntivo trasporti della giornata</div>
+                <div style="font-weight:700;">${doc.dataEstesa}</div>
+                <div style="font-weight:800;">${doc.codiceRet}</div>
               </td>
             </tr>
             <tr class="r0-sub-gray">
-              <td style="width:27%;">Targa del veicolo</td>
-              <td style="width:27%;">N. DDT</td>
-              <td style="width:23%;">1. DDT</td>
-              <td style="width:23%;">Quantità</td>
+              <td>Targa del veicolo</td>
+              <td>N. DDT</td>
+              <td>1. DDT</td>
+              <td>Quantità</td>
             </tr>
             <tr>
               <td style="height:22px;"></td>
               <td></td>
-              <td rowspan="2" style="text-align:center; vertical-align:middle; font-weight:700; font-size:7.6pt;">0,0</td>
+              <td rowspan="2" style="text-align:center; vertical-align:middle; font-weight:700;">0,0</td>
               <td></td>
             </tr>
             <tr>
-              <td colspan="2" style="text-align:center; font-size:6.9pt; padding:6px 8px;">
+              <td colspan="2" style="text-align:center; padding:6px;">
                 Nella presente giornata, diversamente da quanto indicato nella comunicazione preventiva,<br>
                 dal suddetto sito di produzione al suddetto sito di destinazione<br>
                 lo scrivente esecutore non ha conferito materiale da scavo con nessun trasportatore.
@@ -1049,12 +1230,12 @@
               <td></td>
             </tr>
             <tr>
-              <td colspan="2" style="font-weight:700; font-size:7.3pt;">N. totale di viaggi eseguiti</td>
-              <td colspan="2" style="text-align:center; font-weight:800; font-size:7.6pt;">0</td>
+              <td colspan="2" style="font-weight:700;">N. totale di viaggi eseguiti</td>
+              <td colspan="2" style="text-align:center; font-weight:800;">0</td>
             </tr>
             <tr>
-              <td colspan="2" style="font-weight:700; font-size:7.3pt;">Quantità di materiale trasportato a destinazione:</td>
-              <td colspan="2" style="text-align:center; font-weight:800; font-size:7.6pt;">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mc</td>
+              <td colspan="2" style="font-weight:700;">Quantità di materiale trasportato a destinazione:</td>
+              <td colspan="2" style="text-align:center; font-weight:800;">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mc</td>
             </tr>
           </table>
         </div>
