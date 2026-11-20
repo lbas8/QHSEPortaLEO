@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rettificata a Zero — MDS HUB</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #060911;
+      color: #f8fafc;
+    }
+
+    .wire-banner {
+      background: linear-gradient(180deg, #155e75 0%, #0e4759 100%);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      box-shadow: 0 10px 25px -10px rgba(8, 145, 178, 0.45);
+    }
+    .wire-hub-box {
+      background: linear-gradient(180deg, #134e63 0%, #0c3847 100%);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      border-radius: 0.75rem;
+      padding: 0.85rem 1rem;
+    }
+    .flag-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.36rem 0.58rem;
+      border-radius: 0.5rem;
+      background: rgba(6, 13, 24, 0.74);
+      border: 1px solid rgba(125, 211, 252, 0.18);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .flag-item:hover {
+      border-color: rgba(52, 211, 153, 0.65);
+      background: rgba(16, 185, 129, 0.12);
+    }
+    .flag-item input[type="checkbox"] {
+      accent-color: #10b981;
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* CALENDARIO MENSILE CON "+" IN ALTO A DESTRA */
+    .cal-day-cell {
+      position: relative;
+      min-height: 78px;
+      border: 1px solid #e2e8f0;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .cal-day-other {
+      background-color: #f8fafc;
+      color: #cbd5e1;
+    }
+    .cal-day-current {
+      background-color: #dcfce7 !important;
+      outline: 2px solid #22c55e;
+      outline-offset: -2px;
+    }
+    .cal-day-zero {
+      background-color: #fef3c7 !important;
+    }
+    .cal-plus-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid #1e293b;
+      transition: transform 0.1s ease, background-color 0.12s ease;
+    }
+    .cal-plus-btn:hover {
+      background: #0369a1;
+      transform: scale(1.06);
+    }
+
+    /* STAMPA FORMAT RETT_0.PDF */
+    #print-rett0-sheet { display: none; }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 6mm;
+      }
+      .no-print { display: none !important; }
+      body {
+        background: #ffffff !important;
+        color: #111827 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-family: Arial, sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      #print-rett0-sheet {
+        display: block !important;
+        width: 100% !important;
+        color: #111827 !important;
+        background: #ffffff !important;
+        font-size: 7.2pt;
+        line-height: 1.22;
+      }
+      .rett0-page {
+        page-break-after: always;
+        break-after: page;
+      }
+      .rett0-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .r0-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 4px;
+      }
+      .r0-table th, .r0-table td {
+        border: 1px solid #374151;
+        padding: 3px 5px;
+        vertical-align: top;
+      }
+      .r0-hdr-dark {
+        background: #6b7280 !important;
+        color: #ffffff !important;
+        font-weight: 800;
+        text-align: center;
+        font-size: 6.8pt;
+      }
+      .r0-hdr-light {
+        background: #d1d5db !important;
+        color: #111827 !important;
+        font-weight: 800;
+        text-align: center;
+        font-size: 6.8pt;
+      }
+      .r0-sub-gray {
+        background: #e5e7eb !important;
+        font-weight: 700;
+        text-align: center;
+        font-size: 6.4pt;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white" data-settore="E">
+
+  <header class="no-print w-full bg-[#090d16]/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-2.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="mds_hub.html" class="flex items-center gap-2 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-full text-xs font-bold transition no-underline">
+          <i class="fa-solid fa-arrow-left text-emerald-400"></i>
+          <span>Indietro</span>
+        </a>
+        <a href="mds_preventiva.html" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-emerald-300 rounded-full text-xs font-bold transition no-underline">
+          <i class="fa-solid fa-calendar-days mr-1"></i> Preventive
+        </a>
+        <span id="sync-status-lbl" class="text-[11px] text-cyan-300 font-semibold">
+          Eredità attiva da Preventive in memoria
+        </span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="apriAvvisoCreazione(oggiIso)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow cursor-pointer">
+          <i class="fa-solid fa-plus mr-1"></i> Nuova Rettificata a Zero
+        </button>
+        <button type="button" onclick="stampaTutteRettifiche()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-500 text-white shadow cursor-pointer">
+          <i class="fa-solid fa-file-pdf mr-1"></i> Stampa Format RETT_0 (<span id="badge-rett-count">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="no-print flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-5 space-y-5">
+
+    <!-- BANNER SUPERIORE COME WIREFRAME -->
+    <section class="wire-banner rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2 text-white font-black tracking-wide uppercase text-sm sm:text-base">
+        <span>RETTIFICATA A ZERO</span>
+        <span class="text-xs font-bold text-cyan-100 normal-case">
+          — clicca il <strong>+</strong> su un giorno per creare la rettificata a zero dalla tratta programmata
+        </span>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <span id="rett-tot-zero-badge" class="px-3 py-1 rounded-full font-extrabold bg-slate-950/80 text-amber-300 border border-amber-400/30">
+          0 giornate rettificate
+        </span>
+      </div>
+    </section>
+
+    <!-- GRIGLIA PRINCIPALE: SINISTRA CALENDARIO CON "+" & ELENCO RETTIFICHE | DESTRA 7 HUB TRAMITE FLAG -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+      <!-- COLONNA SINISTRA -->
+      <div class="lg:col-span-5 space-y-4">
+
+        <!-- CALENDARIO MENSILE DINAMICO CON "+" IN ALTO A DESTRA -->
+        <div class="bg-white text-slate-800 rounded-xl border border-slate-300 shadow-lg overflow-hidden">
+          <div class="bg-slate-100 border-b border-slate-200 px-3 py-2 flex items-center justify-between">
+            <button type="button" onclick="spostaMese(-1)" class="w-7 h-7 rounded bg-white border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer">
+              <i class="fa-solid fa-angles-left text-xs"></i>
+            </button>
+            <div id="cal-header-title" class="text-xs font-extrabold text-slate-700">novembre 2026</div>
+            <button type="button" onclick="spostaMese(1)" class="w-7 h-7 rounded bg-white border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer">
+              <i class="fa-solid fa-angles-right text-xs"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-7 text-center text-[10px] font-bold text-slate-500 bg-slate-50 border-b border-slate-200 py-1">
+            <div>lunedì</div>
+            <div>martedì</div>
+            <div>mercoledì</div>
+            <div>giovedì</div>
+            <div>venerdì</div>
+            <div>sabato</div>
+            <div>domenica</div>
+          </div>
+
+          <div id="cal-month-grid" class="grid grid-cols-7 text-xs"></div>
+        </div>
+
+        <!-- ELENCO DELLE RETTIFICATE A ZERO CREATE -->
+        <div class="bg-slate-950/85 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="font-black uppercase text-[11px] text-amber-300">
+              <i class="fa-solid fa-ban mr-1"></i> Rettificate a Zero Create
+            </span>
+            <button type="button" onclick="svuotaRettifiche()" class="text-[10px] text-slate-400 hover:text-rose-400 cursor-pointer">
+              Svuota elenco
+            </button>
+          </div>
+          <div id="lista-rettificate-create" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+        </div>
+
+      </div>
+
+      <!-- COLONNA DESTRA: 7 HUB TRAMITE FLAG (EREDITATI / MODIFICABILI) -->
+      <div class="lg:col-span-7 space-y-3 text-xs">
+
+        <div class="wire-hub-box space-y-2">
+          <div class="text-center leading-snug">
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_produttori.html&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">riferimenti del produttore del Materiale da Scavo tramite flag</div>
+          </div>
+          <div id="flags-produttori" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
+        </div>
+
+        <div class="wire-hub-box space-y-2">
+          <div class="text-center leading-snug">
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_sitiproduzione.html&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">riferimenti del sito di produzione del Materiale da Scavo tramite flag</div>
+          </div>
+          <div id="flags-siti-prod" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
+        </div>
+
+        <div class="wire-hub-box space-y-2">
+          <div class="text-center leading-snug">
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_sitidestinazione.html&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">riferimenti dei siti di destino del Materiale da Scavo tramite flag</div>
+          </div>
+          <div id="flags-siti-dest" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
+        </div>
+
+        <div class="wire-hub-box space-y-2">
+          <div class="text-center leading-snug">
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_destinatari.html&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">riferimenti del Gestore del sito di destino del Materiale da Scavo tramite flag</div>
+          </div>
+          <div id="flags-destinatari" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
+        </div>
+
+        <div class="wire-hub-box space-y-2">
+          <div class="text-center leading-snug">
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_materiali.html&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">riferimenti dei Materiali da Scavo trasportati (litologie)</div>
+          </div>
+          <div id="flags-materiali" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 pr-1"></div>
+        </div>
+
+        <div class="wire-hub-box space-y-2">
+          <div class="text-center leading-snug">
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_trasportatori.html&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">riferimenti dei Trasportatori (sede legale)</div>
+          </div>
+          <div id="flags-trasportatori" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
+        </div>
+
+        <div class="wire-hub-box space-y-2">
+          <div class="text-center leading-snug">
+            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;hub_targhe.html&gt;&gt;</div>
+            <div class="font-bold text-white text-xs sm:text-sm">riferimenti delle targhe dei mezzi autorizzati...</div>
+            <div class="font-semibold text-cyan-100 text-[11px]">Direttamente correlato al Trasportatore flaggato</div>
+          </div>
+          <div id="targhe-correlate-box" class="max-h-32 overflow-y-auto space-y-1.5 pr-1"></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- AVVISO / MODALE "CREA RETTIFICATA A ZERO" EREDITATA DALLA PREVENTIVA -->
+  <div id="modal-rett-zero" class="no-print fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-[#0b1220] border border-cyan-400/40 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs">
+      <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-500/20 text-amber-300 border border-amber-400/40">
+            Avviso • Crea Rettificata a Zero
+          </div>
+          <h3 id="modal-rett-title" class="text-base font-black text-white mt-1">Giornata selezionata</h3>
+          <p id="modal-rett-codice" class="text-[11px] text-cyan-300 font-mono"></p>
+        </div>
+        <button type="button" onclick="chiudiAvvisoCreazione()" class="text-slate-400 hover:text-white text-base cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="modal-ereditata-box" class="bg-slate-950/90 border border-slate-800 rounded-xl p-3 space-y-1.5 text-[11px]"></div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Sito di Produzione (Tratta)</label>
+          <select id="modal-sel-prod" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"></select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Sito di Destinazione (Tratta)</label>
+          <select id="modal-sel-dest" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"></select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">
+          Trasportatori coinvolti (non hanno effettuato trasporti)
+        </label>
+        <div id="modal-trasp-list" class="max-h-28 overflow-y-auto space-y-1 bg-slate-950/70 border border-slate-800 rounded-lg p-2"></div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button type="button" onclick="chiudiAvvisoCreazione()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold cursor-pointer">
+          Annulla
+        </button>
+        <button type="button" onclick="confermaCreaRettificataZero()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black cursor-pointer">
+          <i class="fa-solid fa-check mr-1"></i> Crea Rettificata a Zero
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENITORE DI STAMPA FORMAT RETT_0.PDF -->
+  <section id="print-rett0-sheet" aria-hidden="true"></section>
+
+  <script>
+    const MONTH_NAMES = [
+      "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+      "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"
+    ];
+    const MONTH_NAMES_LOWER = MONTH_NAMES.map(m => m.toLowerCase());
+    const FULL_DAY_NAMES = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"];
+
+    const UNIFIED_STORAGE_KEY = "qhse_mds_database_v1";
+    const PREVENTIVA_MEMORY_KEY = "qhse_mds_preventiva_memoria_v1";
+    const RETT_ZERO_DOCS_KEY = "qhse_mds_rett_zero_docs_v1";
+
+    const SUB_KEYS = {
+      siti_produzione: "qhse_mds_sub_siti_produzione",
+      produttori: "qhse_mds_sub_produttori",
+      materiali: "qhse_mds_sub_materiali",
+      siti_destinazione: "qhse_mds_sub_siti_destinazione",
+      destinatari: "qhse_mds_sub_destinatari",
+      trasportatori: "qhse_mds_sub_trasportatori",
+      targhe_per_azienda: "qhse_mds_sub_targhe_per_azienda"
+    };
+
+    const DEFAULT_SITI_PRODUZIONE = [
+      {"denominazione": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
+      {"denominazione": "Castagnola", "indirizzo": "Località Casazze Superiori, s.n.c.", "cap": "15060", "comune": "Fraconalto (AL)", "note": ""},
+      {"denominazione": "Novi Ligure", "indirizzo": "S.P. 153 Strada Cassano, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""}
+    ];
+
+    const DEFAULT_PRODUTTORI = [
+      {"denominazione": "Consorzio COCIV", "indirizzo": "Via Renata Bianchi, 9", "cap": "16152", "comune": "Genova (GE)", "piva": "3299440101"}
+    ];
+
+    const DEFAULT_MATERIALI = ["Metabasalti", "Arenarie", "Marne", "Ghiaia e/o ciottoli"];
+
+    const DEFAULT_SITI_DESTINAZIONE = [
+      {"sito_wbs": "Cascina Guendalina - DP98", "indirizzo": "Strada dei Molini, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
+      {"sito_wbs": "Novi Ligure", "indirizzo": "Strada Cassano SP153", "cap": "15067", "comune": "Novi Ligure (AL)"}
+    ];
+
+    const DEFAULT_DESTINATARI = [
+      {"denominazione": "Consorzio COCIV", "indirizzo": "Via Renata Bianchi, 9", "cap": "16152", "comune": "Genova (GE)", "piva": "3299440101"}
+    ];
+
+    const DEFAULT_TRASPORTATORI = [
+      {"denominazione": "MORELLO CARMELO", "indirizzo_cap_comune": "Via Tangenziale Est Ticino, 2 - 28068 - Romentino (NO)", "piva": "8365830960"},
+      {"denominazione": "AUTOSPED G S.p.A.", "indirizzo_cap_comune": "Viale Europa, 25 - 15053 - Castelnuovo Scrivia (AL)", "piva": "153880067"}
+    ];
+
+    const DEFAULT_TARGHE_PER_AZIENDA = [
+      {"azienda": "MORELLO CARMELO", "targhe": ["AS123AS", "DR606FB", "EA400SG"]},
+      {"azienda": "AUTOSPED G S.p.A.", "targhe": ["EG348GS", "EG461GS"]}
+    ];
+
+    let hubData = {
+      siti_produzione: [],
+      produttori: [],
+      materiali: [],
+      siti_destinazione: [],
+      destinatari: [],
+      trasportatori: [],
+      targhe_per_azienda: []
+    };
+
+    let prevMemory = null;
+    let rettificheDocs = [];
+    let currentCalYear = 2026;
+    let currentCalMonthIdx = 10; // novembre
+    let activeModalIso = null;
+
+    let selectedHubFlags = {
+      produttori: [0],
+      siti_produzione: [0],
+      siti_destinazione: [0],
+      destinatari: [0],
+      materiali: [0],
+      trasportatori: [],
+      targhePerAzienda: {}
+    };
+
+    const oggiIso = formatIsoDate(new Date());
+
+    function formatIsoDate(dateObj) {
+      return `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+    }
+
+    function getIsoWeek(dateObj) {
+      const d = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    function normalizzaTargheMap(rawTarghe) {
+      if (Array.isArray(rawTarghe)) {
+        return rawTarghe.map(item => ({
+          azienda: item.azienda || "",
+          targhe: Array.isArray(item.targhe) ? item.targhe : []
+        }));
+      }
+      if (rawTarghe && typeof rawTarghe === "object") {
+        return Object.entries(rawTarghe).map(([azienda, targhe]) => ({
+          azienda,
+          targhe: Array.isArray(targhe) ? targhe : []
+        }));
+      }
+      return [];
+    }
+
+    function inizializzaDati() {
+      let unified = {};
+      try {
+        unified = JSON.parse(localStorage.getItem(UNIFIED_STORAGE_KEY) || "{}") || {};
+      } catch (_) {}
+
+      const readSub = (k) => {
+        try {
+          const raw = localStorage.getItem(SUB_KEYS[k]);
+          if (raw) return JSON.parse(raw);
+        } catch (_) {}
+        return unified[k] || null;
+      };
+
+      hubData.siti_produzione = readSub("siti_produzione") || DEFAULT_SITI_PRODUZIONE;
+      hubData.produttori = readSub("produttori") || DEFAULT_PRODUTTORI;
+      hubData.materiali = readSub("materiali") || DEFAULT_MATERIALI;
+      hubData.siti_destinazione = readSub("siti_destinazione") || DEFAULT_SITI_DESTINAZIONE;
+      hubData.destinatari = readSub("destinatari") || DEFAULT_DESTINATARI;
+      hubData.trasportatori = readSub("trasportatori") || DEFAULT_TRASPORTATORI;
+      hubData.targhe_per_azienda = normalizzaTargheMap(readSub("targhe_per_azienda") || DEFAULT_TARGHE_PER_AZIENDA);
+
+      try {
+        prevMemory = JSON.parse(localStorage.getItem(PREVENTIVA_MEMORY_KEY) || "null");
+      } catch (_) {
+        prevMemory = null;
+      }
+
+      if (prevMemory) {
+        currentCalYear = parseInt(prevMemory.anno, 10) || 2026;
+        currentCalMonthIdx = (parseInt(prevMemory.mese || "11", 10) || 11) - 1;
+        if (prevMemory.selectedState) {
+          const st = prevMemory.selectedState;
+          if (Array.isArray(st.siti_produzione) && st.siti_produzione.length) selectedHubFlags.siti_produzione = [...st.siti_produzione];
+          if (Array.isArray(st.siti_destinazione) && st.siti_destinazione.length) selectedHubFlags.siti_destinazione = [...st.siti_destinazione];
+          if (Array.isArray(st.produttori) && st.produttori.length) selectedHubFlags.produttori = [...st.produttori];
+          if (Array.isArray(st.destinatari) && st.destinatari.length) selectedHubFlags.destinatari = [...st.destinatari];
+          if (Array.isArray(st.materiali) && st.materiali.length) selectedHubFlags.materiali = [...st.materiali];
+          if (Array.isArray(st.trasportatori) && st.trasportatori.length) {
+            selectedHubFlags.trasportatori = [...st.trasportatori];
+            selectedHubFlags.targhePerAzienda = JSON.parse(JSON.stringify(st.targhePerAzienda || {}));
+          }
+        }
+      }
+
+      if (!selectedHubFlags.trasportatori.length && hubData.trasportatori.length) {
+        const nome0 = hubData.trasportatori[0].denominazione;
+        selectedHubFlags.trasportatori = [nome0];
+        const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome0.trim());
+        selectedHubFlags.targhePerAzienda[nome0] = tObj ? [...tObj.targhe] : [];
+      }
+
+      try {
+        rettificheDocs = JSON.parse(localStorage.getItem(RETT_ZERO_DOCS_KEY) || "[]") || [];
+      } catch (_) {
+        rettificheDocs = [];
+      }
+
+      renderFlagsDestra();
+      renderTargheCorrelate();
+      renderCalendario();
+      renderListaRettificate();
+      aggiornaBadgeConteggi();
+    }
+
+    function spostaMese(delta) {
+      currentCalMonthIdx += delta;
+      if (currentCalMonthIdx < 0) {
+        currentCalMonthIdx = 11;
+        currentCalYear -= 1;
+      } else if (currentCalMonthIdx > 11) {
+        currentCalMonthIdx = 0;
+        currentCalYear += 1;
+      }
+      renderCalendario();
+    }
+
+    function getMonthGridDays(year, monthIndex) {
+      const firstOfMonth = new Date(year, monthIndex, 1);
+      const lastOfMonth = new Date(year, monthIndex + 1, 0);
+
+      const startMonday = new Date(firstOfMonth);
+      startMonday.setDate(firstOfMonth.getDate() - ((firstOfMonth.getDay() + 6) % 7));
+
+      const endSunday = new Date(lastOfMonth);
+      const endOffset = 7 - (((lastOfMonth.getDay() + 6) % 7) + 1);
+      endSunday.setDate(lastOfMonth.getDate() + endOffset);
+
+      const cells = [];
+      const cur = new Date(startMonday);
+      while (cur <= endSunday) {
+        cells.push({
+          date: new Date(cur),
+          iso: formatIsoDate(cur),
+          dayNum: cur.getDate(),
+          dayOfWeekIdx: (cur.getDay() + 6) % 7,
+          inMonth: cur.getMonth() === monthIndex
+        });
+        cur.setDate(cur.getDate() + 1);
+      }
+      return cells;
+    }
+
+    function renderCalendario() {
+      document.getElementById("cal-header-title").textContent = `${MONTH_NAMES_LOWER[currentCalMonthIdx]} ${currentCalYear}`;
+      const cells = getMonthGridDays(currentCalYear, currentCalMonthIdx);
+      const giorniPrev = (prevMemory && prevMemory.selectedState && prevMemory.selectedState.giorniViaggi) ? prevMemory.selectedState.giorniViaggi : {};
+      const mcUnit = prevMemory?.mcPerViaggio || 14;
+
+      const spIdx = selectedHubFlags.siti_produzione[0];
+      const spObj = typeof spIdx === "number" ? hubData.siti_produzione[spIdx] : null;
+      const siglaTag = spObj ? (typeof spObj === "string" ? spObj : (spObj.denominazione || "Tratta")) : "Tratta";
+
+      const zeroByDate = new Set(rettificheDocs.map(r => r.iso));
+
+      document.getElementById("cal-month-grid").innerHTML = cells.map(c => {
+        const isZero = c.inMonth && zeroByDate.has(c.iso);
+        const isCurrent = c.iso === oggiIso;
+        const trips = c.inMonth ? (parseFloat(giorniPrev[c.iso]) || 0) : 0;
+        const mc = trips * mcUnit;
+
+        const cls = [
+          "cal-day-cell",
+          c.inMonth ? "bg-white text-slate-800" : "cal-day-other",
+          isCurrent ? "cal-day-current" : "",
+          isZero ? "cal-day-zero" : ""
+        ].join(" ");
+
+        const numColor = c.dayOfWeekIdx === 6 ? "text-rose-500" : (c.inMonth ? "text-slate-700" : "text-slate-300");
+
+        const plusBtnHtml = c.inMonth
+          ? `<button type="button" class="cal-plus-btn" title="Crea rettificata a zero" onclick="event.stopPropagation(); apriAvvisoCreazione('${c.iso}')">+</button>`
+          : `<span></span>`;
+
+        let pillHtml = "";
+        if (isZero) {
+          pillHtml = `<div class="mt-1 rounded bg-amber-200 border-l-2 border-amber-600 px-1 py-0.5 text-[9px] font-extrabold text-amber-950 leading-tight">
+            RETT. A ZERO (0)
+          </div>`;
+        } else if (c.inMonth && trips > 0) {
+          pillHtml = `<div class="mt-1 rounded bg-sky-100 border-l-2 border-sky-600 px-1 py-0.5 text-[9px] text-slate-800 leading-tight">
+            <div class="font-bold truncate">${siglaTag}</div>
+            <div class="font-extrabold text-sky-900">${trips}v • ${mc}mc</div>
+          </div>`;
+        }
+
+        return `
+          <div class="${cls}" onclick="${c.inMonth ? `apriAvvisoCreazione('${c.iso}')` : ""}">
+            <div class="flex items-start justify-between gap-1">
+              ${plusBtnHtml}
+              <span class="text-[11px] font-bold ${numColor}">${c.dayNum}</span>
+            </div>
+            ${pillHtml}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function apriAvvisoCreazione(iso) {
+      activeModalIso = iso;
+      const d = new Date(iso + "T00:00:00");
+      const dayOfWeekIdx = (d.getDay() + 6) % 7;
+      const weekNum = getIsoWeek(d);
+      const yr = d.getFullYear();
+      const estesa = `${FULL_DAY_NAMES[dayOfWeekIdx]} ${d.getDate()} ${MONTH_NAMES_LOWER[d.getMonth()]} ${yr}`;
+      const codiceRet = `RET_set ${weekNum}/${yr} - gg ${dayOfWeekIdx + 1}`;
+
+      const giorniPrev = (prevMemory && prevMemory.selectedState && prevMemory.selectedState.giorniViaggi) ? prevMemory.selectedState.giorniViaggi : {};
+      const mcUnit = prevMemory?.mcPerViaggio || 14;
+      const prevTrips = parseFloat(giorniPrev[iso]) || 0;
+      const prevMc = prevTrips * mcUnit;
+
+      document.getElementById("modal-rett-title").textContent = `Crea rettificata a zero — ${estesa}`;
+      document.getElementById("modal-rett-codice").textContent = `Codice: ${codiceRet} (${iso})`;
+
+      document.getElementById("modal-ereditata-box").innerHTML = `
+        <div class="font-extrabold text-emerald-300">Dati ereditati dalla preventiva:</div>
+        <div class="text-slate-300">Programmazione del giorno: <strong>${prevTrips} viaggi</strong> (<strong>${prevMc} mc</strong>) → sarà rettificata a <strong>0,0 / 0 mc</strong>.</div>
+        <div class="text-slate-400">Viene indicato che in quel giorno, nella tratta selezionata, i trasportatori non hanno effettuato trasporti.</div>
+      `;
+
+      const selProd = document.getElementById("modal-sel-prod");
+      selProd.innerHTML = hubData.siti_produzione.map((sp, idx) => {
+        const denom = typeof sp === "string" ? sp : (sp.denominazione || "");
+        const sel = selectedHubFlags.siti_produzione.includes(idx) ? "selected" : "";
+        return `<option value="${idx}" ${sel}>${denom}</option>`;
+      }).join("");
+
+      const selDest = document.getElementById("modal-sel-dest");
+      selDest.innerHTML = hubData.siti_destinazione.map((sd, idx) => {
+        const sel = selectedHubFlags.siti_destinazione.includes(idx) ? "selected" : "";
+        return `<option value="${idx}" ${sel}>${sd.sito_wbs}</option>`;
+      }).join("");
+
+      const allTrasp = hubData.trasportatori.map(t => (t.denominazione || "").trim()).filter(Boolean);
+      const preChecked = selectedHubFlags.trasportatori.length ? selectedHubFlags.trasportatori : allTrasp;
+
+      document.getElementById("modal-trasp-list").innerHTML = allTrasp.map((nome, idx) => {
+        const chk = preChecked.includes(nome) ? "checked" : "";
+        return `
+          <label class="flex items-center gap-2 py-0.5 px-1.5 rounded hover:bg-slate-900 cursor-pointer">
+            <input type="checkbox" id="modal-trasp-chk-${idx}" value="${nome.replace(/"/g, "&quot;")}" ${chk} class="accent-amber-400">
+            <span class="text-slate-200 font-semibold">${nome}</span>
+          </label>
+        `;
+      }).join("");
+
+      document.getElementById("modal-rett-zero").classList.remove("hidden");
+    }
+
+    function chiudiAvvisoCreazione() {
+      activeModalIso = null;
+      document.getElementById("modal-rett-zero").classList.add("hidden");
+    }
+
+    function confermaCreaRettificataZero() {
+      if (!activeModalIso) return;
+      const d = new Date(activeModalIso + "T00:00:00");
+      const dayOfWeekIdx = (d.getDay() + 6) % 7;
+      const weekNum = getIsoWeek(d);
+      const yr = d.getFullYear();
+      const estesa = `${FULL_DAY_NAMES[dayOfWeekIdx]} ${d.getDate()} ${MONTH_NAMES_LOWER[d.getMonth()]} ${yr}`;
+      const codiceRet = `RET_set ${weekNum}/${yr} - gg ${dayOfWeekIdx + 1}`;
+
+      const prodIdx = parseInt(document.getElementById("modal-sel-prod").value, 10) || 0;
+      const destIdx = parseInt(document.getElementById("modal-sel-dest").value, 10) || 0;
+
+      const rawProd = hubData.siti_produzione[prodIdx] || DEFAULT_SITI_PRODUZIONE[0];
+      const prodObj = typeof rawProd === "string"
+        ? { denominazione: rawProd, indirizzo: "", cap: "", comune: "" }
+        : rawProd;
+
+      const destObj = hubData.siti_destinazione[destIdx] || DEFAULT_SITI_DESTINAZIONE[0];
+
+      const chosenTrasp = [];
+      document.querySelectorAll('#modal-trasp-list input[type="checkbox"]:checked').forEach(cb => {
+        chosenTrasp.push(cb.value);
+      });
+
+      const produttoreObj = hubData.produttori[selectedHubFlags.produttori[0]] || DEFAULT_PRODUTTORI[0];
+      const destinatarioObj = hubData.destinatari[selectedHubFlags.destinatari[0]] || DEFAULT_DESTINATARI[0];
+      const materialeNome = hubData.materiali[selectedHubFlags.materiali[0]] || "Materiale da scavo";
+
+      const traspDettagli = (chosenTrasp.length ? chosenTrasp : selectedHubFlags.trasportatori).map(nome => {
+        const found = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome) || {};
+        return {
+          denominazione: nome,
+          indirizzo_cap_comune: found.indirizzo_cap_comune || "",
+          piva: found.piva || ""
+        };
+      });
+
+      const docItem = {
+        id: `${activeModalIso}__${prodObj.denominazione}__${destObj.sito_wbs}__${Date.now()}`,
+        iso: activeModalIso,
+        dataEstesa: estesa,
+        codiceRet,
+        produttore: produttoreObj,
+        sitoProduzione: prodObj,
+        sitoDestinazione: destObj,
+        destinatario: destinatarioObj,
+        materiale: materialeNome,
+        trasportatori: traspDettagli,
+        creatoIl: new Date().toLocaleString("it-IT")
+      };
+
+      rettificheDocs.unshift(docItem);
+      localStorage.setItem(RETT_ZERO_DOCS_KEY, JSON.stringify(rettificheDocs));
+
+      chiudiAvvisoCreazione();
+      renderCalendario();
+      renderListaRettificate();
+      aggiornaBadgeConteggi();
+    }
+
+    function renderListaRettificate() {
+      const wrap = document.getElementById("lista-rettificate-create");
+      if (!rettificheDocs.length) {
+        wrap.innerHTML = `<div class="text-[11px] text-slate-500 text-center py-3">Nessuna rettificata a zero creata. Clicca il "+" su un giorno del calendario.</div>`;
+        return;
+      }
+
+      wrap.innerHTML = rettificheDocs.map(doc => `
+        <div class="bg-slate-900/90 border border-amber-500/35 rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-extrabold text-amber-300 text-[11px] capitalize">${doc.dataEstesa}</span>
+            <span class="text-[10px] font-mono text-cyan-300">${doc.codiceRet}</span>
+          </div>
+          <div class="text-[11px] font-bold text-white">
+            ${doc.sitoProduzione.denominazione} → ${doc.sitoDestinazione.sito_wbs}
+          </div>
+          <div class="text-[10px] text-slate-400">
+            Trasportatori: ${doc.trasportatori.map(t => t.denominazione).join(", ") || "Tutti i trasportatori"}
+          </div>
+          <div class="flex items-center justify-end gap-2 pt-1">
+            <button type="button" onclick="stampaSingolaRettifica('${doc.id}')" class="px-2.5 py-1 rounded bg-sky-600/25 hover:bg-sky-600/40 text-sky-200 border border-sky-500/40 text-[10px] font-bold cursor-pointer">
+              <i class="fa-solid fa-print mr-1"></i> Stampa
+            </button>
+            <button type="button" onclick="eliminaRettifica('${doc.id}')" class="px-2.5 py-1 rounded bg-rose-600/20 hover:bg-rose-600/35 text-rose-300 border border-rose-500/35 text-[10px] font-bold cursor-pointer">
+              Rimuovi
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function eliminaRettifica(id) {
+      rettificheDocs = rettificheDocs.filter(r => r.id !== id);
+      localStorage.setItem(RETT_ZERO_DOCS_KEY, JSON.stringify(rettificheDocs));
+      renderCalendario();
+      renderListaRettificate();
+      aggiornaBadgeConteggi();
+    }
+
+    function svuotaRettifiche() {
+      rettificheDocs = [];
+      localStorage.removeItem(RETT_ZERO_DOCS_KEY);
+      renderCalendario();
+      renderListaRettificate();
+      aggiornaBadgeConteggi();
+    }
+
+    function aggiornaBadgeConteggi() {
+      const n = rettificheDocs.length;
+      document.getElementById("badge-rett-count").textContent = n;
+      document.getElementById("rett-tot-zero-badge").textContent = `${n} ${n === 1 ? "giornata rettificata" : "giornate rettificate"}`;
+    }
+
+    function renderFlagsDestra() {
+      document.getElementById("flags-produttori").innerHTML = hubData.produttori.map((p, idx) => `
+        <label class="flag-item">
+          <input type="checkbox" ${selectedHubFlags.produttori.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('produttori', ${idx}, this.checked)">
+          <span class="truncate font-semibold text-white">${p.denominazione}</span>
+        </label>
+      `).join("");
+
+      document.getElementById("flags-siti-prod").innerHTML = hubData.siti_produzione.map((sp, idx) => {
+        const denom = typeof sp === "string" ? sp : (sp.denominazione || "");
+        return `
+          <label class="flag-item">
+            <input type="checkbox" ${selectedHubFlags.siti_produzione.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('siti_produzione', ${idx}, this.checked)">
+            <span class="truncate font-semibold text-white">${denom}</span>
+          </label>
+        `;
+      }).join("");
+
+      document.getElementById("flags-siti-dest").innerHTML = hubData.siti_destinazione.map((sd, idx) => `
+        <label class="flag-item">
+          <input type="checkbox" ${selectedHubFlags.siti_destinazione.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('siti_destinazione', ${idx}, this.checked)">
+          <span class="truncate font-semibold text-white">${sd.sito_wbs}</span>
+        </label>
+      `).join("");
+
+      document.getElementById("flags-destinatari").innerHTML = hubData.destinatari.map((d, idx) => `
+        <label class="flag-item">
+          <input type="checkbox" ${selectedHubFlags.destinatari.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('destinatari', ${idx}, this.checked)">
+          <span class="truncate font-semibold text-white">${d.denominazione}</span>
+        </label>
+      `).join("");
+
+      document.getElementById("flags-materiali").innerHTML = hubData.materiali.map((m, idx) => `
+        <label class="flag-item">
+          <input type="checkbox" ${selectedHubFlags.materiali.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('materiali', ${idx}, this.checked)">
+          <span class="truncate text-white">${m}</span>
+        </label>
+      `).join("");
+
+      document.getElementById("flags-trasportatori").innerHTML = hubData.trasportatori.map(t => {
+        const nome = (t.denominazione || "").trim();
+        const chk = selectedHubFlags.trasportatori.includes(nome) ? "checked" : "";
+        return `
+          <label class="flag-item">
+            <input type="checkbox" ${chk} onchange="toggleTraspFlag('${nome.replace(/'/g, "\\'")}', this.checked)">
+            <span class="truncate font-semibold text-white">${nome}</span>
+          </label>
+        `;
+      }).join("");
+    }
+
+    function toggleSingleFlag(key, idx, isChecked) {
+      if (isChecked) {
+        if (!selectedHubFlags[key].includes(idx)) selectedHubFlags[key].push(idx);
+      } else {
+        selectedHubFlags[key] = selectedHubFlags[key].filter(i => i !== idx);
+      }
+      if (key === "siti_produzione") renderCalendario();
+    }
+
+    function toggleTraspFlag(nome, isChecked) {
+      if (isChecked) {
+        if (!selectedHubFlags.trasportatori.includes(nome)) {
+          selectedHubFlags.trasportatori.push(nome);
+          const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
+          selectedHubFlags.targhePerAzienda[nome] = tObj ? [...tObj.targhe] : [];
+        }
+      } else {
+        selectedHubFlags.trasportatori = selectedHubFlags.trasportatori.filter(n => n !== nome);
+      }
+      renderTargheCorrelate();
+    }
+
+    function renderTargheCorrelate() {
+      const box = document.getElementById("targhe-correlate-box");
+      if (!selectedHubFlags.trasportatori.length) {
+        box.innerHTML = `<div class="text-[11px] text-cyan-100/70 text-center">Flagga un trasportatore per vedere le targhe associate.</div>`;
+        return;
+      }
+
+      box.innerHTML = selectedHubFlags.trasportatori.map(nome => {
+        const plates = selectedHubFlags.targhePerAzienda[nome] || [];
+        return `
+          <div class="bg-slate-950/75 border border-cyan-300/20 rounded-lg p-2">
+            <div class="font-bold text-emerald-300 text-[11px]">${nome}</div>
+            <div class="text-[10px] text-cyan-100 font-mono mt-0.5">${plates.join(" • ") || "Nessuna targa"}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function buildRett0Html(doc) {
+      const prod = doc.produttore || {};
+      const sp = doc.sitoProduzione || {};
+      const sd = doc.sitoDestinazione || {};
+      const dest = doc.destinatario || {};
+      const traspList = doc.trasportatori && doc.trasportatori.length
+        ? doc.trasportatori
+        : [{ denominazione: "Tutti i trasportatori", indirizzo_cap_comune: "", piva: "" }];
+
+      const traspRowsHtml = traspList.map(t => `
+        <tr>
+          <td><strong>${t.denominazione || ""}</strong></td>
+          <td>${t.indirizzo_cap_comune || ""}</td>
+          <td>${t.piva || ""}</td>
+        </tr>
+      `).join("");
+
+      return `
+        <div class="rett0-page">
+          <table class="r0-table">
+            <tr>
+              <td style="width:24%; text-align:center; font-weight:700; text-transform:capitalize;">${doc.dataEstesa}</td>
+              <td style="width:52%; text-align:center;">
+                <div style="font-weight:800; font-size:9pt;">COMUNICAZIONE RETTIFICATA DEI TRASPORTI GIORNALIERI</div>
+                <div style="font-size:6.5pt;">ai sensi dell'art.11 all.6 del D.M. 161/2012 e del DVA-2014-14640 del 16/05/2014</div>
+              </td>
+              <td style="width:24%; text-align:center; font-weight:800; font-size:7pt;">${doc.codiceRet}</td>
+            </tr>
+            <tr>
+              <td colspan="3" style="text-align:center;">
+                <div style="font-weight:700;">Lavori di realizzazione della Linea Ferroviaria AV/AC Terzo Valico dei Giovi</div>
+                <div style="font-size:6.2pt;">Atti autorizzativi del Piano di Utilizzo: DVA-2013-24380 del 24/10/2013, DVA-2014-38413 del 20/11/2014, DVADEC-2015-325 del 16/09/2015, DVA-2016-287 del 06/10/2016, DVADEC-309 del 31/10/2017</div>
+                <div style="font-weight:700; font-size:6.4pt;">Proponente del Piano di Utilizzo: Consorzio COCIV - Via R. Bianchi 40 - 16152 GENOVA</div>
+              </td>
+            </tr>
+          </table>
+
+          <table class="r0-table">
+            <tr>
+              <td style="width:68%;" class="r0-hdr-dark">ESECUTORE DEGLI SCAVI CHE REDIGE LA COMUNICAZIONE RETTIFICATA</td>
+              <td style="width:32%;" class="r0-hdr-dark">CANTIERE TV</td>
+            </tr>
+            <tr>
+              <td style="height:20px;"></td>
+              <td style="text-align:center; font-weight:700;">${sp.denominazione || ""}</td>
+            </tr>
+          </table>
+
+          <table class="r0-table">
+            <tr><td colspan="2" class="r0-hdr-dark">PRODUTTORE</td></tr>
+            <tr><td colspan="2" class="r0-sub-gray">Dati identificativi del produttore/esecutore degli scavi</td></tr>
+            <tr>
+              <td colspan="2">
+                <div><strong>Denominazione:</strong> ${prod.denominazione || ""}</div>
+                <div><strong>Indirizzo/CAP/Comune:</strong> ${[prod.indirizzo, prod.cap, prod.comune].filter(Boolean).join(" - ")}</div>
+                <div><strong>Partita IVA:</strong> ${prod.piva || ""}</div>
+              </td>
+            </tr>
+            <tr><td colspan="2" class="r0-hdr-light">SITO DI PRODUZIONE DEL MATERIALE DA SCAVO</td></tr>
+            <tr>
+              <td style="width:62%;"><strong>Denominazione:</strong> ${sp.denominazione || ""}</td>
+              <td style="width:38%;"><strong>WBS:</strong> ${sp.wbs || sd.sito_wbs || ""}</td>
+            </tr>
+            <tr>
+              <td colspan="2"><strong>Indirizzo/CAP/Comune:</strong> ${[sp.indirizzo, sp.cap, sp.comune].filter(Boolean).join(" - ")}</td>
+            </tr>
+          </table>
+
+          <table class="r0-table">
+            <tr><td colspan="2" class="r0-hdr-light">RICEVENTE</td></tr>
+            <tr><td colspan="2" class="r0-sub-gray">Dati identificativi del destinatario/riutilizzatore del materiale da scavo</td></tr>
+            <tr>
+              <td colspan="2">
+                <div><strong>Denominazione:</strong> ${dest.denominazione || ""}</div>
+                <div><strong>Indirizzo/CAP/Comune:</strong> ${[dest.indirizzo, dest.cap, dest.comune].filter(Boolean).join(" - ")}</div>
+                <div><strong>Partita IVA:</strong> ${dest.piva || ""}</div>
+              </td>
+            </tr>
+            <tr><td colspan="2" class="r0-hdr-light">SITO DI DESTINAZIONE DEL MATERIALE DA SCAVO</td></tr>
+            <tr>
+              <td colspan="2"><strong>Sito o WBS:</strong> ${sd.sito_wbs || ""}</td>
+            </tr>
+            <tr>
+              <td colspan="2"><strong>Indirizzo/CAP/Comune:</strong> ${[sd.indirizzo, sd.cap, sd.comune].filter(Boolean).join(" - ")}</td>
+            </tr>
+          </table>
+
+          <table class="r0-table">
+            <tr><td colspan="3" class="r0-hdr-light">TRASPORTATORI</td></tr>
+            <tr><td colspan="3" class="r0-sub-gray">Dati identificativi dei trasportatori del materiale da scavo</td></tr>
+            <tr class="r0-sub-gray">
+              <td style="width:40%;">Denominazione:</td>
+              <td style="width:42%;">Indirizzo/CAP:</td>
+              <td style="width:18%;">Partita IVA:</td>
+            </tr>
+            ${traspRowsHtml}
+          </table>
+
+          <table class="r0-table">
+            <tr>
+              <td colspan="4" class="r0-hdr-light">CONSUNTIVO DEI TRASPORTI ARRIVATI A DESTINAZIONE NELLA GIORNATA</td>
+            </tr>
+            <tr>
+              <td colspan="2" style="width:55%; font-style:italic; font-size:6.4pt;">
+                Di seguito sono indicati i dati di rettifica a consuntivo, come da DDT, dei viaggi indicati nella comunicazione preventiva
+              </td>
+              <td colspan="2" style="width:45%; text-align:center;">
+                <div style="font-size:6.3pt;">Consuntivo trasporti della giornata</div>
+                <div style="font-weight:700; text-transform:capitalize;">${doc.dataEstesa}</div>
+                <div style="font-weight:800;">${doc.codiceRet}</div>
+              </td>
+            </tr>
+            <tr class="r0-sub-gray">
+              <td style="width:25%;">Targa del veicolo</td>
+              <td style="width:25%;">N. DDT</td>
+              <td style="width:25%;">1. DDT</td>
+              <td style="width:25%;">Quantità</td>
+            </tr>
+            <tr>
+              <td style="height:26px;"></td>
+              <td></td>
+              <td rowspan="2" style="text-align:center; vertical-align:middle; font-weight:700;">0,0</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="2" style="text-align:center; font-size:6.6pt; padding:6px;">
+                Nella presente giornata, diversamente da quanto indicato nella comunicazione preventiva,<br>
+                dal suddetto sito di produzione al suddetto sito di destinazione<br>
+                lo scrivente esecutore non ha conferito materiale da scavo con nessun trasportatore.
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="2" style="font-weight:700;">N. totale di viaggi eseguiti</td>
+              <td colspan="2" style="text-align:center; font-weight:800;">0</td>
+            </tr>
+            <tr>
+              <td colspan="2" style="font-weight:700;">Quantità di materiale trasportato a destinazione:</td>
+              <td colspan="2" style="text-align:center; font-weight:800;">0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mc</td>
+            </tr>
+          </table>
+        </div>
+      `;
+    }
+
+    function stampaSingolaRettifica(id) {
+      const doc = rettificheDocs.find(r => r.id === id);
+      if (!doc) return;
+      document.getElementById("print-rett0-sheet").innerHTML = buildRett0Html(doc);
+      window.print();
+    }
+
+    function stampaTutteRettifiche() {
+      if (!rettificheDocs.length) {
+        alert("Crea prima almeno una rettificata a zero cliccando '+' su un giorno del calendario.");
+        return;
+      }
+      document.getElementById("print-rett0-sheet").innerHTML = rettificheDocs.map(buildRett0Html).join("");
+      window.print();
+    }
+
+    document.addEventListener("DOMContentLoaded", inizializzaDati);
+  </script>
+</body>
+</html>
