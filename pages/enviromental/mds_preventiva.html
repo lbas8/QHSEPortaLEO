@@ -6,8 +6,6 @@
   <title>Comunicazione Preventiva Trasporti MdS — Portale QHSE</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -60,7 +58,7 @@
         color: #111827 !important;
         background: #ffffff !important;
         font-size: 6pt;
-        line-height: 1.12;
+        line-height: 1.15;
       }
       .preventiva-page {
         page-break-after: always;
@@ -84,7 +82,6 @@
       .prev-title { font-weight: 800; font-size: 8.5pt; text-align: center; }
       .prev-sub { font-size: 6.4pt; text-align: center; }
       .prev-sec-hdr { background: #e5e7eb !important; font-weight: 700; text-align: center; }
-      .prev-wk-hdr { background: #f3f4f6 !important; font-weight: 700; text-align: center; }
       .prev-out-range { background: #f9fafb !important; color: #6b7280 !important; }
       .prev-num { text-align: right; font-variant-numeric: tabular-nums; }
       .prev-center { text-align: center; }
@@ -105,7 +102,7 @@
             Comunicazione Preventiva Trasporti MdS
           </h1>
           <p id="hub-sync-status" class="text-[11px] text-emerald-400 font-semibold">
-            Collegato ai 7 Hub Modulari (localStorage + database vigenti)
+            Bozza calendario unico — pronto per rifinitura
           </p>
         </div>
       </div>
@@ -127,7 +124,7 @@
     <section class="glass-card rounded-2xl p-5 space-y-4 border-t-2 border-emerald-500">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
         <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
-          1. Selezione Mese di Riferimento & Periodo
+          1. Selezione Mese di Riferimento &amp; Periodo
         </h2>
         <div class="flex items-center gap-2">
           <span id="settimane-range-badge" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-700">
@@ -179,11 +176,10 @@
     <!-- 2. ROTTA (1 PARTENZA -> N DESTINAZIONI) & SELEZIONE TRAMITE FLAG DAI 7 HUB -->
     <section class="glass-card rounded-2xl p-5 space-y-5">
       <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300 border-b border-slate-800 pb-3">
-        2. Sito di Partenza (Menu a Tendina), Destinazioni (Flag = N Preventive) & Dati dai 7 Hub
+        2. Sito di Partenza (Menu a Tendina), Destinazioni (Flag = N Preventive) &amp; Dati dai 7 Hub
       </h2>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
-        <!-- MENU A TENDINA UNIVOCO: SITO DI PARTENZA -->
         <div class="bg-slate-950/60 border border-emerald-500/30 rounded-xl p-4 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="font-black uppercase text-emerald-400">
@@ -197,7 +193,6 @@
           <div id="info-sito-partenza" class="text-[11px] text-slate-400 min-h-[1.25rem]"></div>
         </div>
 
-        <!-- FLAG MULTIPLI: SITI DI DESTINAZIONE / DEPOSITO -->
         <div class="bg-slate-950/60 border border-emerald-500/30 rounded-xl p-4 space-y-2.5">
           <div class="flex items-center justify-between gap-2">
             <span class="font-black uppercase text-emerald-400">
@@ -213,7 +208,6 @@
           <div id="flags-siti-dest" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
         </div>
 
-        <!-- RIEPILOGO DINAMICO DELLE N PREVENTIVE (1 PARTENZA -> N DESTINAZIONI) -->
         <div class="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-4 space-y-2 lg:col-span-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="font-black uppercase text-emerald-300 text-xs">
@@ -227,7 +221,6 @@
           <ul id="lista-anteprima-preventive" class="grid grid-cols-1 md:grid-cols-2 gap-1.5 text-[11px] text-slate-200 list-disc pl-4"></ul>
         </div>
 
-        <!-- PRODUTTORE MdS -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="font-black uppercase text-emerald-400">Produttore MdS</span>
@@ -236,7 +229,6 @@
           <div id="flags-produttori" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
         </div>
 
-        <!-- DESTINATARIO MdS -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="font-black uppercase text-emerald-400">Destinatario MdS</span>
@@ -245,7 +237,6 @@
           <div id="flags-destinatari" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
         </div>
 
-        <!-- TIPO DI MATERIALE TRASPORTATO (FLAG LITOLOGIE) -->
         <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-2.5 lg:col-span-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="font-black uppercase text-emerald-400">Tipo di Materiale Trasportato (Flag Litologie)</span>
@@ -259,15 +250,15 @@
       </div>
     </section>
 
-    <!-- 3. TRASPORTATORI & TARGHE (MESSI DA PARTE) + CALENDARIO SETTIMANALE UNICO -->
+    <!-- 3. TRASPORTATORI & TARGHE (A SINISTRA) + CALENDARIO SETTIMANALE UNICO (A DESTRA) -->
     <section class="glass-card rounded-2xl p-5 space-y-5">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
         <div>
           <h2 class="text-sm font-black uppercase tracking-wider text-emerald-300">
-            3. Trasportatori & Targhe (Flag) + Cronoprogramma Settimanale Unico
+            3. Trasportatori &amp; Targhe (Flag) + Cronoprogramma Settimanale Unico
           </h2>
           <p class="text-[11px] text-slate-400 mt-0.5">
-            Trasportatori e targhe sono raggruppati a sinistra; il cronoprogramma settimanale resta unico per tutto il periodo selezionato.
+            Trasportatori e targhe raggruppati a sinistra; cronoprogramma settimanale unico a destra.
           </p>
         </div>
         <div class="flex items-center gap-3 text-[11px]">
@@ -277,33 +268,24 @@
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start text-xs">
-        <!-- COLONNA SINISTRA: TRASPORTATORI & TARGHE SELEZIONATE -->
         <div class="xl:col-span-4 bg-slate-950/60 border border-slate-800 rounded-xl p-4 space-y-3">
           <div class="flex items-center justify-between">
-            <span class="font-black uppercase text-emerald-400">Trasportatori & Targhe</span>
+            <span class="font-black uppercase text-emerald-400">Trasportatori &amp; Targhe</span>
             <span id="conteggio-trasp-targhe" class="text-[10px] font-bold text-slate-400">0 aziende</span>
           </div>
           <div id="flags-trasportatori" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
           <div id="targhe-selezionate-box" class="space-y-2 pt-2 border-t border-slate-800 max-h-60 overflow-y-auto pr-1"></div>
         </div>
 
-        <!-- COLONNA DESTRA: CRONOPROGRAMMA SETTIMANALE UNICO -->
-        <div class="xl:col-span-8 bg-slate-950/60 border border-emerald-500/25 rounded-xl p-4 space-y-3">
-          <div class="bg-slate-900/70 border border-slate-800 rounded-lg p-3 space-y-2">
+        <div class="xl:col-span-8 bg-slate-950/60 border border-emerald-500/25 rounded-xl p-4 space-y-4">
+          <div class="bg-slate-900/75 border border-slate-800 rounded-lg p-3 space-y-2.5">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <span class="text-[10px] font-bold uppercase text-emerald-300">Pattern giornaliero unico (viaggi)</span>
               <button type="button" onclick="applicaPatternATutteLeSettimane()" class="px-2.5 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold cursor-pointer">
                 <i class="fa-solid fa-repeat mr-1"></i> Applica a tutte le settimane
               </button>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-              ${["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"].map((g, dIdx) => `
-                <div>
-                  <label class="block text-[10px] text-slate-400 mb-0.5">${g}</label>
-                  <input type="number" min="0" id="pat-unico-${dIdx}" value="${dIdx < 6 ? 20 : 0}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-white">
-                </div>
-              `).join("")}
-            </div>
+            <div id="pattern-giorni-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2"></div>
           </div>
 
           <div id="calendario-unico-wrap" class="overflow-x-auto"></div>
@@ -328,7 +310,6 @@
     </section>
   </main>
 
-  <!-- CONTENITORE FOGLI DI STAMPA / EXPORT PDF (UNO PER CIASCUNA DELLE N PREVENTIVE) -->
   <section id="print-preventiva-sheet" aria-hidden="true"></section>
 
   <script>
@@ -344,149 +325,29 @@
       targhe_per_azienda: "qhse_mds_sub_targhe_per_azienda"
     };
 
-    // Foglio 1/7 — SITO_DI_PRODUZIONE
     const DEFAULT_SITI_PRODUZIONE = [
       {"denominazione": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
-      {"denominazione": "Interconnessione", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
-      {"denominazione": "Gerbidi", "indirizzo": "Ex S.S. 211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)", "note": ""},
-      {"denominazione": "Novi Ligure", "indirizzo": "S.P. 153 Strada Cassano, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""},
-      {"denominazione": "Castagnola", "indirizzo": "Località Casazze Superiori, s.n.c.", "cap": "15060", "comune": "Fraconalto (AL)", "note": ""},
-      {"denominazione": "Fegino", "indirizzo": "Via Castel Morrone, s.n.c.", "cap": "16161", "comune": "Genova (GE)", "note": ""},
-      {"denominazione": "Polcevera", "indirizzo": "", "cap": "16161", "comune": "Genova (GE)", "note": ""},
-      {"denominazione": "S.P. 163 della Castagnola (WBS NV13.2 - Zona 3)", "indirizzo": "S.P. 163, s.n.c.", "cap": "15060", "comune": "Fraconalto (AL)", "note": ""},
-      {"denominazione": "Novi Ligure (COP7)", "indirizzo": "S.P. 35ter Pieve di Novi Ligure, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""},
-      {"denominazione": "Novi Ligure (COP7) presso Libarna (COP5)", "indirizzo": "Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": ""},
-      {"denominazione": "Pernigotti presso Libarna (COP5)", "indirizzo": "c/o Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": ""},
-      {"denominazione": "Libarna (COP5)", "indirizzo": "c/o Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": ""},
-      {"denominazione": "Pernigotti [TRVB]", "indirizzo": "Via dell'Argicoltura, s.n.c.", "cap": "15067", "comune": "Novi Ligure (AL)", "note": ""},
-      {"denominazione": "Novi Ligure (COP7)", "indirizzo": "Strada Cappellazza, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)", "note": "DEPOSITO INTERMEDIO"}
+      {"denominazione": "Castagnola", "indirizzo": "Località Casazze Superiori, s.n.c.", "cap": "15060", "comune": "Fraconalto (AL)", "note": ""}
     ];
-
-    // Foglio 2/7 — Dati_identif_del_produttore
     const DEFAULT_PRODUTTORI = [
       {"denominazione": "Consorzio COCIV", "indirizzo": "Via Renata Bianchi, 9", "cap": "16152", "comune": "Genova (GE)", "piva": "3299440101"},
-      {"denominazione": "Consorzio Tunnel Giovi", "indirizzo": "Via A.M. Adorni, 1", "cap": "43121", "comune": "Parma (PR)", "piva": "2852220348"},
-      {"denominazione": "CMP S.r.l.", "indirizzo": "Via alla stazione di San Quirico, 70", "cap": "16163", "comune": "Genova (GE)", "piva": "1957970997"},
-      {"denominazione": "Polistrade S.p.A.", "indirizzo": "Via Pier Paolo Pasolini, 18", "cap": "50013", "comune": "Campi Bisenzio (FI)", "piva": "752930487"},
-      {"denominazione": "Seli Overseas S.p.A.", "indirizzo": "Via Giulio Vincenzo Bona, 120", "cap": "156", "comune": "Roma (RM)", "piva": "3299440101"},
-      {"denominazione": "Cipa S.p.A.", "indirizzo": "Via Casa Rosa, 33", "cap": "80063", "comune": "Piano di Sorrento (NA)", "piva": "1392551212"}
+      {"denominazione": "Consorzio Tunnel Giovi", "indirizzo": "Via A.M. Adorni, 1", "cap": "43121", "comune": "Parma (PR)", "piva": "2852220348"}
     ];
-
-    // Foglio 3/7 — Tipo_di_materiale_trasportato
-    const DEFAULT_MATERIALI = [
-      "Arenarie", "Arenarie di Serravalle", "Argille", "Argille di Lugagnano", "Argille di Ortovero", "Argilliti", "Argilliti a Palombini", "Argilloscisti di Costagiutta", "Argilloscisti di Murta", "Argilloscisti filladici", "Argilloscisti neri", "Basalti dell'unità Timone Teiolo", "Calcari", "Calcari di Gallaneto", "Calcari dolomitici", "Cloritoscisti", "Conglomerati di Cassano Spinola", "Dolomie", "Dolomie di Monte Gazzo", "Formazione di Cassano Spinola", "Formazione di Costa Areasa", "Formazione di Costa Montada", "Formazione di Molare", "Formazione di Rigoroso", "Formazione di Serravalle", "Ghiaia e/o ciottoli", "Ghiaio terro limoso", "Marne", "Marne di Cessole", "Marne di Costa Areasa", "Marne di Sant'Agata", "Marne di Sant'Agata Fossili", "Materiale di riporto", "Melange Tettonico", "Membro di Rio Maggiore", "Metabasalti", "Metabasalti di M. Figogna", "Metacalcari", "Metagabbri", "Metagabbri del M. Figogna", "Metaoficalci", "Metargilliti", "Metargilliti a Palombini", "Metasedimenti", "Metasedimenti della Madonna della Guardia", "Metasedimenti silicei", "Milonite", "Oficalci", "Pietre verdi", "Sabbia", "Sabbie e/o ghiaie", "Scisti ofiolitici", "Serpentiniti", "Terreno limoso", "Terreno superficiale", "Terreno vegetale"
-    ];
-
-    // Foglio 4/7 — SITO_DI_DESTINAZIONE
+    const DEFAULT_MATERIALI = ["Metabasalti", "Arenarie", "Argilloscisti di Costagiutta"];
     const DEFAULT_SITI_DESTINAZIONE = [
-      {"sito_wbs": "Cava Castellaro - DP02", "indirizzo": "S.P.6 Via Cravasco", "cap": "16044", "comune": "Campomorone (GE)"},
-      {"sito_wbs": "Interconnessione", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
-      {"sito_wbs": "Gerbidi", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
       {"sito_wbs": "Novi Ligure", "indirizzo": "Strada Cassano SP153", "cap": "15067", "comune": "Novi Ligure (AL)"},
-      {"sito_wbs": "Deposito Intermedio Pozzolo (DIPZ)", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
-      {"sito_wbs": "Cascina Romanellotta - DP22", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
-      {"sito_wbs": "EX Cava Cementir Voltaggio - DP04", "indirizzo": "Località Ferriera Vecchia, s.n.c.", "cap": "15060", "comune": "Voltaggio (AL)"},
-      {"sito_wbs": "Cascina Venezia", "indirizzo": "Via Enrico Fermi, s.n.c.", "cap": "27058", "comune": "Casei Gerola (PV)"},
-      {"sito_wbs": "Cascina Vassuria - DP9D", "indirizzo": "S.P. 35bis s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
-      {"sito_wbs": "Cascina Guendalina - DP98", "indirizzo": "Strada dei Molini, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
-      {"sito_wbs": "Deposito Intermedio C.na Romanellotta (DICR)", "indirizzo": "Ex S.S.211 della Lomellina, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"},
-      {"sito_wbs": "Cava Vecchie Fornaci - DP91", "indirizzo": "Via alle Vecchie Fornaci, s.n.c.", "cap": "16162", "comune": "Genova (GE)"},
-      {"sito_wbs": "Deposito Intermedio Cantiere Operativo Fegino - COL2", "indirizzo": "Via Castel Morrone, s.n.c.", "cap": "16161", "comune": "Genova (GE)"},
-      {"sito_wbs": "Deposito Intermedio Libarna (DILIB)", "indirizzo": "Via Liverno, s.n.c.", "cap": "15069", "comune": "Serravalle Scrivia (AL)"}
+      {"sito_wbs": "Cascina Guendalina - DP98", "indirizzo": "Strada dei Molini, s.n.c.", "cap": "15068", "comune": "Pozzolo Formigaro (AL)"}
     ];
-
-    // Foglio 5/7 — Dati_identif_del_destinatario
     const DEFAULT_DESTINATARI = [
-      {"denominazione": "ATI Edilmac S.r.l. - Heidelberg Materials Italia Calcestruzzi S.p.A.", "indirizzo": "Via Trento, 16", "cap": "24020", "comune": "Gorle (BG)", "piva": "217080167"},
-      {"denominazione": "Allara S.p.A.", "indirizzo": "Strada Frassineto Po, 42", "cap": "15033", "comune": "Casale Monferrato (AL)", "piva": "414250068"},
-      {"denominazione": "Rito Soc. Agricola S.r.l.", "indirizzo": "Via Fermi, 4", "cap": "27055", "comune": "Rivanazzano Terme (PV)", "piva": "1423820180"},
-      {"denominazione": "Consorzio COCIV", "indirizzo": "Via Renata Bianchi, 9", "cap": "16152", "comune": "Genova (GE)", "piva": "3299440101"},
-      {"denominazione": "Picco Bartolomeo S.r.l.", "indirizzo": "Via Materno Garibaldi, 9", "cap": "14100", "comune": "Asti (AT)", "piva": "1280650050"},
-      {"denominazione": "Consorzio Stabile 3 Emme s.c.a.r.l.", "indirizzo": "Via Paolo Emilio, 32", "cap": "162", "comune": "Roma (RM)", "piva": "6934780963"}
+      {"denominazione": "Consorzio COCIV", "indirizzo": "Via Renata Bianchi, 9", "cap": "16152", "comune": "Genova (GE)", "piva": "3299440101"}
     ];
-
-    // Foglio 6/7 — Dati_identi_dei_trasportatori
     const DEFAULT_TRASPORTATORI = [
-      {"denominazione": "ATI  - Portalupi Carlo Impresa Spa", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "ATI POLISTRADE-TERRA UOMINI AMBIENTE", "indirizzo_cap_comune": "Via Pier Paolo Pasolini, 18 - 50013 - Campi Bisenzio (FI)", "piva": "752930487"},
-      {"denominazione": "AUTOSPED G S.p.A.", "indirizzo_cap_comune": "Viale Europa, 25 - 15053 - Castelnuovo Scrivia (AL)", "piva": "153880067"},
-      {"denominazione": "AUTOTRASPORTI PENSIERO S.r.l.", "indirizzo_cap_comune": "Via Stalingrado, 50 - 17014 - Cairo Montenotte (SV)", "piva": "1371970094"},
-      {"denominazione": "BERTINI S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "CAR Trasporti S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "CARNOVALE COSTRUZIONI S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "Cart Soc. Coop. a r. l.", "indirizzo_cap_comune": "Via Piazza Barbarino, 10/3 - 16149 - Genova (GE)", "piva": "3222230108"},
-      {"denominazione": "Cave Sinni S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "CIPA S.p.A.", "indirizzo_cap_comune": "Via Casa Rosa, 33 - 80063 - Piano di Sorrento (NA)", "piva": "1392551212"},
-      {"denominazione": "CONSORZIO COCIV", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "CONSORZIO TUNNEL GIOVI", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "Costruttori S.p.A.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "DIMOTER S.r.l.", "indirizzo_cap_comune": "Via Gambalera, 99 - 15122 - Alessandria (AL)", "piva": "2610480069"},
-      {"denominazione": "ECAM S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "Eurocav S.C.AR.L.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "EUROSCAVI S.r.l.", "indirizzo_cap_comune": "Via Rosario Russo, 19 - 95010 - Santa Venerina (CT)", "piva": "4263220966"},
-      {"denominazione": "Eurotrasporti Srl", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "GERMANI S.P.A.", "indirizzo_cap_comune": "Via Volta, 8 - 25010 - S. Zeno Naviglio (BS)", "piva": "1147940173"},
-      {"denominazione": "Impresa Bacchi Srl", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "IMPRESA MANELLI SPA", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "M&D S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
       {"denominazione": "MORELLO CARMELO", "indirizzo_cap_comune": "Via Tangenziale Est Ticino, 2 - 28068 - Romentino (NO)", "piva": "8365830960"},
-      {"denominazione": "MORELLO DOMENICO", "indirizzo_cap_comune": "Strada Manin, 2 - 28100 - Novara (NO)", "piva": "2423660808"},
-      {"denominazione": "MOVITER S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "NEW GROUP INFRASTRUTTURE S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "P.M. Trasporti Srl", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "PARATORI SPA", "indirizzo_cap_comune": "Strada Bosco Marengo,14 - 15067 - Novi Ligure (AL)", "piva": "1572720991"},
-      {"denominazione": "PICCO BARTOLOMEO S.R.L.", "indirizzo_cap_comune": "Via Bertolotti, 7 - 10121 - Torino (TO)", "piva": "1280650050"},
-      {"denominazione": "PM SERVICES S.R.L.", "indirizzo_cap_comune": "Via Marconi, 6/B - 24060 - Bagnatica (BG)", "piva": "4069190165"},
-      {"denominazione": "PREVE COSTRUZIONI S.P.A", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "TESTA SCAVI Srl", "indirizzo_cap_comune": "Via Malta, 5/9 - 16121 - Genova (GE)", "piva": "2274830062"},
-      {"denominazione": "TRASPOTER S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "TRIO S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "TRIZZINO SALVATORE", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "Truck Rail Container S.p.A.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "Unistrade S.r.l.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "VE COSTRUZIONI S.R.L.", "indirizzo_cap_comune": "", "piva": ""},
-      {"denominazione": "ZENTI TRANSPORT S.r.l.", "indirizzo_cap_comune": "Via Industria, 37/39 - 25030 - Torbole e Casaglia (BS)", "piva": "2703810982"}
+      {"denominazione": "AUTOSPED G S.p.A.", "indirizzo_cap_comune": "Viale Europa, 25 - 15053 - Castelnuovo Scrivia (AL)", "piva": "153880067"}
     ];
-
-    // Foglio 7/7 — Targhe_Autorizzate
     const DEFAULT_TARGHE_PER_AZIENDA = [
-      {"azienda": "ATI  - Portalupi Carlo Impresa Spa", "targhe": ["FD133ZW", "FV218CR", "FV219CR"]},
-      {"azienda": "ATI POLISTRADE-TERRA UOMINI AMBIENTE", "targhe": ["GW722JW"]},
-      {"azienda": "AUTOSPED G S.p.A.", "targhe": ["EG348GS", "EG461GS", "EL912FS", "EL913FS", "EP620ZW", "ES271GK", "ES377GK", "EW270FK", "EZ004WC", "EZ005WC", "EZ008WC", "EZ014WC", "EZ020WC", "EZ021WC", "EZ187WC", "EZ188WC", "EZ189WC", "EZ191WC", "EZ921RD", "EZ922RD", "EZ939RD", "EZ940RD", "EZ941RD", "FB913HX", "FB917HX", "FB918HX", "FB966HX", "FB967HX", "FB968HX", "FB969HX", "FC828JM", "FF853ER", "FF857ER", "FF929ER", "FF930ER", "FF932ER", "FF933ER", "FF934ER", "FN896AM", "FN957AM", "FV270CR", "FV271CR", "FV272CR", "FV273CR", "FV274CR", "FV275CR", "FV276CR", "FX117SR", "FX118SR", "FX190SR", "FX191SR", "FX192SR", "FX193SR", "FX194SR", "FX195SR", "FX196SR", "FX282SR", "FX283SR", "FX284SR", "FX285SR", "FY247RN", "FY248RN", "FY249RN", "FY283SR", "FY352RN", "FY353RN", "FY354RN", "FY355RN", "FY356RN", "GA255HS", "GA256HS", "GA257HS", "GA430HS", "GA431HS", "GA432HS", "GA433HS", "GA434HS", "GA452HS", "GA454HS", "GA899BJ", "GB957HR", "GB958HR", "GB959HR", "GB960HR", "GC226LS", "GC227LS", "GC228LS", "GC228ZX", "GF106JA", "GF107JA", "GF108JA", "GF109JA", "GF110JA", "GF111JA", "GF282JA", "GG029TL", "GG030TL", "GG031TL", "GG032TL", "GG033TL", "GG034TL", "GG125TL", "GG126TL", "GG177TL", "GG178TL", "GG179TL", "GG180TL", "GG229TK", "GG684TK", "GL057DL", "GL059DL", "GL060DL", "GL061DL", "GL062DL", "GL063DL", "GL067DL", "GL128DL", "GL904DN", "GL921DL", "GM807DJ", "GN225JA", "GN240JA", "GN241JA", "GN242JA", "GN243JA", "GN245JA", "GV524DC", "GW112SL", "GW334SM", "GW884JW", "GW885JW", "GW892JW", "GZ851CY", "GZ925CY"]},
-      {"azienda": "AUTOTRASPORTI PENSIERO S.r.l.", "targhe": ["DF673AP", "DF905AP", "EH700FS", "FL050KH", "FV087LV", "FW004DP", "FW060DP", "GA052VZ", "GA089VZ", "GA928WA", "GB896VH", "GE951ME", "GJ747SW", "GJ770SW", "GJ860SW", "GX633SJ", "GX635SJ", "HB862JD", "HC465HZ"]},
-      {"azienda": "BERTINI S.R.L.", "targhe": ["B93A631EC03612048", "B93A63IEV03511366", "EF061RD", "FE019HZ", "GH095FF", "GJ986ZD"]},
-      {"azienda": "CAR Trasporti S.r.l.", "targhe": ["ES179FL", "FJ914EG", "FX758NN"]},
-      {"azienda": "CARNOVALE COSTRUZIONI S.R.L.", "targhe": ["FT996XG", "FX734NN", "FX735NN", "FX920NN", "HC929YF"]},
-      {"azienda": "Cart Soc. Coop. a r. l.", "targhe": ["ED448FG", "EF252YE", "EF436YE", "FC653JM", "FW601MV", "GC701DP", "GC702DP", "GK969CT", "GZ834LE"]},
-      {"azienda": "Cave Sinni S.r.l.", "targhe": ["EX922ZV", "EY068KB", "FA883ST", "FA884ST"]},
-      {"azienda": "CIPA S.p.A.", "targhe": ["GB802JL"]},
-      {"azienda": "CONSORZIO TUNNEL GIOVI", "targhe": ["GX195VV", "NASTRO"]},
-      {"azienda": "Costruttori S.p.A.", "targhe": ["GD057LZ", "GE291HP", "GM728CC", "GS179DJ"]},
-      {"azienda": "DIMOTER S.r.l.", "targhe": ["FC880CB", "FM972RK", "FP748KN", "GG901DN", "GH879TR"]},
-      {"azienda": "ECAM S.R.L.", "targhe": ["EX784HR", "FR885PV", "FY960YC", "GD169NV", "GF079HV", "GF080HV", "GJ017ZC", "GJ979ZD", "GR062FB", "GR095FB"]},
-      {"azienda": "Eurocav S.C.AR.L.", "targhe": ["DF965AP", "DF966AP", "EM760SK", "FD104LJ", "FP030WY", "FV068LV", "GB898HR"]},
-      {"azienda": "EUROSCAVI S.r.l.", "targhe": ["DT516HT", "EL501ZZ", "EM831GA", "FH883AP", "FH942AP", "FW141XA", "FY762GE", "FZ841JT", "GB119ZC", "GB949ZE", "GG742LZ", "GG743LZ", "GJ890FZ", "GP420ES", "GT956VT", "GW310KD"]},
-      {"azienda": "Eurotrasporti Srl", "targhe": ["DF373JR", "FB889XB", "FT642SY"]},
-      {"azienda": "GERMANI S.P.A.", "targhe": ["FH950BR", "FJ639CN", "FJ640CN", "FJ641CN", "FJ642CN", "FJ643CN", "FJ644CN", "FJ645CN", "FJ646CN", "FJ647CN", "FJ687CN", "FJ689CN", "FJ690CN", "FK929YW", "FK930YW", "FK931YW", "FK932YW", "FK933YW", "FL099YH", "FL100YH", "FL101YH", "FL114YH", "FL115YH", "FL116YH", "FL212YH", "FT083GZ", "FT084GZ", "FT085GZ", "FT105GZ", "FT106GZ", "FT107GZ", "FT150GZ", "FT151GZ", "FT304GZ", "FT306GZ", "FT307GZ", "FT308GZ", "FT957JH", "FT983JH", "FV590JE", "FV591JE", "FV592JE", "FV753JH", "FV754JH", "FV755JH", "FV756JH", "FV865JH", "FV866JH", "FV867JH", "FV868JH", "FV870JH", "FV904JH", "FV905JH", "FV906JH", "FV907JH", "FV908JH", "FV956JH", "FV957JH", "FV958JH", "FV960JH", "FV981JH", "FV982JH", "FV983JH", "FV984JH", "FV985JH", "FW214SK", "FW215SK", "FW216SK", "FW250SK", "FW251SK", "FW252SK", "FW253SK", "FW254SK", "FW338SK", "FW339SK", "FW340SK", "FZ152MD", "FZ251MD", "FZ913MC", "GA138LY", "GA139LY", "GA140LY", "GA141LY", "GA142LY", "GA143LY", "GA144LY", "GC500MK", "GC501MK", "GC553MK", "GC554MK", "GC587MK", "GC589MK", "GC624MK", "GC683MK", "GC684MK", "GC732MK", "GC733MK", "GC736MK", "GC800MK", "GD039GX", "GD040GX", "GD041GX", "GD042GX", "GD043GX", "GD045GX", "GD047GX", "GD048GX", "GD081GX", "GF488AJ", "GH307AS", "GH310AS", "GH312AS", "GH357AS", "GH361AS", "GH364AS", "GH368AS", "GH369AS", "GH370AS", "GH417AS", "GH419AS", "GH420AS", "GH421AS", "GH574AR", "GH577AS", "GH721AR", "GM795XJ", "GR573DG", "GR586DG", "GR587DG", "GR589DG", "GR676DG", "GR763DG", "GR767DG", "GR897DG", "GS483AP", "GS484AP", "GS485AP", "GS579AP", "GS676AP", "GS737AP", "GS797AP", "GS862AP", "GS969AP", "GS972AP", "GS973AP", "GY005MS", "GY006MS", "GY026MS", "GY027MS", "GY028MS", "GY075MS", "GY076MS", "GY150MS", "GY151MS", "GY152MS", "GY153MS", "GY154MS", "GY155MS", "GY156MS", "GY158MS", "GY159MS", "GY169MS", "GY170MS", "GY171MS", "GY172MS", "HA005ZB", "HA095ZB"]},
-      {"azienda": "Impresa Bacchi Srl", "targhe": ["DZ673BA", "EC798TR", "GA949CH", "GA950CH", "GE380AM", "GE570AM", "GE571AM", "GH622XH", "GJ090KV"]},
-      {"azienda": "M&D S.R.L.", "targhe": ["FX443SE", "FX490SE", "FX491SE", "FZ861WP", "GB136GB", "GB137GB", "GB138GB", "GS741WP", "GS743WP", "GS744WP", "HA585MG", "HA586MG", "NASTRO_M&D"]},
-      {"azienda": "MORELLO CARMELO", "targhe": ["AS123AS", "DR606FB", "EA400SG", "EH705FS", "EK121BN", "EL272LK", "EL274LK", "EN227WE", "ES400GK", "ES401GK", "ET820NK", "EX268BS", "EX884TA", "EX885TA", "EY915NH", "EY921JB", "EZ067WC", "EZ068WC", "EZ069WC", "FC346JR", "FC366JR", "FH284ZA", "FH285ZA", "FK542EH", "FS907RV", "FS908RV", "GA012FR", "GA013FR", "GA041FR", "GA424AB", "GA432AB", "GD581MA", "GD603MA", "GD604MA", "GD607MA", "GD830YD", "GD831YD", "GE913YK", "GE960YK", "GE961YK", "GE962YK", "GE972XV", "GG935DN", "GJ833TY", "GJ883TY", "GM951KA", "GM954KA", "GT978WL", "GX806XK", "GX828XK", "GX926XK", "GY701BR", "GY703BR", "GY770BT", "HB007KH", "HB009KH", "HB834HT", "HB977KK"]},
-      {"azienda": "MORELLO DOMENICO", "targhe": ["ES469GK", "EW554WN", "EY944HM", "EZ561SV", "FA912MB", "FC879CB", "FC983CB", "FC984CB", "FE116DD", "FE161DD", "FF977HE", "FK531EH", "FL934VJ", "FM971RK", "FN051FT", "FP432CP", "FS311FD", "FS875RV", "FS951RX", "FY039SN", "GD846YB", "GD857DF", "GD910DT", "GD914DT", "GD926DT", "GG904DN", "GH850TR", "GW179YT", "GX857XK", "HC949CD"]},
-      {"azienda": "MOVITER S.r.l.", "targhe": ["FL920BL", "FM183PM", "FN116FK", "FT082GF", "FV785DG", "FV786DG", "FX252TM", "FX253TM", "FX439TM", "FX924TM", "FX934TM", "GA099BJ", "GA250BJ", "GA251BJ", "GA682BJ"]},
-      {"azienda": "NEW GROUP INFRASTRUTTURE S.R.L.", "targhe": ["FP991KX", "GV876AK", "GV920AK", "HA265BV", "HA266BV", "HA411BV"]},
-      {"azienda": "P.M. Trasporti Srl", "targhe": ["FH761HG", "FM024WY", "FM330WY", "FN824VF", "GA105HS", "GA402HS"]},
-      {"azienda": "PARATORI SPA", "targhe": ["EZ844PD", "GD748DF", "GZ505CY", "GZ506CY", "GZ507CY", "GZ508CY", "GZ509CY", "HA112LB", "HA730LD", "HA732LD", "HA735LD", "HB326XJ", "HB372XJ", "HB375XJ"]},
-      {"azienda": "PICCO BARTOLOMEO S.R.L.", "targhe": ["CH864GT", "GG846YZ", "GL656FG"]},
-      {"azienda": "PM SERVICES S.R.L.", "targhe": ["DJ935GW", "DR579CR", "EF270SV", "ER528VY", "ER529VY", "ER865VY", "ER866VY", "EW134YW", "EX059NJ", "FB847XK", "FD688XH", "FH827LD", "FH997SP", "FJ514HN", "FK827NX", "FN659WD", "FR376BF", "GA165BJ", "GA230BK", "GC245RN", "GC866AT", "GC899AT", "GC900AT", "GC996RN", "GE002XR", "GE474BA", "GE489BA", "GF105JK", "GF106JK", "GJ013BR", "GJ291BR", "GJ378BR", "GN210JX", "HB220AK", "HB221AK", "HC015ZN"]},
-      {"azienda": "PREVE COSTRUZIONI S.P.A", "targhe": ["FB059JE", "FB060JE", "FB061JE", "FB356JE", "FB783JE", "FG169HG", "FG171HG", "FL962MB", "FM138RK", "HC573ZS", "HE978GX"]},
-      {"azienda": "TESTA SCAVI Srl", "targhe": ["GG128TL", "GP852CC"]},
-      {"azienda": "TRASPOTER S.r.l.", "targhe": ["FF110XL", "FT072GF", "FV547DG", "FX313TM", "FX440TM", "FX852TM", "GA258BJ", "GA259BJ", "GA259BK", "GA687BJ"]},
-      {"azienda": "TRIO S.r.l.", "targhe": ["GH913CH", "GJ192HG", "GJ193HG"]},
-      {"azienda": "TRIZZINO SALVATORE", "targhe": ["FW052RK", "FY082KV", "GR076FB"]},
-      {"azienda": "Truck Rail Container S.p.A.", "targhe": ["FE901WY", "FE904WY", "FE905WY", "FE906WY", "FE930WY", "FE931WY", "FF851ER", "FF852ER", "FF855ER", "FF856ER", "FF931ER", "FS992PS", "GM815DJ", "GM818DJ", "GM823DJ", "GM826DJ"]},
-      {"azienda": "Unistrade S.r.l.", "targhe": ["CB522PF", "DX894DM", "EK009BK", "EL861XE", "FB032TA", "FF627SM"]},
-      {"azienda": "VE COSTRUZIONI S.R.L.", "targhe": ["CW430ZM", "DE002NV", "FF107JT", "FM939SN", "GJ908TZ", "GN824ZX"]},
-      {"azienda": "ZENTI TRANSPORT S.r.l.", "targhe": ["EH408LW", "FD260EL", "FE968RH", "FF840ZH", "FG688NM"]}
+      {"azienda": "MORELLO CARMELO", "targhe": ["AS123AS", "DR606FB", "EA400SG"]},
+      {"azienda": "AUTOSPED G S.p.A.", "targhe": ["EG348GS", "EG461GS"]}
     ];
 
     let hubData = {
@@ -579,39 +440,43 @@
         selectedState.sito_partenza_idx = 0;
       }
       if (!selectedState.siti_destinazione.length && hubData.siti_destinazione.length) {
-        const idxNovi = hubData.siti_destinazione.findIndex(x => (x.sito_wbs || "").toLowerCase().includes("novi ligure"));
-        selectedState.siti_destinazione = [idxNovi >= 0 ? idxNovi : 0];
+        selectedState.siti_destinazione = [0];
       }
       if (!selectedState.produttori.length && hubData.produttori.length) {
-        const idxCociv = hubData.produttori.findIndex(x => (x.denominazione || "").toLowerCase().includes("cociv"));
-        selectedState.produttori = [idxCociv >= 0 ? idxCociv : 0];
+        selectedState.produttori = [0];
       }
       if (!selectedState.destinatari.length && hubData.destinatari.length) {
-        const idxCociv = hubData.destinatari.findIndex(x => (x.denominazione || "").toLowerCase().includes("cociv"));
-        selectedState.destinatari = [idxCociv >= 0 ? idxCociv : 0];
+        selectedState.destinatari = [0];
       }
       if (!selectedState.materiali.length && hubData.materiali.length) {
-        const idxMeta = hubData.materiali.findIndex(m => String(m).toLowerCase().includes("metabasalti"));
-        selectedState.materiali = [idxMeta >= 0 ? idxMeta : 0];
+        selectedState.materiali = [0];
       }
-      if (!selectedState.trasportatori.length) {
-        ["MORELLO CARMELO", "AUTOSPED G S.p.A."].forEach(nome => {
-          const match = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome);
-          if (match) {
-            selectedState.trasportatori.push(match.denominazione);
-            const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
-            selectedState.targhePerAzienda[match.denominazione] = tObj ? [...tObj.targhe] : [];
-          }
-        });
+      if (!selectedState.trasportatori.length && hubData.trasportatori.length) {
+        const primo = hubData.trasportatori[0].denominazione;
+        selectedState.trasportatori = [primo];
+        const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === primo.trim());
+        selectedState.targhePerAzienda[primo] = tObj ? [...tObj.targhe] : [];
       }
 
+      renderPatternGiorni();
       renderTuttiIFlag();
       aggiornaAnteprimaPreventiveN();
       renderTrasportatoriETargheDaParte();
       ricalcolaCalendarioUnico();
+    }
 
-      document.getElementById("hub-sync-status").textContent =
-        `Aggiornato: ${hubData.siti_produzione.length} siti prod. • ${hubData.siti_destinazione.length} destinazioni • ${hubData.trasportatori.length} trasportatori • ${hubData.materiali.length} litologie`;
+    function renderPatternGiorni() {
+      const grid = document.getElementById("pattern-giorni-grid");
+      grid.innerHTML = DAY_NAMES.map((giorno, idx) => {
+        const defVal = idx < 6 ? 20 : 0;
+        return `
+          <div>
+            <label for="pat-unico-${idx}" class="block text-[10px] font-bold text-slate-400 mb-1">${giorno}</label>
+            <input type="number" min="0" id="pat-unico-${idx}" value="${defVal}"
+              class="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 rounded-lg px-2.5 py-1.5 text-white font-semibold text-right">
+          </div>
+        `;
+      }).join("");
     }
 
     function cambiaSitoPartenza(val) {
@@ -706,12 +571,8 @@
       const ulEl = document.getElementById("lista-anteprima-preventive");
       ulEl.innerHTML = "";
 
-      if (!partenza && selectedState.siti_destinazione.length === 0) {
-        badgeEl.textContent = "Scegli 1 sito di partenza e spunta 1 o più destinazioni";
-        return;
-      }
       if (!partenza) {
-        badgeEl.textContent = `Flaggate ${selectedState.siti_destinazione.length} destinazioni: manca il sito di partenza`;
+        badgeEl.textContent = "Seleziona 1 sito di partenza e almeno 1 destinazione";
         return;
       }
       if (n === 0) {
@@ -720,7 +581,6 @@
       }
 
       badgeEl.textContent = `1 partenza × ${n} destinazioni = ${n} ${n === 1 ? "comunicazione preventiva" : "comunicazioni preventive"}`;
-
       prevList.forEach(p => {
         const li = document.createElement("li");
         li.textContent = `Preventiva ${p.progressivo}/${p.totale}: ${p.partenza.denominazione} → ${p.destinazione.sito_wbs}`;
@@ -941,11 +801,11 @@
       const defaultPattern = [20, 20, 20, 20, 20, 20, 0];
 
       let html = `
-        <table class="w-full text-[11px] border-collapse border border-slate-800 rounded-lg overflow-hidden">
+        <table class="min-w-[820px] w-full text-[11px] border-collapse border border-slate-800 rounded-lg overflow-hidden">
           <thead class="bg-slate-900 text-slate-300">
             <tr>
               <th class="p-2 text-left border border-slate-800 w-36">Settimana</th>
-              ${DAY_NAMES.map(d => `<th class="p-2 text-center border border-slate-800">${d}</th>`).join("")}
+              ${DAY_NAMES.map(d => `<th class="p-2 text-center border border-slate-800 min-w-[96px]">${d}</th>`).join("")}
               <th class="p-2 text-right border border-slate-800 w-20">Viaggi</th>
               <th class="p-2 text-right border border-slate-800 w-24">Mc</th>
             </tr>
@@ -964,7 +824,7 @@
 
           return `
             <td class="p-1.5 border border-slate-800 align-top ${dimCls}">
-              <div class="flex items-center justify-between text-[10px] mb-1">
+              <div class="flex items-center justify-between gap-1 text-[10px] mb-1 whitespace-nowrap">
                 <span class="font-bold ${day.inRange ? "text-emerald-300" : "text-slate-500"}">${day.shortDate}</span>
                 <span class="text-slate-400" data-unico-mc-lbl="${day.iso}">${mcVal} mc</span>
               </div>
@@ -973,7 +833,7 @@
                 data-unico-week="${w.weekNumber}"
                 data-unico-dayidx="${dIdx}"
                 onchange="ricalcolaTotali()"
-                class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-white text-right font-semibold">
+                class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-white text-right font-semibold">
             </td>
           `;
         }).join("");
@@ -985,8 +845,8 @@
               <div class="text-[10px] font-normal text-slate-400">${w.days[0].shortDate} – ${w.days[6].shortDate}</div>
             </td>
             ${cellsHtml}
-            <td class="p-2 border border-slate-800 text-right font-extrabold text-white" id="unico-wk-v-${w.weekNumber}">${wkTrips}</td>
-            <td class="p-2 border border-slate-800 text-right font-extrabold text-sky-400" id="unico-wk-mc-${w.weekNumber}">${wkTrips * mcUnit} mc</td>
+            <td class="p-2 border border-slate-800 text-right font-extrabold text-white whitespace-nowrap" id="unico-wk-v-${w.weekNumber}">${wkTrips}</td>
+            <td class="p-2 border border-slate-800 text-right font-extrabold text-sky-400 whitespace-nowrap" id="unico-wk-mc-${w.weekNumber}">${wkTrips * mcUnit} mc</td>
           </tr>
         `;
       });
@@ -1066,7 +926,7 @@
     function preparaStampaPreventiva() {
       const preventive = getPreventiveDaGenerare();
       if (!preventive.length) {
-        alert("Seleziona un sito di partenza dal menu a tendina e spunta almeno una destinazione.");
+        alert("Seleziona un sito di partenza e almeno una destinazione.");
         return false;
       }
 
@@ -1081,17 +941,6 @@
       const destList = selectedState.destinatari.map(i => hubData.destinatari[i]).filter(Boolean);
       const matList = selectedState.materiali.map(i => hubData.materiali[i]).filter(Boolean);
 
-      const prodDenomHtml = prodList.map(x => x.denominazione).join(" / ");
-      const matHtml = matList.join(", ");
-      const prodDettagliHtml = prodList.map(p =>
-        `<strong>${p.denominazione}</strong><br>${p.indirizzo || ""} - CAP ${p.cap || ""} ${p.comune || ""}<br>P.IVA: ${p.piva || ""}`
-      ).join("<hr style='margin:2px 0; border:0; border-top:1px dashed #9ca3af;'>");
-
-      const destDettagliHtml = destList.map(d =>
-        `<strong>${d.denominazione}</strong><br>${d.indirizzo || ""} - CAP ${d.cap || ""} ${d.comune || ""}<br>P.IVA: ${d.piva || ""}`
-      ).join("<hr style='margin:2px 0; border:0; border-top:1px dashed #9ca3af;'>");
-
-      // Colonna sinistra: Trasportatori & Targhe messi da parte
       const traspSideHtml = selectedState.trasportatori.map(nome => {
         const tInfo = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome) || {};
         const plates = selectedState.targhePerAzienda[nome] || [];
@@ -1107,8 +956,7 @@
       let grandViaggi = 0;
       let grandMc = 0;
 
-      // Colonna destra: Cronoprogramma settimanale UNICO
-      const cronoRowsHtml = weeks.map(w => {
+      const cronoRowsHtml = weeks.map((w, idx) => {
         let wkTrips = 0;
         const dayCells = w.days.map(d => {
           const v = Object.prototype.hasOwnProperty.call(dayMap, d.iso) ? dayMap[d.iso] : 0;
@@ -1127,8 +975,13 @@
         grandViaggi += wkTrips;
         grandMc += wkMc;
 
+        const sideCell = idx === 0
+          ? `<td rowspan="${Math.max(weeks.length, 1)}" style="vertical-align:top;">${traspSideHtml}</td>`
+          : "";
+
         return `
           <tr>
+            ${sideCell}
             <td style="font-weight:700;">Settimana n. ${w.weekNumber}/${w.year}</td>
             ${dayCells}
             <td class="prev-num" style="font-weight:700;">${wkTrips}</td>
@@ -1147,70 +1000,23 @@
             <table class="prev-table">
               <tr>
                 <td colspan="18" class="prev-title">COMUNICAZIONE PREVENTIVA DEI TRASPORTI DEL MESE</td>
-                <td colspan="12" class="prev-center" style="font-weight:700;">Spett.le</td>
+                <td colspan="12" class="prev-center" style="font-weight:700;">Ministero dell'Ambiente e della Sicurezza Energetica</td>
               </tr>
               <tr>
-                <td colspan="18" class="prev-sub">ai sensi dell'art.11 all.6 del D.M. 161/2012 e del DVA-2014-14640 del 16/05/2014</td>
-                <td colspan="12" class="prev-center" style="font-weight:700;">Ministero dell'Ambiente e della sicurezza Energetica</td>
-              </tr>
-              <tr>
-                <td colspan="18" class="prev-center" style="font-weight:700;">Linea ferroviaria AV/AC Terzo Valico dei Giovi</td>
-                <td colspan="12" class="prev-center">Dipartimento Sviluppo Sostenibile (DiSS) - Direzione Generale Valutazione Ambientale (VA)</td>
-              </tr>
-              <tr>
-                <td colspan="18">Atti autorizzativi del Piano di Utilizzo: DVA-2013-0024380 del 24/10/2013 | DVA-2014-0038413 del 20/11/2014 | DVADEC-2015 del 16/09/2015 | DVA-2016-0000287 del 06/10/2016 | DVADEC-2017-309 del 31/10/2017 e DVADEC-2026-402 del 24/06/2026</td>
-                <td colspan="6" class="prev-center">VA@pec.mite.gov.it</td>
-                <td colspan="6" class="prev-center">per tramite CONSORZIO COCIV: pec@cociv.postecert.it</td>
-              </tr>
-              <tr>
-                <td colspan="18">Proponente del Piano di Utilizzo: Consorzio COCIV - Via R. Bianchi 40 - 16152 GENOVA</td>
-                <td colspan="4"><strong>Comunicazione n.:</strong></td>
-                <td colspan="8" style="font-weight:700;">${codBase}${codSuffix}</td>
-              </tr>
-              <tr>
-                <td colspan="6"><strong>PRODUTTORE MdS:</strong></td>
-                <td colspan="12">${prodDenomHtml}</td>
-                <td colspan="3"><strong>da</strong></td>
-                <td colspan="4">${startStr}</td>
-                <td colspan="2"><strong>a</strong></td>
-                <td colspan="3">${endStr}</td>
+                <td colspan="18" style="font-weight:700;">Comunicazione n.: ${codBase}${codSuffix}</td>
+                <td colspan="6"><strong>Da:</strong> ${startStr}</td>
+                <td colspan="6"><strong>A:</strong> ${endStr}</td>
               </tr>
               <tr>
                 <td colspan="15" class="prev-sec-hdr">SITO DI PARTENZA / PRODUZIONE</td>
                 <td colspan="15" class="prev-sec-hdr">SITO DI DESTINAZIONE</td>
               </tr>
               <tr>
-                <td colspan="4"><strong>Denominazione:</strong></td>
-                <td colspan="11">${sp.denominazione || ""}</td>
-                <td colspan="4"><strong>Sito o WBS:</strong></td>
-                <td colspan="11">${sd.sito_wbs || ""}</td>
+                <td colspan="15"><strong>${sp.denominazione || ""}</strong> — ${sp.indirizzo || ""} (${sp.cap || ""} ${sp.comune || ""})</td>
+                <td colspan="15"><strong>${sd.sito_wbs || ""}</strong> — ${sd.indirizzo || ""} (${sd.cap || ""} ${sd.comune || ""})</td>
               </tr>
               <tr>
-                <td colspan="4"><strong>Indirizzo:</strong></td>
-                <td colspan="6">${sp.indirizzo || ""}</td>
-                <td colspan="5"><strong>Materiale:</strong> ${matHtml}</td>
-                <td colspan="4"><strong>Indirizzo:</strong></td>
-                <td colspan="11">${sd.indirizzo || ""}</td>
-              </tr>
-              <tr>
-                <td colspan="2"><strong>CAP:</strong></td>
-                <td colspan="3">${sp.cap || ""}</td>
-                <td colspan="3"><strong>Comune:</strong></td>
-                <td colspan="7">${sp.comune || ""}</td>
-                <td colspan="2"><strong>CAP:</strong></td>
-                <td colspan="3">${sd.cap || ""}</td>
-                <td colspan="3"><strong>Comune:</strong></td>
-                <td colspan="7">${sd.comune || ""}</td>
-              </tr>
-              <tr>
-                <td colspan="10" class="prev-sec-hdr">Dati identificativi del produttore</td>
-                <td colspan="10" class="prev-sec-hdr">Dati identificativi del destinatario</td>
-                <td colspan="10" class="prev-sec-hdr">Riepilogo Trasportatori Selezionati</td>
-              </tr>
-              <tr>
-                <td colspan="10" style="vertical-align:top;">${prodDettagliHtml}</td>
-                <td colspan="10" style="vertical-align:top;">${destDettagliHtml}</td>
-                <td colspan="10" style="vertical-align:top;">${selectedState.trasportatori.join(" • ")}</td>
+                <td colspan="30"><strong>Produttori:</strong> ${prodList.map(p => p.denominazione).join(" / ")} | <strong>Destinatari:</strong> ${destList.map(d => d.denominazione).join(" / ")} | <strong>Materiali:</strong> ${matList.join(", ")}</td>
               </tr>
               <tr>
                 <td colspan="30" class="prev-sec-hdr">CRONOPROGRAMMA DEI TRASPORTI PREVISTI NEL MESE</td>
@@ -1233,19 +1039,13 @@
                   <th style="width:4.2%;">Mc</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td rowspan="${weeks.length}" style="vertical-align:top;">${traspSideHtml}</td>
-                  ${cronoRowsHtml.replace(/^<tr>/, "")}
-              </tbody>
+              <tbody>${cronoRowsHtml}</tbody>
             </table>
 
             <table class="prev-table" style="margin-top:3px;">
               <tr>
-                <td colspan="12"><strong>Totale numero di viaggi previsti:</strong></td>
-                <td colspan="3" class="prev-num" style="font-weight:700;">${grandViaggi}</td>
-                <td colspan="12"><strong>Totale quantità di materiale da scavo da trasportare (mc):</strong></td>
-                <td colspan="3" class="prev-num" style="font-weight:700;">${grandMc} mc</td>
+                <td colspan="15"><strong>Totale numero di viaggi previsti:</strong> ${grandViaggi}</td>
+                <td colspan="15"><strong>Totale quantità di materiale da scavo da trasportare (mc):</strong> ${grandMc} mc</td>
               </tr>
               <tr>
                 <td colspan="30" style="font-style:italic;">Nota: ${notaTxt}</td>
