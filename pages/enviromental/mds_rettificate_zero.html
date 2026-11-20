@@ -20,44 +20,20 @@
       border: 1px solid rgba(56, 189, 248, 0.35);
       box-shadow: 0 10px 25px -10px rgba(8, 145, 178, 0.45);
     }
-    .wire-hub-box {
-      background: linear-gradient(180deg, #134e63 0%, #0c3847 100%);
-      border: 1px solid rgba(34, 211, 238, 0.25);
-      border-radius: 0.75rem;
-      padding: 0.85rem 1rem;
-    }
-    .flag-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.36rem 0.58rem;
-      border-radius: 0.5rem;
-      background: rgba(6, 13, 24, 0.74);
-      border: 1px solid rgba(125, 211, 252, 0.18);
-      cursor: pointer;
-      transition: border-color 0.15s ease, background-color 0.15s ease;
-    }
-    .flag-item:hover {
-      border-color: rgba(52, 211, 153, 0.65);
-      background: rgba(16, 185, 129, 0.12);
-    }
-    .flag-item input[type="checkbox"] {
-      accent-color: #10b981;
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
 
     .cal-day-cell {
       position: relative;
-      min-height: 82px;
+      min-height: 92px;
       border: 1px solid #e2e8f0;
-      padding: 4px;
+      padding: 6px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       user-select: none;
+      transition: background-color 0.12s ease;
+    }
+    .cal-day-cell:not(.cal-day-other):hover {
+      background-color: #f0f9ff;
     }
     .cal-day-other {
       background-color: #f8fafc;
@@ -72,12 +48,12 @@
       background-color: #fef3c7 !important;
     }
     .cal-plus-btn {
-      width: 18px;
-      height: 18px;
-      border-radius: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
       background: #0f172a;
       color: #ffffff;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 900;
       line-height: 1;
       display: inline-flex;
@@ -89,7 +65,7 @@
     }
     .cal-plus-btn:hover {
       background: #0369a1;
-      transform: scale(1.06);
+      transform: scale(1.08);
     }
 
     #print-rett0-sheet { display: none; }
@@ -164,7 +140,7 @@
 <body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white" data-settore="E">
 
   <header class="no-print w-full bg-[#090d16]/95 border-b border-slate-800 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 py-2.5">
-    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <a href="mds_hub.html" class="flex items-center gap-2 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-full text-xs font-bold transition no-underline">
           <i class="fa-solid fa-arrow-left text-emerald-400"></i>
@@ -186,14 +162,14 @@
     </div>
   </header>
 
-  <main class="no-print flex-grow max-w-7xl w-full mx-auto px-4 sm:px-8 py-5 space-y-5">
+  <main class="no-print flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-5 space-y-5">
 
     <!-- BANNER SUPERIORE -->
     <section class="wire-banner rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2 text-white font-black tracking-wide uppercase text-sm sm:text-base">
         <span>RETTIFICATA A ZERO</span>
         <span class="text-xs font-bold text-cyan-100 normal-case">
-          — parte dai viaggi preventivati del giorno nella preventiva selezionata e li rettifica a zero
+          — seleziona la preventiva nel menù e clicca <strong>+</strong> sul giorno da rettificare a zero
         </span>
       </div>
       <div class="flex items-center gap-2 text-xs">
@@ -203,14 +179,14 @@
       </div>
     </section>
 
-    <!-- DOCUMENTO DI PREVENTIVA DI PARTENZA (BASE OBBLIGATORIA) -->
+    <!-- MENÙ A TENDINA DOCUMENTO DI PARTENZA -->
     <section class="bg-[#0b1220] border border-emerald-500/35 rounded-2xl p-4 space-y-3 text-xs">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
         <div class="flex items-center gap-2">
           <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
             Documento di Partenza
           </span>
-          <h2 class="text-sm font-black uppercase text-white">Preventiva di Riferimento</h2>
+          <h2 class="text-sm font-black uppercase text-white">Preventiva Importata</h2>
         </div>
         <span id="base-prev-meta" class="text-[11px] font-mono text-cyan-300"></span>
       </div>
@@ -218,7 +194,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-center">
         <div class="lg:col-span-5">
           <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">
-            Seleziona la preventiva creata da cui partire
+            Seleziona la preventiva creata
           </label>
           <select id="select-preventiva-base" onchange="cambiaPreventivaBase(this.value)" class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl px-3 py-2 text-white font-bold">
           </select>
@@ -245,116 +221,47 @@
       </div>
     </section>
 
-    <!-- GRIGLIA PRINCIPALE: SINISTRA CALENDARIO CON "+" & RETTIFICHE | DESTRA DATI EREDITATI DA PREVENTIVA -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-
-      <!-- COLONNA SINISTRA -->
-      <div class="lg:col-span-5 space-y-4">
-
-        <!-- CALENDARIO MENSILE CON I VIAGGI PREVENTIVATI E "+" IN ALTO A DESTRA -->
-        <div class="bg-white text-slate-800 rounded-xl border border-slate-300 shadow-lg overflow-hidden">
-          <div class="bg-slate-100 border-b border-slate-200 px-3 py-2 flex items-center justify-between">
-            <button type="button" onclick="spostaMese(-1)" class="w-7 h-7 rounded bg-white border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer">
-              <i class="fa-solid fa-angles-left text-xs"></i>
-            </button>
-            <div id="cal-header-title" class="text-xs font-extrabold text-slate-700">novembre 2026</div>
-            <button type="button" onclick="spostaMese(1)" class="w-7 h-7 rounded bg-white border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer">
-              <i class="fa-solid fa-angles-right text-xs"></i>
-            </button>
-          </div>
-
-          <div class="grid grid-cols-7 text-center text-[10px] font-bold text-slate-500 bg-slate-50 border-b border-slate-200 py-1">
-            <div>lunedì</div>
-            <div>martedì</div>
-            <div>mercoledì</div>
-            <div>giovedì</div>
-            <div>venerdì</div>
-            <div>sabato</div>
-            <div>domenica</div>
-          </div>
-
-          <div id="cal-month-grid" class="grid grid-cols-7 text-xs"></div>
-        </div>
-
-        <!-- ELENCO RETTIFICHE A ZERO GENERATE DALLA PREVENTIVA -->
-        <div class="bg-slate-950/85 border border-slate-800 rounded-xl p-4 space-y-2.5 text-xs">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span class="font-black uppercase text-[11px] text-amber-300">
-              <i class="fa-solid fa-ban mr-1"></i> Rettificate a Zero Create
-            </span>
-            <button type="button" onclick="svuotaRettifiche()" class="text-[10px] text-slate-400 hover:text-rose-400 cursor-pointer">
-              Svuota elenco
-            </button>
-          </div>
-          <div id="lista-rettificate-create" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
-        </div>
-
+    <!-- UNICAMENTE IL CALENDARIO A TUTTA LARGHEZZA -->
+    <section class="bg-white text-slate-800 rounded-2xl border border-slate-300 shadow-xl overflow-hidden">
+      <div class="bg-slate-100 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+        <button type="button" onclick="spostaMese(-1)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer">
+          <i class="fa-solid fa-angles-left text-xs"></i>
+        </button>
+        <div id="cal-header-title" class="text-sm sm:text-base font-black uppercase tracking-wide text-slate-800">novembre 2026</div>
+        <button type="button" onclick="spostaMese(1)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center cursor-pointer">
+          <i class="fa-solid fa-angles-right text-xs"></i>
+        </button>
       </div>
 
-      <!-- COLONNA DESTRA: CONTENUTO EREDITATO DALLA PREVENTIVA DI PARTENZA -->
-      <div class="lg:col-span-7 space-y-3 text-xs">
-
-        <div class="wire-hub-box space-y-2">
-          <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">Produttore del Materiale da Scavo</div>
-          </div>
-          <div id="flags-produttori" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
-        </div>
-
-        <div class="wire-hub-box space-y-2">
-          <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">Sito di Produzione del Materiale da Scavo</div>
-          </div>
-          <div id="flags-siti-prod" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
-        </div>
-
-        <div class="wire-hub-box space-y-2">
-          <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">Siti di Destino del Materiale da Scavo</div>
-          </div>
-          <div id="flags-siti-dest" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
-        </div>
-
-        <div class="wire-hub-box space-y-2">
-          <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">Destinatario / Gestore del Sito di Destino</div>
-          </div>
-          <div id="flags-destinatari" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
-        </div>
-
-        <div class="wire-hub-box space-y-2">
-          <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">Materiali da Scavo (Litologie)</div>
-          </div>
-          <div id="flags-materiali" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 pr-1"></div>
-        </div>
-
-        <div class="wire-hub-box space-y-2">
-          <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">Trasportatori Previsti nella Preventiva</div>
-          </div>
-          <div id="flags-trasportatori" class="max-h-24 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 pr-1"></div>
-        </div>
-
-        <div class="wire-hub-box space-y-2">
-          <div class="text-center leading-snug">
-            <div class="font-extrabold text-cyan-200 text-xs">&lt;&lt;ereditato da preventiva&gt;&gt;</div>
-            <div class="font-bold text-white text-xs sm:text-sm">Targhe Autorizzate dei Trasportatori Flaggati</div>
-          </div>
-          <div id="targhe-correlate-box" class="max-h-32 overflow-y-auto space-y-1.5 pr-1"></div>
-        </div>
-
+      <div class="grid grid-cols-7 text-center text-[11px] font-extrabold uppercase text-slate-600 bg-slate-50 border-b border-slate-200 py-2">
+        <div>lunedì</div>
+        <div>martedì</div>
+        <div>mercoledì</div>
+        <div>giovedì</div>
+        <div>venerdì</div>
+        <div>sabato</div>
+        <div>domenica</div>
       </div>
+
+      <div id="cal-month-grid" class="grid grid-cols-7 text-xs"></div>
     </section>
+
+    <!-- ELENCO RETTIFICHE A ZERO GENERATE DALLA PREVENTIVA -->
+    <section class="bg-slate-950/85 border border-slate-800 rounded-2xl p-4 space-y-3 text-xs">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span class="font-black uppercase text-xs text-amber-300">
+          <i class="fa-solid fa-ban mr-1.5"></i> Rettificate a Zero Create
+        </span>
+        <button type="button" onclick="svuotaRettifiche()" class="text-[11px] text-slate-400 hover:text-rose-400 cursor-pointer">
+          Svuota elenco
+        </button>
+      </div>
+      <div id="lista-rettificate-create" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    </section>
+
   </main>
 
-  <!-- AVVISO / MODALE "CREA RETTIFICATA A ZERO" PARTENDO DAI VIAGGI PREVENTIVATI -->
+  <!-- AVVISO / MODALE "CREA RETTIFICATA A ZERO" PARTENDO DAI DATI GIÀ IMPORTATI DALLA PREVENTIVA -->
   <div id="modal-rett-zero" class="no-print fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-[#0b1220] border border-cyan-400/40 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
@@ -370,26 +277,8 @@
         </button>
       </div>
 
-      <!-- BASE VIAGGI PREVENTIVATI QUEL GIORNO -->
-      <div id="modal-ereditata-box" class="bg-slate-950/90 border border-emerald-500/35 rounded-xl p-3 space-y-1.5 text-[11px]"></div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Sito di Produzione (Tratta)</label>
-          <select id="modal-sel-prod" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"></select>
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Sito di Destinazione (Tratta)</label>
-          <select id="modal-sel-dest" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white"></select>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">
-          Trasportatori coinvolti (non hanno effettuato trasporti in quel giorno)
-        </label>
-        <div id="modal-trasp-list" class="max-h-28 overflow-y-auto space-y-1 bg-slate-950/70 border border-slate-800 rounded-lg p-2"></div>
-      </div>
+      <!-- RIEPILOGO DATI GIÀ IMPORTATI DALLA PREVENTIVA -->
+      <div id="modal-ereditata-box" class="bg-slate-950/90 border border-emerald-500/35 rounded-xl p-3.5 space-y-1.5 text-[11px]"></div>
 
       <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
         <button type="button" onclick="chiudiAvvisoCreazione()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold cursor-pointer">
@@ -476,7 +365,7 @@
     let currentCalMonthIdx = 10;
     let activeModalIso = null;
 
-    let selectedHubFlags = {
+    let inheritedState = {
       produttori: [0],
       siti_produzione: [0],
       siti_destinazione: [0],
@@ -624,14 +513,12 @@
         sel.innerHTML = `<option value="">Nessuna preventiva trovata — crea prima una preventiva</option>`;
         activePrevBase = null;
         renderRiepilogoBase();
-        renderFlagsDestra();
-        renderTargheCorrelate();
         renderCalendario();
         return;
       }
 
       sel.innerHTML = preventiveBaseList.map(p =>
-        `<option value="${p.id}">${p.codice} — ${p.meseAnno} (${p.salvatoIl || "Preventiva"})</option>`
+        `<option value="${p.id}">${p.codice} — ${p.meseAnno}${p.salvatoIl ? ` (${p.salvatoIl})` : ""}</option>`
       ).join("");
 
       const chosenId = targetId && preventiveBaseList.some(p => p.id === targetId)
@@ -648,16 +535,26 @@
       currentCalYear = activePrevBase.year;
       currentCalMonthIdx = activePrevBase.monthIdx;
 
+      inheritedState = {
+        produttori: [0],
+        siti_produzione: [0],
+        siti_destinazione: [0],
+        destinatari: [0],
+        materiali: [0],
+        trasportatori: hubData.trasportatori.map(t => (t.denominazione || "").trim()).filter(Boolean),
+        targhePerAzienda: {}
+      };
+
       if (activePrevBase.selectedState) {
         const st = activePrevBase.selectedState;
-        if (Array.isArray(st.siti_produzione) && st.siti_produzione.length) selectedHubFlags.siti_produzione = [...st.siti_produzione];
-        if (Array.isArray(st.siti_destinazione) && st.siti_destinazione.length) selectedHubFlags.siti_destinazione = [...st.siti_destinazione];
-        if (Array.isArray(st.produttori) && st.produttori.length) selectedHubFlags.produttori = [...st.produttori];
-        if (Array.isArray(st.destinatari) && st.destinatari.length) selectedHubFlags.destinatari = [...st.destinatari];
-        if (Array.isArray(st.materiali) && st.materiali.length) selectedHubFlags.materiali = [...st.materiali];
+        if (Array.isArray(st.siti_produzione) && st.siti_produzione.length) inheritedState.siti_produzione = [...st.siti_produzione];
+        if (Array.isArray(st.siti_destinazione) && st.siti_destinazione.length) inheritedState.siti_destinazione = [...st.siti_destinazione];
+        if (Array.isArray(st.produttori) && st.produttori.length) inheritedState.produttori = [...st.produttori];
+        if (Array.isArray(st.destinatari) && st.destinatari.length) inheritedState.destinatari = [...st.destinatari];
+        if (Array.isArray(st.materiali) && st.materiali.length) inheritedState.materiali = [...st.materiali];
         if (Array.isArray(st.trasportatori) && st.trasportatori.length) {
-          selectedHubFlags.trasportatori = [...st.trasportatori];
-          selectedHubFlags.targhePerAzienda = JSON.parse(JSON.stringify(st.targhePerAzienda || {}));
+          inheritedState.trasportatori = [...st.trasportatori];
+          inheritedState.targhePerAzienda = JSON.parse(JSON.stringify(st.targhePerAzienda || {}));
         }
       }
 
@@ -665,8 +562,6 @@
         `Documento sorgente: ${activePrevBase.codice} • ${activePrevBase.meseAnno}`;
 
       renderRiepilogoBase();
-      renderFlagsDestra();
-      renderTargheCorrelate();
       renderCalendario();
     }
 
@@ -679,6 +574,15 @@
       const d = new Date(iso + "T00:00:00");
       const dayIdx = (d.getDay() + 6) % 7;
       return dayIdx < 6 ? (parseFloat(activePrevBase.viaggiGiornoDefault) || 20) : 0;
+    }
+
+    function getTrattaCorrenteLabel() {
+      if (activePrevBase?.rotte) return activePrevBase.rotte;
+      const sp = hubData.siti_produzione[inheritedState.siti_produzione[0]];
+      const sd = hubData.siti_destinazione[inheritedState.siti_destinazione[0]];
+      const spName = typeof sp === "string" ? sp : (sp?.denominazione || "");
+      const sdName = sd?.sito_wbs || "";
+      return `${spName} → ${sdName}`;
     }
 
     function renderRiepilogoBase() {
@@ -706,14 +610,8 @@
         if (zeroIsoSet.has(iso)) totZeroTrips += trips;
       }
 
-      const sp = hubData.siti_produzione[selectedHubFlags.siti_produzione[0]];
-      const sd = hubData.siti_destinazione[selectedHubFlags.siti_destinazione[0]];
-      const spName = typeof sp === "string" ? sp : (sp?.denominazione || "");
-      const sdName = sd?.sito_wbs || "";
-      const trattaTxt = activePrevBase.rotte || `${spName} → ${sdName}`;
-
       const resTrips = Math.max(0, totPrevTrips - totZeroTrips);
-      document.getElementById("sum-tratta").textContent = trattaTxt;
+      document.getElementById("sum-tratta").textContent = getTrattaCorrenteLabel();
       document.getElementById("sum-viaggi-prev").textContent = `${totPrevTrips}`;
       document.getElementById("sum-mc-prev").textContent = `${totPrevTrips * mcUnit} mc`;
       document.getElementById("sum-residuo").textContent = `${resTrips} v • ${resTrips * mcUnit} mc`;
@@ -762,11 +660,15 @@
       const cells = getMonthGridDays(currentCalYear, currentCalMonthIdx);
       const mcUnit = activePrevBase?.mcPerViaggio || 14;
 
-      const spIdx = selectedHubFlags.siti_produzione[0];
+      const spIdx = inheritedState.siti_produzione[0];
       const spObj = typeof spIdx === "number" ? hubData.siti_produzione[spIdx] : null;
       const siglaTag = spObj ? (typeof spObj === "string" ? spObj : (spObj.denominazione || "Prev.")) : "Prev.";
 
-      const zeroByDate = new Set(rettificheDocs.map(r => r.iso));
+      const zeroByDate = new Set(
+        rettificheDocs
+          .filter(r => !activePrevBase || r.preventivaId === activePrevBase.id)
+          .map(r => r.iso)
+      );
 
       document.getElementById("cal-month-grid").innerHTML = cells.map(c => {
         const isZero = c.inMonth && zeroByDate.has(c.iso);
@@ -784,16 +686,16 @@
         const numColor = c.dayOfWeekIdx === 6 ? "text-rose-500" : (c.inMonth ? "text-slate-700" : "text-slate-300");
 
         const plusBtnHtml = c.inMonth
-          ? `<button type="button" class="cal-plus-btn" title="Crea rettificata a zero dai viaggi preventivati" onclick="event.stopPropagation(); apriAvvisoCreazione('${c.iso}')">+</button>`
+          ? `<button type="button" class="cal-plus-btn" title="Crea rettificata a zero" onclick="event.stopPropagation(); apriAvvisoCreazione('${c.iso}')">+</button>`
           : `<span></span>`;
 
         let pillHtml = "";
         if (isZero) {
-          pillHtml = `<div class="mt-1 rounded bg-amber-200 border-l-2 border-amber-600 px-1 py-0.5 text-[9px] font-extrabold text-amber-950 leading-tight">
-            RETT. A 0 (era ${tripsPrev}v)
+          pillHtml = `<div class="mt-1.5 rounded bg-amber-200 border-l-2 border-amber-600 px-1.5 py-1 text-[10px] font-extrabold text-amber-950 leading-tight">
+            RETT. A ZERO (era ${tripsPrev}v)
           </div>`;
         } else if (c.inMonth && tripsPrev > 0) {
-          pillHtml = `<div class="mt-1 rounded bg-sky-100 border-l-2 border-sky-600 px-1 py-0.5 text-[9px] text-slate-800 leading-tight">
+          pillHtml = `<div class="mt-1.5 rounded bg-sky-100 border-l-2 border-sky-600 px-1.5 py-1 text-[10px] text-slate-800 leading-tight">
             <div class="font-bold truncate">${siglaTag}</div>
             <div class="font-extrabold text-sky-900">Prev: ${tripsPrev}v • ${mcPrev}mc</div>
           </div>`;
@@ -803,7 +705,7 @@
           <div class="${cls}" onclick="${c.inMonth ? `apriAvvisoCreazione('${c.iso}')` : ""}">
             <div class="flex items-start justify-between gap-1">
               ${plusBtnHtml}
-              <span class="text-[11px] font-bold ${numColor}">${c.dayNum}</span>
+              <span class="text-xs font-bold ${numColor}">${c.dayNum}</span>
             </div>
             ${pillHtml}
           </div>
@@ -813,7 +715,7 @@
 
     function apriAvvisoCreazione(iso) {
       if (!activePrevBase) {
-        alert("Seleziona o crea prima una preventiva di partenza.");
+        alert("Seleziona prima una preventiva dal menù a tendina.");
         return;
       }
 
@@ -829,41 +731,22 @@
       const prevTrips = getViaggiPreventivatiGiorno(iso);
       const prevMc = prevTrips * mcUnit;
 
+      const rawProd = hubData.siti_produzione[inheritedState.siti_produzione[0]] || DEFAULT_SITI_PRODUZIONE[0];
+      const prodName = typeof rawProd === "string" ? rawProd : (rawProd.denominazione || "");
+      const destObj = hubData.siti_destinazione[inheritedState.siti_destinazione[0]] || DEFAULT_SITI_DESTINAZIONE[0];
+      const traspNomi = inheritedState.trasportatori.join(", ") || "Tutti i trasportatori della preventiva";
+
       document.getElementById("modal-rett-title").textContent = `Crea rettificata a zero — ${estesa}`;
       document.getElementById("modal-rett-codice").textContent =
-        `Da preventiva: ${activePrevBase.codice} • Codice rettifica: ${codiceRet}`;
+        `Da preventiva: ${activePrevBase.codice} • Codice: ${codiceRet}`;
 
       document.getElementById("modal-ereditata-box").innerHTML = `
-        <div class="font-extrabold text-emerald-300">Base dalla preventiva (${activePrevBase.codice}):</div>
-        <div class="text-white">Viaggi preventivati nel giorno: <strong>${prevTrips} viaggi</strong> (<strong>${prevMc} mc</strong>)</div>
-        <div class="text-amber-300 font-bold">Rettifica applicata: <strong>0 viaggi / 0,0 mc</strong> (giornata senza conferimento materiale da scavo).</div>
+        <div class="font-extrabold text-emerald-300">Dati già importati dalla preventiva (${activePrevBase.codice}):</div>
+        <div class="text-slate-200"><strong>Tratta:</strong> ${prodName} → ${destObj.sito_wbs}</div>
+        <div class="text-slate-200"><strong>Trasportatori:</strong> ${traspNomi}</div>
+        <div class="text-slate-200"><strong>Programmazione del giorno:</strong> ${prevTrips} viaggi (${prevMc} mc)</div>
+        <div class="text-amber-300 font-bold pt-1">Confermando verrà generata la rettificata a zero (0 viaggi / 0,0 mc) per questa giornata.</div>
       `;
-
-      const selProd = document.getElementById("modal-sel-prod");
-      selProd.innerHTML = hubData.siti_produzione.map((sp, idx) => {
-        const denom = typeof sp === "string" ? sp : (sp.denominazione || "");
-        const sel = selectedHubFlags.siti_produzione.includes(idx) ? "selected" : "";
-        return `<option value="${idx}" ${sel}>${denom}</option>`;
-      }).join("");
-
-      const selDest = document.getElementById("modal-sel-dest");
-      selDest.innerHTML = hubData.siti_destinazione.map((sd, idx) => {
-        const sel = selectedHubFlags.siti_destinazione.includes(idx) ? "selected" : "";
-        return `<option value="${idx}" ${sel}>${sd.sito_wbs}</option>`;
-      }).join("");
-
-      const allTrasp = hubData.trasportatori.map(t => (t.denominazione || "").trim()).filter(Boolean);
-      const preChecked = selectedHubFlags.trasportatori.length ? selectedHubFlags.trasportatori : allTrasp;
-
-      document.getElementById("modal-trasp-list").innerHTML = allTrasp.map((nome, idx) => {
-        const chk = preChecked.includes(nome) ? "checked" : "";
-        return `
-          <label class="flex items-center gap-2 py-0.5 px-1.5 rounded hover:bg-slate-900 cursor-pointer">
-            <input type="checkbox" id="modal-trasp-chk-${idx}" value="${nome.replace(/"/g, "&quot;")}" ${chk} class="accent-amber-400">
-            <span class="text-slate-200 font-semibold">${nome}</span>
-          </label>
-        `;
-      }).join("");
 
       document.getElementById("modal-rett-zero").classList.remove("hidden");
     }
@@ -886,26 +769,21 @@
       const prevTrips = getViaggiPreventivatiGiorno(activeModalIso);
       const prevMc = prevTrips * mcUnit;
 
-      const prodIdx = parseInt(document.getElementById("modal-sel-prod").value, 10) || 0;
-      const destIdx = parseInt(document.getElementById("modal-sel-dest").value, 10) || 0;
-
-      const rawProd = hubData.siti_produzione[prodIdx] || DEFAULT_SITI_PRODUZIONE[0];
+      const rawProd = hubData.siti_produzione[inheritedState.siti_produzione[0]] || DEFAULT_SITI_PRODUZIONE[0];
       const prodObj = typeof rawProd === "string"
         ? { denominazione: rawProd, indirizzo: "", cap: "", comune: "" }
         : rawProd;
 
-      const destObj = hubData.siti_destinazione[destIdx] || DEFAULT_SITI_DESTINAZIONE[0];
+      const destObj = hubData.siti_destinazione[inheritedState.siti_destinazione[0]] || DEFAULT_SITI_DESTINAZIONE[0];
+      const produttoreObj = hubData.produttori[inheritedState.produttori[0]] || DEFAULT_PRODUTTORI[0];
+      const destinatarioObj = hubData.destinatari[inheritedState.destinatari[0]] || DEFAULT_DESTINATARI[0];
+      const materialeNome = hubData.materiali[inheritedState.materiali[0]] || "Materiale da scavo";
 
-      const chosenTrasp = [];
-      document.querySelectorAll('#modal-trasp-list input[type="checkbox"]:checked').forEach(cb => {
-        chosenTrasp.push(cb.value);
-      });
+      const traspListNomi = inheritedState.trasportatori.length
+        ? inheritedState.trasportatori
+        : hubData.trasportatori.map(t => (t.denominazione || "").trim()).filter(Boolean);
 
-      const produttoreObj = hubData.produttori[selectedHubFlags.produttori[0]] || DEFAULT_PRODUTTORI[0];
-      const destinatarioObj = hubData.destinatari[selectedHubFlags.destinatari[0]] || DEFAULT_DESTINATARI[0];
-      const materialeNome = hubData.materiali[selectedHubFlags.materiali[0]] || "Materiale da scavo";
-
-      const traspDettagli = (chosenTrasp.length ? chosenTrasp : selectedHubFlags.trasportatori).map(nome => {
+      const traspDettagli = traspListNomi.map(nome => {
         const found = hubData.trasportatori.find(t => (t.denominazione || "").trim() === nome) || {};
         return {
           denominazione: nome,
@@ -946,7 +824,7 @@
     function renderListaRettificate() {
       const wrap = document.getElementById("lista-rettificate-create");
       if (!rettificheDocs.length) {
-        wrap.innerHTML = `<div class="text-[11px] text-slate-500 text-center py-3">Nessuna rettificata a zero creata. Clicca il "+" su un giorno del calendario.</div>`;
+        wrap.innerHTML = `<div class="col-span-full text-[11px] text-slate-500 text-center py-3">Nessuna rettificata a zero creata. Clicca il "+" su un giorno del calendario.</div>`;
         return;
       }
 
@@ -957,9 +835,9 @@
             <span class="text-[10px] font-mono text-cyan-300">${doc.codiceRet}</span>
           </div>
           <div class="text-[10px] text-emerald-300 font-semibold">
-            Da preventiva: ${doc.preventivaCodice || "PRE"} (erano ${doc.viaggiPreventivati ?? 0} viaggi / ${doc.mcPreventivati ?? 0} mc → 0)
+            Da: ${doc.preventivaCodice || "PRE"} (${doc.viaggiPreventivati ?? 0}v / ${doc.mcPreventivati ?? 0}mc → 0)
           </div>
-          <div class="text-[11px] font-bold text-white">
+          <div class="text-[11px] font-bold text-white truncate">
             ${doc.sitoProduzione.denominazione} → ${doc.sitoDestinazione.sito_wbs}
           </div>
           <div class="flex items-center justify-end gap-2 pt-1">
@@ -996,98 +874,6 @@
       const n = rettificheDocs.length;
       document.getElementById("badge-rett-count").textContent = n;
       document.getElementById("rett-tot-zero-badge").textContent = `${n} ${n === 1 ? "giornata rettificata" : "giornate rettificate"}`;
-    }
-
-    function renderFlagsDestra() {
-      document.getElementById("flags-produttori").innerHTML = hubData.produttori.map((p, idx) => `
-        <label class="flag-item">
-          <input type="checkbox" ${selectedHubFlags.produttori.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('produttori', ${idx}, this.checked)">
-          <span class="truncate font-semibold text-white">${p.denominazione}</span>
-        </label>
-      `).join("");
-
-      document.getElementById("flags-siti-prod").innerHTML = hubData.siti_produzione.map((sp, idx) => {
-        const denom = typeof sp === "string" ? sp : (sp.denominazione || "");
-        return `
-          <label class="flag-item">
-            <input type="checkbox" ${selectedHubFlags.siti_produzione.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('siti_produzione', ${idx}, this.checked)">
-            <span class="truncate font-semibold text-white">${denom}</span>
-          </label>
-        `;
-      }).join("");
-
-      document.getElementById("flags-siti-dest").innerHTML = hubData.siti_destinazione.map((sd, idx) => `
-        <label class="flag-item">
-          <input type="checkbox" ${selectedHubFlags.siti_destinazione.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('siti_destinazione', ${idx}, this.checked)">
-          <span class="truncate font-semibold text-white">${sd.sito_wbs}</span>
-        </label>
-      `).join("");
-
-      document.getElementById("flags-destinatari").innerHTML = hubData.destinatari.map((d, idx) => `
-        <label class="flag-item">
-          <input type="checkbox" ${selectedHubFlags.destinatari.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('destinatari', ${idx}, this.checked)">
-          <span class="truncate font-semibold text-white">${d.denominazione}</span>
-        </label>
-      `).join("");
-
-      document.getElementById("flags-materiali").innerHTML = hubData.materiali.map((m, idx) => `
-        <label class="flag-item">
-          <input type="checkbox" ${selectedHubFlags.materiali.includes(idx) ? "checked" : ""} onchange="toggleSingleFlag('materiali', ${idx}, this.checked)">
-          <span class="truncate text-white">${m}</span>
-        </label>
-      `).join("");
-
-      document.getElementById("flags-trasportatori").innerHTML = hubData.trasportatori.map(t => {
-        const nome = (t.denominazione || "").trim();
-        const chk = selectedHubFlags.trasportatori.includes(nome) ? "checked" : "";
-        return `
-          <label class="flag-item">
-            <input type="checkbox" ${chk} onchange="toggleTraspFlag('${nome.replace(/'/g, "\\'")}', this.checked)">
-            <span class="truncate font-semibold text-white">${nome}</span>
-          </label>
-        `;
-      }).join("");
-    }
-
-    function toggleSingleFlag(key, idx, isChecked) {
-      if (isChecked) {
-        if (!selectedHubFlags[key].includes(idx)) selectedHubFlags[key].push(idx);
-      } else {
-        selectedHubFlags[key] = selectedHubFlags[key].filter(i => i !== idx);
-      }
-      renderRiepilogoBase();
-      if (key === "siti_produzione") renderCalendario();
-    }
-
-    function toggleTraspFlag(nome, isChecked) {
-      if (isChecked) {
-        if (!selectedHubFlags.trasportatori.includes(nome)) {
-          selectedHubFlags.trasportatori.push(nome);
-          const tObj = hubData.targhe_per_azienda.find(x => (x.azienda || "").trim() === nome);
-          selectedHubFlags.targhePerAzienda[nome] = tObj ? [...tObj.targhe] : [];
-        }
-      } else {
-        selectedHubFlags.trasportatori = selectedHubFlags.trasportatori.filter(n => n !== nome);
-      }
-      renderTargheCorrelate();
-    }
-
-    function renderTargheCorrelate() {
-      const box = document.getElementById("targhe-correlate-box");
-      if (!selectedHubFlags.trasportatori.length) {
-        box.innerHTML = `<div class="text-[11px] text-cyan-100/70 text-center">Nessun trasportatore selezionato nella preventiva.</div>`;
-        return;
-      }
-
-      box.innerHTML = selectedHubFlags.trasportatori.map(nome => {
-        const plates = selectedHubFlags.targhePerAzienda[nome] || [];
-        return `
-          <div class="bg-slate-950/75 border border-cyan-300/20 rounded-lg p-2">
-            <div class="font-bold text-emerald-300 text-[11px]">${nome}</div>
-            <div class="text-[10px] text-cyan-100 font-mono mt-0.5">${plates.join(" • ") || "Nessuna targa"}</div>
-          </div>
-        `;
-      }).join("");
     }
 
     function formatIndirizzoCapComune(obj) {
